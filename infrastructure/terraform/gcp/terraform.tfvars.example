@@ -1,0 +1,56 @@
+# Agent47 GCP Terraform Variables Example
+# Copy this file to terraform.tfvars and update the values
+
+# GCP Configuration
+gcp_project_id = "your-gcp-project-id"
+gcp_region     = "us-central1"
+gcp_zone       = "us-central1-a"
+
+# Project Configuration
+project_name = "agent47"
+environment  = "prod"  # dev, staging, prod
+domain_name  = "agent47.com"  # Your domain name
+
+# VPC Configuration
+vpc_cidr                = "10.0.0.0/16"
+public_subnet_cidrs     = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs    = ["10.0.10.0/24", "10.0.20.0/24"]
+
+# Kubernetes Configuration
+kubernetes_version = "1.28"
+node_instance_type = "e2-medium"  # e2-small for dev, e2-standard-4 for prod
+node_count         = 3
+min_node_count     = 2
+max_node_count     = 10
+
+# Supabase Configuration
+supabase_project_id        = "your-supabase-project-id"
+supabase_api_url          = "https://your-project-id.supabase.co"
+supabase_anon_key         = "your-supabase-anon-key"
+supabase_service_role_key = "your-supabase-service-role-key"
+
+# Database Configuration
+db_name = "agent47_db"
+
+# Redis Configuration (optional - Supabase can handle caching)
+redis_enabled = false
+
+# Monitoring Configuration
+enable_monitoring = true
+enable_logging    = true
+alert_email       = "your-email@example.com"
+
+# Security Configuration
+enable_private_nodes      = true
+enable_workload_identity  = true
+
+# Cost Optimization
+enable_spot_instances = false  # Set to true for cost savings in dev
+enable_autoscaling    = true
+
+# Backup Configuration
+backup_retention_days = 7
+
+# Scaling Configuration
+cpu_threshold    = 70
+memory_threshold = 80

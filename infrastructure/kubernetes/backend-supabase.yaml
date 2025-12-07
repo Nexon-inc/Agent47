@@ -1,0 +1,192 @@
+# Backend Deployment with Supabase Integration
+# This file contains the updated backend deployment for Supabase
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: agent47
+  labels:
+    app: backend
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # Zero-downtime: always have at least 3 pods running
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+        version: v1
+    spec:
+      containers:
+      - name: backend
+        image: agent47/backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        # Supabase Configuration
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_db_url
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        - name: SUPABASE_STORAGE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_URL
+        - name: SUPABASE_REALTIME_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_REALTIME_URL
+        - name: SUPABASE_AUTH_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_AUTH_URL
+        
+        # Application Configuration
+        - name: ENVIRONMENT
+          value: "production"
+        - name: DEBUG
+          value: "false"
+        - name: HOST
+          value: "0.0.0.0"
+        - name: PORT
+          value: "8000"
+        
+        # Remove PostgreSQL and Redis environment variables
+        # (These are now handled by Supabase)
+        
+        # Keep other services
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
+        - name: CHROMA_HOST
+          value: "chromadb"
+        - name: CHROMA_PORT
+          value: "8000"
+        
+        # AI Services
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: chutes-api-key
+        - name: CHUTES_API_URL
+          value: "https://llm.chutes.ai/v1"
+        
+        # Grok LLM
+        - name: GROK_API_URL
+          value: "http://grok-llm:8001"
+        
+        # Other API keys
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: openai-api-key
+        
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        
+        volumeMounts:
+        - name: uploads
+          mountPath: /app/uploads
+      
+      volumes:
+      - name: uploads
+        emptyDir: {}
+      
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: agent47
+  labels:
+    app: backend
+spec:
+  selector:
+    app: backend
+  ports:
+  - name: http
+    port: 8000
+    targetPort: 8000
+  type: ClusterIP
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+  namespace: agent47
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

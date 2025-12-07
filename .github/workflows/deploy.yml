@@ -1,0 +1,114 @@
+name: Zero-Downtime Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      component:
+        description: 'Component to deploy'
+        required: true
+        type: choice
+        options:
+          - all
+          - backend
+          - frontend
+          - agents
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
+    
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker --quiet
+    
+    - name: Set image tag
+      id: image-tag
+      run: echo "IMAGE_TAG=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+    
+    - name: Build and push images
+      run: |
+        GCR_REGISTRY="gcr.io/${{ secrets.GCP_PROJECT_ID }}"
+        IMAGE_TAG="${{ steps.image-tag.outputs.IMAGE_TAG }}"
+        
+        # Build backend if needed
+        if [[ "${{ github.event.inputs.component }}" == "all" || "${{ github.event.inputs.component }}" == "backend" ]]; then
+          docker build -t $GCR_REGISTRY/agent47-backend:$IMAGE_TAG ./backend
+          docker push $GCR_REGISTRY/agent47-backend:$IMAGE_TAG
+        fi
+        
+        # Build frontend if needed
+        if [[ "${{ github.event.inputs.component }}" == "all" || "${{ github.event.inputs.component }}" == "frontend" ]]; then
+          docker build -t $GCR_REGISTRY/agent47-frontend:$IMAGE_TAG ./frontend
+          docker push $GCR_REGISTRY/agent47-frontend:$IMAGE_TAG
+        fi
+        
+        # Build agents if needed
+        if [[ "${{ github.event.inputs.component }}" == "all" || "${{ github.event.inputs.component }}" == "agents" ]]; then
+          AGENTS=("aria" "clara" "eric" "jackie" "joe" "purity" "shakes")
+          for agent in "${AGENTS[@]}"; do
+            docker build -t $GCR_REGISTRY/agent47-$agent-agent:$IMAGE_TAG ./backend/agents/$agent
+            docker push $GCR_REGISTRY/agent47-$agent-agent:$IMAGE_TAG
+          done
+        fi
+    
+    - name: Get GKE credentials
+      run: |
+        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} \
+          --region ${{ secrets.GKE_REGION }} \
+          --project ${{ secrets.GCP_PROJECT_ID }}
+    
+    - name: Run zero-downtime deployment
+      run: |
+        GCR_REGISTRY="gcr.io/${{ secrets.GCP_PROJECT_ID }}"
+        IMAGE_TAG="${{ steps.image-tag.outputs.IMAGE_TAG }}"
+        COMPONENT="${{ github.event.inputs.component }}"
+        
+        chmod +x infrastructure/scripts/zero-downtime-deploy.sh
+        
+        case $COMPONENT in
+          backend)
+            ./infrastructure/scripts/zero-downtime-deploy.sh backend $GCR_REGISTRY/agent47-backend:$IMAGE_TAG
+            ;;
+          frontend)
+            ./infrastructure/scripts/zero-downtime-deploy.sh frontend $GCR_REGISTRY/agent47-frontend:$IMAGE_TAG
+            ;;
+          agents)
+            ./infrastructure/scripts/zero-downtime-deploy.sh agents $GCR_REGISTRY
+            ;;
+          all)
+            ./infrastructure/scripts/zero-downtime-deploy.sh all $GCR_REGISTRY
+            ;;
+        esac
+    
+    - name: Verify deployment
+      run: |
+        echo "=== Deployment Status ==="
+        kubectl get deployments -n agent47
+        echo ""
+        echo "=== Pod Status ==="
+        kubectl get pods -n agent47
+        echo ""
+        echo "=== Service Status ==="
+        kubectl get services -n agent47
+

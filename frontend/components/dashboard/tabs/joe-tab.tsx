@@ -1,0 +1,552 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Search,
+  TrendingUp,
+  Users,
+  Target,
+  BarChart3,
+  Clock,
+  RefreshCw,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Play,
+  Pause,
+  Settings,
+  Zap,
+  Activity,
+  MessageSquare,
+  Calendar,
+  DollarSign,
+  Hash,
+  Heart,
+  Share2,
+  Bookmark,
+  Filter,
+  Download,
+  Upload,
+  Mic,
+  MicOff,
+  Send,
+  Sparkles,
+  Crown,
+  Lock,
+  Unlock,
+  Wifi,
+  WifiOff,
+  AlertTriangle,
+  Info,
+  TrendingDown,
+  ArrowUp,
+  ArrowDown,
+  Minus,
+  Plus,
+  Edit,
+  Copy,
+  Trash2,
+  MoreHorizontal,
+  ExternalLink,
+  Link,
+  ImageIcon,
+  Video,
+  FileText,
+  Music,
+  Map,
+  ShoppingCart,
+  CreditCard,
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Laptop,
+  Headphones,
+  Megaphone,
+} from "lucide-react"
+import { useAuthStore } from "@/lib/stores/auth-store"
+import { useUserStore } from "@/lib/stores/user-store"
+import { apiClient } from "@/lib/api-client"
+
+interface Keyword {
+  id: string
+  keyword: string
+  search_volume: number
+  difficulty: number
+  cpc: number
+  position: number
+  traffic: number
+  created_at: string
+  updated_at: string
+  tags: string[]
+}
+
+interface AnalyticsData {
+  total_keywords: number
+  ranking_keywords: number
+  average_position: number
+  total_traffic: number
+  organic_traffic: number
+  click_through_rate: number
+  conversion_rate: number
+  revenue: number
+  by_difficulty: Record<string, number>
+  by_volume: Record<string, number>
+  top_keywords: Array<{
+    keyword: string
+    traffic: number
+    position: number
+  }>
+  competitor_analysis: Record<string, any>
+  trend_analysis: Record<string, any>
+}
+
+interface Task {
+  id: string
+  title: string
+  description: string
+  status: string
+  priority: string
+  due_date: string
+  created_at: string
+  completed_at?: string
+  agent_id: string
+  user_id: string
+  metadata: Record<string, any>
+}
+
+interface TaskSummary {
+  id: string
+  title: string
+  summary: string
+  status: string
+  created_at: string
+  completed_at?: string
+  metrics: Record<string, any>
+  next_steps: string[]
+}
+
+export default function JoeTab() {
+  const { user } = useAuthStore()
+  const { userPlan } = useUserStore()
+  
+  const [isLoadingData, setIsLoadingData] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  
+  // Data state
+  const [keywords, setKeywords] = useState<Keyword[]>([])
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [taskSummaries, setTaskSummaries] = useState<TaskSummary[]>([])
+  
+  // Settings state
+  const [automateEnabled, setAutomateEnabled] = useState(false)
+  const [customInstructions, setCustomInstructions] = useState("")
+  const [isSavingSettings, setIsSavingSettings] = useState(false)
+
+  // Load data on mount
+  useEffect(() => {
+    loadJoeData()
+    loadJoeSettings()
+  }, [])
+
+  // Subscribe to real-time task updates via WebSocket
+  useEffect(() => {
+    const { websocketService } = require('@/lib/websocket-service')
+    
+    if (!websocketService.getConnectionStatus()) {
+      websocketService.connect()
+    }
+
+    const unsubscribe = websocketService.subscribe('task_update', (message) => {
+      if (message.data?.agent_id === 'joe' || message.data?.agent_key === 'joe') {
+        loadJoeData()
+      }
+    })
+
+    return () => unsubscribe()
+  }, [])
+
+  const loadJoeData = async () => {
+    try {
+      setIsLoadingData(true)
+      setIsRefreshing(true)
+      
+      // Load all data in parallel
+      const [keywordsResponse, analyticsResponse, tasksResponse, summariesResponse] = await Promise.all([
+        apiClient.get("/api/agents/joe/keywords").catch(() => ({ data: [] })),
+        apiClient.get("/api/agents/joe/analytics/summary").catch(() => ({ data: null })),
+        apiClient.get("/api/agents/joe/tasks").catch(() => ({ data: [] })),
+        apiClient.get("/api/agents/joe/task-summaries").catch(() => ({ data: [] }))
+      ])
+      
+      setKeywords(keywordsResponse.data || [])
+      setAnalyticsData(analyticsResponse.data)
+      setTasks(tasksResponse.data || [])
+      setTaskSummaries(summariesResponse.data || [])
+      setLastUpdated(new Date())
+      
+    } catch (error) {
+      console.error("Failed to load Joe data:", error)
+    } finally {
+      setIsLoadingData(false)
+      setIsRefreshing(false)
+    }
+  }
+
+  const loadJoeSettings = async () => {
+    try {
+      const [automateResponse, instructionsResponse] = await Promise.all([
+        apiClient.get("/api/agents/joe/settings/automate").catch(() => ({ data: { enabled: false } })),
+        apiClient.get("/api/agents/joe/settings/instructions").catch(() => ({ data: { instructions: "" } }))
+      ])
+      
+      setAutomateEnabled(automateResponse.data?.enabled || false)
+      setCustomInstructions(instructionsResponse.data?.instructions || "")
+    } catch (error) {
+      console.error("Failed to load Joe settings:", error)
+    }
+  }
+
+  const handleAutomateToggle = async (enabled: boolean) => {
+    try {
+      setIsSavingSettings(true)
+      await apiClient.put("/api/agents/joe/settings/automate", { enabled })
+      setAutomateEnabled(enabled)
+    } catch (error) {
+      console.error("Failed to update automate setting:", error)
+    } finally {
+      setIsSavingSettings(false)
+    }
+  }
+
+  const handleSaveInstructions = async () => {
+    try {
+      setIsSavingSettings(true)
+      await apiClient.put("/api/agents/joe/settings/instructions", { instructions: customInstructions })
+    } catch (error) {
+      console.error("Failed to save custom instructions:", error)
+    } finally {
+      setIsSavingSettings(false)
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "active": return "bg-green-100 text-green-800"
+      case "paused": return "bg-yellow-100 text-yellow-800"
+      case "error": return "bg-red-100 text-red-800"
+      default: return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "high": return "bg-red-100 text-red-800"
+      case "medium": return "bg-yellow-100 text-yellow-800"
+      case "low": return "bg-green-100 text-green-800"
+      default: return "bg-gray-100 text-gray-800"
+    }
+  }
+
+  if (isLoadingData) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading Joe data...</span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-indigo-100 rounded-lg">
+            <Search className="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Joe - SEO Agent</h2>
+            <p className="text-gray-600">AI-powered SEO optimization and keyword research</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadJoeData}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+          {lastUpdated && (
+            <span className="text-sm text-gray-500">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Settings Panel */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Settings className="h-5 w-5" />
+            <span>Agent Settings</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="automate" className="text-sm font-medium">
+                Automate
+              </Label>
+              <p className="text-sm text-gray-600">
+                Enable automatic SEO optimization and keyword research
+              </p>
+            </div>
+            <Switch
+              id="automate"
+              checked={automateEnabled}
+              onCheckedChange={handleAutomateToggle}
+              disabled={isSavingSettings}
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="instructions" className="text-sm font-medium">
+              Custom Instructions
+            </Label>
+            <Textarea
+              id="instructions"
+              placeholder="Enter custom instructions for Joe to follow..."
+              value={customInstructions}
+              onChange={(e) => setCustomInstructions(e.target.value)}
+              rows={3}
+            />
+            <Button
+              size="sm"
+              onClick={handleSaveInstructions}
+              disabled={isSavingSettings}
+            >
+              {isSavingSettings ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+              )}
+              Save Instructions
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Analytics Overview */}
+      {analyticsData && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Search className="h-8 w-8 text-indigo-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Total Keywords</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analyticsData.total_keywords.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <TrendingUp className="h-8 w-8 text-green-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Organic Traffic</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analyticsData.organic_traffic.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <Target className="h-8 w-8 text-purple-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Avg Position</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {analyticsData.average_position.toFixed(1)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center">
+                <DollarSign className="h-8 w-8 text-orange-600" />
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Revenue</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    ${analyticsData.revenue.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Top Keywords */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Search className="h-5 w-5" />
+            <span>Top Keywords</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {keywords.length > 0 ? (
+            <div className="space-y-4">
+              {keywords.slice(0, 5).map((keyword) => (
+                <div key={keyword.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">{keyword.keyword}</h3>
+                    <div className="flex items-center space-x-2">
+                      <Badge className="bg-blue-100 text-blue-800">
+                        Position {keyword.position}
+                      </Badge>
+                      <span className="text-sm font-medium">{keyword.traffic} traffic</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>Volume: {keyword.search_volume.toLocaleString()}</span>
+                    <span>Difficulty: {keyword.difficulty}/100</span>
+                    <span>CPC: ${keyword.cpc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No keywords found</p>
+              <p className="text-sm text-gray-500">Keywords will appear here when Joe researches them</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Active Tasks */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Target className="h-5 w-5" />
+            <span>Active Tasks</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {tasks.length > 0 ? (
+            <div className="space-y-4">
+              {tasks.filter(task => task.status !== 'completed').slice(0, 5).map((task) => (
+                <div key={task.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">{task.title}</h3>
+                    <div className="flex items-center space-x-2">
+                      <Badge className={getPriorityColor(task.priority)}>
+                        {task.priority}
+                      </Badge>
+                      <Badge className={getStatusColor(task.status)}>
+                        {task.status}
+                      </Badge>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                  <div className="flex items-center justify-between text-sm text-gray-500">
+                    <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
+                    {task.due_date && (
+                      <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No active tasks</p>
+              <p className="text-sm text-gray-500">Tasks will appear here when Joe creates them</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Task Summaries */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <FileText className="h-5 w-5" />
+            <span>Task Summaries</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {taskSummaries.length > 0 ? (
+            <div className="space-y-4">
+              {taskSummaries.slice(0, 3).map((summary) => (
+                <div key={summary.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">{summary.title}</h3>
+                    <Badge className={getStatusColor(summary.status)}>
+                      {summary.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">{summary.summary}</p>
+                  {summary.next_steps && summary.next_steps.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">Next Steps:</p>
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        {summary.next_steps.map((step, index) => (
+                          <li key={index} className="flex items-center space-x-2">
+                            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div className="mt-3 text-sm text-gray-500">
+                    Created: {new Date(summary.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No task summaries</p>
+              <p className="text-sm text-gray-500">Summaries will appear here when tasks are completed</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

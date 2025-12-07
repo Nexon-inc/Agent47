@@ -1,0 +1,86 @@
+# Supabase Configuration for Agent47
+# This file contains the configuration for Supabase project setup
+
+project_id: agent47
+name: Agent47 Multi-Agent AI Platform
+organization_id: your-org-id
+
+# Database Configuration
+db:
+  major_version: 15
+  port: 54322
+  database_name: postgres
+  schema: public
+
+# API Configuration
+api:
+  port: 54321
+  schemas:
+    - public
+    - storage
+    - graphql_public
+  extra_search_path:
+    - public
+    - extensions
+  max_rows: 1000
+
+# Studio Configuration
+studio:
+  port: 54323
+  api_url: http://localhost:54321
+
+# Inbucket Configuration (for email testing)
+inbucket:
+  port: 54324
+  smtp_port: 54325
+  pop3_port: 54326
+
+# Storage Configuration
+storage:
+  file_size_limit: 52428800  # 50MB
+  enabled: true
+
+# Auth Configuration
+auth:
+  site_url: http://localhost:3000
+  additional_redirect_urls:
+    - http://localhost:8000
+    - https://your-domain.com
+    - https://api.your-domain.com
+  jwt_expiry: 3600
+  refresh_token_rotation_enabled: true
+  secure_password_change_enabled: true
+  enable_signup: true
+  enable_anonymous_users: false
+
+# Edge Functions Configuration
+edge_functions:
+  enabled: true
+  port: 54325
+
+# Realtime Configuration
+realtime:
+  enabled: true
+  port: 54326
+
+# Analytics Configuration
+analytics:
+  enabled: true
+  port: 54327
+
+# Logging Configuration
+logging:
+  level: info
+  format: json
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 7
+
+# Security Configuration
+security:
+  enable_rls: true
+  enable_audit_logs: true
+  enable_api_keys: true

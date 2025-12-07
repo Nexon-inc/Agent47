@@ -1,0 +1,150 @@
+# Google Cloud Build Configuration for Agent47
+# This file is used for automated builds and deployments from GitHub
+
+steps:
+  # =============================================================================
+  # BUILD BACKEND IMAGE
+  # =============================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-backend'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:${SHORT_SHA}'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:latest'
+      - '-f'
+      - 'backend/Dockerfile'
+      - '.'
+    waitFor: ['-']
+
+  # =============================================================================
+  # PUSH BACKEND IMAGE
+  # =============================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-backend'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:${SHORT_SHA}'
+    waitFor: ['build-backend']
+
+  # =============================================================================
+  # DEPLOY BACKEND TO CLOUD RUN
+  # =============================================================================
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-backend'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'agent47-backend'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:${SHORT_SHA}'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--service-account'
+      - 'agent47-run@${PROJECT_ID}.iam.gserviceaccount.com'
+      - '--set-env-vars'
+      - 'ENVIRONMENT=production,DEBUG=false'
+      - '--set-secrets'
+      - 'SUPABASE_URL=supabase-url:latest,SUPABASE_ANON_KEY=supabase-anon-key:latest,SUPABASE_SERVICE_KEY=supabase-service-key:latest,JWT_SECRET=jwt-secret:latest,GEMINI_API_KEY=gemini-api-key:latest'
+      - '--memory'
+      - '2Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '300'
+      - '--max-instances'
+      - '10'
+      - '--min-instances'
+      - '0'
+      - '--project'
+      - '${PROJECT_ID}'
+    waitFor: ['push-backend']
+
+  # =============================================================================
+  # BUILD FRONTEND IMAGE
+  # =============================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-frontend'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/frontend:${SHORT_SHA}'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/frontend:latest'
+      - '-f'
+      - 'frontend/Dockerfile'
+      - 'frontend'
+    waitFor: ['-']
+
+  # =============================================================================
+  # PUSH FRONTEND IMAGE
+  # =============================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-frontend'
+    args:
+      - 'push'
+      - '--all-tags'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/frontend:${SHORT_SHA}'
+    waitFor: ['build-frontend']
+
+  # =============================================================================
+  # DEPLOY FRONTEND TO CLOUD RUN
+  # =============================================================================
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'deploy-frontend'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'agent47-frontend'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/frontend:${SHORT_SHA}'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'NEXT_PUBLIC_API_URL=https://agent47-backend-${PROJECT_ID}-uc.a.run.app,NEXT_PUBLIC_SUPABASE_URL=${_SUPABASE_URL},NEXT_PUBLIC_SUPABASE_ANON_KEY=${_SUPABASE_ANON_KEY}'
+      - '--memory'
+      - '1Gi'
+      - '--cpu'
+      - '1'
+      - '--timeout'
+      - '300'
+      - '--max-instances'
+      - '5'
+      - '--min-instances'
+      - '0'
+      - '--project'
+      - '${PROJECT_ID}'
+    waitFor: ['push-frontend']
+
+# =============================================================================
+# SUBSTITUTIONS
+# =============================================================================
+# These can be set in Cloud Build trigger configuration or via substitutions
+# Note: _BACKEND_URL will be automatically set after backend deployment
+substitutions:
+  _SUPABASE_URL: 'https://your-project.supabase.co'
+  _SUPABASE_ANON_KEY: 'your-anon-key'
+  _BACKEND_URL: ''  # Will be set dynamically or via trigger config
+
+# =============================================================================
+# OPTIONS
+# =============================================================================
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+# =============================================================================
+# TIMEOUT
+# =============================================================================
+timeout: '1800s'  # 30 minutes
+

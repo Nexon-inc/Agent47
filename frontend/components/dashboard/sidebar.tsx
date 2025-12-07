@@ -1,0 +1,152 @@
+"use client"
+
+import Link from "next/link"
+import { useSearchParams } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
+import {
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+  SidebarRail,
+} from "@/components/ui/sidebar"
+import { useAuthStore } from "@/lib/stores/auth-store"
+
+import { Home, BarChart3, Globe, Zap, Settings, Inbox, Users, LogOut, Bot, History, UserPlus } from "lucide-react"
+
+const navigationItems = [
+  {
+    title: "Dashboard",
+    icon: Home,
+    href: "/dashboard?tab=home",
+  },
+  // Calendar moved under Tools & Automation section per requirements
+  {
+    title: "Team Management",
+    icon: UserPlus,
+    href: "/dashboard?tab=team-management",
+  },
+  {
+    title: "Inbox",
+    icon: Inbox,
+    href: "/dashboard?tab=inbox",
+  },
+  {
+    title: "AI Agents",
+    icon: Bot,
+    href: "/dashboard?tab=agents-overview",
+  },
+  {
+    title: "History",
+    icon: History,
+    href: "/dashboard?tab=history",
+  },
+  {
+    title: "Platforms",
+    icon: Globe,
+    href: "/dashboard?tab=platforms-overview",
+  },
+  {
+    title: "Tools & Automation",
+    icon: Zap,
+    href: "/dashboard?tab=tools-automation-overview",
+  },
+  {
+    title: "Analytics",
+    icon: BarChart3,
+    href: "/dashboard?tab=analytics",
+  },
+  {
+    title: "Account",
+    icon: Settings,
+    href: "/dashboard?tab=account-overview",
+  },
+]
+
+export default function DashboardSidebar() {
+  const searchParams = useSearchParams()
+  const currentTab = searchParams.get("tab") ?? "home"
+  const { user } = useAuthStore()
+
+  const isActive = (href: string) => {
+    const tab = new URLSearchParams(href.split("?")[1]).get("tab")
+    return tab === currentTab
+  }
+
+  return (
+    <Sidebar collapsible="icon" className="border-r">
+      <SidebarHeader className="border-b p-4">
+        <Link href="/dashboard?tab=home" prefetch={true} className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shrink-0">
+            <span className="text-white font-bold text-sm">47</span>
+          </div>
+          <span className="text-slate-900 font-bold text-xl group-data-[collapsible=icon]:hidden">
+            Agent<span className="text-green-500">47</span>
+          </span>
+        </Link>
+
+      </SidebarHeader>
+
+      <SidebarContent className="p-2">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={isActive(item.href)}
+                    className={cn(
+                      "group flex items-center px-3 py-2.5 rounded-lg relative transition-all duration-200 w-full",
+                      isActive(item.href)
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+                    )}
+                  >
+                    <Link href={item.href} prefetch={true} className="flex items-center w-full">
+                      <item.icon
+                        className={cn(
+                          "h-5 w-5 shrink-0",
+                          isActive(item.href)
+                            ? "text-green-600"
+                            : "text-slate-500",
+                        )}
+                      />
+                      <span className="ml-3 truncate group-data-[collapsible=icon]:hidden">{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="border-t p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip="Sign Out"
+              className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
+            >
+              <Link href="/auth" prefetch={true} className="flex items-center w-full">
+                <LogOut className="h-5 w-5 shrink-0" />
+                <span className="ml-3 group-data-[collapsible=icon]:hidden">Sign Out</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+
+      <SidebarRail />
+    </Sidebar>
+  )
+}

@@ -1,0 +1,771 @@
+# Agent Deployments with Supabase Integration
+# This file contains the updated agent deployments for Supabase
+
+# Aria Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aria-agent
+  namespace: agent47
+  labels:
+    app: aria-agent
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # Zero-downtime: always have at least 2 pods running
+  selector:
+    matchLabels:
+      app: aria-agent
+  template:
+    metadata:
+      labels:
+        app: aria-agent
+        version: v1
+    spec:
+      containers:
+      - name: aria-agent
+        image: agent47/aria-agent:latest
+        ports:
+        - containerPort: 8001
+        env:
+        # Supabase Configuration
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        
+        # Agent Configuration
+        - name: AGENT_NAME
+          value: "aria"
+        - name: AGENT_PORT
+          value: "8001"
+        - name: BACKEND_URL
+          value: "http://backend:8000"
+        
+        # AI Services
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: chutes-api-key
+        - name: GROK_API_URL
+          value: "http://grok-llm:8001"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "125m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aria-agent
+  namespace: agent47
+  labels:
+    app: aria-agent
+spec:
+  selector:
+    app: aria-agent
+  ports:
+  - name: http
+    port: 8001
+    targetPort: 8001
+  type: ClusterIP
+
+---
+# Clara Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clara-agent
+  namespace: agent47
+  labels:
+    app: clara-agent
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: clara-agent
+  template:
+    metadata:
+      labels:
+        app: clara-agent
+        version: v1
+    spec:
+      containers:
+      - name: clara-agent
+        image: agent47/clara-agent:latest
+        ports:
+        - containerPort: 8002
+        env:
+        # Supabase Configuration
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        
+        # Agent Configuration
+        - name: AGENT_NAME
+          value: "clara"
+        - name: AGENT_PORT
+          value: "8002"
+        - name: BACKEND_URL
+          value: "http://backend:8000"
+        
+        # AI Services
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: chutes-api-key
+        - name: GROK_API_URL
+          value: "http://grok-llm:8001"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "125m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clara-agent
+  namespace: agent47
+  labels:
+    app: clara-agent
+spec:
+  selector:
+    app: clara-agent
+  ports:
+  - name: http
+    port: 8002
+    targetPort: 8002
+  type: ClusterIP
+
+---
+# Eric Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eric-agent
+  namespace: agent47
+  labels:
+    app: eric-agent
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: eric-agent
+  template:
+    metadata:
+      labels:
+        app: eric-agent
+        version: v1
+    spec:
+      containers:
+      - name: eric-agent
+        image: agent47/eric-agent:latest
+        ports:
+        - containerPort: 8003
+        env:
+        # Supabase Configuration
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        
+        # Agent Configuration
+        - name: AGENT_NAME
+          value: "eric"
+        - name: AGENT_PORT
+          value: "8003"
+        - name: BACKEND_URL
+          value: "http://backend:8000"
+        
+        # AI Services
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: chutes-api-key
+        - name: GROK_API_URL
+          value: "http://grok-llm:8001"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "125m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8003
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eric-agent
+  namespace: agent47
+  labels:
+    app: eric-agent
+spec:
+  selector:
+    app: eric-agent
+  ports:
+  - name: http
+    port: 8003
+    targetPort: 8003
+  type: ClusterIP
+
+---
+# Jackie Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jackie-agent
+  namespace: agent47
+  labels:
+    app: jackie-agent
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: jackie-agent
+  template:
+    metadata:
+      labels:
+        app: jackie-agent
+        version: v1
+    spec:
+      containers:
+      - name: jackie-agent
+        image: agent47/jackie-agent:latest
+        ports:
+        - containerPort: 8004
+        env:
+        # Supabase Configuration
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        
+        # Agent Configuration
+        - name: AGENT_NAME
+          value: "jackie"
+        - name: AGENT_PORT
+          value: "8004"
+        - name: BACKEND_URL
+          value: "http://backend:8000"
+        
+        # AI Services
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: chutes-api-key
+        - name: GROK_API_URL
+          value: "http://grok-llm:8001"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "125m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8004
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jackie-agent
+  namespace: agent47
+  labels:
+    app: jackie-agent
+spec:
+  selector:
+    app: jackie-agent
+  ports:
+  - name: http
+    port: 8004
+    targetPort: 8004
+  type: ClusterIP
+
+---
+# Joe Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: joe-agent
+  namespace: agent47
+  labels:
+    app: joe-agent
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: joe-agent
+  template:
+    metadata:
+      labels:
+        app: joe-agent
+        version: v1
+    spec:
+      containers:
+      - name: joe-agent
+        image: agent47/joe-agent:latest
+        ports:
+        - containerPort: 8005
+        env:
+        # Supabase Configuration
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        
+        # Agent Configuration
+        - name: AGENT_NAME
+          value: "joe"
+        - name: AGENT_PORT
+          value: "8005"
+        - name: BACKEND_URL
+          value: "http://backend:8000"
+        
+        # AI Services
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: chutes-api-key
+        - name: GROK_API_URL
+          value: "http://grok-llm:8001"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "125m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8005
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8005
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: joe-agent
+  namespace: agent47
+  labels:
+    app: joe-agent
+spec:
+  selector:
+    app: joe-agent
+  ports:
+  - name: http
+    port: 8005
+    targetPort: 8005
+  type: ClusterIP
+
+---
+# Purity Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: purity-agent
+  namespace: agent47
+  labels:
+    app: purity-agent
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: purity-agent
+  template:
+    metadata:
+      labels:
+        app: purity-agent
+        version: v1
+    spec:
+      containers:
+      - name: purity-agent
+        image: agent47/purity-agent:latest
+        ports:
+        - containerPort: 8006
+        env:
+        # Supabase Configuration
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        
+        # Agent Configuration
+        - name: AGENT_NAME
+          value: "purity"
+        - name: AGENT_PORT
+          value: "8006"
+        - name: BACKEND_URL
+          value: "http://backend:8000"
+        
+        # AI Services
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: chutes-api-key
+        - name: GROK_API_URL
+          value: "http://grok-llm:8001"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "125m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8006
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8006
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: purity-agent
+  namespace: agent47
+  labels:
+    app: purity-agent
+spec:
+  selector:
+    app: purity-agent
+  ports:
+  - name: http
+    port: 8006
+    targetPort: 8006
+  type: ClusterIP
+
+---
+# Shakes Agent
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shakes-agent
+  namespace: agent47
+  labels:
+    app: shakes-agent
+    version: v1
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # Zero-downtime: always have at least 2 pods running
+  selector:
+    matchLabels:
+      app: shakes-agent
+  template:
+    metadata:
+      labels:
+        app: shakes-agent
+        version: v1
+    spec:
+      containers:
+      - name: shakes-agent
+        image: agent47/shakes-agent:latest
+        ports:
+        - containerPort: 8007
+        env:
+        # Supabase Configuration
+        - name: SUPABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        
+        # Agent Configuration
+        - name: AGENT_NAME
+          value: "shakes"
+        - name: AGENT_PORT
+          value: "8007"
+        - name: BACKEND_URL
+          value: "http://backend:8000"
+        
+        # AI Services
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: api-keys
+              key: chutes-api-key
+        - name: GROK_API_URL
+          value: "http://grok-llm:8001"
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "125m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8007
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8007
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shakes-agent
+  namespace: agent47
+  labels:
+    app: shakes-agent
+spec:
+  selector:
+    app: shakes-agent
+  ports:
+  - name: http
+    port: 8007
+    targetPort: 8007
+  type: ClusterIP

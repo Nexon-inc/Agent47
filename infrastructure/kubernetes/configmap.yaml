@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent47-config
+  namespace: agent47
+data:
+  # Database Configuration
+  DB_POSTGRES_HOST: "postgres"
+  DB_POSTGRES_PORT: "5432"
+  DB_POSTGRES_USER: "agent47"
+  DB_POSTGRES_DB: "agent47_db"
+  
+  # Redis Configuration
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  
+  # Kafka Configuration
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  
+  # ChromaDB Configuration
+  CHROMA_HOST: "chromadb"
+  CHROMA_PORT: "8000"
+  
+  # Grok LLM Configuration
+  GROK_API_URL: "http://grok-llm:8001"
+  
+  # Agent Ports
+  ARIA_PORT: "8001"
+  CLARA_PORT: "8002"
+  ERIC_PORT: "8003"
+  JACKIE_PORT: "8004"
+  JOE_PORT: "8005"
+  PURITY_PORT: "8006"
+  SHAKES_PORT: "8007"
+  
+  # Environment
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  
+  # CORS Configuration
+  CORS_ORIGINS: "https://agent47.com,https://www.agent47.com"
+  
+  # Rate Limiting
+  RATE_LIMIT_REQUESTS: "1000"
+  RATE_LIMIT_WINDOW: "3600"
+  
+  # Monitoring
+  PROMETHEUS_ENABLED: "true"
+  METRICS_ENABLED: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent47-features
+  namespace: agent47
+data:
+  # Feature Flags
+  ENABLE_ARIA: "true"
+  ENABLE_CLARA: "true"
+  ENABLE_ERIC: "true"
+  ENABLE_JACKIE: "true"
+  ENABLE_JOE: "true"
+  ENABLE_PURITY: "true"
+  ENABLE_SHAKES: "true"
+  ENABLE_GROK_LLM: "true"
+  
+  # AI Features
+  ENABLE_OPENAI: "true"
+  ENABLE_DALLE: "true"
+  ENABLE_WHISPER: "true"
+  ENABLE_GROK: "true"
+  
+  # Integration Features
+  ENABLE_SOCIAL_MEDIA: "true"
+  ENABLE_CRM_INTEGRATION: "true"
+  ENABLE_EMAIL_MARKETING: "true"
+  ENABLE_ANALYTICS: "true"
+  
+  # Advanced Features
+  ENABLE_VOICE_PROCESSING: "true"
+  ENABLE_IMAGE_GENERATION: "true"
+  ENABLE_PREDICTIVE_ANALYTICS: "true"
+  ENABLE_AUTOMATION: "true"

@@ -1,0 +1,96 @@
+# AlertManager Configuration for Agent47
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'alerts@agent47.com'
+  smtp_auth_username: 'alerts@agent47.com'
+  smtp_auth_password: 'password'
+
+# Templates for alert formatting
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route configuration
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'web.hook'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+    - match:
+        service: 'database'
+      receiver: 'database-alerts'
+    - match:
+        service: 'agent'
+      receiver: 'agent-alerts'
+
+# Inhibition rules
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']
+
+# Receivers
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://localhost:5001/'
+
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'admin@agent47.com'
+        subject: '[CRITICAL] Agent47 Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+    webhook_configs:
+      - url: 'http://localhost:5001/critical'
+
+  - name: 'warning-alerts'
+    email_configs:
+      - to: 'admin@agent47.com'
+        subject: '[WARNING] Agent47 Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'database-alerts'
+    email_configs:
+      - to: 'dba@agent47.com'
+        subject: '[DATABASE] Agent47 Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'agent-alerts'
+    email_configs:
+      - to: 'devops@agent47.com'
+        subject: '[AGENT] Agent47 Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+
+# Time intervals
+time_intervals:
+  - name: 'maintenance'
+    time_intervals:
+      - times:
+          - start_time: '02:00'
+            end_time: '04:00'
+        weekdays: ['sunday']

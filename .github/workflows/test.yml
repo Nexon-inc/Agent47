@@ -1,0 +1,741 @@
+name: Comprehensive Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+  POSTGRES_VERSION: '15'
+  REDIS_VERSION: '7'
+
+jobs:
+  # Backend Tests
+  backend-unit-tests:
+    runs-on: ubuntu-latest
+    name: Backend Unit Tests
+    
+    services:
+      postgres:
+        image: postgres:${{ env.POSTGRES_VERSION }}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:${{ env.REDIS_VERSION }}
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+    
+    - name: Install test dependencies
+      run: |
+        cd tests/backend
+        pip install -r requirements-test.txt
+    
+    - name: Set up test environment
+      run: |
+        export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/test_db"
+        export REDIS_URL="redis://localhost:6379"
+        export CHUTES_API_KEY="test_key"
+        export GROK_API_KEY="test_key"
+        export PYTHONPATH="${{ github.workspace }}"
+        echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+        echo "REDIS_URL=$REDIS_URL" >> $GITHUB_ENV
+        echo "CHUTES_API_KEY=$CHUTES_API_KEY" >> $GITHUB_ENV
+        echo "GROK_API_KEY=$GROK_API_KEY" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+    
+    - name: Run backend unit tests
+      run: |
+        cd tests/backend
+        pytest -m unit --cov=backend --cov-report=xml --cov-report=term-missing --cov-report=html --junitxml=unit-test-results.xml
+    
+    - name: Upload unit test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backend-unit-test-results
+        path: tests/backend/unit-test-results.xml
+    
+    - name: Upload unit test coverage
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backend-unit-coverage
+        path: tests/backend/htmlcov/
+
+  backend-integration-tests:
+    runs-on: ubuntu-latest
+    name: Backend Integration Tests
+    needs: backend-unit-tests
+    
+    services:
+      postgres:
+        image: postgres:${{ env.POSTGRES_VERSION }}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:${{ env.REDIS_VERSION }}
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+    
+    - name: Install test dependencies
+      run: |
+        cd tests/backend
+        pip install -r requirements-test.txt
+    
+    - name: Set up test environment
+      run: |
+        export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/test_db"
+        export REDIS_URL="redis://localhost:6379"
+        export CHUTES_API_KEY="test_key"
+        export GROK_API_KEY="test_key"
+        export PYTHONPATH="${{ github.workspace }}"
+        echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+        echo "REDIS_URL=$REDIS_URL" >> $GITHUB_ENV
+        echo "CHUTES_API_KEY=$CHUTES_API_KEY" >> $GITHUB_ENV
+        echo "GROK_API_KEY=$GROK_API_KEY" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+    
+    - name: Run backend integration tests
+      run: |
+        cd tests/backend
+        pytest -m integration --cov=backend --cov-report=xml --cov-report=term-missing --cov-report=html --junitxml=integration-test-results.xml
+    
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backend-integration-test-results
+        path: tests/backend/integration-test-results.xml
+    
+    - name: Upload integration test coverage
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backend-integration-coverage
+        path: tests/backend/htmlcov/
+
+  backend-ai-tests:
+    runs-on: ubuntu-latest
+    name: Backend AI Service Tests
+    needs: backend-unit-tests
+    
+    services:
+      postgres:
+        image: postgres:${{ env.POSTGRES_VERSION }}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:${{ env.REDIS_VERSION }}
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+    
+    - name: Install test dependencies
+      run: |
+        cd tests/backend
+        pip install -r requirements-test.txt
+    
+    - name: Set up test environment
+      run: |
+        export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/test_db"
+        export REDIS_URL="redis://localhost:6379"
+        export CHUTES_API_KEY="test_key"
+        export GROK_API_KEY="test_key"
+        export PYTHONPATH="${{ github.workspace }}"
+        echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+        echo "REDIS_URL=$REDIS_URL" >> $GITHUB_ENV
+        echo "CHUTES_API_KEY=$CHUTES_API_KEY" >> $GITHUB_ENV
+        echo "GROK_API_KEY=$GROK_API_KEY" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+    
+    - name: Run AI service tests
+      run: |
+        cd tests/backend
+        pytest -m ai --cov=backend.core.ai --cov-report=xml --cov-report=term-missing --junitxml=ai-test-results.xml
+    
+    - name: Upload AI test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: backend-ai-test-results
+        path: tests/backend/ai-test-results.xml
+
+  # Frontend Tests
+  frontend-unit-tests:
+    runs-on: ubuntu-latest
+    name: Frontend Unit Tests
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        cache-dependency-path: frontend/pnpm-lock.yaml
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        pnpm install --no-frozen-lockfile
+    
+    - name: Install test dependencies
+      run: |
+        cd tests/frontend
+        pnpm install --no-frozen-lockfile
+    
+    - name: Run frontend linting
+      run: |
+        cd frontend
+        pnpm run lint
+    
+    - name: Run frontend type checking
+      run: |
+        cd frontend
+        npx tsc --noEmit
+    
+    - name: Run frontend unit tests
+      run: |
+        cd tests/frontend
+        pnpm run test:unit -- --coverage --watchAll=false --testResultsProcessor=jest-junit
+    
+    - name: Upload frontend unit test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: frontend-unit-test-results
+        path: tests/frontend/junit.xml
+    
+    - name: Upload frontend unit test coverage
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: frontend-unit-coverage
+        path: tests/frontend/coverage/
+
+  frontend-integration-tests:
+    runs-on: ubuntu-latest
+    name: Frontend Integration Tests
+    needs: frontend-unit-tests
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        cache-dependency-path: frontend/pnpm-lock.yaml
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        pnpm install --no-frozen-lockfile
+    
+    - name: Install test dependencies
+      run: |
+        cd tests/frontend
+        pnpm install --no-frozen-lockfile
+    
+    - name: Run frontend integration tests
+      run: |
+        cd tests/frontend
+        pnpm run test:integration -- --coverage --watchAll=false --testResultsProcessor=jest-junit
+    
+    - name: Upload frontend integration test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: frontend-integration-test-results
+        path: tests/frontend/junit.xml
+    
+    - name: Upload frontend integration test coverage
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: frontend-integration-coverage
+        path: tests/frontend/coverage/
+
+  frontend-component-tests:
+    runs-on: ubuntu-latest
+    name: Frontend Component Tests
+    needs: frontend-unit-tests
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        cache-dependency-path: frontend/pnpm-lock.yaml
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        pnpm install --no-frozen-lockfile
+    
+    - name: Install test dependencies
+      run: |
+        cd tests/frontend
+        pnpm install --no-frozen-lockfile
+    
+    - name: Run frontend component tests
+      run: |
+        cd tests/frontend
+        pnpm run test:components -- --coverage --watchAll=false --testResultsProcessor=jest-junit
+    
+    - name: Upload frontend component test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: frontend-component-test-results
+        path: tests/frontend/junit.xml
+
+  # E2E Tests
+  e2e-tests:
+    runs-on: ubuntu-latest
+    name: End-to-End Tests
+    needs: [backend-integration-tests, frontend-integration-tests]
+    
+    services:
+      postgres:
+        image: postgres:${{ env.POSTGRES_VERSION }}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:${{ env.REDIS_VERSION }}
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        cache-dependency-path: frontend/pnpm-lock.yaml
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        pnpm install --no-frozen-lockfile
+    
+    - name: Install E2E test dependencies
+      run: |
+        pnpm install -g playwright
+        npx playwright install
+    
+    - name: Set up test environment
+      run: |
+        export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/test_db"
+        export REDIS_URL="redis://localhost:6379"
+        export CHUTES_API_KEY="test_key"
+        export GROK_API_KEY="test_key"
+        export PYTHONPATH="${{ github.workspace }}"
+        echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+        echo "REDIS_URL=$REDIS_URL" >> $GITHUB_ENV
+        echo "CHUTES_API_KEY=$CHUTES_API_KEY" >> $GITHUB_ENV
+        echo "GROK_API_KEY=$GROK_API_KEY" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+    
+    - name: Start backend server
+      run: |
+        cd backend
+        uvicorn main:app --host 0.0.0.0 --port 8000 &
+        sleep 15
+    
+    - name: Build and start frontend server
+      run: |
+        cd frontend
+        pnpm run build
+        pnpm start &
+        sleep 15
+    
+    - name: Run E2E tests
+      run: |
+        # Add Playwright E2E tests here
+        echo "E2E tests would run here"
+        # npx playwright test --reporter=junit --output-dir=test-results
+    
+    - name: Upload E2E test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-test-results
+        path: test-results/
+
+  # Security Tests
+  security-tests:
+    runs-on: ubuntu-latest
+    name: Security Tests
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
+        cache-dependency-path: frontend/pnpm-lock.yaml
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        pip install bandit safety
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        pnpm install --no-frozen-lockfile
+    
+    - name: Run backend security scan
+      run: |
+        cd backend
+        bandit -r . -f json -o bandit-report.json || true
+        safety check --json --output safety-report.json || true
+    
+    - name: Run frontend security scan
+      run: |
+        cd frontend
+        npm audit --audit-level moderate --json > npm-audit.json || true
+    
+    - name: Run dependency vulnerability scan
+      run: |
+        cd backend
+        pip install safety
+        safety check --json --output dependency-scan.json || true
+    
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          backend/bandit-report.json
+          backend/safety-report.json
+          backend/dependency-scan.json
+          frontend/npm-audit.json
+
+  # Performance Tests
+  performance-tests:
+    runs-on: ubuntu-latest
+    name: Performance Tests
+    needs: [backend-integration-tests, frontend-integration-tests]
+    
+    services:
+      postgres:
+        image: postgres:${{ env.POSTGRES_VERSION }}
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:${{ env.REDIS_VERSION }}
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+    
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        pip install -r requirements.txt
+        pip install locust
+    
+    - name: Set up test environment
+      run: |
+        export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/test_db"
+        export REDIS_URL="redis://localhost:6379"
+        export CHUTES_API_KEY="test_key"
+        export GROK_API_KEY="test_key"
+        export PYTHONPATH="${{ github.workspace }}"
+        echo "DATABASE_URL=$DATABASE_URL" >> $GITHUB_ENV
+        echo "REDIS_URL=$REDIS_URL" >> $GITHUB_ENV
+        echo "CHUTES_API_KEY=$CHUTES_API_KEY" >> $GITHUB_ENV
+        echo "GROK_API_KEY=$GROK_API_KEY" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+    
+    - name: Start backend server
+      run: |
+        cd backend
+        uvicorn main:app --host 0.0.0.0 --port 8000 &
+        sleep 15
+    
+    - name: Run performance tests
+      run: |
+        # Add Locust performance tests here
+        echo "Performance tests would run here"
+        # locust -f performance_tests/locustfile.py --headless -u 100 -r 10 -t 60s --html=performance-report.html
+    
+    - name: Upload performance reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-reports
+        path: performance-report.html
+
+  # Coverage and Quality Gates
+  coverage-report:
+    runs-on: ubuntu-latest
+    name: Coverage Report
+    needs: [backend-unit-tests, backend-integration-tests, frontend-unit-tests, frontend-integration-tests]
+    if: always()
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download backend coverage reports
+      uses: actions/download-artifact@v3
+      with:
+        name: backend-unit-coverage
+        path: backend-unit-coverage/
+    
+    - name: Download frontend coverage reports
+      uses: actions/download-artifact@v3
+      with:
+        name: frontend-unit-coverage
+        path: frontend-unit-coverage/
+    
+    - name: Upload combined coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./backend-unit-coverage/coverage.xml,./frontend-unit-coverage/lcov.info
+        flags: combined
+        name: combined-coverage
+        fail_ci_if_error: false
+
+  # Test Summary
+  test-summary:
+    runs-on: ubuntu-latest
+    name: Test Summary
+    needs: [
+      backend-unit-tests, 
+      backend-integration-tests, 
+      backend-ai-tests,
+      frontend-unit-tests, 
+      frontend-integration-tests, 
+      frontend-component-tests,
+      e2e-tests, 
+      security-tests, 
+      performance-tests,
+      coverage-report
+    ]
+    if: always()
+    
+    steps:
+    - name: Generate Test Summary
+      run: |
+        echo "## 🧪 Comprehensive Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Backend Tests" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Unit Tests | ${{ needs.backend-unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Integration Tests | ${{ needs.backend-integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| AI Service Tests | ${{ needs.backend-ai-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Frontend Tests" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Unit Tests | ${{ needs.frontend-unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Integration Tests | ${{ needs.frontend-integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Component Tests | ${{ needs.frontend-component-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Quality & Performance" >> $GITHUB_STEP_SUMMARY
+        echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| E2E Tests | ${{ needs.e2e-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Security Tests | ${{ needs.security-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Performance Tests | ${{ needs.performance-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Coverage Report | ${{ needs.coverage-report.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Overall Status" >> $GITHUB_STEP_SUMMARY
+        if [[ "${{ needs.backend-unit-tests.result }}" == "success" && "${{ needs.backend-integration-tests.result }}" == "success" && "${{ needs.frontend-unit-tests.result }}" == "success" && "${{ needs.frontend-integration-tests.result }}" == "success" ]]; then
+          echo "✅ **All critical tests passed!**" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ **Some critical tests failed!**" >> $GITHUB_STEP_SUMMARY
+        fi

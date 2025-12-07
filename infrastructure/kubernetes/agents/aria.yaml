@@ -1,0 +1,206 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent47-aria
+  namespace: agent47
+  labels:
+    app: agent47-aria
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent47-aria
+  template:
+    metadata:
+      labels:
+        app: agent47-aria
+    spec:
+      containers:
+      - name: aria
+        image: agent47-aria:latest
+        ports:
+        - containerPort: 8001
+        env:
+        - name: AGENT_NAME
+          value: "aria"
+        - name: AGENT_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: ARIA_PORT
+        - name: DB_POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_HOST
+        - name: DB_POSTGRES_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_PORT
+        - name: DB_POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_USER
+        - name: DB_POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_DB
+        - name: DB_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: DB_POSTGRES_PASSWORD
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: REDIS_PORT
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: CHUTES_API_KEY
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: OPENAI_API_KEY
+        - name: FACEBOOK_APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: FACEBOOK_APP_ID
+        - name: FACEBOOK_APP_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: FACEBOOK_APP_SECRET
+        - name: INSTAGRAM_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: INSTAGRAM_ACCESS_TOKEN
+        - name: TWITTER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: TWITTER_API_KEY
+        - name: TWITTER_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: TWITTER_API_SECRET
+        - name: TWITTER_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: TWITTER_ACCESS_TOKEN
+        - name: TWITTER_ACCESS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: TWITTER_ACCESS_SECRET
+        - name: LINKEDIN_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: LINKEDIN_CLIENT_ID
+        - name: LINKEDIN_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: LINKEDIN_CLIENT_SECRET
+        - name: TIKTOK_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: TIKTOK_ACCESS_TOKEN
+        - name: PINTEREST_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: PINTEREST_ACCESS_TOKEN
+        - name: SNAPCHAT_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: SNAPCHAT_CLIENT_ID
+        - name: SNAPCHAT_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: SNAPCHAT_CLIENT_SECRET
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent47-aria
+  namespace: agent47
+  labels:
+    app: agent47-aria
+spec:
+  ports:
+  - port: 8001
+    targetPort: 8001
+    protocol: TCP
+  selector:
+    app: agent47-aria
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent47-aria-hpa
+  namespace: agent47
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agent47-aria
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

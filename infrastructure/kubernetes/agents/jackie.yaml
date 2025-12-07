@@ -1,0 +1,161 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent47-jackie
+  namespace: agent47
+  labels:
+    app: agent47-jackie
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent47-jackie
+  template:
+    metadata:
+      labels:
+        app: agent47-jackie
+    spec:
+      containers:
+      - name: jackie
+        image: agent47-jackie:latest
+        ports:
+        - containerPort: 8004
+        env:
+        - name: AGENT_NAME
+          value: "jackie"
+        - name: AGENT_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: JACKIE_PORT
+        - name: DB_POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_HOST
+        - name: DB_POSTGRES_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_PORT
+        - name: DB_POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_USER
+        - name: DB_POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_DB
+        - name: DB_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: DB_POSTGRES_PASSWORD
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: REDIS_PORT
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: CHUTES_API_KEY
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: OPENAI_API_KEY
+        - name: GOOGLE_ADS_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: GOOGLE_ADS_CLIENT_ID
+        - name: GOOGLE_ADS_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: GOOGLE_ADS_CLIENT_SECRET
+        - name: MAILCHIMP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: MAILCHIMP_API_KEY
+        - name: SENDGRID_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: SENDGRID_API_KEY
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8004
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8004
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent47-jackie
+  namespace: agent47
+  labels:
+    app: agent47-jackie
+spec:
+  ports:
+  - port: 8004
+    targetPort: 8004
+    protocol: TCP
+  selector:
+    app: agent47-jackie
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent47-jackie-hpa
+  namespace: agent47
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agent47-jackie
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

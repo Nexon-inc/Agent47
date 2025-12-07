@@ -1,0 +1,42 @@
+# Agent47 Frontend Dockerfile for CI/CD Testing
+FROM node:18-alpine
+
+# Set environment variables
+ENV PNPM_HOME="/pnpm" \
+    PATH="$PNPM_HOME:$PATH"
+
+# Set working directory
+WORKDIR /workspace
+
+# Install curl for health checks and pnpm
+RUN apk add --no-cache curl && \
+    npm install -g pnpm
+
+# Copy package files first for better Docker layer caching
+# Note: Build context is repo root (.), so we specify frontend/ path
+COPY frontend/package.json ./frontend/package.json
+COPY frontend/pnpm-lock.yaml* ./frontend/
+# Copy config files (required for build)
+COPY frontend/tsconfig.json ./frontend/tsconfig.json
+COPY frontend/next.config.mjs ./frontend/next.config.mjs
+
+# Install dependencies with pnpm (including dev dependencies for testing)
+WORKDIR /workspace/frontend
+RUN pnpm install --no-frozen-lockfile
+
+# Copy ALL frontend application code
+# Using .dockerignore would be better, but for now copy everything explicitly
+WORKDIR /workspace
+COPY frontend ./frontend
+# Create .eslintrc.json if it doesn't exist (handles case where file isn't committed to git)
+# This runs after the COPY so if the file exists in source, it's already there
+RUN if [ ! -f ./frontend/.eslintrc.json ]; then \
+      echo '{"extends":["next/core-web-vitals","next/typescript"],"rules":{"@typescript-eslint/no-unused-vars":["warn",{"argsIgnorePattern":"^_"}],"@typescript-eslint/no-explicit-any":"warn","react/no-unescaped-entities":"warn","react-hooks/exhaustive-deps":"warn"}}' > ./frontend/.eslintrc.json; \
+    fi
+
+# Set working directory to frontend for tests
+WORKDIR /workspace/frontend
+
+# Default command (can be overridden)
+CMD ["pnpm", "run", "test:ci"]
+

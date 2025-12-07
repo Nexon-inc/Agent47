@@ -1,0 +1,3 @@
+"""
+Frontend component tests package
+"""

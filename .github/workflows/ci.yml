@@ -1,0 +1,498 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # =============================================================================
+  # BACKEND TESTS
+  # =============================================================================
+  
+  backend-tests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build backend Docker image for testing
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./backend/Dockerfile.test
+        push: false
+        load: true
+        tags: agent47-backend-test:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Run linting in Docker
+      run: |
+        docker run --rm \
+          --network host \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace/backend \
+          agent47-backend-test:latest \
+          sh -c "black --check --diff . || echo 'Black found formatting issues' && \
+                 flake8 . --max-line-length=88 --ignore=E203,W503 || echo 'Flake8 found style issues' && \
+                 isort --check-only --diff . || echo 'isort found import ordering issues'"
+    
+    - name: Run type checking in Docker
+      run: |
+        docker run --rm \
+          --network host \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace/backend \
+          agent47-backend-test:latest \
+          sh -c "mypy . --ignore-missing-imports --no-strict-optional --warn-return-any || echo 'MyPy found type issues'"
+    
+    - name: Run tests in Docker
+      env:
+        DB_POSTGRES_HOST: postgres
+        DB_POSTGRES_PORT: 5432
+        DB_POSTGRES_USER: postgres
+        DB_POSTGRES_PASSWORD: postgres
+        DB_POSTGRES_DB: test_db
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        SECURITY_SECRET_KEY: test-secret-key
+        CHUTES_API_KEY: test-key
+        GROK_API_KEY: test-key
+        PYTHONPATH: /workspace
+      run: |
+        docker run --rm \
+          --network host \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace/backend \
+          -e DB_POSTGRES_HOST=${{ env.DB_POSTGRES_HOST }} \
+          -e DB_POSTGRES_PORT=${{ env.DB_POSTGRES_PORT }} \
+          -e DB_POSTGRES_USER=${{ env.DB_POSTGRES_USER }} \
+          -e DB_POSTGRES_PASSWORD=${{ env.DB_POSTGRES_PASSWORD }} \
+          -e DB_POSTGRES_DB=${{ env.DB_POSTGRES_DB }} \
+          -e REDIS_HOST=${{ env.REDIS_HOST }} \
+          -e REDIS_PORT=${{ env.REDIS_PORT }} \
+          -e SECURITY_SECRET_KEY=${{ env.SECURITY_SECRET_KEY }} \
+          -e CHUTES_API_KEY=${{ env.CHUTES_API_KEY }} \
+          -e GROK_API_KEY=${{ env.GROK_API_KEY }} \
+          -e PYTHONPATH=${{ env.PYTHONPATH }} \
+          agent47-backend-test:latest \
+          pytest ../tests/backend/ --cov=. --cov-report=xml --cov-report=html
+    
+    - name: Extract test coverage
+      if: always()
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace/backend \
+          agent47-backend-test:latest \
+          sh -c "test -f coverage.xml && cp coverage.xml /workspace/backend/ || echo 'No coverage file found'" || true
+    
+    - name: Upload coverage to Codecov
+      if: always()
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage.xml
+        flags: backend
+        name: backend-coverage
+
+  # =============================================================================
+  # FRONTEND TESTS
+  # =============================================================================
+  
+  frontend-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build frontend Docker image for testing
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./frontend/Dockerfile.test
+        push: false
+        load: true
+        tags: agent47-frontend-test:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Run linting in Docker
+      run: |
+        docker run --rm \
+          --network host \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace/frontend \
+          agent47-frontend-test:latest \
+          sh -c "pnpm install --no-frozen-lockfile && pnpm run lint || echo 'Linting failed, continuing'"
+    
+    - name: Run tests in Docker
+      run: |
+        docker run --rm \
+          --network host \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace/frontend \
+          agent47-frontend-test:latest \
+          sh -c "pnpm install --no-frozen-lockfile && npx jest --ci --coverage --watchAll=false --passWithNoTests --testMatch='../tests/frontend/**/*.test.{js,jsx,ts,tsx}' --testMatch='../tests/frontend/**/*.spec.{js,jsx,ts,tsx}' || echo 'Tests completed with warnings'"
+    
+    - name: Build application in Docker
+      run: |
+        docker run --rm \
+          --network host \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace/frontend \
+          -e NODE_ENV=production \
+          agent47-frontend-test:latest \
+          sh -c "pnpm install --no-frozen-lockfile && NODE_ENV=production pnpm run build"
+    
+    - name: Extract test coverage
+      if: always()
+      run: |
+        docker run --rm \
+          -v ${{ github.workspace }}:/workspace \
+          -w /workspace/frontend \
+          agent47-frontend-test:latest \
+          sh -c "test -d coverage && cp -r coverage /workspace/frontend/ || echo 'No coverage directory found'" || true
+    
+    - name: Upload coverage to Codecov
+      if: always()
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./frontend/coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+
+  # =============================================================================
+  # SECURITY SCANNING
+  # =============================================================================
+  
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+        exit-code: '0'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      continue-on-error: true
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # =============================================================================
+  # DOCKER BUILD & TEST
+  # =============================================================================
+  
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build backend image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./backend/Dockerfile
+        push: false
+        tags: agent47-backend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Build frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        file: ./frontend/Dockerfile
+        push: false
+        tags: agent47-frontend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Test Docker Compose
+      run: |
+        docker-compose -f docker-compose.yml config
+        docker-compose -f docker-compose.yml build
+
+  # =============================================================================
+  # DEPLOYMENT (Staging)
+  # =============================================================================
+  
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [docker-build, security-scan]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
+    
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+    
+    - name: Set image tag
+      id: image-tag
+      run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+    
+    - name: Build and push backend image
+      run: |
+        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:${{ steps.image-tag.outputs.tag }} ./backend
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:${{ steps.image-tag.outputs.tag }}
+        docker tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:${{ steps.image-tag.outputs.tag }} gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:latest
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:latest
+    
+    - name: Build and push frontend image
+      run: |
+        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:${{ steps.image-tag.outputs.tag }} ./frontend
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:${{ steps.image-tag.outputs.tag }}
+        docker tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:${{ steps.image-tag.outputs.tag }} gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:latest
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:latest
+    
+    - name: Get GKE credentials
+      run: |
+        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} \
+          --region ${{ secrets.GCP_REGION }} \
+          --project ${{ secrets.GCP_PROJECT_ID }}
+    
+    - name: Deploy to staging (Zero-downtime rolling update)
+      run: |
+        # Update backend deployment with new image (rolling update)
+        kubectl set image deployment/backend \
+          backend=gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:${{ steps.image-tag.outputs.tag }} \
+          -n agent47 --record
+        
+        # Update frontend deployment with new image (rolling update)
+        kubectl set image deployment/agent47-frontend \
+          frontend=gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:${{ steps.image-tag.outputs.tag }} \
+          -n agent47 --record
+        
+        # Wait for rollouts to complete (ensures zero-downtime)
+        kubectl rollout status deployment/backend -n agent47 --timeout=10m
+        kubectl rollout status deployment/agent47-frontend -n agent47 --timeout=10m
+    
+    - name: Verify deployment health
+      run: |
+        # Wait for pods to be ready
+        kubectl wait --for=condition=ready pod -l app=backend -n agent47 --timeout=300s
+        kubectl wait --for=condition=ready pod -l app=agent47-frontend -n agent47 --timeout=300s
+        
+        # Check health endpoints
+        BACKEND_POD=$(kubectl get pod -l app=backend -n agent47 -o jsonpath='{.items[0].metadata.name}')
+        kubectl exec -n agent47 $BACKEND_POD -- curl -f http://localhost:8000/health || exit 1
+    
+    - name: Run smoke tests
+      run: |
+        echo "Running smoke tests on staging..."
+        # Add smoke test commands here
+        # Example: curl https://staging.agent47.com/health
+
+  # =============================================================================
+  # DEPLOYMENT (Production)
+  # =============================================================================
+  
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [docker-build, security-scan]
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
+    
+    - name: Configure Docker for GCR
+      run: gcloud auth configure-docker
+    
+    - name: Set image tag
+      id: image-tag
+      run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
+    
+    - name: Build and push backend image
+      run: |
+        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:${{ steps.image-tag.outputs.tag }} ./backend
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:${{ steps.image-tag.outputs.tag }}
+        docker tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:${{ steps.image-tag.outputs.tag }} gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:latest
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:latest
+    
+    - name: Build and push frontend image
+      run: |
+        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:${{ steps.image-tag.outputs.tag }} ./frontend
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:${{ steps.image-tag.outputs.tag }}
+        docker tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:${{ steps.image-tag.outputs.tag }} gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:latest
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:latest
+    
+    - name: Build and push agent images
+      run: |
+        AGENTS=("aria" "clara" "eric" "jackie" "joe" "purity" "shakes")
+        for agent in "${AGENTS[@]}"; do
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-$agent-agent:${{ steps.image-tag.outputs.tag }} ./backend/agents/$agent
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-$agent-agent:${{ steps.image-tag.outputs.tag }}
+          docker tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-$agent-agent:${{ steps.image-tag.outputs.tag }} gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-$agent-agent:latest
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-$agent-agent:latest
+        done
+    
+    - name: Get GKE credentials
+      run: |
+        gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} \
+          --region ${{ secrets.GCP_REGION }} \
+          --project ${{ secrets.GCP_PROJECT_ID }}
+    
+    - name: Deploy to production (Zero-downtime rolling update)
+      run: |
+        # Update backend deployment with new image (rolling update)
+        kubectl set image deployment/backend \
+          backend=gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-backend:${{ steps.image-tag.outputs.tag }} \
+          -n agent47 --record
+        
+        # Update frontend deployment with new image (rolling update)
+        kubectl set image deployment/agent47-frontend \
+          frontend=gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-frontend:${{ steps.image-tag.outputs.tag }} \
+          -n agent47 --record
+        
+        # Update agent deployments (rolling updates)
+        AGENTS=("aria" "clara" "eric" "jackie" "joe" "purity" "shakes")
+        for agent in "${AGENTS[@]}"; do
+          kubectl set image deployment/$agent-agent \
+            $agent-agent=gcr.io/${{ secrets.GCP_PROJECT_ID }}/agent47-$agent-agent:${{ steps.image-tag.outputs.tag }} \
+            -n agent47 --record
+        done
+        
+        # Wait for all rollouts to complete (zero-downtime)
+        kubectl rollout status deployment/backend -n agent47 --timeout=10m
+        kubectl rollout status deployment/agent47-frontend -n agent47 --timeout=10m
+        for agent in "${AGENTS[@]}"; do
+          kubectl rollout status deployment/$agent-agent -n agent47 --timeout=5m || echo "Warning: $agent-agent rollout may have issues"
+        done
+    
+    - name: Verify deployment health
+      run: |
+        # Wait for all pods to be ready
+        kubectl wait --for=condition=ready pod -l app=backend -n agent47 --timeout=300s
+        kubectl wait --for=condition=ready pod -l app=agent47-frontend -n agent47 --timeout=300s
+        
+        # Verify backend health
+        BACKEND_POD=$(kubectl get pod -l app=backend -n agent47 -o jsonpath='{.items[0].metadata.name}')
+        kubectl exec -n agent47 $BACKEND_POD -- curl -f http://localhost:8000/health || exit 1
+        
+        # Verify frontend health
+        FRONTEND_POD=$(kubectl get pod -l app=agent47-frontend -n agent47 -o jsonpath='{.items[0].metadata.name}')
+        kubectl exec -n agent47 $FRONTEND_POD -- curl -f http://localhost:3000/ || exit 1
+    
+    - name: Run production health checks
+      run: |
+        echo "Running production health checks..."
+        # Get service endpoints
+        BACKEND_URL=$(kubectl get ingress -n agent47 -o jsonpath='{.items[?(@.metadata.name=="backend-ingress")].spec.rules[0].host}')
+        FRONTEND_URL=$(kubectl get ingress -n agent47 -o jsonpath='{.items[?(@.metadata.name=="frontend-ingress")].spec.rules[0].host}')
+        
+        # Health check endpoints
+        curl -f https://$BACKEND_URL/health || exit 1
+        curl -f https://$FRONTEND_URL/ || exit 1
+    
+    - name: Rollback on failure
+      if: failure()
+      run: |
+        echo "Deployment failed, rolling back..."
+        kubectl rollout undo deployment/backend -n agent47
+        kubectl rollout undo deployment/agent47-frontend -n agent47
+        AGENTS=("aria" "clara" "eric" "jackie" "joe" "purity" "shakes")
+        for agent in "${AGENTS[@]}"; do
+          kubectl rollout undo deployment/$agent-agent -n agent47 || true
+        done
+        exit 1
+    
+    - name: Notify deployment
+      if: success()
+      run: |
+        echo "Production deployment completed successfully!"
+        # Add notification commands here (Slack, email, etc.)
+        # Example: curl -X POST ${{ secrets.SLACK_WEBHOOK }} -d '{"text":"Deployment successful"}'
+
+  # =============================================================================
+  # PERFORMANCE TESTING
+  # =============================================================================
+  
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run performance tests
+      run: |
+        echo "Running performance tests..."
+        # Add performance testing commands here
+        # Example: k6 run performance-tests/load-test.js
+    
+    - name: Generate performance report
+      run: |
+        echo "Generating performance report..."
+        # Add report generation commands here

@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grok-llm-pvc
+  namespace: agent47
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+  storageClassName: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grok-llm
+  namespace: agent47
+  labels:
+    app: grok-llm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grok-llm
+  template:
+    metadata:
+      labels:
+        app: grok-llm
+    spec:
+      containers:
+      - name: grok-llm
+        image: agent47-grok-llm:latest
+        ports:
+        - containerPort: 8001
+        env:
+        - name: MODEL_PATH
+          value: "/models"
+        - name: CACHE_DIR
+          value: "/cache"
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        volumeMounts:
+        - name: grok-llm-storage
+          mountPath: /models
+        - name: grok-llm-cache
+          mountPath: /cache
+        resources:
+          requests:
+            memory: "8Gi"
+            cpu: "2000m"
+            nvidia.com/gpu: "1"
+          limits:
+            memory: "16Gi"
+            cpu: "4000m"
+            nvidia.com/gpu: "1"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 120
+          periodSeconds: 60
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 60
+          periodSeconds: 30
+      volumes:
+      - name: grok-llm-storage
+        persistentVolumeClaim:
+          claimName: grok-llm-pvc
+      - name: grok-llm-cache
+        emptyDir: {}
+      nodeSelector:
+        accelerator: nvidia-tesla-k80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grok-llm
+  namespace: agent47
+  labels:
+    app: grok-llm
+spec:
+  ports:
+  - port: 8001
+    targetPort: 8001
+    protocol: TCP
+  selector:
+    app: grok-llm
+  type: ClusterIP

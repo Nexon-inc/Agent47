@@ -1,0 +1,48 @@
+# Agent47 Backend Dockerfile for CI/CD Testing
+# Lightweight version that installs test dependencies
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive
+
+# Set work directory
+WORKDIR /workspace
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    libpq-dev \
+    gcc \
+    g++ \
+    git \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy requirements first for better Docker layer caching
+COPY backend/requirements.txt ./backend/requirements.txt
+COPY backend/agents/requirements.txt ./backend/agents/requirements.txt
+COPY tests/requirements.txt ./tests/requirements.txt
+
+# Install Python dependencies (all dependencies including heavy ML ones)
+# This runs in Docker which has more space than GitHub Actions runner
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r backend/requirements.txt && \
+    pip install --no-cache-dir -r backend/agents/requirements.txt && \
+    pip install --no-cache-dir -r tests/requirements.txt && \
+    pip install --no-cache-dir pytest pytest-asyncio pytest-cov pytest-mock black flake8 isort mypy
+
+# Copy application code
+COPY . .
+
+# Set working directory to backend for tests
+WORKDIR /workspace/backend
+
+# Default command runs tests
+CMD ["pytest", "../tests/backend/", "--cov=.", "--cov-report=xml", "--cov-report=html"]
+

@@ -1,0 +1,164 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent47-backend
+  namespace: agent47
+  labels:
+    app: agent47-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agent47-backend
+  template:
+    metadata:
+      labels:
+        app: agent47-backend
+    spec:
+      containers:
+      - name: backend
+        image: agent47-backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DB_POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_HOST
+        - name: DB_POSTGRES_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_PORT
+        - name: DB_POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_USER
+        - name: DB_POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_DB
+        - name: DB_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: DB_POSTGRES_PASSWORD
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: REDIS_PORT
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: CHROMA_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: CHROMA_HOST
+        - name: CHROMA_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: CHROMA_PORT
+        - name: GROK_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: GROK_API_URL
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: CHUTES_API_KEY
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: OPENAI_API_KEY
+        - name: JWT_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: JWT_SECRET_KEY
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: ENVIRONMENT
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: LOG_LEVEL
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent47-backend
+  namespace: agent47
+  labels:
+    app: agent47-backend
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+  selector:
+    app: agent47-backend
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent47-backend-hpa
+  namespace: agent47
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agent47-backend
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80

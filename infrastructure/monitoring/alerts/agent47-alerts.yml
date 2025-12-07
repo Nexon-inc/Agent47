@@ -1,0 +1,239 @@
+# Agent47 Alert Rules
+
+groups:
+  - name: agent47.rules
+    rules:
+      # High Error Rate
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: "{{ $labels.service }}"
+        annotations:
+          summary: "High error rate detected"
+          description: "Service {{ $labels.service }} has error rate of {{ $value }} errors per second"
+
+      # High Response Time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.service }}"
+        annotations:
+          summary: "High response time detected"
+          description: "Service {{ $labels.service }} has 95th percentile response time of {{ $value }} seconds"
+
+      # Service Down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "Service is down"
+          description: "Service {{ $labels.job }} has been down for more than 1 minute"
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          instance: "{{ $labels.instance }}"
+        annotations:
+          summary: "High CPU usage detected"
+          description: "Instance {{ $labels.instance }} has CPU usage of {{ $value }}%"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          instance: "{{ $labels.instance }}"
+        annotations:
+          summary: "High memory usage detected"
+          description: "Instance {{ $labels.instance }} has memory usage of {{ $value }}%"
+
+      # Disk Space Low
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+          instance: "{{ $labels.instance }}"
+          mountpoint: "{{ $labels.mountpoint }}"
+        annotations:
+          summary: "Disk space is low"
+          description: "Disk {{ $labels.mountpoint }} on instance {{ $labels.instance }} has {{ $value }}% space used"
+
+      # Database Connection Issues
+      - alert: DatabaseConnectionIssues
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "postgres"
+        annotations:
+          summary: "Database connection issues"
+          description: "PostgreSQL database is not responding"
+
+      # Redis Connection Issues
+      - alert: RedisConnectionIssues
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "redis"
+        annotations:
+          summary: "Redis connection issues"
+          description: "Redis cache is not responding"
+
+      # Kafka Connection Issues
+      - alert: KafkaConnectionIssues
+        expr: kafka_server_kafkaserver_kafkaserverstate == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "kafka"
+        annotations:
+          summary: "Kafka connection issues"
+          description: "Kafka message broker is not responding"
+
+      # ChromaDB Connection Issues
+      - alert: ChromaDBConnectionIssues
+        expr: up{job="chromadb"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: "chromadb"
+        annotations:
+          summary: "ChromaDB connection issues"
+          description: "ChromaDB vector database is not responding"
+
+      # Grok LLM Issues
+      - alert: GrokLLMIssues
+        expr: up{job="grok-llm"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: "grok-llm"
+        annotations:
+          summary: "Grok LLM service issues"
+          description: "Grok LLM fallback service is not responding"
+
+      # Agent Performance Issues
+      - alert: AgentPerformanceIssues
+        expr: rate(agent_tasks_failed_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          agent: "{{ $labels.agent }}"
+        annotations:
+          summary: "Agent performance issues"
+          description: "Agent {{ $labels.agent }} has high failure rate of {{ $value }} failures per second"
+
+      # High Queue Length
+      - alert: HighQueueLength
+        expr: kafka_consumer_lag_sum > 1000
+        for: 5m
+        labels:
+          severity: warning
+          topic: "{{ $labels.topic }}"
+        annotations:
+          summary: "High message queue length"
+          description: "Topic {{ $labels.topic }} has {{ $value }} messages in queue"
+
+      # Pod Restart Issues
+      - alert: PodRestartIssues
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          pod: "{{ $labels.pod }}"
+          namespace: "{{ $labels.namespace }}"
+        annotations:
+          summary: "Pod restart issues"
+          description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting frequently"
+
+      # Deployment Issues
+      - alert: DeploymentIssues
+        expr: kube_deployment_status_replicas_available / kube_deployment_status_replicas_desired < 0.8
+        for: 5m
+        labels:
+          severity: critical
+          deployment: "{{ $labels.deployment }}"
+          namespace: "{{ $labels.namespace }}"
+        annotations:
+          summary: "Deployment issues"
+          description: "Deployment {{ $labels.deployment }} in namespace {{ $labels.namespace }} has only {{ $value }}% of desired replicas available"
+
+      # HPA Scaling Issues
+      - alert: HPAScalingIssues
+        expr: kube_horizontalpodautoscaler_status_current_replicas / kube_horizontalpodautoscaler_spec_max_replicas > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          horizontalpodautoscaler: "{{ $labels.horizontalpodautoscaler }}"
+          namespace: "{{ $labels.namespace }}"
+        annotations:
+          summary: "HPA scaling issues"
+          description: "HPA {{ $labels.horizontalpodautoscaler }} in namespace {{ $labels.namespace }} is at {{ $value }}% of max replicas"
+
+      # Certificate Expiry
+      - alert: CertificateExpiry
+        expr: (ssl_cert_not_after - time()) / 86400 < 30
+        for: 1h
+        labels:
+          severity: warning
+          certificate: "{{ $labels.certificate }}"
+        annotations:
+          summary: "Certificate expiring soon"
+          description: "Certificate {{ $labels.certificate }} expires in {{ $value }} days"
+
+      # API Rate Limiting
+      - alert: APIRateLimiting
+        expr: rate(http_requests_total{status="429"}[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          service: "{{ $labels.service }}"
+        annotations:
+          summary: "API rate limiting detected"
+          description: "Service {{ $labels.service }} is rate limiting requests at {{ $value }} requests per second"
+
+      # AI Service Latency
+      - alert: AIServiceLatency
+        expr: histogram_quantile(0.95, rate(ai_request_duration_seconds_bucket[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          ai_service: "{{ $labels.ai_service }}"
+        annotations:
+          summary: "AI service high latency"
+          description: "AI service {{ $labels.ai_service }} has 95th percentile latency of {{ $value }} seconds"
+
+      # Model Loading Issues
+      - alert: ModelLoadingIssues
+        expr: ai_model_loaded == 0
+        for: 2m
+        labels:
+          severity: critical
+          model: "{{ $labels.model }}"
+        annotations:
+          summary: "Model loading issues"
+          description: "AI model {{ $labels.model }} failed to load"
+
+      # GPU Memory Issues
+      - alert: GPUMemoryIssues
+        expr: nvidia_gpu_memory_used_bytes / nvidia_gpu_memory_total_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          gpu: "{{ $labels.gpu }}"
+        annotations:
+          summary: "GPU memory usage high"
+          description: "GPU {{ $labels.gpu }} has {{ $value }}% memory usage"

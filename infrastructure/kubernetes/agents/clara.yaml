@@ -1,0 +1,161 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent47-clara
+  namespace: agent47
+  labels:
+    app: agent47-clara
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: agent47-clara
+  template:
+    metadata:
+      labels:
+        app: agent47-clara
+    spec:
+      containers:
+      - name: clara
+        image: agent47-clara:latest
+        ports:
+        - containerPort: 8002
+        env:
+        - name: AGENT_NAME
+          value: "clara"
+        - name: AGENT_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: CLARA_PORT
+        - name: DB_POSTGRES_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_HOST
+        - name: DB_POSTGRES_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_PORT
+        - name: DB_POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_USER
+        - name: DB_POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: DB_POSTGRES_DB
+        - name: DB_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: DB_POSTGRES_PASSWORD
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: REDIS_HOST
+        - name: REDIS_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: REDIS_PORT
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: KAFKA_BOOTSTRAP_SERVERS
+        - name: CHUTES_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: CHUTES_API_KEY
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: OPENAI_API_KEY
+        - name: TWILIO_ACCOUNT_SID
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: TWILIO_ACCOUNT_SID
+        - name: TWILIO_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: TWILIO_AUTH_TOKEN
+        - name: SLACK_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: SLACK_BOT_TOKEN
+        - name: DISCORD_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: agent47-secrets
+              key: DISCORD_BOT_TOKEN
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8002
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent47-clara
+  namespace: agent47
+  labels:
+    app: agent47-clara
+spec:
+  ports:
+  - port: 8002
+    targetPort: 8002
+    protocol: TCP
+  selector:
+    app: agent47-clara
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: agent47-clara-hpa
+  namespace: agent47
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: agent47-clara
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
