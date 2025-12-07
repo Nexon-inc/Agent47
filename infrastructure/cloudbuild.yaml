@@ -130,11 +130,9 @@ steps:
 # SUBSTITUTIONS
 # =============================================================================
 # These can be set in Cloud Build trigger configuration or via substitutions
-# Note: _BACKEND_URL will be automatically set after backend deployment
 substitutions:
   _SUPABASE_URL: 'https://your-project.supabase.co'
   _SUPABASE_ANON_KEY: 'your-anon-key'
-  _BACKEND_URL: ''  # Will be set dynamically or via trigger config
 
 # =============================================================================
 # OPTIONS
