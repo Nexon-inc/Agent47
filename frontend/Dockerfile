@@ -8,8 +8,9 @@ WORKDIR /app
 RUN apk add --no-cache curl && \
     npm install -g pnpm
 
-# Copy package files (using pnpm)
+# Copy package files (using pnpm). Context is set to `frontend` in Cloud Build.
 COPY package.json pnpm-lock.yaml ./
+
 
 # Install dependencies with pnpm
 RUN pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile

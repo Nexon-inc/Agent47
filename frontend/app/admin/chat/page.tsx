@@ -789,8 +789,7 @@ export default function AdminChatPage() {
       }
 
       // Execute command via API
-      const [cmd, ...argsArray] = command.trim().split(' ')
-      const result = await adminAPI.executeChatCommand(cmd, argsArray)
+      const result = await adminAPI.executeChatCommand(cmd, args)
       const actualExecutionTime = Date.now() - startTime
       
       const response = result.output || result.result || result.message || 'Command executed successfully'

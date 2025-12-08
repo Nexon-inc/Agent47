@@ -179,8 +179,9 @@ export default function AdminReportsPage() {
   }, [usageData, subscriptionData, financialData, forecastData])
 
   const loadReportsData = async () => {
-    // Data is loaded via polling hooks
-
+    try {
+      setIsLoading(true)
+      // Data is loaded via polling hooks; no manual fetch required here
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load reports data')
     } finally {

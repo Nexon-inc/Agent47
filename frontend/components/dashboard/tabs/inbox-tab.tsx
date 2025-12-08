@@ -459,7 +459,7 @@ export default function InboxTab() {
           error={error}
           title="Failed to load inbox"
           onRetry={loadInboxData}
-        </>
+        />
       )}
 
       {/* Loading State */}
