@@ -17,7 +17,7 @@ import {
   Download,
   Eye
 } from "lucide-react"
-import { useAdminStore } from "@/lib/stores/admin-store"
+import { useAuthStore } from "@/lib/stores/auth-store"
 import { adminAPI } from "@/lib/services/admin-api"
 import { Loader2, AlertCircle } from "lucide-react"
 import AdminLayout from "@/components/admin/layout"
