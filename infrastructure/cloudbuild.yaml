@@ -64,12 +64,6 @@ steps:
       - '${PROJECT_ID}'
     waitFor: ['push-backend']
 
-# ============================
-# SUBSTITUTIONS
-# ============================
-substitutions:
-  _SUPABASE_URL: 'https://your-project.supabase.co'
-  _SUPABASE_ANON_KEY: 'your-anon-key'
 
 # ============================
 # OPTIONS
