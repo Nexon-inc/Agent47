@@ -1,4 +1,4 @@
-# Google Cloud Build Configuration for Agent47
+# Google Cloud Build Configuration for Agent47 (Backend Only)
 
 steps:
   # ============================
@@ -63,65 +63,6 @@ steps:
       - '--project'
       - '${PROJECT_ID}'
     waitFor: ['push-backend']
-
-  # ============================
-  # BUILD FRONTEND IMAGE
-  # ============================
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-frontend'
-    args:
-      - 'build'
-      - '-t'
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/frontend:${SHORT_SHA}'
-      - '-t'
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/frontend:latest'
-      - '-f'
-      - 'frontend/Dockerfile'
-      - 'frontend'
-    waitFor: ['-']
-
-  # ============================
-  # PUSH FRONTEND IMAGE
-  # ============================
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-frontend'
-    args:
-      - 'push'
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/frontend'
-    waitFor: ['build-frontend']
-
-  # ============================
-  # DEPLOY FRONTEND
-  # ============================
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    id: 'deploy-frontend'
-    entrypoint: 'gcloud'
-    args:
-      - 'run'
-      - 'deploy'
-      - 'agent47-frontend'
-      - '--image'
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/frontend:${SHORT_SHA}'
-      - '--region'
-      - 'us-central1'
-      - '--platform'
-      - 'managed'
-      - '--allow-unauthenticated'
-      - '--set-env-vars'
-      - 'NEXT_PUBLIC_API_URL=https://agent47-backend-${PROJECT_ID}-uc.a.run.app,NEXT_PUBLIC_SUPABASE_URL=${_SUPABASE_URL},NEXT_PUBLIC_SUPABASE_ANON_KEY=${_SUPABASE_ANON_KEY}'
-      - '--memory'
-      - '1Gi'
-      - '--cpu'
-      - '1'
-      - '--timeout'
-      - '300'
-      - '--max-instances'
-      - '5'
-      - '--min-instances'
-      - '0'
-      - '--project'
-      - '${PROJECT_ID}'
-    waitFor: ['push-frontend']
 
 # ============================
 # SUBSTITUTIONS
