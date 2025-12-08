@@ -1,5 +1,3 @@
-# Google Cloud Build Configuration for Agent47
-
 steps:
   # ============================
   # BUILD BACKEND IMAGE
