@@ -27,8 +27,8 @@ RUN apt-get update && apt-get install -y \
 RUN groupadd -r agent47 && useradd -r -g agent47 agent47
 
 # Copy requirements first for better Docker layer caching (using repo root context)
-COPY backend/requirements.txt requirements.txt
-COPY backend/agents/requirements.txt agents-requirements.txt
+COPY backend/requirements.txt ./requirements.txt
+COPY backend/agents/requirements.txt ./agents-requirements.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip \
