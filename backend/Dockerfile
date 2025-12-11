@@ -36,7 +36,7 @@ RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r agents-requirements.txt
 
 # Copy application code
-COPY . .
+COPY backend/ .
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/logs /app/uploads /app/chroma_db /app/models \
