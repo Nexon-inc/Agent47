@@ -1,5 +1,3 @@
-# Google Cloud Build Configuration for Agent47 (Backend Only)
-
 steps:
   # ============================
   # BUILD BACKEND IMAGE
@@ -12,18 +10,27 @@ steps:
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:${SHORT_SHA}'
       - '-t'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:latest'
-      - 'backend'
+      - 'backend'  # Your build context folder
     waitFor: ['-']
 
-# ============================
-  # PUSH BACKEND IMAGE (both tags at once)
+  # ============================
+  # PUSH BACKEND IMAGE (SHORT_SHA tag)
   # ============================
   - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-backend'
+    id: 'push-backend-sha'
     args:
       - 'push'
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend'
-      - '--all-tags'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:${SHORT_SHA}'
+    waitFor: ['build-backend']
+
+  # ============================
+  # PUSH BACKEND IMAGE (latest tag)
+  # ============================
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-backend-latest'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:latest'
     waitFor: ['build-backend']
 
   # ============================
@@ -61,8 +68,7 @@ steps:
       - '0'
       - '--project'
       - '${PROJECT_ID}'
-    waitFor: ['push-backend']
-
+    waitFor: ['push-backend-sha', 'push-backend-latest']
 
 # ============================
 # OPTIONS
