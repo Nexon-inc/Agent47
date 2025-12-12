@@ -1,4 +1,3 @@
-# Agent47 Backend Dockerfile
 FROM python:3.11-slim
 
 # Set environment variables
@@ -7,7 +6,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    DEBIAN_FRONTEND=noninteractive
+    DEBIAN_FRONTEND=noninteractive \
+    PORT=8080  # Explicitly set for clarity
 
 # Set work directory
 WORKDIR /app
@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
 # Create non-root user for security
 RUN groupadd -r agent47 && useradd -r -g agent47 agent47
 
-# Copy requirements first for better Docker layer caching (using repo root context)
+# Copy requirements first for better Docker layer caching
 COPY requirements.txt ./requirements.txt
 COPY agents/requirements.txt ./agents-requirements.txt
 
@@ -48,12 +48,12 @@ RUN chmod +x /app/scripts/*.sh 2>/dev/null || true
 # Switch to non-root user
 USER agent47
 
-# Expose port
-EXPOSE 8000
+# Expose the correct port (Cloud Run requires this to match $PORT)
+EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+# Health check on the correct port (optional but recommended)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=5 \
+    CMD curl -f http://localhost:8080/health || exit 1
 
-# Run the application
-CMD ["python", "main.py"]
+# Run uvicorn directly with $PORT
+CMD exec uvicorn backend.main:app --host 0.0.0.0 --port $PORT
