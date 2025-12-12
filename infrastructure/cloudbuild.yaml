@@ -16,6 +16,7 @@ steps:
   # ============================
   # PUSH BACKEND IMAGE (SHORT_SHA tag)
   # ============================
+  
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend-sha'
     args:
