@@ -15,15 +15,15 @@ steps:
       - 'backend'
     waitFor: ['-']
 
-  # ============================
-  # PUSH BACKEND IMAGE
+# ============================
+  # PUSH BACKEND IMAGE (both tags at once)
   # ============================
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend'
     args:
       - 'push'
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:${SHORT_SHA}'
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:latest'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend'
+      - '--all-tags'
     waitFor: ['build-backend']
 
   # ============================
