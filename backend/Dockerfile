@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     DEBIAN_FRONTEND=noninteractive \
-    PORT=8080  # Explicitly set for clarity
+    PORT=8080
 
 # Set work directory
 WORKDIR /app
@@ -48,12 +48,12 @@ RUN chmod +x /app/scripts/*.sh 2>/dev/null || true
 # Switch to non-root user
 USER agent47
 
-# Expose the correct port (Cloud Run requires this to match $PORT)
+# Expose the correct port for Cloud Run
 EXPOSE 8080
 
-# Health check on the correct port (optional but recommended)
+# Health check on the correct port
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=5 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-# Run uvicorn directly with $PORT
-CMD exec uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+# Run uvicorn directly using Cloud Run's PORT
+CMD exec uvicorn main:app --host 0.0.0.0 --port $PORT
