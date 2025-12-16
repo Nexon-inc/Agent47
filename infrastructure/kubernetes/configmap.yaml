@@ -21,8 +21,15 @@ data:
   CHROMA_HOST: "chromadb"
   CHROMA_PORT: "8000"
   
-  # Grok LLM Configuration
-  GROK_API_URL: "http://grok-llm:8001"
+  # Groq API Configuration (Primary LLM Provider)
+  GROQ_API_BASE_URL: "https://api.groq.com/openai/v1"
+  GROQ_DEFAULT_MODEL: "llama-3.3-70b-versatile"
+  GROQ_MAX_TOKENS: "12000"
+  GROQ_TEMPERATURE: "0.7"
+  PRIMARY_LLM_PROVIDER: "groq"
+  
+  # Base URL for OAuth callbacks
+  BASE_URL: "https://agent47-eight.vercel.app"
   
   # Agent Ports
   ARIA_PORT: "8001"
@@ -37,8 +44,8 @@ data:
   ENVIRONMENT: "production"
   LOG_LEVEL: "INFO"
   
-  # CORS Configuration
-  CORS_ORIGINS: "https://agent47.com,https://www.agent47.com"
+  # CORS Configuration (comma-separated list)
+  CORS_ORIGINS: "https://agent47-eight.vercel.app"
   
   # Rate Limiting
   RATE_LIMIT_REQUESTS: "1000"

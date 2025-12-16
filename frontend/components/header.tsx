@@ -42,21 +42,42 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           {[
-            { name: "Home", href: "/" },
-            { name: "Features", href: "/features" },
-            { name: "Pricing", href: "/pricing" },
+            { name: "Home", href: "/", isAnchor: false },
+            { name: "Features", href: "/features", isAnchor: false },
+            { name: "Pricing", href: "#pricing", isAnchor: true },
             // Removed "Explore Agents", "Blog", "Contact"
-          ].map((item, index) => (
-            <Link
-              key={index}
-              href={item.href}
-              prefetch={true}
-              className="text-slate-900 hover:text-green-600 transition-colors duration-300 font-normal text-base relative group"
-            >
-              {item.name}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-400 to-green-600 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-          ))}
+          ].map((item, index) => {
+            if (item.isAnchor) {
+              return (
+                <a
+                  key={index}
+                  href={item.href}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const element = document.getElementById(item.href.substring(1))
+                    if (element) {
+                      element.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                  }}
+                  className="text-slate-900 hover:text-green-600 transition-colors duration-300 font-normal text-base relative group cursor-pointer"
+                >
+                  {item.name}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-400 to-green-600 group-hover:w-full transition-all duration-300"></span>
+                </a>
+              )
+            }
+            return (
+              <Link
+                key={index}
+                href={item.href}
+                prefetch={true}
+                className="text-slate-900 hover:text-green-600 transition-colors duration-300 font-normal text-base relative group"
+              >
+                {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-400 to-green-600 group-hover:w-full transition-all duration-300"></span>
+              </Link>
+            )
+          })}
         </nav>
 
         <div className="hidden md:flex items-center space-x-4">
@@ -102,9 +123,9 @@ export default function Header() {
           >
             <nav className="flex flex-col space-y-6 items-center mt-8">
               {[
-                { name: "Home", href: "/" },
-                { name: "Features", href: "/features" },
-                { name: "Pricing", href: "/pricing" },
+                { name: "Home", href: "/", isAnchor: false },
+                { name: "Features", href: "/features", isAnchor: false },
+                { name: "Pricing", href: "#pricing", isAnchor: true },
                 // Removed "Explore Agents", "Blog", "Contact"
               ].map((item, index) => (
                 <motion.div
@@ -113,13 +134,30 @@ export default function Header() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Link
-                    href={item.href}
-                    className="text-slate-900 text-xl font-normal"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
+                  {item.isAnchor ? (
+                    <a
+                      href={item.href}
+                      className="text-slate-900 text-xl font-normal cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setIsOpen(false)
+                        const element = document.getElementById(item.href.substring(1))
+                        if (element) {
+                          element.scrollIntoView({ behavior: "smooth", block: "start" })
+                        }
+                      }}
+                    >
+                      {item.name}
+                    </a>
+                  ) : (
+                    <Link
+                      href={item.href}
+                      className="text-slate-900 text-xl font-normal"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  )}
                 </motion.div>
               ))}
               <motion.div

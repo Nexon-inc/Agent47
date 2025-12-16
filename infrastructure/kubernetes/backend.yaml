@@ -21,31 +21,49 @@ spec:
         ports:
         - containerPort: 8000
         env:
-        - name: DB_POSTGRES_HOST
+        # Supabase Configuration (Database, Auth, Storage)
+        - name: SUPABASE_URL
           valueFrom:
             configMapKeyRef:
-              name: agent47-config
-              key: DB_POSTGRES_HOST
-        - name: DB_POSTGRES_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: agent47-config
-              key: DB_POSTGRES_PORT
-        - name: DB_POSTGRES_USER
-          valueFrom:
-            configMapKeyRef:
-              name: agent47-config
-              key: DB_POSTGRES_USER
-        - name: DB_POSTGRES_DB
-          valueFrom:
-            configMapKeyRef:
-              name: agent47-config
-              key: DB_POSTGRES_DB
-        - name: DB_POSTGRES_PASSWORD
+              name: supabase-config
+              key: SUPABASE_URL
+        - name: SUPABASE_ANON_KEY
           valueFrom:
             secretKeyRef:
-              name: agent47-secrets
-              key: DB_POSTGRES_PASSWORD
+              name: supabase-credentials
+              key: supabase_anon_key
+        - name: SUPABASE_SERVICE_ROLE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_service_role_key
+        - name: SUPABASE_DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: supabase-credentials
+              key: supabase_db_url
+        - name: SUPABASE_STORAGE_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_BUCKET
+        - name: SUPABASE_STORAGE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_STORAGE_URL
+        - name: SUPABASE_REALTIME_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_REALTIME_URL
+        - name: SUPABASE_AUTH_URL
+          valueFrom:
+            configMapKeyRef:
+              name: supabase-config
+              key: SUPABASE_AUTH_URL
+        
+        # Redis Configuration
         - name: REDIS_HOST
           valueFrom:
             configMapKeyRef:
@@ -56,11 +74,15 @@ spec:
             configMapKeyRef:
               name: agent47-config
               key: REDIS_PORT
+        
+        # Kafka Configuration
         - name: KAFKA_BOOTSTRAP_SERVERS
           valueFrom:
             configMapKeyRef:
               name: agent47-config
               key: KAFKA_BOOTSTRAP_SERVERS
+        
+        # ChromaDB Configuration
         - name: CHROMA_HOST
           valueFrom:
             configMapKeyRef:
@@ -71,26 +93,450 @@ spec:
             configMapKeyRef:
               name: agent47-config
               key: CHROMA_PORT
-        - name: GROK_API_URL
-          valueFrom:
-            configMapKeyRef:
-              name: agent47-config
-              key: GROK_API_URL
-        - name: CHUTES_API_KEY
+        
+        # Groq API Configuration (Primary LLM/TTS/STT)
+        - name: GROQ_API_KEY
           valueFrom:
             secretKeyRef:
               name: agent47-secrets
-              key: CHUTES_API_KEY
+              key: GROQ_API_KEY
+        - name: GROQ_API_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: GROQ_API_BASE_URL
+        - name: GROQ_DEFAULT_MODEL
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: GROQ_DEFAULT_MODEL
+        - name: GROQ_MAX_TOKENS
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: GROQ_MAX_TOKENS
+        - name: GROQ_TEMPERATURE
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: GROQ_TEMPERATURE
+        - name: PRIMARY_LLM_PROVIDER
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: PRIMARY_LLM_PROVIDER
+        
+        # Optional: OpenAI fallback (if needed)
         - name: OPENAI_API_KEY
           valueFrom:
             secretKeyRef:
               name: agent47-secrets
               key: OPENAI_API_KEY
+              optional: true
+        
+        # Platform OAuth Credentials (for users to connect their accounts)
+        # These are YOUR app credentials from each platform
+        - name: LINKEDIN_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: LINKEDIN_CLIENT_ID
+              optional: true
+        - name: LINKEDIN_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: LINKEDIN_CLIENT_SECRET
+              optional: true
+        
+        - name: FACEBOOK_APP_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: FACEBOOK_APP_ID
+              optional: true
+        - name: FACEBOOK_APP_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: FACEBOOK_APP_SECRET
+              optional: true
+        
+        - name: TWITTER_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWITTER_CLIENT_ID
+              optional: true
+        - name: TWITTER_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWITTER_CLIENT_SECRET
+              optional: true
+        - name: TWITTER_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWITTER_API_KEY
+              optional: true
+        - name: TWITTER_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWITTER_API_SECRET
+              optional: true
+        
+        - name: INSTAGRAM_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: INSTAGRAM_CLIENT_ID
+              optional: true
+        - name: INSTAGRAM_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: INSTAGRAM_CLIENT_SECRET
+              optional: true
+        
+        - name: TIKTOK_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TIKTOK_CLIENT_ID
+              optional: true
+        - name: TIKTOK_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TIKTOK_CLIENT_SECRET
+              optional: true
+        
+        - name: PINTEREST_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: PINTEREST_CLIENT_ID
+              optional: true
+        - name: PINTEREST_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: PINTEREST_CLIENT_SECRET
+              optional: true
+        
+        - name: YOUTUBE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: YOUTUBE_CLIENT_ID
+              optional: true
+        - name: YOUTUBE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: YOUTUBE_CLIENT_SECRET
+              optional: true
+        - name: YOUTUBE_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: YOUTUBE_API_KEY
+              optional: true
+        
+        - name: GOOGLE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: GOOGLE_CLIENT_ID
+              optional: true
+        - name: GOOGLE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: GOOGLE_CLIENT_SECRET
+              optional: true
+        
+        - name: SLACK_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SLACK_CLIENT_ID
+              optional: true
+        - name: SLACK_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SLACK_CLIENT_SECRET
+              optional: true
+        - name: SLACK_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SLACK_BOT_TOKEN
+              optional: true
+        - name: SLACK_SIGNING_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SLACK_SIGNING_SECRET
+              optional: true
+        
+        - name: DISCORD_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: DISCORD_CLIENT_ID
+              optional: true
+        - name: DISCORD_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: DISCORD_CLIENT_SECRET
+              optional: true
+        - name: DISCORD_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: DISCORD_BOT_TOKEN
+              optional: true
+        
+        - name: HUBSPOT_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: HUBSPOT_CLIENT_ID
+              optional: true
+        - name: HUBSPOT_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: HUBSPOT_CLIENT_SECRET
+              optional: true
+        
+        - name: SALESFORCE_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SALESFORCE_CLIENT_ID
+              optional: true
+        - name: SALESFORCE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SALESFORCE_CLIENT_SECRET
+              optional: true
+        
+        - name: MAILCHIMP_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: MAILCHIMP_CLIENT_ID
+              optional: true
+        - name: MAILCHIMP_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: MAILCHIMP_CLIENT_SECRET
+              optional: true
+        
+        - name: SENDGRID_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SENDGRID_API_KEY
+              optional: true
+        
+        - name: BUFFER_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: BUFFER_CLIENT_ID
+              optional: true
+        - name: BUFFER_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: BUFFER_CLIENT_SECRET
+              optional: true
+        - name: BUFFER_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: BUFFER_ACCESS_TOKEN
+              optional: true
+        
+        - name: SHOPIFY_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SHOPIFY_CLIENT_ID
+              optional: true
+        - name: SHOPIFY_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SHOPIFY_CLIENT_SECRET
+              optional: true
+        - name: SHOPIFY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SHOPIFY_API_KEY
+              optional: true
+        - name: SHOPIFY_API_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SHOPIFY_API_SECRET
+              optional: true
+        - name: SHOPIFY_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SHOPIFY_ACCESS_TOKEN
+              optional: true
+        - name: SHOPIFY_SHOP_DOMAIN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SHOPIFY_SHOP_DOMAIN
+              optional: true
+        
+        - name: TWITTER_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWITTER_ACCESS_TOKEN
+              optional: true
+        - name: TWITTER_ACCESS_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWITTER_ACCESS_TOKEN_SECRET
+              optional: true
+        - name: TWITTER_BEARER_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWITTER_BEARER_TOKEN
+              optional: true
+        
+        - name: HUBSPOT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: HUBSPOT_API_KEY
+              optional: true
+        
+        - name: SALESFORCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SALESFORCE_USERNAME
+              optional: true
+        - name: SALESFORCE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SALESFORCE_PASSWORD
+              optional: true
+        - name: SALESFORCE_SECURITY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SALESFORCE_SECURITY_TOKEN
+              optional: true
+        
+        - name: MAILCHIMP_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: MAILCHIMP_API_KEY
+              optional: true
+        
+        # Integration/Tool API Keys (Platform-Level)
+        - name: BRANDWATCH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: BRANDWATCH_API_KEY
+              optional: true
+        
+        - name: SEMRUSH_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: SEMRUSH_API_KEY
+              optional: true
+        
+        - name: CANVA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: CANVA_API_KEY
+              optional: true
+        
+        - name: GMAIL_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: GMAIL_CLIENT_ID
+              optional: true
+        - name: GMAIL_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: GMAIL_CLIENT_SECRET
+              optional: true
+        - name: GMAIL_REFRESH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: GMAIL_REFRESH_TOKEN
+              optional: true
+        - name: GMAIL_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: GMAIL_ACCESS_TOKEN
+              optional: true
+        
+        - name: TWILIO_ACCOUNT_SID
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWILIO_ACCOUNT_SID
+              optional: true
+        - name: TWILIO_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWILIO_AUTH_TOKEN
+              optional: true
+        - name: TWILIO_PHONE_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: TWILIO_PHONE_NUMBER
+              optional: true
+        
+        - name: GOOGLE_MAPS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: platform-oauth-credentials
+              key: GOOGLE_MAPS_API_KEY
+              optional: true
+        
+        # Authentication
         - name: JWT_SECRET_KEY
           valueFrom:
             secretKeyRef:
               name: agent47-secrets
               key: JWT_SECRET_KEY
+        
+        # Environment Settings
         - name: ENVIRONMENT
           valueFrom:
             configMapKeyRef:
@@ -101,6 +547,16 @@ spec:
             configMapKeyRef:
               name: agent47-config
               key: LOG_LEVEL
+        - name: BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: BASE_URL
+        - name: BACKEND_CORS_ORIGINS
+          valueFrom:
+            configMapKeyRef:
+              name: agent47-config
+              key: CORS_ORIGINS
         resources:
           requests:
             memory: "1Gi"
