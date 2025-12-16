@@ -53,7 +53,8 @@ export default function Footer() {
               title: "Product",
               links: [
                 { name: "Features", path: "/features" },
-                { name: "Pricing", path: "/pricing" },
+                // Use landing page pricing section instead of onboarding pricing flow
+                { name: "Pricing", path: "/#pricing" },
                 { name: "Roadmap", path: "/roadmap" }, // Added roadmap link
               ],
             },
