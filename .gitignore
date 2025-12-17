@@ -229,6 +229,9 @@ dist
 # Gatsby files
 .cache/
 public
+# Allow frontend Next.js public assets to be committed
+!frontend/public/
+!frontend/public/**
 
 # Storybook build outputs
 .out
