@@ -27,7 +27,7 @@ ffmpeg-python>=0.2.0
 opencv-python-headless==4.8.1.78
 imageio==2.31.6
 scikit-image==0.22.0
-Pillow>=10.1.0
+Pillow<10.1.0,>=10.0.0
 
 # =============================================================================
 # WEB SCRAPING (HEADLESS & SAFE)
