@@ -7,22 +7,20 @@ pydantic>=2.5.0
 pydantic-settings>=2.1.0
 
 # =============================================================================
-# DATABASE (Supabase) — HARD PINNED (CRITICAL FIX)
+# DATABASE (Supabase) — HARD PINNED FOR COMPATIBILITY
 # =============================================================================
 sqlalchemy>=2.0.23
 asyncpg>=0.29.0
 alembic>=1.13.1
 psycopg2-binary>=2.9.9
-
-supabase==2.4.5
-storage3==0.7.6
-httpx==0.27.0
+supabase==2.4.5           # Older version that works reliably with httpx 0.27.0
+storage3==0.7.6           # Explicit pin to avoid newer breaking changes
+httpx==0.27.0             # Critical pin: fixes HTTPStatusError ImportError in storage3 & gotrue
 
 # =============================================================================
 # CACHE & SESSION
 # =============================================================================
 redis>=5.0.1
-# aioredis REMOVED (deprecated; use redis.asyncio)
 
 # =============================================================================
 # MESSAGE BROKER
