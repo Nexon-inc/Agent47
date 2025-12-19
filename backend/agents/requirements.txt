@@ -37,10 +37,6 @@ lxml==4.9.3
 newspaper3k==0.2.8
 scrapy==2.11.0
 
-# ⚠️ requests-html REMOVED (breaks with modern httpx)
-# ⚠️ selenium REMOVED (not Cloud Run safe)
-# ⚠️ playwright REMOVED (requires system deps)
-
 # =============================================================================
 # DATA ANALYSIS & VISUALIZATION
 # =============================================================================
@@ -51,15 +47,11 @@ seaborn==0.13.0
 bokeh==3.3.2
 altair==5.2.0
 
-# ⚠️ streamlit REMOVED (server conflicts with FastAPI)
-
 # =============================================================================
 # EMAIL / IMAP
 # =============================================================================
 email-validator==2.1.0
 imapclient==2.3.1
-
-# ⚠️ imaplib2 REMOVED (unmaintained)
 
 # =============================================================================
 # PDF PROCESSING
@@ -74,8 +66,6 @@ PyPDF2==3.0.1
 openpyxl==3.1.2
 xlsxwriter==3.1.9
 xlrd==2.0.1
-
-# ⚠️ xlwt REMOVED (deprecated)
 
 # =============================================================================
 # GOOGLE APIs (PINNED TO AVOID CONFLICTS)
@@ -100,8 +90,6 @@ tweepy==4.14.0
 facebook-sdk==3.1.0
 linkedin-api==2.2.0
 praw==7.7.1
-
-# ⚠️ instagram-basic-display REMOVED (non-installable)
 
 # =============================================================================
 # ANALYTICS & MARKETING
@@ -152,8 +140,6 @@ ccxt==4.1.77
 # PROFILING & PERFORMANCE
 # =============================================================================
 memory-profiler==0.61.0
-
-# ⚠️ py-spy REMOVED (requires ptrace; fails in containers)
 
 # =============================================================================
 # SCIENTIFIC / ML
