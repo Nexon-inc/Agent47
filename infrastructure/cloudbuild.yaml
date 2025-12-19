@@ -1,20 +1,20 @@
 steps:
   # ============================
-  # BUILD BACKEND IMAGE
+  # BUILD BACKEND IMAGE (NO CACHE)
   # ============================
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-backend'
     args:
       - 'build'
+      - '--no-cache'
       - '-t'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:${SHORT_SHA}'
       - '-t'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:latest'
       - 'backend'
-    waitFor: ['-']
 
   # ============================
-  # PUSH BACKEND IMAGE (both tags in one step)
+  # PUSH BACKEND IMAGE (ALL TAGS)
   # ============================
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend'
@@ -25,7 +25,7 @@ steps:
     waitFor: ['build-backend']
 
   # ============================
-  # DEPLOY BACKEND
+  # DEPLOY BACKEND TO CLOUD RUN
   # ============================
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy-backend'
@@ -44,19 +44,23 @@ steps:
       - '--service-account'
       - 'agent47-run@${PROJECT_ID}.iam.gserviceaccount.com'
 
-      # Plain environment variables (non-sensitive)
+      # ============================
+      # ENV VARS
+      # ============================
       - '--set-env-vars'
       - 'ENVIRONMENT=production,DEBUG=false,PRIMARY_LLM_PROVIDER=groq,BASE_URL=https://agent47-eight.vercel.app'
 
-      # === SECRETS INJECTION (only using EXISTING secrets) ===
+      # ============================
+      # SECRETS
+      # ============================
       - '--set-secrets'
-      - 'SUPABASE_URL=supabase-url:latest,SUPABASE_ANON_KEY=supabase-anon-key:latest,SUPABASE_SERVICE_ROLE_KEY=supabase-service-key:latest'  # Fixed: was supabase-service-role-key
+      - 'SUPABASE_URL=supabase-url:latest,SUPABASE_ANON_KEY=supabase-anon-key:latest,SUPABASE_SERVICE_ROLE_KEY=supabase-service-key:latest'
 
       - '--set-secrets'
-      - 'JWT_SECRET_KEY=jwt-secret:latest,SECURITY_SECRET_KEY=security-secret-key:latest'  # Fixed: jwt-secret-key → jwt-secret
+      - 'JWT_SECRET_KEY=jwt-secret:latest,SECURITY_SECRET_KEY=security-secret-key:latest'
 
       - '--set-secrets'
-      - 'GROQ_API_KEY=groq-api-key:latest,OPENAI_API_KEY=openai-api-key:latest,GOOGLE_GEMINI_API_KEY=gemini-api-key:latest'  # Fixed: google-gemini-api-key → gemini-api-key
+      - 'GROQ_API_KEY=groq-api-key:latest,OPENAI_API_KEY=openai-api-key:latest,GOOGLE_GEMINI_API_KEY=gemini-api-key:latest'
 
       - '--set-secrets'
       - 'REDIS_HOST=redis-host:latest,REDIS_PORT=redis-port:latest'
@@ -68,7 +72,7 @@ steps:
       - 'CHROMA_HOST=chroma-host:latest,CHROMA_PORT=chroma-port:latest'
 
       - '--set-secrets'
-      - 'BILLING_PAYSTACK_SECRET_KEY=paystack-secret-key:latest,BILLING_PAYSTACK_PUBLIC_KEY=paystack-public-key:latest'  # Removed webhook secret (doesn't exist)
+      - 'BILLING_PAYSTACK_SECRET_KEY=paystack-secret-key:latest,BILLING_PAYSTACK_PUBLIC_KEY=paystack-public-key:latest'
 
       - '--set-secrets'
       - 'GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,GOOGLE_MAPS_API_KEY=google-maps-api-key:latest'
@@ -98,9 +102,11 @@ steps:
       - 'TIKTOK_CLIENT_ID=tiktok-client-id:latest,TIKTOK_CLIENT_SECRET=tiktok-client-secret:latest'
 
       - '--set-secrets'
-      - 'PINTEREST_CLIENT_ID=pinterest-client-id:latest,PINTEREST_CLIENT_SECRET=pinterest-secret-id:latest'  # Fixed: pinterest-client-secret → pinterest-secret-id
+      - 'PINTEREST_CLIENT_ID=pinterest-client-id:latest,PINTEREST_CLIENT_SECRET=pinterest-secret-id:latest'
 
-      # Hardware & scaling
+      # ============================
+      # RESOURCES
+      # ============================
       - '--memory'
       - '2Gi'
       - '--cpu'
