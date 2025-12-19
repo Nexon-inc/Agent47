@@ -33,9 +33,8 @@ import {
   Calendar,
   FileText,
   Image,
-  ImageIcon,
   Video,
-  VideoIcon,
+  Video as VideoIcon,
   Music,
   Map,
   ShoppingCart,
@@ -145,9 +144,7 @@ import {
   Camera,
   Film,
   Disc,
-  Headphones,
   Speaker,
-  Mic,
 } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
