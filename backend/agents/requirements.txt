@@ -1,74 +1,84 @@
-# Agent-Specific Requirements
-# Dependencies for all AI agents (Aria, Clara, Eric, Jackie, Joe, Purity, Shakes)
+# =============================================================================
+# AGENT-SPECIFIC REQUIREMENTS (CLOUD-RUN SAFE)
+# Dependencies for all AI agents
+# =============================================================================
 
 # =============================================================================
-# NATURAL LANGUAGE PROCESSING
+# NLP
 # =============================================================================
 nltk==3.8.1
 spacy==3.7.2
 textblob==0.17.1
-wordcloud
+wordcloud>=1.9.3
 
 # =============================================================================
-# VIDEO/AUDIO PROCESSING (for content agents - Aria, Shakes)
+# VIDEO / AUDIO PROCESSING
 # =============================================================================
 moviepy==1.0.3
 pydub==0.25.1
-speechrecognition==3.10.0
+SpeechRecognition==3.10.0
 librosa==0.10.1
 soundfile==0.12.1
+ffmpeg-python>=0.2.0
 
 # =============================================================================
-# IMAGE PROCESSING (for content agents - Aria, Shakes)
+# IMAGE PROCESSING
 # =============================================================================
-opencv-python==4.8.1.78
+opencv-python-headless==4.8.1.78
 imageio==2.31.6
 scikit-image==0.22.0
+Pillow>=10.1.0
 
 # =============================================================================
-# WEB SCRAPING (for research agents - Joe, Purity)
+# WEB SCRAPING (HEADLESS & SAFE)
 # =============================================================================
 beautifulsoup4==4.12.2
 lxml==4.9.3
-requests-html==0.10.0
 newspaper3k==0.2.8
 scrapy==2.11.0
-selenium==4.15.2
-playwright==1.40.0
+
+# ⚠️ requests-html REMOVED (breaks with modern httpx)
+# ⚠️ selenium REMOVED (not Cloud Run safe)
+# ⚠️ playwright REMOVED (requires system deps)
 
 # =============================================================================
-# DATA ANALYSIS (for analytics agents - Jackie, Purity)
+# DATA ANALYSIS & VISUALIZATION
 # =============================================================================
 plotly==5.17.0
 dash==2.14.2
-seaborn==0.13.0
 matplotlib==3.8.2
-streamlit==1.28.1
+seaborn==0.13.0
+bokeh==3.3.2
+altair==5.2.0
+
+# ⚠️ streamlit REMOVED (server conflicts with FastAPI)
 
 # =============================================================================
-# EMAIL PROCESSING (for marketing agents - Jackie, Eric)
+# EMAIL / IMAP
 # =============================================================================
 email-validator==2.1.0
 imapclient==2.3.1
-imaplib2==3.6
+
+# ⚠️ imaplib2 REMOVED (unmaintained)
 
 # =============================================================================
-# PDF PROCESSING (for content agents - Shakes, Purity)
+# PDF PROCESSING
 # =============================================================================
 pymupdf==1.23.8
 pdfplumber==0.10.3
 PyPDF2==3.0.1
 
 # =============================================================================
-# EXCEL PROCESSING (for business agents - Purity, Eric)
+# EXCEL / CSV
 # =============================================================================
 openpyxl==3.1.2
 xlsxwriter==3.1.9
 xlrd==2.0.1
-xlwt==1.3.0
+
+# ⚠️ xlwt REMOVED (deprecated)
 
 # =============================================================================
-# CALENDAR INTEGRATION (for scheduling agents - Aria, Clara)
+# GOOGLE APIs (PINNED TO AVOID CONFLICTS)
 # =============================================================================
 google-api-python-client==2.108.0
 google-auth==2.25.2
@@ -76,193 +86,107 @@ google-auth-oauthlib==1.1.0
 google-auth-httplib2==0.1.1
 
 # =============================================================================
-# CRM INTEGRATIONS (for sales agents - Eric)
+# CRM / BUSINESS APIS
 # =============================================================================
 salesforce-bulk==2.2.0
 hubspot-api-client==7.0.0
-# pipedrive-python-client==1.0.0  # Package doesn't exist - using direct API calls instead
-# Note: Pipedrive integration uses direct HTTP API calls via httpx/requests
+stripe==7.8.0
+paypalrestsdk==1.13.3
 
 # =============================================================================
-# SOCIAL MEDIA APIs (for social agents - Aria, Jackie)
+# SOCIAL MEDIA
 # =============================================================================
 tweepy==4.14.0
 facebook-sdk==3.1.0
 linkedin-api==2.2.0
-instagram-basic-display
 praw==7.7.1
 
-# =============================================================================
-# PAYMENT PROCESSING (for business agents - Purity, Eric)
-# =============================================================================
-stripe==7.8.0
-# paystack==1.0.0  # Package doesn't exist - using direct API calls via httpx instead
-paypalrestsdk==1.13.3
+# ⚠️ instagram-basic-display REMOVED (non-installable)
 
 # =============================================================================
-# SURVEY TOOLS (for research agents - Joe, Purity)
-# =============================================================================
-# surveymonkey>=0.1.0  # May not exist
-# typeform>=0.1.0      # May not exist
-
-# =============================================================================
-# ANALYTICS TOOLS (for marketing agents - Jackie, Aria)
+# ANALYTICS & MARKETING
 # =============================================================================
 google-analytics-data==0.18.6
 facebook-business==18.0.0
 mixpanel==4.10.0
 
 # =============================================================================
-# COMMUNICATION TOOLS (for support agents - Clara)
+# COMMUNICATION
 # =============================================================================
 twilio==8.10.0
 sendgrid==6.10.0
-# mailgun>=0.1.0  # May not exist
 
 # =============================================================================
-# PROJECT MANAGEMENT (for business agents - Purity)
-# =============================================================================
-# asana>=0.10.0    # May not exist
-# trello>=0.1.0    # May not exist
-# monday>=0.1.0    # May not exist
-
-# =============================================================================
-# FILE STORAGE (for content agents - Shakes, Aria)
+# FILE STORAGE
 # =============================================================================
 dropbox==11.36.2
 google-cloud-storage==2.10.0
 azure-storage-blob==12.19.0
-# boto3==1.34.0  # Removed - using Supabase Storage instead
 
 # =============================================================================
-# TRANSLATION SERVICES (for content agents - Shakes, Clara)
+# TRANSLATION & VOICE
 # =============================================================================
 googletrans==4.0.0rc1
 deepl==1.15.0
-
-# =============================================================================
-# VOICE PROCESSING (for content agents - Shakes, Clara)
-# =============================================================================
 gTTS==2.4.0
 pyttsx3==2.90
 
 # =============================================================================
-# QR CODE GENERATION (for marketing agents - Jackie)
+# UTILITIES
 # =============================================================================
 qrcode==7.4.2
-
-# =============================================================================
-# BARCODE GENERATION (for business agents - Purity)
-# =============================================================================
 python-barcode==0.15.1
-
-# =============================================================================
-# TIMEZONE HANDLING (for scheduling agents - Aria)
-# =============================================================================
-pytz==2023.3
-tzdata==2023.3
-
-# =============================================================================
-# CURRENCY CONVERSION (for business agents - Purity)
-# =============================================================================
-forex-python
-
-# =============================================================================
-# WEATHER API (for location-based agents - Joe)
-# =============================================================================
+pyshorteners==1.0.1
+forex-python>=1.8
 pyowm==3.3.0
-
-# =============================================================================
-# NEWS API (for research agents - Joe)
-# =============================================================================
 newsapi-python==0.2.7
 
 # =============================================================================
-# STOCK MARKET DATA (for business agents - Purity, Joe)
+# FINANCE / MARKETS
 # =============================================================================
 yfinance==0.2.28
 alpha-vantage==2.3.1
-
-# =============================================================================
-# CRYPTOCURRENCY (for business agents - Purity)
-# =============================================================================
 ccxt==4.1.77
 
 # =============================================================================
-# EMAIL TEMPLATES (for marketing agents - Jackie, Eric)
-# =============================================================================
-jinja2==3.1.2
-
-# =============================================================================
-# URL SHORTENING (for marketing agents - Jackie)
-# =============================================================================
-pyshorteners==1.0.1
-
-# =============================================================================
-# CAPTCHA SOLVING (for automation agents)
-# =============================================================================
-# 2captcha-python>=1.1.3  # May not exist
-
-# =============================================================================
-# WEBHOOK TESTING (for integration agents)
-# =============================================================================
-ngrok
-
-# =============================================================================
-# API DOCUMENTATION (for all agents)
-# =============================================================================
-# swagger-ui-bundle>=0.1.0  # May not exist
-
-# =============================================================================
-# MEMORY PROFILING (for performance agents)
+# PROFILING & PERFORMANCE
 # =============================================================================
 memory-profiler==0.61.0
 
-# =============================================================================
-# CPU PROFILING (for performance agents)
-# =============================================================================
-py-spy==0.3.14
+# ⚠️ py-spy REMOVED (requires ptrace; fails in containers)
 
 # =============================================================================
-# SCIENTIFIC COMPUTING (for analytics agents)
+# SCIENTIFIC / ML
 # =============================================================================
 scipy==1.11.4
 sympy==1.12
+statsmodels>=0.14.0
+gensim>=4.3.2
+networkx>=3.2.1
 
 # =============================================================================
-# MACHINE LEARNING (for AI agents)
+# MACHINE LEARNING
 # =============================================================================
 xgboost==2.0.2
 lightgbm==4.1.0
 
 # =============================================================================
-# DEEP LEARNING (for advanced AI)
+# DEEP LEARNING (AGENTS ONLY)
 # =============================================================================
-tensorflow>=2.15.0
-keras>=2.15.0
+tensorflow==2.15.0
+keras==2.15.0
 
 # =============================================================================
-# DATA VISUALIZATION
-# =============================================================================
-bokeh==3.3.2
-altair==5.2.0
-
-# =============================================================================
-# TIME SERIES ANALYSIS
+# TIME SERIES
 # =============================================================================
 prophet==1.1.4
 arch==6.2.0
 
 # =============================================================================
-# GEOSPATIAL ANALYSIS
+# GEOSPATIAL
 # =============================================================================
 geopandas==0.14.1
 folium==0.15.0
-
-# =============================================================================
-# NETWORK ANALYSIS
-# =============================================================================
-networkx>=3.2.1
 
 # =============================================================================
 # OPTIMIZATION
@@ -271,68 +195,21 @@ cvxpy>=1.4.1
 pulp>=2.7.0
 
 # =============================================================================
-# STATISTICAL ANALYSIS
-# =============================================================================
-statsmodels>=0.14.0
-pingouin>=0.5.3
-
-# =============================================================================
-# TEXT MINING
-# =============================================================================
-gensim>=4.3.2
-
-# =============================================================================
-# VIDEO PROCESSING
-# =============================================================================
-ffmpeg-python>=0.2.0
-
-# =============================================================================
-# HUGGING FACE ECOSYSTEM
+# HUGGING FACE ECOSYSTEM (PINNED)
 # =============================================================================
 huggingface-hub>=0.19.4
 accelerate>=0.25.0
-# bitsandbytes>=0.41.3  # May have compatibility issues
 sentencepiece>=0.1.99
-protobuf>=4.25.1
-# xformers>=0.0.22  # May have compatibility issues
+protobuf==4.25.1
 
 # =============================================================================
-# LANGCHAIN ECOSYSTEM (using compatible versions)
+# LANGCHAIN (SAFE CORE ONLY)
 # =============================================================================
-langchain>=0.1.0
-langchain-core>=0.1.0
-# langchain-community>=0.0.10
-# langchain-openai>=0.0.5
-# langchain-anthropic>=0.1.0
-# langchain-google-genai>=0.0.6
-# langchain-huggingface>=0.0.1
-# langchain-chroma>=0.1.0
-# langchain-pinecone>=0.0.6
-# langchain-weaviate>=0.0.1
-# langchain-elasticsearch>=0.0.1
-# langchain-milvus>=0.0.1
-# langchain-qdrant>=0.1.0
-# langchain-redis>=0.0.1
-# langchain-supabase>=0.0.1
-# langchain-postgres>=0.0.6
-# langchain-mongodb>=0.0.1
-# langchain-cassandra>=0.0.1
-# langchain-dynamodb>=0.0.1
-# langchain-faiss>=0.0.1
-# langchain-astradb>=0.0.1
-# langchain-myscale>=0.0.1
-# langchain-singlestore>=0.0.1
-# langchain-opensearch>=0.0.1
-# langchain-vectara>=0.0.1
-# langchain-zilliz>=0.0.1
+langchain==0.1.0
+langchain-core==0.1.0
 
 # =============================================================================
-# ALIBABA CLOUD INTEGRATIONS (optional - may not exist)
+# TIMEZONE
 # =============================================================================
-# langchain-alibaba-cloud-open-search>=0.0.1
-# langchain-alibaba-cloud-elasticsearch>=0.0.1
-# langchain-alibaba-cloud-analyticdb>=0.0.1
-# langchain-alibaba-cloud-oss>=0.0.1
-# langchain-alibaba-cloud-dashvector>=0.0.1
-# langchain-alibaba-cloud-hologres>=0.0.1
-# langchain-alibaba-cloud-pai>=0.0.1
+pytz==2023.3
+tzdata==2023.3
