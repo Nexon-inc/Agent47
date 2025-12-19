@@ -44,19 +44,19 @@ steps:
       - '--service-account'
       - 'agent47-run@${PROJECT_ID}.iam.gserviceaccount.com'
 
-      # Plain environment variables (no secrets here)
+      # Plain environment variables (non-sensitive)
       - '--set-env-vars'
       - 'ENVIRONMENT=production,DEBUG=false,PRIMARY_LLM_PROVIDER=groq,BASE_URL=https://agent47-eight.vercel.app'
 
-      # === ALL SECRETS INJECTED VIA --set-secrets (split into safe groups) ===
+      # === SECRETS INJECTION (only using EXISTING secrets) ===
       - '--set-secrets'
-      - 'SUPABASE_URL=supabase-url:latest,SUPABASE_ANON_KEY=supabase-anon-key:latest,SUPABASE_SERVICE_ROLE_KEY=supabase-service-role-key:latest,SUPABASE_DB_URL=supabase-db-url:latest'
+      - 'SUPABASE_URL=supabase-url:latest,SUPABASE_ANON_KEY=supabase-anon-key:latest,SUPABASE_SERVICE_ROLE_KEY=supabase-service-key:latest'  # Fixed: was supabase-service-role-key
 
       - '--set-secrets'
-      - 'JWT_SECRET_KEY=jwt-secret-key:latest,SECURITY_SECRET_KEY=security-secret-key:latest'
+      - 'JWT_SECRET_KEY=jwt-secret:latest,SECURITY_SECRET_KEY=security-secret-key:latest'  # Fixed: jwt-secret-key → jwt-secret
 
       - '--set-secrets'
-      - 'GROQ_API_KEY=groq-api-key:latest,OPENAI_API_KEY=openai-api-key:latest,GOOGLE_GEMINI_API_KEY=google-gemini-api-key:latest'
+      - 'GROQ_API_KEY=groq-api-key:latest,OPENAI_API_KEY=openai-api-key:latest,GOOGLE_GEMINI_API_KEY=gemini-api-key:latest'  # Fixed: google-gemini-api-key → gemini-api-key
 
       - '--set-secrets'
       - 'REDIS_HOST=redis-host:latest,REDIS_PORT=redis-port:latest'
@@ -68,7 +68,7 @@ steps:
       - 'CHROMA_HOST=chroma-host:latest,CHROMA_PORT=chroma-port:latest'
 
       - '--set-secrets'
-      - 'BILLING_PAYSTACK_SECRET_KEY=paystack-secret-key:latest,BILLING_PAYSTACK_PUBLIC_KEY=paystack-public-key:latest,BILLING_PAYSTACK_WEBHOOK_SECRET=paystack-webhook-secret:latest'
+      - 'BILLING_PAYSTACK_SECRET_KEY=paystack-secret-key:latest,BILLING_PAYSTACK_PUBLIC_KEY=paystack-public-key:latest'  # Removed webhook secret (doesn't exist)
 
       - '--set-secrets'
       - 'GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,GOOGLE_MAPS_API_KEY=google-maps-api-key:latest'
@@ -98,7 +98,7 @@ steps:
       - 'TIKTOK_CLIENT_ID=tiktok-client-id:latest,TIKTOK_CLIENT_SECRET=tiktok-client-secret:latest'
 
       - '--set-secrets'
-      - 'PINTEREST_CLIENT_ID=pinterest-client-id:latest,PINTEREST_CLIENT_SECRET=pinterest-client-secret:latest'
+      - 'PINTEREST_CLIENT_ID=pinterest-client-id:latest,PINTEREST_CLIENT_SECRET=pinterest-secret-id:latest'  # Fixed: pinterest-client-secret → pinterest-secret-id
 
       # Hardware & scaling
       - '--memory'
