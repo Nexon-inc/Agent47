@@ -7,18 +7,21 @@ pydantic>=2.5.0
 pydantic-settings>=2.1.0
 
 # =============================================================================
-# DATABASE (Supabase) — HARD PINNED FOR COMPATIBILITY
+# DATABASE (Supabase) — COMPATIBLE SET
 # =============================================================================
 sqlalchemy>=2.0.23
 asyncpg>=0.29.0
 alembic>=1.13.1
 psycopg2-binary>=2.9.9
-supabase==2.4.5           # Older version that works reliably with httpx 0.27.0
-storage3==0.7.6           # Explicit pin to avoid newer breaking changes
-httpx==0.27.0             # Critical pin: fixes HTTPStatusError ImportError in storage3 & gotrue
+
+supabase==2.4.5
+storage3==0.7.6
+
+# 🔑 CRITICAL FIX
+httpx>=0.28.1,<0.29.0
 
 # =============================================================================
-# CACHE & SESSION
+# CACHE
 # =============================================================================
 redis>=5.0.1
 
@@ -60,10 +63,10 @@ python-multipart>=0.0.6
 cryptography>=41.0.8
 
 # =============================================================================
-# FILE PROCESSING
+# FILE PROCESSING (MATCH AGENTS)
 # =============================================================================
 python-magic>=0.4.27
-Pillow>=10.1.0
+Pillow>=10.0.0,<10.1.0
 python-docx>=1.1.0
 PyPDF2>=3.0.1
 
@@ -74,33 +77,33 @@ fastapi-mail>=1.4.1
 aiosmtplib>=3.0.1
 
 # =============================================================================
-# GMAIL API
+# GOOGLE APIs (ALIGN WITH AGENTS)
 # =============================================================================
-google-auth>=2.40.3
-google-auth-oauthlib>=1.2.2
-google-auth-httplib2>=0.2.0
-google-api-python-client>=2.185.0
+google-api-python-client==2.108.0
+google-auth==2.25.2
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1
 
 # =============================================================================
-# MONITORING & LOGGING
+# MONITORING
 # =============================================================================
 prometheus-client>=0.19.0
 structlog>=23.2.0
 sentry-sdk[fastapi]>=1.38.0
 
 # =============================================================================
-# WEBSOCKET SUPPORT
+# WEBSOCKETS
 # =============================================================================
 websockets>=12.0
 
 # =============================================================================
-# BACKGROUND TASKS
+# TASK QUEUES
 # =============================================================================
 celery>=5.3.4
 rq>=1.15.1
 
 # =============================================================================
-# CONFIGURATION & ENVIRONMENT
+# CONFIG
 # =============================================================================
 python-dotenv>=1.0.0
 pyyaml>=6.0.1
@@ -110,7 +113,7 @@ pyyaml>=6.0.1
 # =============================================================================
 tqdm>=4.66.1
 python-dateutil>=2.8.2
-pytz>=2023.3
+pytz==2023.3
 psutil>=5.9.6
 jsonschema>=4.20.0
 colorlog>=6.8.0
