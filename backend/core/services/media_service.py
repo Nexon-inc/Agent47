@@ -6,7 +6,7 @@ All agents can use this service for Google Gemini image generation
 from typing import Dict, Any, Optional
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.storage.s3_manager import storage_manager
-from core.database.models import UserTier
+from core.database.models import User, UserTier
 from core.database import get_database
 import base64
 import logging

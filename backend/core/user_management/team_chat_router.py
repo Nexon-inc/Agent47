@@ -12,7 +12,7 @@ import logging
 from pydantic import BaseModel
 
 from ..database import get_database
-from ..database.models import User, Team, TeamMember, TeamChatMessage
+from ..database.models import User, Team, TeamMember, TeamChatMessage, UserTier
 from ..authentication.auth_manager import get_current_active_user
 from ..user_management.team_management_router import check_team_access
 from ..storage import get_chroma
@@ -415,4 +415,3 @@ async def post_agent_output(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to post agent output"
         )
-
