@@ -3,7 +3,7 @@ import uuid
 from typing import Callable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-from ..logs import APILogger
+from core.logs import APILogger
 
 # Create logger instance
 api_logger = APILogger()
