@@ -2,15 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, Any, List, Optional
 from datetime import datetime, date
 from pydantic import BaseModel, Field
-from backend.core.user_management.calendar_service import (
+from core.user_management.calendar_service import (
     get_calendar_service,
     CalendarService,
     EventType,
     EventStatus,
     RecurrenceType
 )
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.user_management.user_manager import User
+from core.authentication.auth_manager import get_current_user
+from core.user_management.user_manager import User
 
 router = APIRouter(prefix="/calendar", tags=["calendar"])
 
