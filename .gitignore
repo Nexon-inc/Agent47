@@ -491,7 +491,7 @@ agent47.db
 agent47.log
 chroma_db/
 uploads/
-logs/
+!logs/
 models/
 checkpoints/
 
