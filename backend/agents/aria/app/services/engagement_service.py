@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.database.connection import get_supabase
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.database.connection import get_supabase
 from ..models import EngagementEvent
 
 

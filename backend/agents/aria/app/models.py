@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, JSON, Text, Enum, Float, UniqueConstraint, Index
 from sqlalchemy.sql import func
 import enum
-from backend.core.database.models import Base
+from core.database.models import Base
 
 
 class PlatformEnum(enum.Enum):

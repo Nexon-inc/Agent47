@@ -5,7 +5,7 @@ import logging
 
 from ..services.tone_branding_service import ToneBrandingService, ToneProfile, BrandingProfile
 from ..database import get_eric_database
-from backend.core.cache.redis_manager import RedisManager
+from core.cache.redis_manager import RedisManager
 
 router = APIRouter(prefix="/tone-branding", tags=["Tone & Branding"])
 tone_branding_service = ToneBrandingService()

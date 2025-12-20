@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from backend.core.database.connection import get_supabase
-from backend.core.platforms.platform_manager import get_platform_manager
+from core.database.connection import get_supabase
+from core.platforms.platform_manager import get_platform_manager
 from ..integrations.buffer_client import BufferClient
 from ..models import ScheduledPost, PublishedPost, PlatformEnum, PostStatus
 

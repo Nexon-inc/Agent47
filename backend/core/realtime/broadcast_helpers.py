@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 async def broadcast_task_update(user_id: int, task_data: Dict[str, Any]):
     """Broadcast a task update to a specific user"""
     try:
-        from backend.core.realtime.websocket_router import manager
+        from core.realtime.websocket_router import manager
         
         await manager.broadcast_to_user(user_id, {
             "type": "task_update",
@@ -34,7 +34,7 @@ async def broadcast_task_update(user_id: int, task_data: Dict[str, Any]):
 async def broadcast_notification(user_id: int, notification: Dict[str, Any]):
     """Broadcast a notification to a specific user"""
     try:
-        from backend.core.realtime.websocket_router import broadcast_notification as ws_broadcast
+        from core.realtime.websocket_router import broadcast_notification as ws_broadcast
         await ws_broadcast(user_id, notification)
     except Exception as e:
         logger.warning(f"Failed to broadcast notification: {e}")
@@ -42,7 +42,7 @@ async def broadcast_notification(user_id: int, notification: Dict[str, Any]):
 async def broadcast_agent_response(user_id: int, agent_key: str, response_data: Dict[str, Any]):
     """Broadcast an agent response to a specific user"""
     try:
-        from backend.core.realtime.websocket_router import manager
+        from core.realtime.websocket_router import manager
         
         await manager.broadcast_to_user(user_id, {
             "type": "agent_response",

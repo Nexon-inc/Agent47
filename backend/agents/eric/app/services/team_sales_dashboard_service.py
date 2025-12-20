@@ -12,9 +12,9 @@ from ..models import (
     TeamPerformanceMetric, SalesAnalytics, SalesForecast
 )
 from ..database import get_eric_database
-from backend.core.event_bus.kafka_manager import EventBus as KafkaProducer
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.config import settings
+from core.event_bus.kafka_manager import EventBus as KafkaProducer
+from core.cache.redis_manager import RedisManager
+from core.config import settings
 
 
 class TeamDashboardMetrics(BaseModel):
@@ -51,7 +51,7 @@ class TeamSalesDashboardService:
             self.kafka_producer = None
 
         try:
-            from backend.core.cache.redis_manager import redis_manager as RedisClient
+            from core.cache.redis_manager import redis_manager as RedisClient
             self.redis_client = RedisClient
         except Exception:
             self.redis_client = None
@@ -64,7 +64,7 @@ class TeamSalesDashboardService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             self.ai_service_manager = await get_ai_service_manager()
             if self.kafka_producer:
                 await self.kafka_producer.initialize()

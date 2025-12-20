@@ -6,7 +6,7 @@ import json
 import logging
 
 from ..services.live_chat_service import LiveChatService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 logger = logging.getLogger(__name__)
 

@@ -6,11 +6,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, func
 from sqlalchemy import select
 
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.cache.redis_manager import init_redis
-from backend.core.storage.chroma_manager import ChromaManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.cache.redis_manager import init_redis
+from core.storage.chroma_manager import ChromaManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
 from ..models import Lead, Deal, LeadInteraction, LeadStatus, SalesStage, Objection, SalesActivity
 from ..database import get_eric_database
 
@@ -868,7 +868,7 @@ class DealClosingService:
             """
             
             # Use AI Service Manager instead of NLPUtils
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI sales assistant that helps with deal closing strategies."},

@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
-from backend.core.database import get_database
-from backend.core.logs import get_logger
+from core.database import get_database
+from core.logs import get_logger
 
 
 class ExpenseManagement:

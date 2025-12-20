@@ -2,8 +2,8 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, Any
 from sqlalchemy import select, and_
-from backend.core.database.connection import get_supabase
-from backend.core.event_bus.kafka_manager import get_kafka
+from core.database.connection import get_supabase
+from core.event_bus.kafka_manager import get_kafka
 from ..models import ScheduledPost, PostStatus
 from ..config import aria_settings
 

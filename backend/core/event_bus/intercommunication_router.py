@@ -112,7 +112,7 @@ async def create_task(
         
         # Broadcast task creation via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_task_update
+            from core.realtime.websocket_router import broadcast_task_update
             await broadcast_task_update(current_user.id, {
                 "id": task.id,
                 "agent_id": task.agent_id,
@@ -207,7 +207,7 @@ async def update_task(
         
         # Broadcast task update via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_task_update
+            from core.realtime.websocket_router import broadcast_task_update
             await broadcast_task_update(current_user.id, {
                 "id": task.id,
                 "agent_id": task.agent_id,
@@ -360,7 +360,7 @@ async def complete_task_with_summary(
         
         # Broadcast task completion via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_task_update
+            from core.realtime.websocket_router import broadcast_task_update
             await broadcast_task_update(current_user.id, {
                 "id": task_summary.task_id,
                 "agent_id": task_summary.agent_id,

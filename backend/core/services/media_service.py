@@ -4,10 +4,10 @@ All agents can use this service for Google Gemini image generation
 """
 
 from typing import Dict, Any, Optional
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.storage.s3_manager import storage_manager
-from backend.core.database.models import UserTier
-from backend.core.database import get_database
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.storage.s3_manager import storage_manager
+from core.database.models import UserTier
+from core.database import get_database
 import base64
 import logging
 
@@ -122,7 +122,7 @@ class MediaService:
                     db = await get_database()
                     async with db.get_session() as session:
                         from sqlalchemy import text, select
-                        from backend.core.database.models import Team, TeamMember
+                        from core.database.models import Team, TeamMember
                         
                         # Check if user is admin
                         result = await session.execute(

@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
 import enum
-from backend.core.database.models import Base
+from core.database.models import Base
 
 class ContentType(enum.Enum):
     BLOG_POST = "blog_post"

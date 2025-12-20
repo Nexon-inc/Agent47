@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
-from backend.core.logs import get_logger
-from backend.core.cache import get_redis
-from backend.core.database import get_database
+from core.logs import get_logger
+from core.cache import get_redis
+from core.database import get_database
 
 
 class IntegrationHealth:

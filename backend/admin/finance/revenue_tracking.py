@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
-from backend.core.database import get_database
-from backend.core.logs import get_logger
+from core.database import get_database
+from core.logs import get_logger
 
 
 class RevenueTracking:

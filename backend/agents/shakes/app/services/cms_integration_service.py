@@ -3,9 +3,9 @@ from typing import Dict, Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from datetime import datetime
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.event_bus.kafka_manager import EventBus
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.integrations.integration_manager import IntegrationManager
+from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
 from ..models import ContentProject, ContentPiece
 
@@ -484,7 +484,7 @@ class CMSIntegrationService:
     ) -> str:
         """Store connection configuration"""
         try:
-            from backend.core.platforms.platform_credentials import PlatformCredentialsManager
+            from core.platforms.platform_credentials import PlatformCredentialsManager
             
             # Store connection config securely
             credentials_manager = PlatformCredentialsManager()
@@ -506,7 +506,7 @@ class CMSIntegrationService:
     async def _get_connection_config(self, user_id: int, platform_name: str) -> Dict[str, Any]:
         """Get stored connection configuration"""
         try:
-            from backend.core.platforms.platform_credentials import PlatformCredentialsManager
+            from core.platforms.platform_credentials import PlatformCredentialsManager
             
             # Retrieve stored connection config
             credentials_manager = PlatformCredentialsManager()

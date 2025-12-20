@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any, List
 from ..services.engagement_booster_service import EngagementBoosterService
 from ..deps import get_current_user
-from backend.core.database.models import User
+from core.database.models import User
 
 router = APIRouter(prefix="/engagement-booster", tags=["Engagement Booster"])
 

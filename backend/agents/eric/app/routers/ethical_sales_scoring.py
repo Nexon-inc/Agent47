@@ -7,7 +7,7 @@ from ..services.ethical_sales_scoring_service import (
     EthicalSalesScoringService, EthicalScore, SalesActivityEthicalAnalysis
 )
 from ..database import get_db
-from backend.core.authentication.auth import get_current_user
+from core.authentication.auth import get_current_user
 
 router = APIRouter(prefix="/ethical-sales-scoring", tags=["Ethical Sales Scoring"])
 

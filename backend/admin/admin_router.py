@@ -17,7 +17,7 @@ from .security.security_manager import SecurityManager, get_security_manager
 from .system.system_manager import SystemManager, get_system_manager
 from .users.user_admin_manager import UserAdminManager, get_user_admin_manager
 from .platforms.agent47_platform_manager import Agent47PlatformManager, get_agent47_platform_manager
-from backend.core.platforms.oauth_service import get_oauth_service
+from core.platforms.oauth_service import get_oauth_service
 from fastapi.responses import RedirectResponse
 from fastapi import Query, Body
 from .settings.settings_manager import get_settings_manager, SettingsManager, SettingCategory, SettingType
@@ -34,8 +34,8 @@ from .servers.server_manager import ServerManager, ServerStatus, ServerType
 from .goals.goal_manager import get_goal_manager, GoalManager, GoalStatus, GoalType, GoalPriority
 from .impersonate.impersonation_manager import ImpersonationManager, ImpersonationReason, ImpersonationStatus
 from .integrations.integration_admin_manager import get_integration_admin_manager, IntegrationAdminManager
-from backend.core.billing.billing_manager import get_billing, BillingManager
-from backend.core.billing.usage_tracker import get_usage_tracker
+from core.billing.billing_manager import get_billing, BillingManager
+from core.billing.usage_tracker import get_usage_tracker
 
 logger = logging.getLogger(__name__)
 
@@ -674,7 +674,7 @@ async def initiate_platform_oauth(
     """Initiate OAuth connection to a platform for Agent47 system account"""
     try:
         oauth_service = await get_oauth_service()
-        from backend.core.platforms.platform_configs import get_platform_config_manager
+        from core.platforms.platform_configs import get_platform_config_manager
         config_manager = await get_platform_config_manager()
         
         # Validate platform exists
@@ -1150,7 +1150,7 @@ async def update_setting(
         
         # Broadcast setting update to all admins via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_alert
+            from core.realtime.websocket_router import broadcast_alert
             await broadcast_alert({
                 "id": f"setting_{key}",
                 "source": "system",

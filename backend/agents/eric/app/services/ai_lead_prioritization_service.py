@@ -9,10 +9,10 @@ from sqlalchemy.orm import selectinload
 
 from ..database import get_eric_database
 # NLPUtils removed - not used
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.analytics.analytics_manager import AnalyticsManager
-from backend.core.event_bus.kafka_manager import EventBus as KafkaManager
-from backend.core.cache.redis_manager import RedisManager
+from core.integrations.integration_manager import IntegrationManager
+from core.analytics.analytics_manager import AnalyticsManager
+from core.event_bus.kafka_manager import EventBus as KafkaManager
+from core.cache.redis_manager import RedisManager
 from ..models import Lead, LeadInteraction, Deal, SalesActivity, SalesRep, CustomerProfile
 from ..models import LeadSource
 
@@ -36,7 +36,7 @@ class AILeadPrioritizationService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             self.ai_service_manager = await get_ai_service_manager()
             await self.integration_manager.initialize()
             await self.analytics_manager.initialize()

@@ -1,7 +1,7 @@
 from typing import AsyncGenerator, Any
 from contextlib import asynccontextmanager
 import logging
-from backend.core.database.connection import supabase_manager
+from core.database.connection import supabase_manager
 
 logger = logging.getLogger(__name__)
 

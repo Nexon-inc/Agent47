@@ -3,8 +3,8 @@ import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.cache.redis_manager import init_redis
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.cache.redis_manager import init_redis
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class GeoLocalizationService:
             
             # Use Google Maps reverse geocoding if coordinates provided
             if coordinates:
-                from backend.core.services.google_maps_service import get_google_maps_service
+                from core.services.google_maps_service import get_google_maps_service
                 maps_service = await get_google_maps_service()
                 
                 # Use Google Maps Geocoding API for reverse geocoding
@@ -151,7 +151,7 @@ class GeoLocalizationService:
             """
             
             # Use AI Service Manager instead of NLPUtils
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI assistant that localizes content for different regions and cultures."},

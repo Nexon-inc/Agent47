@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from ..database import get_joe_database
 from ..services.market_trend_analysis_service import MarketTrendAnalysisService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 router = APIRouter(prefix="/market-trends", tags=["Market Trend Analysis"])
 

@@ -1,4 +1,4 @@
-from backend.core.cache.redis_manager import (
+from core.cache.redis_manager import (
     RedisManager,
     get_redis,
     init_redis,

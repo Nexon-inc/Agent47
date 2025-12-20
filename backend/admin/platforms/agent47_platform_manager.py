@@ -7,10 +7,10 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime
 from sqlalchemy import text
 
-from backend.core.database import get_database, DatabaseManager
-from backend.core.logs import get_logger, LoggerMixin
-from backend.core.platforms.system_platform_manager import get_system_platform_manager, SystemPlatformManager
-from backend.core.platforms.models import SocialPlatform
+from core.database import get_database, DatabaseManager
+from core.logs import get_logger, LoggerMixin
+from core.platforms.system_platform_manager import get_system_platform_manager, SystemPlatformManager
+from core.platforms.models import SocialPlatform
 
 logger = get_logger(__name__)
 

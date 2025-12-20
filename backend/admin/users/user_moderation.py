@@ -6,11 +6,11 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 
-from backend.core.database import get_database
-from backend.core.cache import get_redis
-from backend.core.logs import get_logger
-from backend.core.config import get_config
-from backend.core.security import get_credential_encryption, credential_encryption
+from core.database import get_database
+from core.cache import get_redis
+from core.logs import get_logger
+from core.config import get_config
+from core.security import get_credential_encryption, credential_encryption
 
 
 class ModerationAction(Enum):

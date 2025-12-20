@@ -9,9 +9,9 @@ from enum import Enum
 
 from ..models import SupportAnalytics, SupportTicket, CustomerInteraction, SupportAgent
 from ..database import get_clara_database
-from backend.core.config import settings
-from backend.core.integrations import IntegrationManager
-from backend.core.analytics import AnalyticsManager
+from core.config import settings
+from core.integrations import IntegrationManager
+from core.analytics import AnalyticsManager
 # NLPUtils removed - not used
 
 

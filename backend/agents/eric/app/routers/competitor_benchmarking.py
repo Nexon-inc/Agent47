@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..services.competitor_benchmarking_service import CompetitorBenchmarkingService, CompetitorProfile, BenchmarkingMetrics, CompetitiveAnalysis
 from ..database import get_eric_database
-from backend.core.cache.redis_manager import RedisManager
+from core.cache.redis_manager import RedisManager
 
 router = APIRouter(prefix="/competitor-benchmarking", tags=["Competitor Benchmarking"])
 competitor_service = CompetitorBenchmarkingService()

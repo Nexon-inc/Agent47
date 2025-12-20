@@ -8,13 +8,13 @@ import json
 from sqlalchemy import text, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.database import get_database, DatabaseManager
-from backend.core.cache import get_redis, RedisManager
-from backend.core.storage import get_chroma, ChromaDBManager
-from backend.core.event_bus import get_kafka, KafkaManager
-from backend.core.authentication import get_auth, AuthManager
-from backend.core.logs import get_logger, LoggerMixin
-from backend.core.config import get_settings
+from core.database import get_database, DatabaseManager
+from core.cache import get_redis, RedisManager
+from core.storage import get_chroma, ChromaDBManager
+from core.event_bus import get_kafka, KafkaManager
+from core.authentication import get_auth, AuthManager
+from core.logs import get_logger, LoggerMixin
+from core.config import get_settings
 
 logger = get_logger(__name__)
 
@@ -161,7 +161,7 @@ class AdminCore(LoggerMixin):
             self.logger.info(f"Initializing default admin user: {self.settings.admin_default_email}")
             async with self.database.get_session() as session:
                 from sqlalchemy import select
-                from backend.core.database.models import User
+                from core.database.models import User
                 
                 # Check if user exists in users table
                 result = await session.execute(
@@ -360,7 +360,7 @@ class AdminCore(LoggerMixin):
         try:
             async with self.database.get_session() as session:
                 from sqlalchemy import select
-                from backend.core.database.models import User
+                from core.database.models import User
                 
                 result = await session.execute(
                     select(User).where(User.email == self.settings.admin_default_email)

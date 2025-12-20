@@ -3,11 +3,11 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.connection import get_supabase
-from backend.core.database.models import UserSelectedAgent
+from core.authentication.auth_manager import get_current_user
+from core.database.connection import get_supabase
+from core.database.models import UserSelectedAgent
 from sqlalchemy import select
-from backend.core.database.models import User
+from core.database.models import User
 from ..database import get_db
 from ..models import JoeMarketTrend, JoeCompetitorAnalysis, JoeSentimentAnalysis, KeywordResearch, ResearchType, ResearchStatus
 from ..services.market_trend_analysis_service import MarketTrendAnalysisService

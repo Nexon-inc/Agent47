@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, UploadFile, File
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.models import User
+from core.authentication.auth_manager import get_current_user
+from core.database.models import User
 from ..services.speech_service import SpeechService
 
 

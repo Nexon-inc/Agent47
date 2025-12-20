@@ -22,10 +22,10 @@ from ..schemas.voice_sentiment_coaching import (
     VoiceSentimentCoachingResponse, VoiceSentimentScenarioResponse, VoiceSentimentAnalyticsResponse
 )
 from ..database import get_clara_database
-from backend.core.config import settings
-from backend.core.integrations import IntegrationManager
-from backend.core.analytics import AnalyticsManager
-from backend.core.ai import get_ai_service_manager
+from core.config import settings
+from core.integrations import IntegrationManager
+from core.analytics import AnalyticsManager
+from core.ai import get_ai_service_manager
 
 
 class VoiceSentimentType(str, Enum):

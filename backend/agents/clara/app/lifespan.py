@@ -2,10 +2,10 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from backend.core.database.connection import init_supabase
-from backend.core.cache.redis_manager import init_redis
-from backend.core.event_bus.kafka_manager import EventBus
-from backend.core.ai import init_ai_service_manager
+from core.database.connection import init_supabase
+from core.cache.redis_manager import init_redis
+from core.event_bus.kafka_manager import EventBus
+from core.ai import init_ai_service_manager
 from .database import init_clara_database
 
 logger = logging.getLogger(__name__)

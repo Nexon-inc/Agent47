@@ -1,9 +1,9 @@
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 import httpx
-from backend.core.config import settings
-from backend.core.database.connection import get_supabase
-from backend.core.platforms.platform_manager import get_platform_manager
+from core.config import settings
+from core.database.connection import get_supabase
+from core.platforms.platform_manager import get_platform_manager
 from ..models import Campaign
 import json
 
@@ -273,7 +273,7 @@ class AdsService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            from backend.core.platforms.models import PlatformCredential, SocialPlatform
+            from core.platforms.models import PlatformCredential, SocialPlatform
             
             # Get platform ID
             platform_query = select(SocialPlatform).where(SocialPlatform.name == platform)

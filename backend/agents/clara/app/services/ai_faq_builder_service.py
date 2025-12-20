@@ -18,11 +18,11 @@ from ..schemas.ai_faq_builder import (
     FAQSourceResponse, FAQAnalyticsResponse
 )
 from ..database import get_clara_database
-from backend.core.config import settings
-from backend.core.integrations import IntegrationManager
-from backend.core.analytics import AnalyticsManager
-from backend.core.ai import get_ai_service_manager
-from backend.core.utils.nlp_utils import NLPUtils
+from core.config import settings
+from core.integrations import IntegrationManager
+from core.analytics import AnalyticsManager
+from core.ai import get_ai_service_manager
+from core.utils.nlp_utils import NLPUtils
 
 
 class FAQSourceType(str, Enum):
@@ -583,7 +583,7 @@ class AIFAQBuilderService:
         # Use AI Service Manager to generate answer based on agent responses
         responses = [i.agent_response for i in group if i.agent_response]
         if responses:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
             prompt = f"Based on these customer support responses, generate a concise FAQ answer:\n\n" + "\n\n".join(responses)
             messages = [
@@ -598,7 +598,7 @@ class AIFAQBuilderService:
         """Generate an answer from a group of similar tickets"""
         resolutions = [t.resolution for t in group if t.resolution]
         if resolutions:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
             prompt = f"Based on these ticket resolutions, generate a concise FAQ answer:\n\n" + "\n\n".join(resolutions)
             messages = [
@@ -627,7 +627,7 @@ class AIFAQBuilderService:
     
     async def _generate_answer_from_content(self, content: str) -> str:
         """Generate answer from content using AI Service Manager"""
-        from backend.core.ai import get_ai_service_manager
+        from core.ai import get_ai_service_manager
         ai_manager = await get_ai_service_manager()
         prompt = f"Based on this content, generate a concise FAQ answer:\n\n{content}"
         messages = [

@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..services.multi_language_service import MultiLanguageService, TranslationRequest, TranslationResponse, LocalizedContent, LanguageConfig, CulturalInsight
 from ..database import get_eric_database
-from backend.core.cache.redis_manager import RedisManager
+from core.cache.redis_manager import RedisManager
 
 router = APIRouter(prefix="/multi-language", tags=["Multi-Language Support"])
 multi_language_service = MultiLanguageService()

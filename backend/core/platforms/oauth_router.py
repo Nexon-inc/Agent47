@@ -206,7 +206,7 @@ async def handle_oauth_callback(
         
         # Broadcast platform connection via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(user_id, {
                 "id": f"platform_{platform_name}_{user_id}",
                 "type": "platform_update",
@@ -278,7 +278,7 @@ async def disconnect_platform(
         
         # Broadcast platform disconnection via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(user_id, {
                 "id": f"platform_{platform_name}_{user_id}",
                 "type": "platform_update",

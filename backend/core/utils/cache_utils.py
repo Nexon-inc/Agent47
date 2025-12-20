@@ -4,7 +4,7 @@ from typing import Any, Optional
 logger = logging.getLogger(__name__)
 
 try:
-    from backend.core.cache.redis_manager import RedisManager
+    from core.cache.redis_manager import RedisManager
 except Exception:
     RedisManager = None
 

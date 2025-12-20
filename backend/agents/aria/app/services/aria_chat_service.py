@@ -11,8 +11,8 @@ from ..models import (
     PlatformEnum, PostStatus, ApprovalStatus
 )
 from ..database import get_db
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.utils.platform_integration_loader import (
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.utils.platform_integration_loader import (
     get_all_platforms_static, 
     get_all_integrations_static,
     detect_platforms_in_message,
@@ -539,7 +539,7 @@ class AriaChatService:
                     user_tier = None
                     try:
                         from sqlalchemy import select
-                        from backend.core.database.models import User
+                        from core.database.models import User
                         result = await db.execute(select(User).where(User.id == user_id))
                         user = result.scalar_one_or_none()
                         if user:
@@ -1043,7 +1043,7 @@ Current intent detected: {detected_intent}
                 
                 # Generate AI response using LLM
                 # Use max_tokens from settings (12k for llama-3.3-70b-versatile)
-                from backend.core.config import settings
+                from core.config import settings
                 ai_response = await ai_manager.generate_text(
                     messages=messages,
                     max_tokens=settings.groq.groq_max_tokens,  # Use configured max_tokens (12000)

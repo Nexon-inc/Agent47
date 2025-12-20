@@ -5,7 +5,7 @@ from typing import Dict, Any, Optional, List, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func, or_, desc
 from sqlalchemy.orm import selectinload
-from backend.core.ai import get_ai_service_manager, AIServiceManager
+from core.ai import get_ai_service_manager, AIServiceManager
 from ..database import get_clara_database
 from ..models import (
     SupportTicket, CustomerInteraction, ChatSession, CustomerProfile,

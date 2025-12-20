@@ -6,8 +6,8 @@ from typing import Dict, Any, Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
-from backend.core.utils.nlp_utils import NLPUtils
-from backend.core.event_bus.kafka_manager import EventBus
+from core.utils.nlp_utils import NLPUtils
+from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
 from ..models import (
     MarketingCampaign, CampaignContent, AdCampaign, CampaignAnalytics,

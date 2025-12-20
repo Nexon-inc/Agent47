@@ -4,11 +4,11 @@ from typing import List, Dict, Optional, Any
 from enum import Enum
 from dataclasses import dataclass, field
 
-from backend.core.database import get_database
-from backend.core.logs import get_logger
-from backend.core.config import get_settings
-from backend.core.cache import get_redis
-from backend.core.security import get_credential_encryption
+from core.database import get_database
+from core.logs import get_logger
+from core.config import get_settings
+from core.cache import get_redis
+from core.security import get_credential_encryption
 
 class ThreatLevel(Enum):
     LOW = "low"

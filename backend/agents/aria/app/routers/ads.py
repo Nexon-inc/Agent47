@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.models import User
+from core.authentication.auth_manager import get_current_user
+from core.database.models import User
 from ..services.ads_service import AdsService
 from ..deps import require_posting_allowed
 

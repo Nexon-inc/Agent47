@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.cache.redis_manager import init_redis
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.cache.redis_manager import init_redis
 from ..database import get_clara_database
 from ..models import (
     SupportTicket, CustomerInteraction, SupportChannel,

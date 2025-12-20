@@ -6,9 +6,9 @@ from enum import Enum
 from sqlalchemy import text
 import re
 
-from backend.core.database import get_database, DatabaseManager
-from backend.core.logs import get_logger, LoggerMixin
-from backend.core.config import get_settings
+from core.database import get_database, DatabaseManager
+from core.logs import get_logger, LoggerMixin
+from core.config import get_settings
 
 logger = get_logger(__name__)
 

@@ -6,7 +6,7 @@ import json
 import uuid
 
 from ..models import CRMINtegration
-from backend.core.utils.nlp_utils import NLPUtils
+from core.utils.nlp_utils import NLPUtils
 
 class CRMIntegrationService:
     def __init__(self, db: Session):

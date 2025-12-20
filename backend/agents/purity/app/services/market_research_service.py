@@ -8,10 +8,10 @@ from sqlalchemy.orm import selectinload
 import json
 import httpx
 import openai
-from backend.core.config import settings
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.event_bus.kafka_manager import EventBus
-from backend.core.cache.redis_manager import init_redis
+from core.config import settings
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.event_bus.kafka_manager import EventBus
+from core.cache.redis_manager import init_redis
 from ..database import get_purity_database
 from ..models import (
     BusinessIdea, PurityMarketResearch, PurityCompetitorAnalysis, NicheOpportunity,

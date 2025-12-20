@@ -2,15 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
-from backend.core.notifications.notification_service import (
+from core.notifications.notification_service import (
     get_notification_service,
     NotificationService,
     NotificationType,
     NotificationStatus,
     NotificationPriority
 )
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.user_management.user_manager import User
+from core.authentication.auth_manager import get_current_user
+from core.user_management.user_manager import User
 
 router = APIRouter(prefix="/api/notifications", tags=["notifications"])
 

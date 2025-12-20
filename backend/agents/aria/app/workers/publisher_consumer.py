@@ -1,6 +1,6 @@
 import asyncio
 from typing import Dict, Any
-from backend.core.event_bus.kafka_manager import get_kafka
+from core.event_bus.kafka_manager import get_kafka
 from ..config import aria_settings
 from ..services.publisher_service import PublisherService
 

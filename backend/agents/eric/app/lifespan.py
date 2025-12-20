@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from backend.core.cache.redis_manager import init_redis
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.storage.chroma_manager import ChromaManager
+from core.cache.redis_manager import init_redis
+from core.event_bus.kafka_manager import KafkaManager
+from core.storage.chroma_manager import ChromaManager
 # Storage not used by Eric agent
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
 from .database import init_eric_database
 import logging
 

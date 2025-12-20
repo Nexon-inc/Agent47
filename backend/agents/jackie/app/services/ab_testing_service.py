@@ -6,7 +6,7 @@ import json
 import math
 
 from ..models import ABTest
-from backend.core.utils.nlp_utils import NLPUtils
+from core.utils.nlp_utils import NLPUtils
 
 class ABTestingService:
     def __init__(self, db: Session):

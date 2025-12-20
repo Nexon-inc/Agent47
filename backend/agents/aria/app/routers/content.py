@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.models import User
+from core.authentication.auth_manager import get_current_user
+from core.database.models import User
 from ..services.content_service import ContentService
 
 

@@ -1,4 +1,4 @@
-from backend.core.integrations.integration_manager import (
+from core.integrations.integration_manager import (
     IntegrationManager,
     integration_manager,
     get_integration_manager,

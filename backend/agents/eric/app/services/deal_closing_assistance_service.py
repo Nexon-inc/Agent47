@@ -11,11 +11,11 @@ from ..models import (
     DealClosing, DealClosingStage, DealClosingStrategy,
     DealClosingTemplate, DealClosingActivity
 )
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.cache.redis_manager import RedisManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
+from core.event_bus.kafka_manager import KafkaManager
+from core.cache.redis_manager import RedisManager
 from ..models import CustomerProfile
 from ..models import Deal, SalesStage
 

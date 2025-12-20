@@ -8,11 +8,11 @@ from sqlalchemy.orm import selectinload
 
 from ..database import get_purity_database
 from ..models import MVPBlueprint, BusinessIdea
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.event_bus.kafka_manager import KafkaManager
+from core.cache.redis_manager import RedisManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
 
 class MVPBuilderService:
     def __init__(self):

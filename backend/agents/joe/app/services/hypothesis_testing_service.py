@@ -9,9 +9,9 @@ import logging
 from typing import Dict, Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.event_bus.kafka_manager import EventBus
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.integrations.integration_manager import IntegrationManager
+from core.event_bus.kafka_manager import EventBus
 from ..database import get_joe_database
 
 logger = logging.getLogger(__name__)

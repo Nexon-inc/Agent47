@@ -2,8 +2,8 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from backend.core.database.connection import get_supabase
-from backend.core.database.models import UserSelectedAgent
+from core.database.connection import get_supabase
+from core.database.models import UserSelectedAgent
 from ..models import ScheduledPost, PostStatus
 from .scheduling_service import SchedulingService
 from .content_service import ContentService

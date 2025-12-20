@@ -3,11 +3,11 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.connection import get_database as get_core_db
-from backend.core.database.models import UserSelectedAgent
+from core.authentication.auth_manager import get_current_user
+from core.database.connection import get_database as get_core_db
+from core.database.models import UserSelectedAgent
 from sqlalchemy import select
-from backend.core.database.models import User
+from core.database.models import User
 from ..database import get_db
 from ..models import Lead, Deal, LeadInteraction, LeadStatus, DealStatus, CommunicationChannel
 from ..services.lead_generation_service import LeadGenerationService

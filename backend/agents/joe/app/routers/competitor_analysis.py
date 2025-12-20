@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from ..database import get_joe_database
 from ..services.competitor_analysis_service import CompetitorAnalysisService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 router = APIRouter(prefix="/competitor-analysis", tags=["Competitor Analysis"])
 

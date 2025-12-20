@@ -2,10 +2,10 @@ from typing import List, Dict, Optional, Any
 from datetime import datetime, timedelta
 from enum import Enum
 from dataclasses import dataclass, field
-from backend.core.database import get_database
-from backend.core.logs import get_logger
-from backend.core.config import get_settings
-from backend.core.cache import get_redis
+from core.database import get_database
+from core.logs import get_logger
+from core.config import get_settings
+from core.cache import get_redis
 
 class AuditEventType(Enum):
     LOGIN = "login"

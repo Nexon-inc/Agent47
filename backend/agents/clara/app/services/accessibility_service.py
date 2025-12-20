@@ -1,7 +1,7 @@
 import logging
 import json
 from typing import Dict, Any, Optional, List
-from backend.core.ai import get_ai_service_manager, AIServiceManager
+from core.ai import get_ai_service_manager, AIServiceManager
 from ..database import get_clara_database
 
 logger = logging.getLogger(__name__)
@@ -124,7 +124,7 @@ Text: {text}
 Simplified version:"""
             
             # Use AI Service Manager instead of NLPUtils
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI assistant that simplifies content for accessibility."},

@@ -1,4 +1,4 @@
-from backend.core.platforms.platform_manager import (
+from core.platforms.platform_manager import (
     PlatformManager,
     platform_manager,
     get_platform_manager,

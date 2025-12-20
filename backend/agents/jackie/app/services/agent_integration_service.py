@@ -4,8 +4,8 @@ from datetime import datetime
 from typing import Dict, List, Optional, Any
 from sqlalchemy.orm import Session
 
-from backend.core.event_bus.kafka_manager import EventBus
-from backend.core.cache.redis_manager import RedisManager
+from core.event_bus.kafka_manager import EventBus
+from core.cache.redis_manager import RedisManager
 from ..models import AgentConnection, AgentEvent, AgentSyncData
 
 class AgentIntegrationService:

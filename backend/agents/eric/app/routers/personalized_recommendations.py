@@ -69,7 +69,7 @@ async def get_cached_product_recommendations(
     """Get cached product recommendations for a customer"""
     try:
         # Try to get from cache first
-        from backend.core.cache.redis_manager import RedisManager
+        from core.cache.redis_manager import RedisManager
         redis_manager = RedisManager()
         
         cache_key = f"product_recommendations_{customer_id}_{context}"
@@ -105,7 +105,7 @@ async def get_cached_pricing_recommendations(customer_id: int, product_id: str):
     """Get cached pricing recommendations"""
     try:
         # Try to get from cache first
-        from backend.core.cache.redis_manager import RedisManager
+        from core.cache.redis_manager import RedisManager
         redis_manager = RedisManager()
         
         cache_key = f"pricing_recommendation_{customer_id}_{product_id}"
@@ -141,7 +141,7 @@ async def get_cached_sales_strategy_recommendations(customer_id: int):
     """Get cached sales strategy recommendations"""
     try:
         # Try to get from cache first
-        from backend.core.cache.redis_manager import RedisManager
+        from core.cache.redis_manager import RedisManager
         redis_manager = RedisManager()
         
         cache_key = f"sales_strategy_recommendations_{customer_id}"

@@ -2,9 +2,9 @@ import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.event_bus.kafka_manager import EventBus
-from backend.core.cache.redis_manager import RedisManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.event_bus.kafka_manager import EventBus
+from core.cache.redis_manager import RedisManager
 from ..models import SocialMediaListening, PlatformType, MentionType
 
 logger = logging.getLogger(__name__)

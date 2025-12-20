@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.core.config import settings
-from backend.core.database.models import Base
-from backend.core.database.connection import get_supabase
+from core.config import settings
+from core.database.models import Base
+from core.database.connection import get_supabase
 import logging
 
 logger = logging.getLogger(__name__)

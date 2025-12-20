@@ -5,9 +5,9 @@ import json
 from datetime import datetime
 
 from ..models import BusinessIdea, BusinessHealth, BusinessModel, FinancialForecast
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.cache.redis_manager import RedisManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.event_bus.kafka_manager import KafkaManager
+from core.cache.redis_manager import RedisManager
 
 class BusinessHealthService:
     def __init__(self):

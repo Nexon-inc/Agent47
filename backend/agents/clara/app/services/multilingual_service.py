@@ -8,9 +8,9 @@ from sqlalchemy.orm import selectinload
 import httpx
 from langdetect import detect, DetectorFactory
 from langdetect.lang_detect_exception import LangDetectException
-from backend.core.config import settings
-from backend.core.integrations import IntegrationManager
-from backend.core.event_bus.kafka_manager import EventBus
+from core.config import settings
+from core.integrations import IntegrationManager
+from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
     SupportTicket, CustomerInteraction, CustomerProfile,

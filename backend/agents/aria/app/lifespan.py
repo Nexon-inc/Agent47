@@ -7,20 +7,20 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 try:
-    from backend.core.config import settings
-    from backend.core.database.connection import init_supabase, close_supabase
-    from backend.core.cache.redis_manager import init_redis, close_redis
-    from backend.core.event_bus.kafka_manager import init_kafka, close_kafka
-    from backend.core.ai import init_ai_service_manager
+    from core.config import settings
+    from core.database.connection import init_supabase, close_supabase
+    from core.cache.redis_manager import init_redis, close_redis
+    from core.event_bus.kafka_manager import init_kafka, close_kafka
+    from core.ai import init_ai_service_manager
     from .workers.scheduler_consumer import scheduler_consumer
     from .workers.publisher_consumer import publisher_consumer
 except ImportError:
     # Fallback for direct execution
-    from backend.core.config import settings
-    from backend.core.database.connection import init_supabase, close_supabase
-    from backend.core.cache.redis_manager import init_redis, close_redis
-    from backend.core.event_bus.kafka_manager import init_kafka, close_kafka
-    from backend.core.ai import init_ai_service_manager
+    from core.config import settings
+    from core.database.connection import init_supabase, close_supabase
+    from core.cache.redis_manager import init_redis, close_redis
+    from core.event_bus.kafka_manager import init_kafka, close_kafka
+    from core.ai import init_ai_service_manager
     from .workers.scheduler_consumer import scheduler_consumer
     from .workers.publisher_consumer import publisher_consumer
 

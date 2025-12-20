@@ -78,8 +78,8 @@ class TeamManager:
     async def _load_data(self):
         """Async load teams and members from database."""
         try:
-            from backend.core.database.connection import get_supabase
-            from backend.core.database.models import Team as ORMTeam, TeamMember as ORMTeamMember
+            from core.database.connection import get_supabase
+            from core.database.models import Team as ORMTeam, TeamMember as ORMTeamMember
             from sqlalchemy import select
 
             db = await get_supabase()

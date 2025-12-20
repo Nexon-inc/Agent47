@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Header, HTTPException, Request
 import hmac
 import hashlib
-from backend.core.config import settings
+from core.config import settings
 from ..models import WebhookEvent
-from backend.core.database.connection import get_supabase
-from backend.core.event_bus.kafka_manager import get_kafka
+from core.database.connection import get_supabase
+from core.event_bus.kafka_manager import get_kafka
 from ..config import aria_settings
 
 

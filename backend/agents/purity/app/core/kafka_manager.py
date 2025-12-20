@@ -1,4 +1,4 @@
-from backend.core.event_bus.kafka_manager import (
+from core.event_bus.kafka_manager import (
     KafkaManager,
     EventBus,
     kafka_manager,

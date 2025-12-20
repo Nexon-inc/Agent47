@@ -6,7 +6,7 @@ import json
 import uuid
 
 from ..models import JackieMarketResearch
-from backend.core.utils.nlp_utils import NLPUtils
+from core.utils.nlp_utils import NLPUtils
 
 class MarketResearchService:
     def __init__(self, db: Session):

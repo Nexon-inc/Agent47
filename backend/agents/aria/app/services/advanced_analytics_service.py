@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 import json
 import math
 from statistics import mean, median
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.database.connection import get_supabase
-from backend.core.integrations.integration_manager import get_integration_manager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.database.connection import get_supabase
+from core.integrations.integration_manager import get_integration_manager
 from ..models import AnalyticsSnapshot, EngagementEvent, TrendSignal
-from backend.core.config import settings
+from core.config import settings
 
 
 class AdvancedAnalyticsService:

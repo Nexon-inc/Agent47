@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 
-from backend.agents.eric.app.lifespan import lifespan
+from agents.eric.app.lifespan import lifespan
 
 # Explicitly import ALL Eric routers (avoids dynamic import null byte issues)
 from .routers import (

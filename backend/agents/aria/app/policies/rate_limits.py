@@ -1,6 +1,6 @@
 from typing import Optional
 from datetime import timedelta
-from backend.core.cache.redis_manager import get_redis
+from core.cache.redis_manager import get_redis
 
 
 class RateLimiter:

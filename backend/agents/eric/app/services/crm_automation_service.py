@@ -5,10 +5,10 @@ from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import and_, or_, desc
 
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.cache.redis_manager import init_redis
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.cache.redis_manager import init_redis
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..models import Lead, Deal, SalesActivity, LeadStatus, SalesStage
 from ..database import get_eric_database

@@ -15,9 +15,9 @@ from ..models import (
     SalesCampaign, SalesAnalytics, SalesForecast
 )
 # NLPUtils removed - not used
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
-from backend.core.analytics.analytics_manager import AnalyticsManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
+from core.analytics.analytics_manager import AnalyticsManager
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class SustainabilityEthicalSellingService:
         self.platform_manager = PlatformManager()
         self.analytics_manager = AnalyticsManager()
         self.redis_client = None
-        from backend.core.event_bus.kafka_manager import EventBus
+        from core.event_bus.kafka_manager import EventBus
         self.event_bus = EventBus()
         self._initialized = False
     
@@ -41,8 +41,8 @@ class SustainabilityEthicalSellingService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
-            from backend.core.cache.redis_manager import init_redis
+            from core.ai import get_ai_service_manager
+            from core.cache.redis_manager import init_redis
             self.ai_service_manager = await get_ai_service_manager()
             self.redis_client = await init_redis()
             await self.integration_manager.initialize()

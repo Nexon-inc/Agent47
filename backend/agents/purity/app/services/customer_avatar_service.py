@@ -4,11 +4,11 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import BusinessIdea, CustomerAvatar, BusinessModel
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.event_bus.kafka_manager import KafkaManager
+from core.cache.redis_manager import RedisManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
 from ..core.kafka_manager import KafkaManager
 from ..core.redis_manager import RedisManager
 from ..core.integration_manager import IntegrationManager

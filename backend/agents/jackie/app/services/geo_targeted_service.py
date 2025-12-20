@@ -4,9 +4,9 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from sqlalchemy.orm import Session
 
-from backend.core.utils.nlp_utils import NLPProcessor
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.services.google_maps_service import get_google_maps_service
+from core.utils.nlp_utils import NLPProcessor
+from core.cache.redis_manager import RedisManager
+from core.services.google_maps_service import get_google_maps_service
 from ..models import GeoTargetedAd, JackieLocalMarket, GeographicData, RegionalStrategy
 
 class GeoTargetedService:

@@ -4,8 +4,8 @@ import re
 from datetime import datetime
 from typing import Dict, Any, Optional, List, Tuple
 import logging
-from backend.core.config import settings
-from backend.core.utils.nlp_utils import NLPUtils as CoreNLPUtils
+from core.config import settings
+from core.utils.nlp_utils import NLPUtils as CoreNLPUtils
 
 logger = logging.getLogger(__name__)
 

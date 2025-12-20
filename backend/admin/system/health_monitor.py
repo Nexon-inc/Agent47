@@ -7,12 +7,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 import json
 
-from backend.core.database import get_database, DatabaseManager
-from backend.core.cache import get_redis, RedisManager
-from backend.core.storage import get_chroma, ChromaDBManager
-from backend.core.event_bus import get_kafka, KafkaManager
-from backend.core.logs import get_logger, LoggerMixin
-from backend.core.config import get_settings
+from core.database import get_database, DatabaseManager
+from core.cache import get_redis, RedisManager
+from core.storage import get_chroma, ChromaDBManager
+from core.event_bus import get_kafka, KafkaManager
+from core.logs import get_logger, LoggerMixin
+from core.config import get_settings
 
 logger = get_logger(__name__)
 

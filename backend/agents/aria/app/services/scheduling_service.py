@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
-from backend.core.cache.redis_manager import get_redis
-from backend.core.billing.usage_tracker import get_usage_tracker
-from backend.core.database.connection import get_supabase
-from backend.core.event_bus.kafka_manager import get_kafka
+from core.cache.redis_manager import get_redis
+from core.billing.usage_tracker import get_usage_tracker
+from core.database.connection import get_supabase
+from core.event_bus.kafka_manager import get_kafka
 from ..models import ScheduledPost, PostStatus
 from ..repositories.schedules_repo import SchedulesRepository
 from ..config import aria_settings

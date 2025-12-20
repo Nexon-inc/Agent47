@@ -9,10 +9,10 @@ import asyncio
 from pydantic import ValidationError
 
 from ..models import Brand, BrandConfiguration, BrandTemplate, SupportTicket, CustomerInteraction
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.event_bus.kafka_manager import EventBus
-from backend.core.ai import get_ai_service_manager
-from backend.core.config import Settings
+from core.integrations.integration_manager import IntegrationManager
+from core.event_bus.kafka_manager import EventBus
+from core.ai import get_ai_service_manager
+from core.config import Settings
 
 class MultiBrandService:
     def __init__(self, db: AsyncSession, integration_manager: IntegrationManager, event_bus: EventBus):
@@ -1000,7 +1000,7 @@ class MultiBrandService:
                     response_parts.append(greeting_template.content)
 
             # Generate main response using AI Service Manager
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
             prompt = f"Context: {context}\n\nMessage: {message}\n\nTone: {tone_instruction}\n\nBrand: {brand.name}"
             messages = [

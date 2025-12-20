@@ -7,16 +7,16 @@ import logging
 
 from ..models import Lead, Deal, LeadInteraction, CommunicationChannel
 from ..database import get_db
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.utils.platform_integration_loader import (
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.utils.platform_integration_loader import (
     get_all_platforms_static, 
     get_all_integrations_static,
     detect_platforms_in_message,
     detect_integrations_in_message,
     get_integrations_by_type
 )
-from backend.core.utils.agent_user_data import get_all_user_resources_for_agent
-from backend.core.utils.agent_config_loader import get_agent_configuration_for_user
+from core.utils.agent_user_data import get_all_user_resources_for_agent
+from core.utils.agent_config_loader import get_agent_configuration_for_user
 
 # Import ALL Eric services with correct class names
 from .advanced_conversational_ai_service import AdvancedConversationalAIService
@@ -61,7 +61,7 @@ from .sustainability_ethical_selling_service import SustainabilityEthicalSelling
 from .team_sales_dashboard_service import TeamSalesDashboardService
 from .tone_branding_service import ToneBrandingService
 from .voice_pitch_simulator_service import VoicePitchSimulatorService
-from backend.core.services.media_service import MediaService
+from core.services.media_service import MediaService
 
 
 
@@ -756,7 +756,7 @@ class EricChatService:
                     user_tier = None
                     try:
                         from sqlalchemy import select
-                        from backend.core.database.models import User
+                        from core.database.models import User
                         result = await db.execute(select(User).where(User.id == user_id))
                         user = result.scalar_one_or_none()
                         if user:

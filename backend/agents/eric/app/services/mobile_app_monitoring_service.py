@@ -5,10 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import json
 import logging
 
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.messaging.kafka_manager import KafkaManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
+from core.cache.redis_manager import RedisManager
+from core.messaging.kafka_manager import KafkaManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..database import get_eric_database
 from ..models import (
@@ -34,7 +34,7 @@ class MobileAppMonitoringService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             self.ai_service_manager = await get_ai_service_manager()
             await self.redis_manager.initialize()
             await self.kafka_manager.initialize()

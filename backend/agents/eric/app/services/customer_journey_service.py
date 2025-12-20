@@ -6,7 +6,7 @@ from sqlalchemy import select, and_, or_, func, desc
 
 from ..models import Lead, Deal, LeadInteraction, CommunicationChannel
 from ..database import get_eric_database
-from backend.core.ai import get_ai_service_manager, AIServiceManager
+from core.ai import get_ai_service_manager, AIServiceManager
 
 logger = logging.getLogger(__name__)
 

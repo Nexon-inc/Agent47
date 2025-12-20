@@ -6,23 +6,23 @@ from sqlalchemy.orm import selectinload
 
 from ..models import SupportTicket, CustomerInteraction, CustomerFeedback, SupportChannel
 from ..database import get_db
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.utils.platform_integration_loader import (
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.utils.platform_integration_loader import (
     get_all_platforms_static, 
     get_all_integrations_static,
     detect_platforms_in_message,
     detect_integrations_in_message,
     get_integrations_by_type
 )
-from backend.core.utils.agent_user_data import get_all_user_resources_for_agent
-from backend.core.utils.agent_config_loader import get_agent_configuration_for_user
+from core.utils.agent_user_data import get_all_user_resources_for_agent
+from core.utils.agent_config_loader import get_agent_configuration_for_user
 
 # Import essential Clara services (only the ones that exist and work)
 from .support_service import SupportService
 from .chatbot_service import ChatbotService
 from .knowledge_service import KnowledgeService
 from .analytics_service import AnalyticsService
-from backend.core.services.media_service import MediaService
+from core.services.media_service import MediaService
 
 
 
@@ -525,7 +525,7 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                     user_tier = None
                     try:
                         from sqlalchemy import select
-                        from backend.core.database.models import User
+                        from core.database.models import User
                         result = await db.execute(select(User).where(User.id == user_id))
                         user = result.scalar_one_or_none()
                         if user:

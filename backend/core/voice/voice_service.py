@@ -305,7 +305,7 @@ class VoiceIOService:
         try:
             # Route to agent-specific chat service
             if agent_key == "clara":
-                from backend.agents.clara.app.services.clara_chat_service import ClaraChatService
+                from agents.clara.app.services.clara_chat_service import ClaraChatService
                 service = ClaraChatService()
                 await service.initialize()
                 result = await service.process_chat_message(
@@ -320,7 +320,7 @@ class VoiceIOService:
                 }
             
             elif agent_key == "eric":
-                from backend.agents.eric.app.services.eric_chat_service import EricChatService
+                from agents.eric.app.services.eric_chat_service import EricChatService
                 service = EricChatService()
                 await service.initialize()
                 result = await service.process_chat_message(
@@ -335,7 +335,7 @@ class VoiceIOService:
                 }
             
             elif agent_key == "aria":
-                from backend.agents.aria.app.services.aria_chat_service import AriaChatService
+                from agents.aria.app.services.aria_chat_service import AriaChatService
                 service = AriaChatService()
                 await service.initialize()
                 result = await service.process_message(
@@ -350,7 +350,7 @@ class VoiceIOService:
                 }
             
             elif agent_key == "jackie":
-                from backend.agents.jackie.app.services.jackie_chat_service import JackieChatService
+                from agents.jackie.app.services.jackie_chat_service import JackieChatService
                 service = JackieChatService()
                 await service.initialize()
                 result = await service.process_message(
@@ -365,7 +365,7 @@ class VoiceIOService:
                 }
             
             elif agent_key == "joe":
-                from backend.agents.joe.app.services.joe_chat_service import JoeChatService
+                from agents.joe.app.services.joe_chat_service import JoeChatService
                 service = JoeChatService()
                 await service.initialize()
                 result = await service.process_message(
@@ -380,7 +380,7 @@ class VoiceIOService:
                 }
             
             elif agent_key == "purity":
-                from backend.agents.purity.app.services.purity_chat_service import PurityChatService
+                from agents.purity.app.services.purity_chat_service import PurityChatService
                 service = PurityChatService()
                 await service.initialize()
                 result = await service.process_message(
@@ -395,7 +395,7 @@ class VoiceIOService:
                 }
             
             elif agent_key == "shakes":
-                from backend.agents.shakes.app.services.shakes_chat_service import ShakesChatService
+                from agents.shakes.app.services.shakes_chat_service import ShakesChatService
                 service = ShakesChatService()
                 await service.initialize()
                 result = await service.process_message(

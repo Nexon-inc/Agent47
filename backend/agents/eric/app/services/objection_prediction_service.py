@@ -15,12 +15,12 @@ from ..models import (
     SalesCampaign, SalesAnalytics, SalesForecast
 )
 # NLPUtils removed - not used (duplicate import removed)
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
-from backend.core.analytics.analytics_manager import AnalyticsManager
-from backend.core.event_bus.kafka_manager import EventBus as KafkaProducer
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.config import settings
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
+from core.analytics.analytics_manager import AnalyticsManager
+from core.event_bus.kafka_manager import EventBus as KafkaProducer
+from core.cache.redis_manager import RedisManager
+from core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class ObjectionPredictionService:
         self.ai_service_manager = None
         self.kafka_producer = KafkaProducer()
         try:
-            from backend.core.cache.redis_manager import redis_manager as RedisClient
+            from core.cache.redis_manager import redis_manager as RedisClient
             self.redis_client = RedisClient
         except Exception:
             self.redis_client = None
@@ -74,7 +74,7 @@ class ObjectionPredictionService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             self.ai_service_manager = await get_ai_service_manager()
             await self.kafka_producer.initialize()
             await self.analytics_manager.initialize()

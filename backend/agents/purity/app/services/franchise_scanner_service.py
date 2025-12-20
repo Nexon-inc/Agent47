@@ -5,9 +5,9 @@ import json
 from datetime import datetime
 
 from ..models import BusinessIdea, FranchiseOpportunity, BusinessModel
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.cache.redis_manager import RedisManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.event_bus.kafka_manager import KafkaManager
+from core.cache.redis_manager import RedisManager
 
 class FranchiseScannerService:
     def __init__(self):
@@ -35,7 +35,7 @@ class FranchiseScannerService:
             
             # Use AI Service Manager instead of NLPUtils
             if not self.ai_service_manager:
-                from backend.core.ai import get_ai_service_manager
+                from core.ai import get_ai_service_manager
                 self.ai_service_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI assistant that helps analyze franchises. Respond in JSON format."},
@@ -87,7 +87,7 @@ class FranchiseScannerService:
             
             # Use AI Service Manager instead of NLPUtils
             if not self.ai_service_manager:
-                from backend.core.ai import get_ai_service_manager
+                from core.ai import get_ai_service_manager
                 self.ai_service_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI assistant that helps analyze franchises. Respond in JSON format."},
@@ -136,7 +136,7 @@ class FranchiseScannerService:
             
             # Use AI Service Manager instead of NLPUtils
             if not self.ai_service_manager:
-                from backend.core.ai import get_ai_service_manager
+                from core.ai import get_ai_service_manager
                 self.ai_service_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI assistant that helps analyze franchises. Respond in JSON format."},
@@ -185,7 +185,7 @@ class FranchiseScannerService:
             
             # Use AI Service Manager instead of NLPUtils
             if not self.ai_service_manager:
-                from backend.core.ai import get_ai_service_manager
+                from core.ai import get_ai_service_manager
                 self.ai_service_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI assistant that helps analyze franchises. Respond in JSON format."},

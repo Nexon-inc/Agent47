@@ -10,9 +10,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from dataclasses import dataclass, field
 import json
 
-from backend.core.database import get_database, DatabaseManager
-from backend.core.logs import get_logger, LoggerMixin
-from backend.core.config import get_settings
+from core.database import get_database, DatabaseManager
+from core.logs import get_logger, LoggerMixin
+from core.config import get_settings
 
 logger = get_logger(__name__)
 

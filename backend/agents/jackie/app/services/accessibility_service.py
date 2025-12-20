@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from sqlalchemy.orm import Session
 
-from backend.core.utils.nlp_utils import NLPProcessor
+from core.utils.nlp_utils import NLPProcessor
 from ..models import AccessibilityContent, AccessibilityAnalysis, AccessibilityReport
 
 class AccessibilityService:

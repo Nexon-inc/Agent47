@@ -11,10 +11,10 @@ import logging
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.database.connection import get_db
-from backend.core.database import get_supabase
+from core.database.connection import get_db
+from core.database import get_supabase
 from core.cache import get_redis
-from backend.core.config import get_settings
+from core.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +156,7 @@ async def websocket_endpoint(websocket: WebSocket):
             return
         
         # Verify token and get user ID
-        from backend.core.authentication.auth_manager import AuthManager
+        from core.authentication.auth_manager import AuthManager
         
         try:
             auth_manager = AuthManager()
@@ -271,9 +271,9 @@ async def broadcast_notification(user_id: int, notification: Dict[str, Any]):
 async def broadcast_team_chat_message(team_id: int, message: Dict[str, Any]):
     """Broadcast a team chat message to all team members"""
     # Get all team member user IDs
-    from backend.core.database import get_database
+    from core.database import get_database
     from sqlalchemy import select, and_
-    from backend.core.database.models import TeamMember
+    from core.database.models import TeamMember
     
     db = await get_database()
     async with db.get_session() as session:

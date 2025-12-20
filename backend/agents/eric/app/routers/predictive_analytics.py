@@ -72,7 +72,7 @@ async def get_revenue_predictions(
     """Get cached revenue predictions"""
     try:
         # Try to get from cache first
-        from backend.core.cache.redis_manager import RedisManager
+        from core.cache.redis_manager import RedisManager
         redis_manager = RedisManager()
         
         cache_key = f"revenue_predictions_{period}_{months_ahead}"
@@ -127,7 +127,7 @@ async def get_market_trends(trend_type: str):
     """Get market trend predictions for a specific type"""
     try:
         # Try to get from cache first
-        from backend.core.cache.redis_manager import RedisManager
+        from core.cache.redis_manager import RedisManager
         redis_manager = RedisManager()
         
         cache_key = f"market_trends_{trend_type}"

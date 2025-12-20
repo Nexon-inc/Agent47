@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 import uuid
 
-from backend.core.utils.nlp_utils import NLPUtils
+from core.utils.nlp_utils import NLPUtils
 
 class OmnichannelService:
     def __init__(self, db: Session):

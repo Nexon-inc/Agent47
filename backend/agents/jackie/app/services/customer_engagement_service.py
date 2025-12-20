@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 import uuid
 
-from backend.core.ai import get_ai_service_manager, AIServiceManager
+from core.ai import get_ai_service_manager, AIServiceManager
 
 class CustomerEngagementService:
     def __init__(self, db: Session):

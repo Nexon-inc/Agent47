@@ -6,7 +6,7 @@ import json
 import uuid
 
 from ..models import CustomerSegment
-from backend.core.utils.nlp_utils import NLPUtils
+from core.utils.nlp_utils import NLPUtils
 
 class CustomerSegmentationService:
     def __init__(self, db: Session):

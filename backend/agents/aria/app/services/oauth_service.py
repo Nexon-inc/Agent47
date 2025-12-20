@@ -1,8 +1,8 @@
 from typing import Dict, Any
 import httpx
-from backend.core.config import settings
-from backend.core.database.connection import get_supabase
-from backend.core.platforms.models import PlatformCredential, SocialPlatform, CredentialStatus
+from core.config import settings
+from core.database.connection import get_supabase
+from core.platforms.models import PlatformCredential, SocialPlatform, CredentialStatus
 from sqlalchemy import select
 
 

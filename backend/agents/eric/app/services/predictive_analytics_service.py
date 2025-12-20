@@ -11,12 +11,12 @@ import numpy as np
 from collections import defaultdict
 
 # NLPUtils removed - not used
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.analytics.analytics_manager import AnalyticsManager
-from backend.core.config import settings
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
+from core.event_bus.kafka_manager import KafkaManager
+from core.cache.redis_manager import RedisManager
+from core.analytics.analytics_manager import AnalyticsManager
+from core.config import settings
 
 from ..database import get_eric_database
 from ..models import (
@@ -93,7 +93,7 @@ class PredictiveAnalyticsService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             self.ai_service_manager = await get_ai_service_manager()
             await self.integration_manager.initialize()
             await self.platform_manager.initialize()

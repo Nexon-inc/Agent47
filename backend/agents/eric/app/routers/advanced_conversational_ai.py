@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..services.advanced_conversational_ai_service import AdvancedConversationalAIService, ConversationContext, IndustryQuery, ConversationResponse
 from ..database import get_eric_database
-from backend.core.cache.redis_manager import RedisManager
+from core.cache.redis_manager import RedisManager
 
 router = APIRouter(prefix="/advanced-conversational-ai", tags=["Advanced Conversational AI"])
 conversational_ai_service = AdvancedConversationalAIService()

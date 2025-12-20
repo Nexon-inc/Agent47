@@ -7,8 +7,8 @@ from typing import Dict, Any, Optional, List, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.storage.s3_manager import storage_manager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.storage.s3_manager import storage_manager
 from ..database import get_clara_database
 from ..models import (
     SupportTicket, CustomerInteraction, TicketCategory, SupportChannel,
@@ -245,7 +245,7 @@ class VoiceService:
     async def _transcribe_audio(self, audio_file_path: str) -> Dict[str, Any]:
         """Transcribe audio file to text using Groq STT via AI Service Manager"""
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             
             ai_manager = await get_ai_service_manager()
             
@@ -666,7 +666,7 @@ Voice Message: {text}"""
     ) -> Dict[str, Any]:
         """Convert text to speech using Groq TTS via AI Service Manager"""
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             
             ai_manager = await get_ai_service_manager()
             

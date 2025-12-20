@@ -5,9 +5,9 @@ import json
 from datetime import datetime
 
 from ..models import BusinessIdea, BusinessModel, BusinessModelCanvas
-from backend.core.utils.nlp_utils import NLPUtils
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.cache.redis_manager import RedisManager
+from core.utils.nlp_utils import NLPUtils
+from core.event_bus.kafka_manager import KafkaManager
+from core.cache.redis_manager import RedisManager
 
 class BusinessModelCanvasService:
     def __init__(self):
@@ -48,7 +48,7 @@ class BusinessModelCanvasService:
             
             # Use AI Service Manager instead of NLPUtils
             if not self.ai_service_manager:
-                from backend.core.ai import get_ai_service_manager
+                from core.ai import get_ai_service_manager
                 self.ai_service_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI assistant that creates business model canvases. Respond in JSON format."},
@@ -111,7 +111,7 @@ class BusinessModelCanvasService:
             
             # Use AI Service Manager instead of NLPUtils
             if not self.ai_service_manager:
-                from backend.core.ai import get_ai_service_manager
+                from core.ai import get_ai_service_manager
                 self.ai_service_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": "You are an AI assistant that creates business model canvases. Respond in JSON format."},

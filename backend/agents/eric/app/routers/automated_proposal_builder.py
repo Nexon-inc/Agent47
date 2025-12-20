@@ -8,7 +8,7 @@ from ..services.automated_proposal_builder_service import (
     AutomatedProposalBuilderService, GeneratedProposal, ProposalTemplate
 )
 from ..database import get_db
-from backend.core.authentication.auth import get_current_user
+from core.authentication.auth import get_current_user
 from ..models import SalesRep
 
 router = APIRouter(prefix="/automated-proposal-builder", tags=["Automated Proposal Builder"])

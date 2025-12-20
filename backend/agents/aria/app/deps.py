@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.models import User, UserTier
+from core.authentication.auth_manager import get_current_user
+from core.database.models import User, UserTier
 from .services.tier_rbac_service import TierRBAC
 
 

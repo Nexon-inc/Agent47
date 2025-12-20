@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from ..database import get_joe_database
 from ..services.automated_competitor_ad_tracking_service import AutomatedCompetitorAdTrackingService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 router = APIRouter(prefix="/automated-competitor-ad-tracking", tags=["Automated Competitor Ad Tracking"])
 

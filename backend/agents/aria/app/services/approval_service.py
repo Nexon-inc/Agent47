@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 from datetime import datetime
-from backend.core.database.connection import get_supabase
-from backend.core.config import settings
+from core.database.connection import get_supabase
+from core.config import settings
 import httpx
 from ..models import Approval, ScheduledPost, ApprovalStatus
 

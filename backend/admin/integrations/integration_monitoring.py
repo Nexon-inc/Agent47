@@ -2,9 +2,9 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 
-from backend.core.database import get_database
-from backend.core.cache import get_redis
-from backend.core.logs import get_logger
+from core.database import get_database
+from core.cache import get_redis
+from core.logs import get_logger
 
 
 class IntegrationMonitoring:

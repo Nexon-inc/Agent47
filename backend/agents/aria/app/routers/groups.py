@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.models import User
-from backend.core.database.connection import get_supabase
+from core.authentication.auth_manager import get_current_user
+from core.database.models import User
+from core.database.connection import get_supabase
 from ..models import AccountGroup
 
 

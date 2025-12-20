@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from backend.core.config import settings
+from core.config import settings
 from .lifespan import create_app
 from .routers import (
     blog_writing, social_media, seo_optimization, video_scripting, ad_copywriting,

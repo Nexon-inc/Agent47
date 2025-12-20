@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.integrations.models import IntegrationType, IntegrationStatus, CredentialStatus
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.user_management.user_manager import User
+from core.integrations.integration_manager import IntegrationManager
+from core.integrations.models import IntegrationType, IntegrationStatus, CredentialStatus
+from core.authentication.auth_manager import get_current_user
+from core.user_management.user_manager import User
 
 router = APIRouter(prefix="/api/integrations", tags=["integrations"])
 

@@ -9,10 +9,10 @@ from enum import Enum
 
 from ..models import KnowledgeBase, SupportTicket, CustomerInteraction
 from ..database import get_clara_database
-from backend.core.config import settings
-from backend.core.integrations import IntegrationManager
-from backend.core.analytics import AnalyticsManager
-from backend.core.utils.nlp_utils import NLPUtils
+from core.config import settings
+from core.integrations import IntegrationManager
+from core.analytics import AnalyticsManager
+from core.utils.nlp_utils import NLPUtils
 
 
 class KnowledgeService:
@@ -20,7 +20,7 @@ class KnowledgeService:
         self.integration_manager = IntegrationManager()
         self.analytics_manager = AnalyticsManager()
         # NLPUtils kept for specialized semantic_search_knowledge_base only
-        from backend.core.utils.nlp_utils import NLPUtils
+        from core.utils.nlp_utils import NLPUtils
         self.nlp_utils = NLPUtils()
         
     async def search_knowledge_base(

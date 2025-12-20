@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 
 from ..database import get_joe_database
 from ..services.ethical_guidelines_service import EthicalGuidelinesService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 router = APIRouter(prefix="/ethical-guidelines", tags=["Ethical Guidelines"])
 

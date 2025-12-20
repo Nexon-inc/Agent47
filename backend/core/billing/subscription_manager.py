@@ -196,7 +196,7 @@ class SubscriptionManager:
             if subscription.paystack_subscription_code:
                 try:
                     # Cancel subscription through Paystack API
-                    from backend.core.billing.paystack_integration import PaystackIntegration
+                    from core.billing.paystack_integration import PaystackIntegration
                     paystack = PaystackIntegration()
                     
                     # Disable the subscription in Paystack

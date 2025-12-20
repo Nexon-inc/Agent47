@@ -4,7 +4,7 @@ from typing import Any, Dict
 logger = logging.getLogger(__name__)
 
 try:
-    from backend.core.event_bus.kafka_manager import EventBus
+    from core.event_bus.kafka_manager import EventBus
 except Exception:
     EventBus = None
 

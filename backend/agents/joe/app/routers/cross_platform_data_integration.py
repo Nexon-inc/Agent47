@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from ..database import get_joe_database
 from ..services.cross_platform_data_integration_service import CrossPlatformDataIntegrationService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 router = APIRouter(prefix="/cross-platform-data-integration", tags=["Cross-Platform Data Integration"])
 

@@ -1,11 +1,11 @@
 from typing import Dict, Any, List, Optional
 from datetime import datetime
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.utils.database_utils import DatabaseUtils
-from backend.core.utils.cache_utils import CacheUtils
-from backend.core.utils.event_bus_utils import EventBusUtils
-from backend.core.utils.integration_utils import IntegrationUtils
-from backend.core.config import settings
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.utils.database_utils import DatabaseUtils
+from core.utils.cache_utils import CacheUtils
+from core.utils.event_bus_utils import EventBusUtils
+from core.utils.integration_utils import IntegrationUtils
+from core.config import settings
 from ..database import get_shakes_database
 
 class AccessibilityCheckerService:

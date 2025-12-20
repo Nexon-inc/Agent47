@@ -3,8 +3,8 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.models import User
+from core.authentication.auth_manager import get_current_user
+from core.database.models import User
 from ..database import get_db
 from ..models import SocialAccount, AnalyticsSnapshot, ScheduledPost, PublishedPost
 from ..services.analytics_service import AnalyticsService

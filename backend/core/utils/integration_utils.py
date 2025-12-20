@@ -4,7 +4,7 @@ from typing import Any, Dict
 logger = logging.getLogger(__name__)
 
 try:
-    from backend.core.integrations.integration_manager import IntegrationManager
+    from core.integrations.integration_manager import IntegrationManager
 except Exception:
     IntegrationManager = None
 

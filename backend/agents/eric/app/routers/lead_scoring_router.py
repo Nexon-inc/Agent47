@@ -5,7 +5,7 @@ from datetime import datetime
 import logging
 
 from ..services.lead_scoring_service import LeadScoringService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 logger = logging.getLogger(__name__)
 

@@ -8,7 +8,7 @@ from sqlalchemy import and_, or_, func, desc, asc
 import httpx
 import json
 import redis.asyncio as redis
-from backend.core.event_bus.kafka_manager import EventBus as KafkaProducer
+from core.event_bus.kafka_manager import EventBus as KafkaProducer
 import json
 
 
@@ -37,9 +37,9 @@ from ..models import (
     SalesCampaign, SalesAnalytics, SalesForecast
 )
 # NLPUtils removed - not used
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
-from backend.core.analytics.analytics_manager import AnalyticsManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
+from core.analytics.analytics_manager import AnalyticsManager
 
 logger = logging.getLogger(__name__)
 
@@ -62,8 +62,8 @@ class AutomatedProposalBuilderService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
-            from backend.core.cache.redis_manager import init_redis
+            from core.ai import get_ai_service_manager
+            from core.cache.redis_manager import init_redis
             self.ai_service_manager = await get_ai_service_manager()
             self.redis_client = await init_redis()
             await self.integration_manager.initialize()

@@ -3,9 +3,9 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 from ..services.eric_chat_service import EricChatService
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.connection import get_database as get_core_db
-from backend.core.database.models import UserSelectedAgent
+from core.authentication.auth_manager import get_current_user
+from core.database.connection import get_database as get_core_db
+from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from ..models import Lead
 from ..database import get_db

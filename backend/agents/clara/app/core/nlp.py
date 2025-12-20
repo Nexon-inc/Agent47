@@ -1,3 +1,3 @@
-from backend.core.utils.nlp_utils import NLPUtils
+from core.utils.nlp_utils import NLPUtils
 
 __all__ = ["NLPUtils"]

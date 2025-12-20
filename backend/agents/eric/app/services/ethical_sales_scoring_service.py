@@ -12,9 +12,9 @@ from ..models import (
     EthicalSalesScore, SalesAnalytics, SalesForecast
 )
 from ..database import get_eric_database
-from backend.core.event_bus.kafka_manager import EventBus as KafkaProducer
-from backend.core.cache import redis_manager
-from backend.core.config import settings
+from core.event_bus.kafka_manager import EventBus as KafkaProducer
+from core.cache import redis_manager
+from core.config import settings
 
 
 class EthicalScore(BaseModel):
@@ -51,7 +51,7 @@ class EthicalSalesScoringService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             self.ai_service_manager = await get_ai_service_manager()
             await self.kafka_producer.initialize()
             # redis_manager is already initialized

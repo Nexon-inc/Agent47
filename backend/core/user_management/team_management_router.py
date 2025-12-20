@@ -178,7 +178,7 @@ async def invite_team_member(
         
         # Broadcast notification via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(invitee.id, {
                 "id": message.id,
                 "type": "team_invite",
@@ -400,7 +400,7 @@ async def assign_task_to_member(
         
         # Broadcast notification via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(team_member.user_id, {
                 "id": message.id,
                 "type": "task_completion",

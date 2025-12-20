@@ -3,9 +3,9 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 from ..services.shakes_chat_service import ShakesChatService
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.connection import get_supabase
-from backend.core.database.models import UserSelectedAgent
+from core.authentication.auth_manager import get_current_user
+from core.database.connection import get_supabase
+from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from ..models import ContentProject
 from ..database import get_db

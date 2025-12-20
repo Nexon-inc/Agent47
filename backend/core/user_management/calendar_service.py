@@ -5,9 +5,9 @@ from dataclasses import dataclass, asdict
 from enum import Enum
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, and_, or_
-from backend.core.event_bus.kafka_manager import EventBus, get_kafka
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.cache.redis_manager import init_redis
+from core.event_bus.kafka_manager import EventBus, get_kafka
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.cache.redis_manager import init_redis
 
 logger = logging.getLogger(__name__)
 

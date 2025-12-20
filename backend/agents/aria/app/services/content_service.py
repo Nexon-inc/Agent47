@@ -1,8 +1,8 @@
 from typing import Dict, Any, List, Optional
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.storage.chroma_manager import get_chroma, ChromaDBManager
-from backend.core.integrations.integration_manager import get_integration_manager
-from backend.core.database.connection import get_supabase
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.storage.chroma_manager import get_chroma, ChromaDBManager
+from core.integrations.integration_manager import get_integration_manager
+from core.database.connection import get_supabase
 from ..models import BrandProfile
 
 

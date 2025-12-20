@@ -7,12 +7,12 @@ from sqlalchemy import select, update, and_
 from pydantic import BaseModel
 
 from ..database import get_eric_database
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
-from backend.core.event_bus.kafka_manager import KafkaManager
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.utils.nlp_utils import NLPUtils
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
+from core.event_bus.kafka_manager import KafkaManager
+from core.cache.redis_manager import RedisManager
+from core.utils.nlp_utils import NLPUtils
 
 logger = logging.getLogger(__name__)
 

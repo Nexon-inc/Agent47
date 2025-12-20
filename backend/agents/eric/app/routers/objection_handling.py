@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..services.objection_handling_service import ObjectionHandlingService, ObjectionAnalysis, ObjectionHandlingSession, ObjectionType, ObjectionResponse
 from ..database import get_eric_database
-from backend.core.cache.redis_manager import RedisManager
+from core.cache.redis_manager import RedisManager
 
 router = APIRouter(prefix="/objection-handling", tags=["Objection Handling"])
 objection_service = ObjectionHandlingService()

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Dict, Any, List
 from ..services.content_remix_service import ContentRemixService
 from ..deps import get_current_user
-from backend.core.database.models import User
+from core.database.models import User
 
 router = APIRouter(prefix="/content-remix", tags=["Content Remix"])
 

@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
 import enum
-from backend.core.database.models import Base, UserProfile as CustomerProfile
+from core.database.models import Base, UserProfile as CustomerProfile
  
 
 class TicketPriority(enum.Enum):

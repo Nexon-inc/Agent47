@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
-from backend.core.ai import get_ai_service_manager, AIServiceManager
+from core.ai import get_ai_service_manager, AIServiceManager
 
 
 router = APIRouter(prefix="/aria/nlp", tags=["aria:nlp"])

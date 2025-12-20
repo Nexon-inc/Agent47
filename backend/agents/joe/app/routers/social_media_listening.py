@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Dict, Any
 from pydantic import BaseModel, Field
 from ..database import get_joe_database
-from backend.core.event_bus.kafka_manager import get_event_bus
-from backend.core.cache.redis_manager import get_redis
+from core.event_bus.kafka_manager import get_event_bus
+from core.cache.redis_manager import get_redis
 from ..services.social_media_listening_service import SocialMediaListeningService
 
 router = APIRouter()

@@ -5,9 +5,9 @@ from typing import Dict, Any, Optional, List, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func, update
 from sqlalchemy.orm import selectinload
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.event_bus.kafka_manager import EventBus
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.integrations.integration_manager import IntegrationManager
+from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
     SupportTicket, CustomerInteraction, TicketEscalation, CustomerFeedback,
@@ -15,7 +15,7 @@ from ..models import (
     TicketStatus, TicketCategory, SupportChannel, SentimentType,
     InteractionType, ChatSession, ChatMessage
 )
-from backend.core.database.models import UserProfile
+from core.database.models import UserProfile
 
 logger = logging.getLogger(__name__)
 

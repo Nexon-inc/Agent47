@@ -3,9 +3,9 @@ from typing import Dict, Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from datetime import datetime
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.event_bus.kafka_manager import EventBus
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.integrations.integration_manager import IntegrationManager
+from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
 from ..models import ContentProject, ContentPiece
 
@@ -268,8 +268,8 @@ class VoiceoverIntegrationService:
         """Generate voiceover audio using Groq TTS"""
         try:
             import uuid
-            from backend.core.storage.s3_manager import storage_manager
-            from backend.core.ai import get_ai_service_manager
+            from core.storage.s3_manager import storage_manager
+            from core.ai import get_ai_service_manager
 
             # Initialize AI service manager if not already done
             if not hasattr(self, '_ai_service_manager') or self._ai_service_manager is None:
@@ -425,7 +425,7 @@ class VoiceoverIntegrationService:
         """Generate voice samples"""
         try:
             import uuid
-            from backend.core.storage.s3_manager import storage_manager
+            from core.storage.s3_manager import storage_manager
             
             samples = []
             sample_texts = [

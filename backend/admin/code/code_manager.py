@@ -6,10 +6,10 @@ from datetime import datetime, timedelta
 from dataclasses import dataclass
 from enum import Enum
 
-from backend.core.database import get_database, DatabaseManager
-from backend.core.cache import get_redis, RedisManager
-from backend.core.logs import get_logger, LoggerMixin
-from backend.core.config import get_settings
+from core.database import get_database, DatabaseManager
+from core.cache import get_redis, RedisManager
+from core.logs import get_logger, LoggerMixin
+from core.config import get_settings
 from .terminal_manager import get_terminal_manager, TerminalManager
 from .error_monitor import get_error_monitor, ErrorMonitor
 

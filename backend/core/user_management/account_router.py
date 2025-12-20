@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
-from backend.core.user_management.user_manager import UserManager
-from backend.core.user_management.profile_manager import ProfileManager
-from backend.core.user_management.activity_tracker import ActivityTracker
-from backend.core.user_management.models import UserRole
-from backend.core.database.models import UserTier
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.user_management.user_manager import User
+from core.user_management.user_manager import UserManager
+from core.user_management.profile_manager import ProfileManager
+from core.user_management.activity_tracker import ActivityTracker
+from core.user_management.models import UserRole
+from core.database.models import UserTier
+from core.authentication.auth_manager import get_current_user
+from core.user_management.user_manager import User
 
 router = APIRouter(prefix="/api/v1/account", tags=["account"])
 

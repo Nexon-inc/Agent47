@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional
 import httpx
-from backend.core.config import settings
-from backend.core.integrations.integration_manager import get_integration_manager
+from core.config import settings
+from core.integrations.integration_manager import get_integration_manager
 
 
 class BufferClient:

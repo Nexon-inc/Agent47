@@ -11,10 +11,10 @@ from kafka import KafkaProducer
 
 from ..database import get_eric_database
 from ..models import Lead, Deal, SalesActivity, SalesRep, CustomerProfile, SalesCampaign, SalesAnalytics, SalesForecast
-from backend.core.utils.nlp_utils import NLPUtils
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
-from backend.core.analytics.analytics_manager import AnalyticsManager
+from core.utils.nlp_utils import NLPUtils
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
+from core.analytics.analytics_manager import AnalyticsManager
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +33,9 @@ from ..models import (
     EricMarketInsight, SalesAnalytics, SalesForecast
 )
 from ..database import get_eric_database
-from backend.core.event_bus.kafka_manager import EventBus as KafkaProducer
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.config import settings
+from core.event_bus.kafka_manager import EventBus as KafkaProducer
+from core.cache.redis_manager import RedisManager
+from core.config import settings
 
 
 class MarketTrend(BaseModel):
@@ -71,7 +71,7 @@ class LocalMarketInsightsService:
 
         # Use RedisManager from core cache
         try:
-            from backend.core.cache.redis_manager import redis_manager as RedisClient
+            from core.cache.redis_manager import redis_manager as RedisClient
             self.redis_client = RedisClient
         except Exception:
             self.redis_client = None
@@ -86,7 +86,7 @@ class LocalMarketInsightsService:
             return
         
         try:
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             self.ai_service_manager = await get_ai_service_manager()
             if self.kafka_producer:
                 await self.kafka_producer.initialize()

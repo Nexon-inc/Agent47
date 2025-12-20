@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from backend.core.ai import get_ai_service_manager, AIServiceManager
+from core.ai import get_ai_service_manager, AIServiceManager
 
 
 class SpeechService:

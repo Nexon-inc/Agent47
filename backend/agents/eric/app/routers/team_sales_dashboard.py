@@ -7,7 +7,7 @@ from ..services.team_sales_dashboard_service import (
     TeamSalesDashboardService, TeamDashboardMetrics, SalesRepPerformance
 )
 from ..database import get_db
-from backend.core.authentication.auth import get_current_user
+from core.authentication.auth import get_current_user
 
 router = APIRouter(prefix="/team-sales-dashboard", tags=["Team Sales Dashboard"])
 

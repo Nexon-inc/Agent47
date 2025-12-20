@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, Float, ForeignKey, JSON, Enum, Table
-from backend.core.database.models import Base
+from core.database.models import Base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
@@ -41,8 +41,8 @@ class CommunityType(enum.Enum):
     RESEARCH = "research"
     GENERAL = "general"
 
-# Use canonical model definitions from backend.core.database.models to avoid duplicate table
-from backend.core.database.models import (
+# Use canonical model definitions from core.database.models to avoid duplicate table
+from core.database.models import (
     UserProfile,
     UserActivity,
     UserError,

@@ -165,7 +165,7 @@ async def connect_integration(
         
         # Broadcast integration connection via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(user_id, {
                 "id": f"integration_{integration_name}_{user_id}",
                 "type": "platform_update",
@@ -311,7 +311,7 @@ async def handle_oauth_callback(
         
         # Broadcast integration connection via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(user_id, {
                 "id": f"integration_{integration_name}_{user_id}",
                 "type": "platform_update",
@@ -337,7 +337,7 @@ async def handle_oauth_callback(
         
         # Broadcast integration connection via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(user_id, {
                 "id": f"integration_{integration_name}_{user_id}",
                 "type": "platform_update",
@@ -409,7 +409,7 @@ async def disconnect_integration(
         
         # Broadcast integration disconnection via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(user_id, {
                 "id": f"integration_{integration_name}_{user_id}",
                 "type": "platform_update",

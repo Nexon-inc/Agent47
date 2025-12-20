@@ -7,7 +7,7 @@ module re-exports the class and helper functions for compatibility.
 from typing import Optional
 
 try:
-    from backend.core.event_bus.kafka_manager import (
+    from core.event_bus.kafka_manager import (
         KafkaManager as _KafkaManager,
         kafka_manager as _kafka_manager,
         get_kafka as get_event_bus_kafka,

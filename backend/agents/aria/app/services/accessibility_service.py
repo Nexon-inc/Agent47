@@ -2,9 +2,9 @@ from typing import Dict, Any, List, Optional
 import base64
 import io
 from datetime import datetime
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.storage.s3_manager import storage_manager
-from backend.core.database.connection import get_supabase
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.storage.s3_manager import storage_manager
+from core.database.connection import get_supabase
 from ..models import ScheduledPost
 import uuid
 

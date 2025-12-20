@@ -146,7 +146,7 @@ async def send_chat_message(
         
         # Broadcast to team members via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_team_chat_message
+            from core.realtime.websocket_router import broadcast_team_chat_message
             await broadcast_team_chat_message(team.id, {
                 "id": chat_message.id,
                 "team_id": chat_message.team_id,
@@ -234,7 +234,7 @@ async def send_voice_message(
         
         # Broadcast to team members via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_team_chat_message
+            from core.realtime.websocket_router import broadcast_team_chat_message
             await broadcast_team_chat_message(team.id, {
                 "id": chat_message.id,
                 "team_id": chat_message.team_id,

@@ -6,11 +6,11 @@ import json
 import logging
 from pydantic import BaseModel
 
-from backend.core.cache.redis_manager import RedisManager
-from backend.core.messaging.kafka_manager import KafkaManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
-from backend.core.ai import get_ai_service_manager
+from core.cache.redis_manager import RedisManager
+from core.messaging.kafka_manager import KafkaManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
+from core.ai import get_ai_service_manager
 from ..database import get_eric_database
 from ..models import (
     Lead, LeadInteraction, Deal, SalesActivity, Objection,
@@ -491,7 +491,7 @@ class AdvancedConversationalAIService:
             
             # Generate base response using NLP
             # Use AI Service Manager instead of NLPUtils
-            from backend.core.ai import get_ai_service_manager
+            from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
             messages = [
                 {"role": "system", "content": f"You are an AI sales assistant. Detected intent: {intent}"},

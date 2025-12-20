@@ -10,7 +10,7 @@ from ..models import (
     PlatformEnum, PostStatus, ApprovalStatus
 )
 from ..database import get_db
-from backend.core.ai import get_ai_service_manager, AIServiceManager
+from core.ai import get_ai_service_manager, AIServiceManager
 
 
 class AccountAnalysisService:

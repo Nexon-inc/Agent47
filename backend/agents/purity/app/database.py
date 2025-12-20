@@ -1,9 +1,9 @@
 import logging
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base
-from backend.core.config import settings
-from backend.core.database.models import Base
-from backend.core.database.connection import get_supabase
+from core.config import settings
+from core.database.models import Base
+from core.database.connection import get_supabase
 
 logger = logging.getLogger(__name__)
 

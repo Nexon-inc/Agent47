@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from ..database import get_joe_database
 from ..services.ai_assisted_hypothesis_testing_service import AIAssistedHypothesisTestingService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 router = APIRouter(prefix="/ai-assisted-hypothesis-testing", tags=["AI-Assisted Hypothesis Testing"])
 

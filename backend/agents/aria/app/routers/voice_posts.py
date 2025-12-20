@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from typing import Dict, Any, List
 from ..services.voice_posts_service import VoicePostsService
 from ..deps import get_current_user
-from backend.core.database.models import User
+from core.database.models import User
 
 router = APIRouter(prefix="/voice-posts", tags=["Voice Posts"])
 

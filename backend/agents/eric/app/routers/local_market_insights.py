@@ -7,7 +7,7 @@ from ..services.local_market_insights_service import (
     LocalMarketInsightsService, RegionalInsight, MarketTrend
 )
 from ..database import get_db
-from backend.core.authentication.auth import get_current_user
+from core.authentication.auth import get_current_user
 
 router = APIRouter(prefix="/local-market-insights", tags=["Local Market Insights"])
 

@@ -6,9 +6,9 @@ from sqlalchemy import select, delete, func, and_
 from pydantic import BaseModel
 import os
 
-from backend.core.authentication.auth_manager import get_current_user
-from backend.core.database.models import User, UserSelectedAgent, UserTier, Subscription
-from backend.core.database.connection import get_db
+from core.authentication.auth_manager import get_current_user
+from core.database.models import User, UserSelectedAgent, UserTier, Subscription
+from core.database.connection import get_db
 
 router = APIRouter(prefix="/api/v1/account", tags=["Selected Agents"])
 
@@ -441,9 +441,9 @@ async def get_agent_health(
         agent_ids = [agent["agent_id"] for agent in selected_agents]
         
         # Get real health data from system health endpoint
-        from backend.core.database import get_supabase
+        from core.database import get_supabase
         from core.cache import get_redis
-        from backend.core.config import get_settings
+        from core.config import get_settings
         
         settings = get_settings()
         supabase_manager = await get_supabase()
@@ -470,7 +470,7 @@ async def get_agent_health(
         
         # Query recent tasks for each agent to determine real activity
         from sqlalchemy import select, func, and_
-        from backend.core.database.models import Task
+        from core.database.models import Task
         
         health_data = []
         for agent_id in agent_ids:
@@ -573,11 +573,11 @@ async def get_single_agent_health(
             raise HTTPException(status_code=400, detail=f"Invalid agent_id: {agent_id}")
         
         # Get real health data
-        from backend.core.database import get_supabase
+        from core.database import get_supabase
         from core.cache import get_redis
-        from backend.core.config import get_settings
+        from core.config import get_settings
         from sqlalchemy import select, func, and_
-        from backend.core.database.models import Task
+        from core.database.models import Task
         
         settings = get_settings()
         supabase_manager = await get_supabase()

@@ -4,9 +4,9 @@ from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
-from backend.core.database import get_database
-from backend.core.cache import get_redis
-from backend.core.logs import get_logger
+from core.database import get_database
+from core.cache import get_redis
+from core.logs import get_logger
 from .analytics_manager import TimeRange
 
 

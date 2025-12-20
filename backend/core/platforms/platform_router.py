@@ -181,7 +181,7 @@ async def connect_platform(
         
         # Broadcast platform connection via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(current_user.id, {
                 "id": f"platform_{request.platform_id}_{current_user.id}",
                 "type": "platform_update",
@@ -230,7 +230,7 @@ async def disconnect_platform(
         
         # Broadcast platform disconnection via WebSocket
         try:
-            from backend.core.realtime.websocket_router import broadcast_notification
+            from core.realtime.websocket_router import broadcast_notification
             await broadcast_notification(current_user.id, {
                 "id": f"platform_{request.platform_id}_{current_user.id}",
                 "type": "platform_update",

@@ -77,8 +77,8 @@ class CommunityManager:
     async def _load_data(self):
         """Async load communities and members from database."""
         try:
-            from backend.core.database.connection import get_supabase
-            from backend.core.database.models import Community as ORMCommunity, CommunityMember as ORMCommunityMember
+            from core.database.connection import get_supabase
+            from core.database.models import Community as ORMCommunity, CommunityMember as ORMCommunityMember
             from sqlalchemy import select
 
             db = await get_supabase()

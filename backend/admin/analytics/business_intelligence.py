@@ -7,10 +7,10 @@ from enum import Enum
 import logging
 import uuid
 
-from backend.core.database import get_database
-from backend.core.cache import get_redis
-from backend.core.logs import get_logger
-from backend.core.config import get_config
+from core.database import get_database
+from core.cache import get_redis
+from core.logs import get_logger
+from core.config import get_config
 
 
 class MetricPeriod(Enum):

@@ -8,11 +8,11 @@ from sqlalchemy import select, and_, func, desc
 from sqlalchemy.orm import selectinload
 
 from ..database import get_eric_database
-from backend.core.ai import get_ai_service_manager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.analytics.analytics_manager import AnalyticsManager
-from backend.core.event_bus.kafka_manager import EventBus as KafkaManager
-from backend.core.cache.redis_manager import RedisManager
+from core.ai import get_ai_service_manager
+from core.integrations.integration_manager import IntegrationManager
+from core.analytics.analytics_manager import AnalyticsManager
+from core.event_bus.kafka_manager import EventBus as KafkaManager
+from core.cache.redis_manager import RedisManager
 from ..models import Lead, Deal, SalesActivity, SalesRep, CustomerProfile
 
 logger = logging.getLogger(__name__)

@@ -6,13 +6,13 @@ from dataclasses import dataclass, field
 from enum import Enum
 import json
 
-from backend.core.database import get_database, DatabaseManager
-from backend.core.cache import get_redis, RedisManager
-from backend.core.event_bus import get_kafka, KafkaManager
-from backend.core.logs import get_logger, LoggerMixin
-from backend.core.config import get_settings
-from backend.core.user_management import get_user_manager, UserManager
-from backend.core.billing import get_billing_manager, BillingManager
+from core.database import get_database, DatabaseManager
+from core.cache import get_redis, RedisManager
+from core.event_bus import get_kafka, KafkaManager
+from core.logs import get_logger, LoggerMixin
+from core.config import get_settings
+from core.user_management import get_user_manager, UserManager
+from core.billing import get_billing_manager, BillingManager
 
 logger = get_logger(__name__)
 
@@ -302,7 +302,7 @@ class UserAdminManager(LoggerMixin):
             # Fallback to SQLAlchemy with RLS bypass
             async with self.database.get_session(bypass_rls=True) as session:
                 from sqlalchemy import select, func
-                from backend.core.database.models import User
+                from core.database.models import User
                 
                 # Get total count
                 count_result = await session.execute(select(func.count(User.id)))
@@ -387,7 +387,7 @@ class UserAdminManager(LoggerMixin):
             # Use bypass_rls=True for admin operations to access all user data
             async with self.database.get_session(bypass_rls=True) as session:
                 from sqlalchemy import select
-                from backend.core.database.models import User
+                from core.database.models import User
                 
                 result = await session.execute(
                     select(User).where(User.id == int(user_id))
@@ -539,7 +539,7 @@ class UserAdminManager(LoggerMixin):
 
             # Broadcast user suspension via WebSocket
             try:
-                from backend.core.realtime.websocket_router import broadcast_notification
+                from core.realtime.websocket_router import broadcast_notification
                 await broadcast_notification(int(user_id), {
                     "id": f"suspension_{user_id}",
                     "type": "security_alert",
@@ -611,7 +611,7 @@ class UserAdminManager(LoggerMixin):
 
             # Broadcast user activation via WebSocket
             try:
-                from backend.core.realtime.websocket_router import broadcast_notification
+                from core.realtime.websocket_router import broadcast_notification
                 await broadcast_notification(int(user_id), {
                     "id": f"activation_{user_id}",
                     "type": "system_update",

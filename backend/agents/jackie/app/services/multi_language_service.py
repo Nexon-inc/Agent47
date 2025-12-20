@@ -6,8 +6,8 @@ from typing import Dict, List, Optional, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 
-from backend.core.utils.nlp_utils import NLPUtils
-from backend.core.cache.redis_manager import init_redis
+from core.utils.nlp_utils import NLPUtils
+from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
 from ..models import MultiLanguageCampaign, TranslationData, CulturalAdaptation, LanguageAnalytics
 

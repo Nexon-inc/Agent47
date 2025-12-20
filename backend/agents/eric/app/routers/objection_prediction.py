@@ -8,7 +8,7 @@ from ..services.objection_prediction_service import (
     ObjectionPredictionService, PredictedObjection, ObjectionType, ObjectionPredictionModel
 )
 from ..database import get_db
-from backend.core.authentication.auth import get_current_user
+from core.authentication.auth import get_current_user
 
 router = APIRouter(prefix="/objection-prediction", tags=["Objection Prediction"])
 

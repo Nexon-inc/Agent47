@@ -1,6 +1,6 @@
 from typing import List
-from backend.core.database.models import UserTier
-from backend.core.billing.usage_tracker import get_usage_tracker
+from core.database.models import UserTier
+from core.billing.usage_tracker import get_usage_tracker
 
 
 class TierRBAC:

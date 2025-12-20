@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from enum import Enum
 from sqlalchemy import text
 
-from backend.core.database import get_database, DatabaseManager
-from backend.core.logs import get_logger, LoggerMixin
-from backend.core.config import get_settings
+from core.database import get_database, DatabaseManager
+from core.logs import get_logger, LoggerMixin
+from core.config import get_settings
 
 logger = get_logger(__name__)
 
@@ -245,7 +245,7 @@ class AlertManager(LoggerMixin):
             
             # Broadcast alert to all admins via WebSocket
             try:
-                from backend.core.realtime.websocket_router import broadcast_alert
+                from core.realtime.websocket_router import broadcast_alert
                 await broadcast_alert({
                     "id": alert_id,
                     "source": source.value,

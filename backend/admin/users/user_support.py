@@ -6,11 +6,11 @@ from dataclasses import dataclass, field
 from enum import Enum
 import logging
 
-from backend.core.database import get_database
-from backend.core.cache import get_redis
-from backend.core.logs import get_logger
-from backend.core.config import get_config
-from backend.core.event_bus import get_kafka
+from core.database import get_database
+from core.cache import get_redis
+from core.logs import get_logger
+from core.config import get_config
+from core.event_bus import get_kafka
 
 
 class TicketPriority(Enum):
@@ -315,7 +315,7 @@ class UserSupport:
             
             # Broadcast ticket creation via WebSocket (to admins)
             try:
-                from backend.core.realtime.websocket_router import broadcast_alert
+                from core.realtime.websocket_router import broadcast_alert
                 await broadcast_alert({
                     "id": ticket_id,
                     "source": "support",

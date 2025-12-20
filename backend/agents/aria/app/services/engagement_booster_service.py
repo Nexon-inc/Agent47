@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.database.connection import get_supabase
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.database.connection import get_supabase
 from ..models import ScheduledPost, EngagementEvent
 import json
 

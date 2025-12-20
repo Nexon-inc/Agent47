@@ -3,9 +3,9 @@ from typing import Dict, Any, List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from datetime import datetime
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.event_bus.kafka_manager import EventBus
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.integrations.integration_manager import IntegrationManager
+from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
 from ..models import ContentProject, ContentPiece
 
@@ -295,7 +295,7 @@ class MobilePreviewService:
     ) -> Dict[str, Any]:
         """Generate preview for specific device type"""
         try:
-            from backend.core.storage.s3_manager import storage_manager
+            from core.storage.s3_manager import storage_manager
             import uuid
             
             # Generate device-specific preview

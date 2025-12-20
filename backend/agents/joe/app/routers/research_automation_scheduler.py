@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from ..database import get_joe_database
 from ..services.research_automation_scheduler_service import ResearchAutomationSchedulerService
-from backend.core.authentication.auth_manager import AuthManager
+from core.authentication.auth_manager import AuthManager
 
 router = APIRouter(prefix="/research-automation-scheduler", tags=["Research Automation Scheduler"])
 

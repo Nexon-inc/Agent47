@@ -1,7 +1,7 @@
 from typing import Dict, Any, Optional
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.storage.s3_manager import storage_manager
-from backend.core.database.models import UserTier
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.storage.s3_manager import storage_manager
+from core.database.models import UserTier
 import base64
 
 

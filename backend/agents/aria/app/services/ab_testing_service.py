@@ -1,5 +1,5 @@
 from typing import Dict, Any, List
-from backend.core.database.connection import get_supabase
+from core.database.connection import get_supabase
 from ..models import PostVariant
 
 

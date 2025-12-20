@@ -3,8 +3,8 @@ import logging
 from typing import Dict, Any, Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.event_bus.kafka_manager import EventBus
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
 from ..models import SEOProject
 
@@ -183,7 +183,7 @@ class SEOService:
     
     async def _optimize_content_for_seo(self, content: str, target_keywords: List[str], content_type: str) -> str:
         """Optimize content for SEO using AI Service Manager"""
-        from backend.core.ai import get_ai_service_manager
+        from core.ai import get_ai_service_manager
         ai_manager = await get_ai_service_manager()
         messages = [
             {"role": "system", "content": "You are an AI assistant that optimizes content for SEO."},

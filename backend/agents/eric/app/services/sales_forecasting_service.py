@@ -5,11 +5,11 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, desc, func
 
-from backend.core.ai import get_ai_service_manager, AIServiceManager
-from backend.core.cache.redis_manager import init_redis
-from backend.core.storage.chroma_manager import ChromaManager
-from backend.core.integrations.integration_manager import IntegrationManager
-from backend.core.platforms.platform_manager import PlatformManager
+from core.ai import get_ai_service_manager, AIServiceManager
+from core.cache.redis_manager import init_redis
+from core.storage.chroma_manager import ChromaManager
+from core.integrations.integration_manager import IntegrationManager
+from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..models import Lead, Deal, SalesActivity, LeadStatus, SalesStage, SalesForecast
 from ..database import get_eric_database
