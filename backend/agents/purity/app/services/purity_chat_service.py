@@ -274,7 +274,7 @@ class PurityChatService:
         
         # Detect business plan section requests
         if "business plan" in message_lower or "plan" in message_lower:
-            section_matches = re.findall(r'(\d+)[\s-]?(?:section|chapter|part)', message_lower)
+            section_matches = re.findall(r'(\d+)[\\s-]?(?:section|chapter|part)', message_lower)
             if section_matches:
                 tasks["total_tasks"] = int(section_matches[0])
                 tasks["task_type"] = "business_plan"
@@ -290,7 +290,7 @@ class PurityChatService:
         
         # Detect financial model requests
         elif "financial" in message_lower or "model" in message_lower or "projection" in message_lower:
-            period_matches = re.findall(r'(\d+)[\s-]?(?:month|year|quarter|period)', message_lower)
+            period_matches = re.findall(r'(\d+)[\\s-]?(?:month|year|quarter|period)', message_lower)
             if period_matches:
                 tasks["total_tasks"] = int(period_matches[0])
                 tasks["task_type"] = "financial_model"
@@ -309,7 +309,7 @@ class PurityChatService:
         
         # Detect growth strategy phase requests
         elif "growth" in message_lower or "strategy" in message_lower:
-            phase_matches = re.findall(r'(\d+)[\s-]?(?:phase|stage|milestone)', message_lower)
+            phase_matches = re.findall(r'(\d+)[\\s-]?(?:phase|stage|milestone)', message_lower)
             if phase_matches:
                 tasks["total_tasks"] = int(phase_matches[0])
                 tasks["task_type"] = "growth_strategy"
@@ -324,7 +324,7 @@ class PurityChatService:
         
         # Detect funding round requests
         elif "funding" in message_lower or "round" in message_lower or "investment" in message_lower:
-            round_matches = re.findall(r'(\d+)[\s-]?(?:round|stage|phase)', message_lower)
+            round_matches = re.findall(r'(\d+)[\\s-]?(?:round|stage|phase)', message_lower)
             if round_matches:
                 tasks["total_tasks"] = int(round_matches[0])
                 tasks["task_type"] = "funding_strategy"
@@ -386,7 +386,7 @@ class PurityChatService:
             ],
             "general": [
                 "I'm here to help with business development. What do you need assistance with?",
-                "Let's work together on your business. What's your goal?",
+                "Let's work together to grow your business. What's your goal?",
                 "I can help with any business task. What's on your mind?"
             ]
         }

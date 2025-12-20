@@ -51,6 +51,7 @@ from .version_control_service import VersionControlService
 from .video_scripting_service import VideoScriptingService
 from .voiceover_integration_service import VoiceoverIntegrationService
 from .website_content_service import WebsiteContentService
+from core.services.media_service import MediaService
 
 # Import Shakes' actual services
 from .blog_writing_service import BlogWritingService
@@ -140,7 +141,7 @@ class ShakesChatService:
             "general": [
                 "I'm here to help you create amazing content. What type of content do you need?",
                 "Let's work together to craft compelling content. What's your goal?",
-                "I can help with any content creation task. What do you need assistance with?"
+                "I can help with any content creation task. What's on your mind?"
             ]
         }
     
@@ -381,13 +382,13 @@ class ShakesChatService:
                 "I'll help you plan content. What platforms are you using?"
             ],
             "copywriting": [
-                "I'll help you write persuasive copy. What are you promoting?",
-                "Let me craft compelling copy for you. What's your call-to-action?",
-                "I'll help you create sales copy. What's your product or service?"
+                "I'll help you write persuasive copy that converts visitors into customers and drives sales.",
+                "Let me craft compelling headlines, descriptions, and calls-to-action that motivate action.",
+                "I'll help you create copy that speaks to your audience's needs and drives them to take action."
             ],
             "general": [
                 "I'm here to help with content creation. What do you need assistance with?",
-                "Let's work together on your content. What's your goal?",
+                "Let's work together to craft compelling content. What's your goal?",
                 "I can help with any content task. What's on your mind?"
             ]
         }
@@ -476,10 +477,10 @@ class ShakesChatService:
 The user's request requires completing {tasks["total_tasks"]} {tasks["task_type"]} tasks.
 
 **Required Tasks:**
-{chr(10).join(f"- {req}" for req in tasks["requirements"])}
+{chr(10).join(f"- {req}" for req in tasks["requirements"]) } 
 
 **Completion Criteria:**
-{chr(10).join(f"- {criteria}" for criteria in tasks["completion_criteria"])}
+{chr(10).join(f"- {criteria}" for criteria in tasks["completion_criteria"])} 
 
 **CRITICAL INSTRUCTIONS FOR TASK COMPLETION:**
 1. You MUST complete ALL {tasks["total_tasks"]} tasks before finishing your response
@@ -503,7 +504,7 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                             custom_instructions_text = f"""
 
 **CUSTOM INSTRUCTIONS / TWEAKS (STRICTLY FOLLOW THESE):**
-{agent_config.get("custom_instructions")}
+{agent_config.get("custom_instructions")} 
 
 **CRITICAL:** You MUST strictly follow the custom instructions above. These are user-specific tweaks that override default behavior. Apply them to ALL your responses and actions.
 """
@@ -536,7 +537,7 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                     },
                     {
                         "role": "user",
-                        "content": f"User message: {message}\n\nContext: {session.get('context', {})}"
+                        "content": f"User message: {message}\n\nContext: {session.get('context', {}) }"
                     }
                 ]
                 

@@ -193,7 +193,7 @@ class JoeChatService:
             "general": [
                 "I'm here to help you with all your research needs. What information are you looking for?",
                 "Let's dive deep into research and find the insights you need. What's your research goal?",
-                "I can help you gather and analyze any type of business intelligence. What do you need to know?"
+                "I can help with any research task. What do you need to know?"
             ]
         }
     
@@ -315,7 +315,7 @@ class JoeChatService:
         
         # Detect research report requests
         if "report" in message_lower or "analysis" in message_lower:
-            section_matches = re.findall(r'(\d+)[\s-]?(?:section|part|chapter)', message_lower)
+            section_matches = re.findall(r'(\d+)[\\s-]?(?:section|part|chapter)', message_lower)
             if section_matches:
                 tasks["total_tasks"] = int(section_matches[0])
                 tasks["task_type"] = "research_report"
@@ -333,7 +333,7 @@ class JoeChatService:
         
         # Detect competitor analysis requests
         elif "competitor" in message_lower:
-            competitor_matches = re.findall(r'(\d+)[\s-]?(?:competitor|company|brand)', message_lower)
+            competitor_matches = re.findall(r'(\d+)[\\s-]?(?:competitor|company|brand)', message_lower)
             if competitor_matches:
                 tasks["total_tasks"] = int(competitor_matches[0])
                 tasks["task_type"] = "competitor_analysis"
@@ -348,7 +348,7 @@ class JoeChatService:
         
         # Detect trend analysis requests
         elif "trend" in message_lower:
-            trend_matches = re.findall(r'(\d+)[\s-]?(?:trend|pattern|forecast)', message_lower)
+            trend_matches = re.findall(r'(\d+)[\\s-]?(?:trend|pattern|forecast)', message_lower)
             if trend_matches:
                 tasks["total_tasks"] = int(trend_matches[0])
                 tasks["task_type"] = "trend_analysis"
@@ -363,7 +363,7 @@ class JoeChatService:
         
         # Detect research methodology steps
         elif "methodology" in message_lower or "process" in message_lower or "steps" in message_lower:
-            step_matches = re.findall(r'(\d+)[\s-]?(?:step|stage|phase)', message_lower)
+            step_matches = re.findall(r'(\d+)[\\s-]?(?:step|stage|phase)', message_lower)
             if step_matches:
                 tasks["total_tasks"] = int(step_matches[0])
                 tasks["task_type"] = "research_methodology"
@@ -426,7 +426,7 @@ class JoeChatService:
                 "I'll turn your data into insights. What information do you have?"
             ],
             "general": [
-                "I'm here to help you with research. What do you need to know?",
+                "I'm here to help you with all your research needs. What information are you looking for?",
                 "Let's research together. What information are you looking for?",
                 "I can help with any research task. What's your goal?"
             ]
