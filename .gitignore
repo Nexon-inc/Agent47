@@ -308,11 +308,17 @@ pinecone_index/
 # =============================================================================
 # LOGS & MONITORING
 # =============================================================================
-logs/
+!logs/
 *.log
 *.log.*
-log/
-
+!logs/.gitkeep
+!core/logs/
+!core/logs/__init__.py
+!core/logs/logger.py
+!admin/logs/
+!admin/logs/__init__.py
+!admin/logs/log_viewer.py
+!admin/logs/page.tsx
 # Monitoring data
 prometheus_data/
 grafana_data/
