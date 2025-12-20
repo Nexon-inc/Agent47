@@ -567,15 +567,15 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                             "message_count": session["message_count"],
                             "timestamp": datetime.now().isoformat()
                         }
-                                        else:
-                                            ai_response = f"I couldn't generate the image: {image_result.get('error', 'Unknown error')}"
-                                    else:
-                                        # Generate AI response
-                                        response = await ai_manager.generate_text(
-                                            messages=messages,
-                                            max_tokens=500,
-                                            temperature=0.7
-                                        )                
+                    else:
+                        ai_response = f"I couldn't generate the image: {image_result.get('error', 'Unknown error')}"
+                else:
+                    # Generate AI response
+                    response = await ai_manager.generate_text(
+                        messages=messages,
+                        max_tokens=500,
+                        temperature=0.7
+                    )                
                 if response.success and response.text_content:
                     ai_response = response.text_content
                 else:
