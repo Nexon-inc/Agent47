@@ -1039,7 +1039,7 @@ Current intent detected: {detected_intent}
                     }
                 ]
                 
-                logger.info(f"Aria: Attempting LLM generation (with service results: {service_result is not None})...")
+                logger.info(f"Aria: Attempting LLM generation (with service results: {service_result is not None}, fixing indentation)...")
                 
                 # Generate AI response using LLM
                 # Use max_tokens from settings (12k for llama-3.3-70b-versatile)
