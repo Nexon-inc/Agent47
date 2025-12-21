@@ -36,6 +36,8 @@ class SupabaseManager:
                     logger.warning("Supabase key found in environment variables but not in settings.")
 
             # Clean key if present (remove whitespace/newlines which often cause 'Invalid API key')
+            if url:
+                url = url.strip()
             if key:
                 key = key.strip()
                 
