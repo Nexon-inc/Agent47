@@ -26,10 +26,20 @@ class SupabaseManager:
         
         try:
             # Initialize Supabase client
-            self.client = create_client(
-                settings.supabase.supabase_url,
-                settings.supabase.supabase_service_role_key
-            )
+            url = settings.supabase.supabase_url
+            key = settings.supabase.supabase_service_role_key
+            
+            if not key:
+                import os
+                key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+                if key:
+                    logger.warning("Supabase key found in environment variables but not in settings.")
+
+            # Clean key if present (remove whitespace/newlines which often cause 'Invalid API key')
+            if key:
+                key = key.strip()
+                
+            self.client = create_client(url, key)
             
             # Normalize URL to async driver if needed
             database_url = settings.supabase.database_url
@@ -60,7 +70,7 @@ class SupabaseManager:
                         "statement_timeout": "600s",  # 10 minutes
                         "idle_in_transaction_session_timeout": "600s",  # 10 minutes
                         # Bypass RLS for admin operations - set role to service_role
-                        "role": "service_role" if settings.supabase.supabase_service_role_key else None
+                        "role": "service_role" if key else None
                     }
                 }
             )
