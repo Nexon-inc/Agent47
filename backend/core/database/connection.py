@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 import logging
 from supabase import create_client, Client
 from ..config import settings
@@ -232,7 +232,7 @@ class SupabaseManager:
             await conn.run_sync(Base.metadata.drop_all)
             logger.info("Database tables dropped successfully")
     
-    async def health_check(self) -> bool:
+    async def health_check(self) -> tuple[bool, Optional[Exception]]:
         try:
             if not self._initialized:
                 await self.initialize()
@@ -241,15 +241,15 @@ class SupabaseManager:
             if self.client:
                 # Try to access a simple table to test connection
                 result = self.client.table('users').select('id').limit(1).execute()
-                return True
+                return True, None
             
             # Fallback to SQLAlchemy connection test
             async with self.get_session() as session:
                 await session.execute("SELECT 1")
-                return True
+                return True, None
         except Exception as e:
             logger.error(f"Supabase health check failed: {e}")
-            return False
+            return False, e
     
     def get_supabase_client(self) -> Client:
         """Get the Supabase client for API operations"""

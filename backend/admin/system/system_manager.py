@@ -180,8 +180,10 @@ class SystemManager(LoggerMixin):
     async def _check_database_health(self):
         try:
             if self.database:
-                health = await self.database.health_check()
-                self.health_checks["database"] = health.get("status") == "healthy"
+                is_healthy, exception = await self.database.health_check()
+                self.health_checks["database"] = is_healthy
+                if not is_healthy:
+                    self.logger.error(f"Database health check failed: {exception}")
             else:
                 self.health_checks["database"] = False
         except Exception as e:
@@ -191,8 +193,10 @@ class SystemManager(LoggerMixin):
     async def _check_redis_health(self):
         try:
             if self.redis:
-                health = await self.redis.health_check()
-                self.health_checks["redis"] = health.get("status") == "healthy"
+                is_healthy = await self.redis.health_check()
+                self.health_checks["redis"] = is_healthy
+                if not is_healthy:
+                    self.logger.error("Redis health check failed.")
             else:
                 self.health_checks["redis"] = False
         except Exception as e:
@@ -202,8 +206,10 @@ class SystemManager(LoggerMixin):
     async def _check_chroma_health(self):
         try:
             if self.chroma:
-                health = await self.chroma.health_check()
-                self.health_checks["chroma"] = health.get("status") == "healthy"
+                is_healthy = await self.chroma.health_check()
+                self.health_checks["chroma"] = is_healthy
+                if not is_healthy:
+                    self.logger.error("ChromaDB health check failed.")
             else:
                 self.health_checks["chroma"] = False
         except Exception as e:
@@ -213,8 +219,10 @@ class SystemManager(LoggerMixin):
     async def _check_kafka_health(self):
         try:
             if self.kafka:
-                health = await self.kafka.health_check()
-                self.health_checks["kafka"] = health.get("status") == "healthy"
+                is_healthy = await self.kafka.health_check()
+                self.health_checks["kafka"] = is_healthy
+                if not is_healthy:
+                    self.logger.error("Kafka health check failed.")
             else:
                 self.health_checks["kafka"] = False
         except Exception as e:

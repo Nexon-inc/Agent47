@@ -76,10 +76,11 @@ async def lifespan(app: FastAPI):
         await supabase_manager.create_tables()
 
         # Verify Supabase health
-        supabase_healthy = await supabase_manager.health_check()
+        supabase_healthy, health_exception = await supabase_manager.health_check()
         if not supabase_healthy:
-            logger.error("Supabase health check failed")
-            raise Exception("Supabase connection failed")
+            error_message = f"Supabase connection failed: {health_exception}"
+            logger.error(error_message)
+            raise Exception(error_message)
         logger.info("Supabase health check passed")
 
         await init_redis()
@@ -187,7 +188,7 @@ async def health_check():
         # Check Supabase health
         from core.database import get_supabase
         supabase_manager = await get_supabase()
-        supabase_healthy = await supabase_manager.health_check()
+        supabase_healthy, _ = await supabase_manager.health_check()
 
         # Check Redis health
         from core.cache import get_redis

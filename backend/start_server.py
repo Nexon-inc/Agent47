@@ -42,40 +42,40 @@ async def initialize_services():
     logger.info("Initializing database...")
     db_manager = await get_supabase()
     await db_manager.initialize()
-        
+
     # Create database tables
     logger.info("Creating database tables...")
     await db_manager.create_tables()
-        logger.info("Database tables created successfully")
-        
+    logger.info("Database tables created successfully")
+
     # Verify database health
     logger.info("Performing database health check...")
-    db_healthy = await db_manager.health_check()
-        if not db_healthy:
-            logger.error("Database health check failed")
-            raise Exception("Database connection failed")
-        logger.info("Database health check passed")
-        
-        # Initialize other services
-        logger.info("Initializing Redis...")
-        await init_redis()
-        
-        logger.info("Initializing ChromaDB...")
-        await init_chroma()
-        
-        logger.info("Initializing Kafka...")
-        await init_kafka()
-        
-        logger.info("Initializing rate limiter...")
-        await init_rate_limiter()
-        
-        # Initialize agent services
-        logger.info("Initializing agent services...")
-        await initialize_agent_services()
-        
-        logger.info("All core services initialized successfully")
-        return True
-        
+    db_healthy, _ = await db_manager.health_check()
+    if not db_healthy:
+        logger.error("Database health check failed")
+        raise Exception("Database connection failed")
+    logger.info("Database health check passed")
+
+    # Initialize other services
+    logger.info("Initializing Redis...")
+    await init_redis()
+
+    logger.info("Initializing ChromaDB...")
+    await init_chroma()
+
+    logger.info("Initializing Kafka...")
+    await init_kafka()
+
+    logger.info("Initializing rate limiter...")
+    await init_rate_limiter()
+
+    # Initialize agent services
+    logger.info("Initializing agent services...")
+    await initialize_agent_services()
+
+    logger.info("All core services initialized successfully")
+    return True
+
     except Exception as e:
         logger.error(f"Failed to initialize services: {str(e)}")
         logger.exception("Full initialization error traceback:")
@@ -114,9 +114,9 @@ async def cleanup_services():
     try:
         logger.info("Cleaning up services...")
         
-    # Close database
-    db_manager = await get_supabase()
-    await db_manager.close()
+        # Close database
+        db_manager = await get_supabase()
+        await db_manager.close()
         
         # Close other services
         await close_redis()

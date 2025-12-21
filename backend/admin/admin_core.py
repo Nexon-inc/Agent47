@@ -92,13 +92,18 @@ class AdminCore(LoggerMixin):
 
     async def _verify_connections(self):
         if self.database:
-            await self.database.health_check()
+            db_healthy, db_exception = await self.database.health_check()
+            if not db_healthy:
+                raise Exception(f"Database connection failed: {db_exception}")
         if self.redis:
-            await self.redis.health_check()
+            if not await self.redis.health_check():
+                raise Exception("Redis connection failed")
         if self.chroma:
-            await self.chroma.health_check()
+            if not await self.chroma.health_check():
+                raise Exception("Chroma connection failed")
         if self.kafka:
-            await self.kafka.health_check()
+            if not await self.kafka.health_check():
+                raise Exception("Kafka connection failed")
 
     async def _setup_admin_tables(self):
         if not self.database:
@@ -688,27 +693,35 @@ class AdminCore(LoggerMixin):
             "components": {}
         }
         
+        all_healthy = True
+        
         try:
             if self.database:
-                db_health = await self.database.health_check()
-                health_status["components"]["database"] = db_health
-            
+                db_healthy, db_exception = await self.database.health_check()
+                health_status["components"]["database"] = {"status": "healthy" if db_healthy else "unhealthy"}
+                if not db_healthy:
+                    all_healthy = False
+                    health_status["components"]["database"]["error"] = str(db_exception)
+
             if self.redis:
-                redis_health = await self.redis.health_check()
-                health_status["components"]["redis"] = redis_health
+                redis_healthy = await self.redis.health_check()
+                health_status["components"]["redis"] = {"status": "healthy" if redis_healthy else "unhealthy"}
+                if not redis_healthy:
+                    all_healthy = False
             
             if self.chroma:
-                chroma_health = await self.chroma.health_check()
-                health_status["components"]["chroma"] = chroma_health
+                chroma_healthy = await self.chroma.health_check()
+                health_status["components"]["chroma"] = {"status": "healthy" if chroma_healthy else "unhealthy"}
+                if not chroma_healthy:
+                    all_healthy = False
             
             if self.kafka:
-                kafka_health = await self.kafka.health_check()
-                health_status["components"]["kafka"] = kafka_health
+                kafka_healthy = await self.kafka.health_check()
+                health_status["components"]["kafka"] = {"status": "healthy" if kafka_healthy else "unhealthy"}
+                if not kafka_healthy:
+                    all_healthy = False
             
-            health_status["overall_status"] = "healthy" if all(
-                status.get("status") == "healthy" 
-                for status in health_status["components"].values()
-            ) else "degraded"
+            health_status["overall_status"] = "healthy" if all_healthy else "degraded"
             
         except Exception as e:
             health_status["overall_status"] = "unhealthy"

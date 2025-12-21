@@ -102,8 +102,7 @@ steps:
         TIKTOK_CLIENT_ID=tiktok-client-id:latest,
         TIKTOK_CLIENT_SECRET=tiktok-client-secret:latest,
         PINTEREST_CLIENT_ID=pinterest-client-id:latest,
-        PINTEREST_CLIENT_SECRET=pinterest-secret-id:latest
-
+        PINTEREST_CLIENT_SECRET=pinterest-secret-id:latest,
       - '--memory'
       - '2Gi'
       - '--cpu'

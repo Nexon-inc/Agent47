@@ -240,21 +240,18 @@ class AnalyticsManager(LoggerMixin):
             
             # Database performance
             if self.database:
-                db_health = await self.database.health_check()
-                metrics["database_response_time"] = db_health.get("response_time", 0.0)
-                metrics["database_connections"] = db_health.get("active_connections", 0)
+                db_healthy, _ = await self.database.health_check()
+                metrics["database_healthy"] = 1.0 if db_healthy else 0.0
 
             # Redis performance
             if self.redis:
-                redis_health = await self.redis.health_check()
-                metrics["redis_response_time"] = redis_health.get("response_time", 0.0)
-                metrics["redis_memory_usage"] = redis_health.get("memory_usage", 0.0)
+                redis_healthy = await self.redis.health_check()
+                metrics["redis_healthy"] = 1.0 if redis_healthy else 0.0
 
             # Kafka performance
             if self.kafka:
-                kafka_health = await self.kafka.health_check()
-                metrics["kafka_lag"] = kafka_health.get("consumer_lag", 0)
-                metrics["kafka_throughput"] = kafka_health.get("messages_per_second", 0.0)
+                kafka_healthy = await self.kafka.health_check()
+                metrics["kafka_healthy"] = 1.0 if kafka_healthy else 0.0
 
             return metrics
 

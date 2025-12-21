@@ -90,7 +90,7 @@ async def get_system_status_data() -> Dict[str, Any]:
     try:
         settings = get_settings()
         supabase_manager = await get_supabase()
-        supabase_healthy = await supabase_manager.health_check()
+        supabase_healthy, _ = await supabase_manager.health_check()
         
         # Check Redis health
         redis_healthy = True

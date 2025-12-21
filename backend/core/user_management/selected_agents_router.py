@@ -443,11 +443,9 @@ async def get_agent_health(
         # Get real health data from system health endpoint
         from core.database import get_supabase
         from core.cache import get_redis
-        from core.config import get_settings
-        
         settings = get_settings()
         supabase_manager = await get_supabase()
-        supabase_healthy = await supabase_manager.health_check()
+        supabase_healthy, _ = await supabase_manager.health_check()
         
         # Check Redis health
         redis_healthy = True
@@ -581,7 +579,7 @@ async def get_single_agent_health(
         
         settings = get_settings()
         supabase_manager = await get_supabase()
-        supabase_healthy = await supabase_manager.health_check()
+        supabase_healthy, _ = await supabase_manager.health_check()
         
         # Check Redis health
         redis_healthy = True

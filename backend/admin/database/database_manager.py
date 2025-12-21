@@ -119,9 +119,12 @@ class DatabaseAdminManager(LoggerMixin):
 
     async def _verify_connections(self):
         if self.database:
-            await self.database.health_check()
+            db_healthy, db_exception = await self.database.health_check()
+            if not db_healthy:
+                raise Exception(f"Database connection failed: {db_exception}")
         if self.redis:
-            await self.redis.health_check()
+            if not await self.redis.health_check():
+                raise Exception("Redis connection failed")
 
     async def get_database_status(self) -> Dict[str, Any]:
         try:
