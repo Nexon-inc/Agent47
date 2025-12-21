@@ -37,8 +37,7 @@ steps:
       - 'agent47-backend'
       - '--image'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/agent47-repo/backend:${SHORT_SHA}'
-      - '--region
-'
+      - '--region'
       - 'us-central1'
       - '--platform'
       - 'managed'
@@ -46,7 +45,8 @@ steps:
       - '--service-account'
       - 'agent47-run@${PROJECT_ID}.iam.gserviceaccount.com'
 
-      # Plain environment variables (non-sensitive)      - '--set-env-vars'
+      # Plain environment variables (non-sensitive)
+      - '--set-env-vars'
       - 'ENVIRONMENT=production,DEBUG=false,PRIMARY_LLM_PROVIDER=groq,BASE_URL=https://agent47-eight.vercel.app'
 
       - '--set-secrets'
