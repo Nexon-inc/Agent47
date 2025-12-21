@@ -15,7 +15,7 @@ steps:
     waitFor: ['-']
 
   # ============================
-  # PUSH BACKEND IMAGE (both tags in one step)
+  # PUSH BACKEND IMAGE
   # ============================
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-backend'
@@ -49,59 +49,56 @@ steps:
       - '--set-env-vars'
       - 'ENVIRONMENT=production,DEBUG=false,PRIMARY_LLM_PROVIDER=groq,BASE_URL=https://agent47-eight.vercel.app'
 
-      # === SECRETS INJECTION (only using EXISTING secrets) ===
+      # === SECRETS INJECTION (Matched to config.py) ===
       - '--set-secrets'
-      - 'SUPABASE_URL=supabase-url:latest,SUPABASE_ANON_KEY=supabase-anon-key:latest,SUPABASE_SERVICE_ROLE_KEY=supabase-service-key:latest'  # Fixed: was supabase-service-role-key
+      - >-
+        SUPABASE_URL=supabase-url:latest,
+        SUPABASE_ANON_KEY=supabase-anon-key:latest,
+        SUPABASE_SERVICE_ROLE_KEY=supabase-service-key:latest,
+        SECURITY_SECRET_KEY=security-secret-key:latest,
+        JWT_SECRET_KEY=jwt-secret:latest,
+        GROQ_API_KEY=groq-api-key:latest,
+        OPENAI_API_KEY=openai-api-key:latest,
+        GOOGLE_GEMINI_API_KEY=gemini-api-key:latest,
+        REDIS_HOST=redis-host:latest,
+        REDIS_PORT=redis-port:latest,
+        REDIS_PASSWORD=redis-password:latest,
+        KAFKA_BOOTSTRAP_SERVERS=kafka-bootstrap:latest,
+        CHROMA_HOST=chroma-host:latest,
+        CHROMA_PORT=chroma-port:latest,
+        BILLING_PAYSTACK_SECRET_KEY=paystack-secret-key:latest,
+        BILLING_PAYSTACK_PUBLIC_KEY=paystack-public-key:latest,
+        GOOGLE_CLIENT_ID=google-client-id:latest,
+        GOOGLE_CLIENT_SECRET=google-client-secret:latest,
+        GOOGLE_MAPS_API_KEY=google-maps-api-key:latest,
+        GMAIL_CLIENT_ID=gmail-client-id:latest,
+        GMAIL_CLIENT_SECRET=gmail-client-secret:latest,
+        YOUTUBE_CLIENT_ID=youtube-client-id:latest,
+        YOUTUBE_CLIENT_SECRET=youtube-client-secret:latest,
+        YOUTUBE_API_KEY=youtube-api-key:latest,
+        FACEBOOK_APP_ID=facebook-app-id:latest,
+        FACEBOOK_APP_SECRET=facebook-app-secret:latest,
+        TWITTER_CLIENT_ID=twitter-client-id:latest,
+        TWITTER_CLIENT_SECRET=twitter-client-secret:latest,
+        TWITTER_API_KEY=twitter-api-key:latest,
+        TWITTER_API_SECRET=twitter-api-secret:latest,
+        TWITTER_BEARER_TOKEN=twitter-bearer-token:latest,
+        TWITTER_ACCESS_TOKEN=twitter-access-token:latest,
+        TWITTER_ACCESS_TOKEN_SECRET=twitter-access-token-secret:latest,
+        SLACK_CLIENT_ID=slack-client-id:latest,
+        SLACK_CLIENT_SECRET=slack-client-secret:latest,
+        SLACK_BOT_TOKEN=slack-bot-token:latest,
+        SLACK_SIGNING_SECRET=slack-signing-secret:latest,
+        DISCORD_CLIENT_ID=discord-client-id:latest,
+        DISCORD_CLIENT_SECRET=discord-client-secret:latest,
+        DISCORD_BOT_TOKEN=discord-bot-token:latest,
+        INSTAGRAM_CLIENT_ID=instagram-client-id:latest,
+        INSTAGRAM_CLIENT_SECRET=instagram-client-secret:latest,
+        TIKTOK_CLIENT_ID=tiktok-client-id:latest,
+        TIKTOK_CLIENT_SECRET=tiktok-client-secret:latest,
+        PINTEREST_CLIENT_ID=pinterest-client-id:latest,
+        PINTEREST_CLIENT_SECRET=pinterest-secret-id:latest
 
-      - '--set-secrets'
-      - 'JWT_SECRET_KEY=jwt-secret:latest,SECURITY_SECRET_KEY=security-secret-key:latest'  # Fixed: jwt-secret-key → jwt-secret
-
-      - '--set-secrets'
-      - 'GROQ_API_KEY=groq-api-key:latest,OPENAI_API_KEY=openai-api-key:latest,GOOGLE_GEMINI_API_KEY=gemini-api-key:latest'  # Fixed: google-gemini-api-key → gemini-api-key
-
-      - '--set-secrets'
-      - 'REDIS_HOST=redis-host:latest,REDIS_PORT=redis-port:latest'
-
-      - '--set-secrets'
-      - 'KAFKA_BOOTSTRAP_SERVERS=kafka-bootstrap:latest'
-
-      - '--set-secrets'
-      - 'CHROMA_HOST=chroma-host:latest,CHROMA_PORT=chroma-port:latest'
-
-      - '--set-secrets'
-      - 'BILLING_PAYSTACK_SECRET_KEY=paystack-secret-key:latest,BILLING_PAYSTACK_PUBLIC_KEY=paystack-public-key:latest'  # Removed webhook secret (doesn't exist)
-
-      - '--set-secrets'
-      - 'GOOGLE_CLIENT_ID=google-client-id:latest,GOOGLE_CLIENT_SECRET=google-client-secret:latest,GOOGLE_MAPS_API_KEY=google-maps-api-key:latest'
-
-      - '--set-secrets'
-      - 'GMAIL_CLIENT_ID=gmail-client-id:latest,GMAIL_CLIENT_SECRET=gmail-client-secret:latest'
-
-      - '--set-secrets'
-      - 'YOUTUBE_CLIENT_ID=youtube-client-id:latest,YOUTUBE_CLIENT_SECRET=youtube-client-secret:latest,YOUTUBE_API_KEY=youtube-api-key:latest'
-
-      - '--set-secrets'
-      - 'FACEBOOK_APP_ID=facebook-app-id:latest,FACEBOOK_APP_SECRET=facebook-app-secret:latest'
-
-      - '--set-secrets'
-      - 'TWITTER_CLIENT_ID=twitter-client-id:latest,TWITTER_CLIENT_SECRET=twitter-client-secret:latest,TWITTER_API_KEY=twitter-api-key:latest,TWITTER_API_SECRET=twitter-api-secret:latest,TWITTER_BEARER_TOKEN=twitter-bearer-token:latest'
-
-      - '--set-secrets'
-      - 'SLACK_CLIENT_ID=slack-client-id:latest,SLACK_CLIENT_SECRET=slack-client-secret:latest,SLACK_BOT_TOKEN=slack-bot-token:latest,SLACK_SIGNING_SECRET=slack-signing-secret:latest'
-
-      - '--set-secrets'
-      - 'DISCORD_CLIENT_ID=discord-client-id:latest,DISCORD_CLIENT_SECRET=discord-client-secret:latest,DISCORD_BOT_TOKEN=discord-bot-token:latest'
-
-      - '--set-secrets'
-      - 'INSTAGRAM_CLIENT_ID=instagram-client-id:latest,INSTAGRAM_CLIENT_SECRET=instagram-client-secret:latest'
-
-      - '--set-secrets'
-      - 'TIKTOK_CLIENT_ID=tiktok-client-id:latest,TIKTOK_CLIENT_SECRET=tiktok-client-secret:latest'
-
-      - '--set-secrets'
-      - 'PINTEREST_CLIENT_ID=pinterest-client-id:latest,PINTEREST_CLIENT_SECRET=pinterest-secret-id:latest'  # Fixed: pinterest-client-secret → pinterest-secret-id
-
-      # Hardware & scaling
       - '--memory'
       - '2Gi'
       - '--cpu'
@@ -110,11 +107,8 @@ steps:
       - '300'
       - '--max-instances'
       - '10'
-      - '--min-instances'
-      - '0'
       - '--project'
       - '${PROJECT_ID}'
-
     waitFor: ['push-backend']
 
 options:
