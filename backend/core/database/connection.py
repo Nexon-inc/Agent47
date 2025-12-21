@@ -42,7 +42,7 @@ class SupabaseManager:
             self.client = create_client(url, key)
             
             # Normalize URL to async driver if needed
-            database_url = settings.supabase.database_url
+            database_url = settings.supabase.supabase_db_url
             if database_url.startswith("postgresql://"):
                 database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
