@@ -1,13 +1,13 @@
 FROM python:3.11-slim
 
-# Set environment variables
+# Set environment variables (REMOVE hardcoded PORT=8080)
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     DEBIAN_FRONTEND=noninteractive \
-    PORT=8080
+    PORT=10000
 
 # Set work directory
 WORKDIR /app/backend
@@ -48,12 +48,13 @@ RUN chmod +x /app/scripts/*.sh 2>/dev/null || true
 # Switch to non-root user
 USER agent47
 
-# Expose the correct port for Cloud Run
-EXPOSE 8080
+# Expose a common port (optional; Render uses $PORT anyway)
+EXPOSE 10000
 
-# Health check on the correct port
+# Optional: Updated health check to use $PORT (for local/docker testing)
+# Render uses its own platform health check configured separately
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=5 \
-    CMD curl -f http://localhost:8080/health || exit 1
+    CMD curl -f http://localhost:${PORT:-10000}/health || exit 1
 
-# Run uvicorn directly using Cloud Run's PORT
+# Run uvicorn using Render's $PORT (defaults to 10000)
 CMD exec uvicorn main:app --host 0.0.0.0 --port $PORT
