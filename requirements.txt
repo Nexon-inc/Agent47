@@ -1,5 +1,4 @@
 # Agent47 - Root Requirements
-# This file contains minimal dependencies and references to component-specific requirements
 
 # =============================================================================
 # CORE SYSTEM DEPENDENCIES
