@@ -6,7 +6,7 @@ import uvicorn
 from datetime import datetime
 
 # Ensure NLPUtils compatibility shim is loaded early
-import core.utils.nlp_utils  # registers NLPUtils on builtins
+import core.utils.nlp_utils  
 
 from core.config import settings
 from core.database import init_database, close_database, get_database, get_supabase
