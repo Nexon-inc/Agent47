@@ -105,6 +105,7 @@ class AsyncInMemoryRedis:
                 return True
         return _Pipe(self)
 
+
 class RedisManager:
     def __init__(self):
         self.redis_client: Optional[redis.Redis] = None
@@ -115,10 +116,22 @@ class RedisManager:
             return
         
         try:
-            self.redis_client = redis.from_url(
-                settings.redis.redis_url,
+            # Use separate secrets for host, port, password (Upstash compatibility)
+            host = settings.redis.host  # e.g., "clear-hamster-30497.upstash.io"
+            port = int(settings.redis.port or 6379)
+            password = settings.redis.password  # Token from Upstash
+
+            # Upstash requires username "default" — ensure password has "default:" prefix
+            if password and not password.startswith("default:"):
+                password = f"default:{password}"
+
+            self.redis_client = redis.Redis(
+                host=host,
+                port=port,
+                password=password,
                 encoding="utf-8",
                 decode_responses=False,
+                ssl=True,  # Critical for Upstash (TLS required)
                 socket_connect_timeout=5,
                 socket_timeout=5,
                 retry_on_timeout=True,
@@ -127,11 +140,9 @@ class RedisManager:
             
             await self.redis_client.ping()
             self._initialized = True
-            logger.info("Redis connection initialized successfully")
+            logger.info("Redis connection initialized successfully (Upstash compatible)")
             
         except Exception as e:
-            # In production, Redis should be available. Log error and raise exception
-            # to prevent silent failures that could cause data loss or performance issues.
             logger.error("Failed to initialize Redis connection: %s", e)
             
             # Check if we're in development mode
@@ -142,7 +153,6 @@ class RedisManager:
                 self.redis_client = AsyncInMemoryRedis()
                 self._initialized = True
             else:
-                # Production mode - Redis is required
                 logger.error("Redis connection failed in production mode. Please ensure Redis is running and properly configured.")
                 raise RuntimeError(f"Redis connection failed: {e}. Redis is required for production deployment.")
     
@@ -167,7 +177,7 @@ class RedisManager:
             logger.error(f"Redis health check failed: {e}")
             return False
 
-    async def execute_command(self, *args) -> any:
+    async def execute_command(self, *args) -> Any:
         """Execute a raw Redis command."""
         if not self._initialized:
             await self.initialize()
