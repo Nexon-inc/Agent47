@@ -266,6 +266,19 @@ class AuthManager:
                     detail="User is inactive"
                 )
             
+            # Check if user is admin and ensure PRO tier
+            try:
+                from admin.admin_core import get_admin_core
+                admin_core = await get_admin_core()
+                admin_user = await admin_core._get_admin_user_by_email(user.email)
+                if admin_user and admin_user.is_active:
+                    if user.tier != UserTier.PRO:
+                        user.tier = UserTier.PRO
+                        await db.commit()
+                        logger.info(f"Set PRO tier for admin user: {user.email}")
+            except Exception as e:
+                logger.debug(f"Admin check in get_current_user failed (not an admin): {e}")
+            
             return user
             
         except HTTPException:
@@ -284,6 +297,28 @@ class AuthManager:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Inactive user"
             )
+        
+        # Check if user is admin and ensure PRO tier
+        try:
+            from admin.admin_core import get_admin_core
+            admin_core = await get_admin_core()
+            admin_user = await admin_core._get_admin_user_by_email(current_user.email)
+            if admin_user and admin_user.is_active:
+                if current_user.tier != UserTier.PRO:
+                    # Get database session to update tier
+                    db = await get_database()
+                    async with db.get_session() as session:
+                        from sqlalchemy import select
+                        result = await session.execute(select(User).where(User.id == current_user.id))
+                        db_user = result.scalar_one_or_none()
+                        if db_user and db_user.tier != UserTier.PRO:
+                            db_user.tier = UserTier.PRO
+                            current_user.tier = UserTier.PRO
+                            await session.commit()
+                            logger.info(f"Set PRO tier for admin user in get_current_active_user: {current_user.email}")
+        except Exception as e:
+            logger.debug(f"Admin check in get_current_active_user failed (not an admin): {e}")
+        
         return current_user
     
     async def get_current_user_with_tier(self, required_tier: UserTier, current_user: User = Depends(get_current_user)) -> User:

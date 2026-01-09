@@ -334,9 +334,10 @@ async def login(login_data: UserLoginRequest):
             # Get user data from database
             user_metadata = await supabase_auth_manager.get_user_metadata(user.id)
 
-            # Resolve integer DB user id by email for token subject and ensure tier exists (default FREE)
+            # Resolve integer DB user id by email for token subject and ensure tier exists
             response_user_id = None
             resolved_tier_value = None
+            is_admin_user = False
             try:
                 from ..database import get_database as _get_database
                 from ..database.models import UserTier as _UserTier
@@ -347,19 +348,37 @@ async def login(login_data: UserLoginRequest):
                     _db_user = _res.scalar_one_or_none()
                     if _db_user and getattr(_db_user, 'id', None) is not None:
                         response_user_id = _db_user.id
-                        if getattr(_db_user, 'tier', None) is None:
-                            _db_user.tier = _UserTier.FREE
-                            await _session_db.commit()
-                            resolved_tier_value = _UserTier.FREE.value
-                        else:
-                            resolved_tier_value = _db_user.tier.value
-            except Exception:
+                        
+                        # Check if user is admin
+                        try:
+                            from admin.admin_core import get_admin_core
+                            admin_core = await get_admin_core()
+                            admin_user = await admin_core._get_admin_user_by_email(user.email)
+                            if admin_user and admin_user.is_active:
+                                is_admin_user = True
+                                if _db_user.tier != _UserTier.PRO:
+                                    _db_user.tier = _UserTier.PRO
+                                    await _session_db.commit()
+                                    logger.info(f"Set PRO tier for admin user: {user.email}")
+                                resolved_tier_value = _UserTier.PRO.value
+                        except Exception as admin_check_error:
+                            logger.debug(f"Admin check failed (not an admin): {admin_check_error}")
+                        
+                        if not is_admin_user:
+                            if getattr(_db_user, 'tier', None) is None:
+                                _db_user.tier = _UserTier.FREE
+                                await _session_db.commit()
+                                resolved_tier_value = _UserTier.FREE.value
+                            else:
+                                resolved_tier_value = _db_user.tier.value
+            except Exception as e:
+                logger.debug(f"User tier resolution error: {e}")
                 response_user_id = None
                 resolved_tier_value = None
             if response_user_id is None:
                 response_user_id = user.id
             if not resolved_tier_value:
-                resolved_tier_value = "free"
+                resolved_tier_value = "pro" if is_admin_user else "free"
             
             # Update last login
             await supabase_auth_manager.update_user_metadata(user.id, {

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 import uvicorn
+import asyncio
 from datetime import datetime
 
 # Ensure NLPUtils compatibility shim is loaded early
@@ -61,21 +62,32 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+async def _init_with_timeout(coro, timeout: float, service_name: str, critical: bool = True):
+    try:
+        await asyncio.wait_for(coro, timeout=timeout)
+        logger.info(f"{service_name} initialized successfully")
+        return True
+    except asyncio.TimeoutError:
+        logger.error(f"{service_name} initialization timed out after {timeout}s")
+        if critical:
+            raise
+        return False
+    except Exception as e:
+        logger.error(f"{service_name} initialization failed: {str(e)}")
+        if critical:
+            raise
+        return False
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan manager"""
-    # Startup
     logger.info("Starting Agent47 API server...")
 
     try:
-        # Initialize core services
-        await init_database()
+        await _init_with_timeout(init_database(), timeout=30.0, service_name="Database", critical=True)
 
-        # Create database tables
         supabase_manager = await get_supabase()
-        await supabase_manager.create_tables()
+        await _init_with_timeout(supabase_manager.create_tables(), timeout=30.0, service_name="Database tables", critical=True)
 
-        # Verify Supabase health
         supabase_healthy, health_exception = await supabase_manager.health_check()
         if not supabase_healthy:
             error_message = f"Supabase connection failed: {health_exception}"
@@ -83,25 +95,22 @@ async def lifespan(app: FastAPI):
             raise Exception(error_message)
         logger.info("Supabase health check passed")
 
-        await init_redis()
-        await init_chroma()
-        await init_kafka()
-        await init_rate_limiter()
+        await _init_with_timeout(init_redis(), timeout=10.0, service_name="Redis", critical=True)
 
-        # Initialize admin system
+        await _init_with_timeout(init_chroma(), timeout=20.0, service_name="ChromaDB", critical=True)
+        await _init_with_timeout(init_kafka(), timeout=10.0, service_name="Kafka", critical=True)
+        await _init_with_timeout(init_rate_limiter(), timeout=5.0, service_name="Rate limiter", critical=True)
+
         from admin import init_admin_core
-        await init_admin_core()
-        logger.info("Admin system initialized successfully")
+        await _init_with_timeout(init_admin_core(), timeout=15.0, service_name="Admin core", critical=True)
 
-        # Initialize system platform manager
         from core.platforms.system_platform_manager import get_system_platform_manager
-        await get_system_platform_manager()
-        logger.info("System platform manager initialized successfully")
+        await _init_with_timeout(get_system_platform_manager(), timeout=15.0, service_name="System platform manager", critical=True)
 
-        logger.info("All core services initialized successfully")
+        logger.info("Critical services initialized, server ready")
 
     except Exception as e:
-        logger.error(f"Failed to initialize core services: {str(e)}")
+        logger.error(f"Failed to initialize critical services: {str(e)}")
         raise
 
     yield

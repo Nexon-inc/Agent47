@@ -175,6 +175,8 @@ class AdminCore(LoggerMixin):
                 user = result.scalar_one_or_none()
                 self.logger.info(f"User lookup result: {'Found' if user else 'Not found'}")
                 
+                from core.database.models import UserTier
+                
                 # Create user in users table if doesn't exist
                 if not user:
                     default_password = self.settings.admin_default_password or "G.z.t.i.p.0,1,0"
@@ -189,12 +191,13 @@ class AdminCore(LoggerMixin):
                     if existing_username:
                         username = f"admin_{self.settings.admin_default_email.split('@')[0]}"
                     
-                    # Create user
+                    # Create user with PRO tier
                     new_user = User(
                         email=self.settings.admin_default_email,
                         username=username,
                         hashed_password=hashed_password,
                         full_name="Super Admin",
+                        tier=UserTier.PRO,
                         is_active=True,
                         is_verified=True
                     )
@@ -202,7 +205,7 @@ class AdminCore(LoggerMixin):
                     await session.commit()
                     await session.refresh(new_user)
                     user_id = str(new_user.id)
-                    self.logger.info(f"Created user in users table: {self.settings.admin_default_email} with username: {username}")
+                    self.logger.info(f"Created user in users table: {self.settings.admin_default_email} with username: {username} and PRO tier")
                 else:
                     user_id = str(user.id)
                     # Always update password to ensure it matches the default
@@ -216,6 +219,9 @@ class AdminCore(LoggerMixin):
                     user.hashed_password = hashed_password
                     user.is_active = True
                     user.is_verified = True
+                    if user.tier != UserTier.PRO:
+                        user.tier = UserTier.PRO
+                        self.logger.info(f"Updated admin user tier to PRO: {self.settings.admin_default_email}")
                     await session.commit()
                     self.logger.info(f"Updated password and status for user: {self.settings.admin_default_email} (user_id: {user_id})")
                 
@@ -305,10 +311,11 @@ class AdminCore(LoggerMixin):
                 # Create user using raw SQL with ON CONFLICT handling
                 await session.execute(
                     text("""
-                        INSERT INTO users (email, username, hashed_password, full_name, is_active, is_verified, created_at)
-                        VALUES (:email, :username, :hashed_password, :full_name, :is_active, :is_verified, CURRENT_TIMESTAMP)
+                        INSERT INTO users (email, username, hashed_password, full_name, tier, is_active, is_verified, created_at)
+                        VALUES (:email, :username, :hashed_password, :full_name, 'pro', :is_active, :is_verified, CURRENT_TIMESTAMP)
                         ON CONFLICT (email) DO UPDATE SET
                             hashed_password = EXCLUDED.hashed_password,
+                            tier = 'pro',
                             is_active = EXCLUDED.is_active,
                             is_verified = EXCLUDED.is_verified,
                             updated_at = CURRENT_TIMESTAMP
@@ -365,7 +372,7 @@ class AdminCore(LoggerMixin):
         try:
             async with self.database.get_session() as session:
                 from sqlalchemy import select
-                from core.database.models import User
+                from core.database.models import User, UserTier
                 
                 result = await session.execute(
                     select(User).where(User.email == self.settings.admin_default_email)
@@ -376,6 +383,10 @@ class AdminCore(LoggerMixin):
                     self.logger.warning(f"Admin user not found after initialization, attempting direct creation...")
                     await self._create_admin_user_directly()
                 else:
+                    if user.tier != UserTier.PRO:
+                        user.tier = UserTier.PRO
+                        await session.commit()
+                        self.logger.info(f"Updated admin user tier to PRO during verification: {self.settings.admin_default_email}")
                     self.logger.info(f"Admin user verified: {self.settings.admin_default_email} (ID: {user.id})")
         except Exception as e:
             self.logger.error(f"Failed to verify admin user: {e}")
@@ -416,10 +427,25 @@ class AdminCore(LoggerMixin):
                     self.logger.warning(f"User {email} is not an admin")
                     return None
             
+            # Ensure admin user has PRO tier
+            if self.database:
+                try:
+                    async with self.database.get_session() as session:
+                        from core.database.models import User, UserTier
+                        from sqlalchemy import select
+                        result = await session.execute(select(User).where(User.email == email))
+                        db_user = result.scalar_one_or_none()
+                        if db_user and db_user.tier != UserTier.PRO:
+                            db_user.tier = UserTier.PRO
+                            await session.commit()
+                            self.logger.info(f"Set PRO tier for admin user during authentication: {email}")
+                except Exception as e:
+                    self.logger.warning(f"Failed to update admin tier during auth: {e}")
+            
             # Create session token with longer expiration for admin (24 hours)
             from datetime import timedelta
             session_token = self.auth.create_access_token(
-                {"sub": str(user.id), "admin": True},
+                {"sub": str(user.id), "admin": True, "tier": "pro"},
                 expires_delta=timedelta(hours=24)
             )
             admin_user.session_token = session_token
@@ -781,6 +807,19 @@ class AdminCore(LoggerMixin):
         
         try:
             async with self.database.get_session() as session:
+                from core.database.models import User, UserTier
+                from sqlalchemy import select
+                
+                result = await session.execute(
+                    select(User).where(User.email == email)
+                )
+                user = result.scalar_one_or_none()
+                
+                if user and user.tier != UserTier.PRO:
+                    user.tier = UserTier.PRO
+                    await session.commit()
+                    self.logger.info(f"Updated user tier to PRO for admin email: {email}")
+                
                 # Check if user already exists
                 result = await session.execute(
                     text("SELECT COUNT(*) FROM admin_users WHERE email = :email OR user_id = :user_id"),

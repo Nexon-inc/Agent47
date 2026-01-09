@@ -40,6 +40,28 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 user_tier = payload.get("tier")
                 user_email = payload.get("email")
                 
+                # Check if user is admin and set PRO tier
+                if user_email:
+                    try:
+                        from admin.admin_core import get_admin_core
+                        admin_core = await get_admin_core()
+                        admin_user = await admin_core._get_admin_user_by_email(user_email)
+                        if admin_user and admin_user.is_active:
+                            user_tier = "pro"
+                            from ..database import get_database
+                            from ..database.models import User, UserTier
+                            from sqlalchemy import select
+                            db = await get_database()
+                            async with db.get_session() as session:
+                                result = await session.execute(select(User).where(User.email == user_email))
+                                db_user = result.scalar_one_or_none()
+                                if db_user and db_user.tier != UserTier.PRO:
+                                    db_user.tier = UserTier.PRO
+                                    await session.commit()
+                                    logger.info(f"Set PRO tier for admin user in auth middleware: {user_email}")
+                    except Exception:
+                        pass
+                
                 # Set user information in headers for downstream middleware
                 if user_id:
                     request.state.user_id = user_id

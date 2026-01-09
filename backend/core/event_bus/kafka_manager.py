@@ -35,21 +35,30 @@ class EventBus:
                 'max_in_flight_requests_per_connection': 5
             }
 
+            producer_kwargs['request_timeout_ms'] = 10000
+            producer_kwargs['metadata_max_age_ms'] = 300000
+            producer_kwargs['connections_max_idle_ms'] = 540000
+
             try:
                 sig = inspect.signature(AIOKafkaProducer.__init__)
                 accepted = {p for p in sig.parameters.keys() if p != 'self'}
                 filtered = {k: v for k, v in producer_kwargs.items() if k in accepted}
                 self.producer = AIOKafkaProducer(**filtered)
             except Exception:
-                # Fallback: attempt to instantiate with the original kwargs and let it raise if unsupported
                 self.producer = AIOKafkaProducer(**producer_kwargs)
             
-            await self.producer.start()
-            self._initialized = True
-            logger.info("Kafka producer initialized successfully")
+            try:
+                await asyncio.wait_for(self.producer.start(), timeout=10.0)
+                self._initialized = True
+                logger.info("Kafka producer initialized successfully")
+            except asyncio.TimeoutError:
+                logger.error("Kafka producer start timed out after 10s")
+                self.producer = None
+                raise asyncio.TimeoutError("Kafka producer initialization timed out")
             
         except Exception as e:
             logger.error(f"Failed to initialize Kafka producer: {e}")
+            self.producer = None
             raise
     
     async def close(self):

@@ -1,6 +1,7 @@
 from typing import List, Dict, Any, Optional, Union, Tuple
 import json
 import logging
+import asyncio
 from pathlib import Path
 from ..config import settings
 
@@ -20,50 +21,32 @@ class ChromaDBManager:
             return
         
         try:
-            # Import chromadb and heavy dependencies here, at runtime
-            import chromadb
-            from chromadb.config import Settings as ChromaSettings
-            from chromadb.utils import embedding_functions
-            # numpy is only used by chromadb internals; import lazily if needed
-            try:
-                import numpy as np  # noqa: F401
-            except Exception:
-                # numpy may not be present in minimal envs; chromadb may still work depending on backend
-                logger.debug("numpy not available at import; proceeding without it")
+            async def _init_client_and_embeddings():
+                import chromadb
+                from chromadb.config import Settings as ChromaSettings
+                from chromadb.utils import embedding_functions
+                try:
+                    import numpy as np
+                except Exception:
+                    logger.debug("numpy not available at import; proceeding without it")
 
-            # Initialize ChromaDB client
-            self.client = chromadb.PersistentClient(
-                path=settings.chroma.persist_directory,
-                settings=ChromaSettings(
-                    anonymized_telemetry=False,
-                    allow_reset=True
+                self.client = chromadb.PersistentClient(
+                    path=settings.chroma.persist_directory,
+                    settings=ChromaSettings(
+                        anonymized_telemetry=False,
+                        allow_reset=True
+                    )
                 )
-            )
 
-            # Initialize embedding function with robust fallbacks.
-            # Prefer a purely local embedding that doesn't require external API keys.
-            try:
                 import inspect
-
                 def _safe_instantiate(klass, **kw):
-                    """Instantiate klass by filtering kwargs to its __init__ signature.
-
-                    Returns an instance or raises the underlying exception.
-                    """
                     sig = inspect.signature(klass.__init__)
                     accepted = {p for p in sig.parameters.keys() if p != 'self'}
                     filtered = {k: v for k, v in kw.items() if k in accepted}
                     return klass(**filtered)
 
-                # Priority order:
-                # 1) If a local SentenceTransformer implementation exists, use it (no API keys).
-                # 2) Try ONNX optimized MiniLM if available.
-                # 3) If OpenAI configured, use that.
-                # 4) As a last resort, attempt HuggingFaceEmbeddingFunction only if API key present.
-
                 tried = []
 
-                # 1) SentenceTransformerEmbeddingFunction (local)
                 if hasattr(embedding_functions, 'SentenceTransformerEmbeddingFunction'):
                     try:
                         self.embedding_function = _safe_instantiate(
@@ -73,20 +56,20 @@ class ChromaDBManager:
                             normalize_embeddings=False
                         )
                         logger.info("Using local SentenceTransformer embeddings (preferred)")
+                        return
                     except Exception as e:
                         tried.append(('SentenceTransformer', str(e)))
 
-                # 2) ONNX MiniLM variant
                 if self.embedding_function is None and hasattr(embedding_functions, 'ONNXMiniLM_L6_V2'):
                     try:
                         self.embedding_function = _safe_instantiate(
                             embedding_functions.ONNXMiniLM_L6_V2
                         )
                         logger.info("Using ONNX MiniLM embeddings")
+                        return
                     except Exception as e:
                         tried.append(('ONNXMiniLM', str(e)))
 
-                # 3) OpenAI if configured
                 if self.embedding_function is None and getattr(settings, 'openai', None) and getattr(settings.openai, 'openai_api_key', None):
                     try:
                         self.embedding_function = _safe_instantiate(
@@ -95,16 +78,16 @@ class ChromaDBManager:
                             model_name="text-embedding-ada-002"
                         )
                         logger.info("Using OpenAI embeddings (configured)")
+                        return
                     except Exception as e:
                         tried.append(('OpenAI', str(e)))
 
-                # 4) Finally, only attempt HuggingFaceEmbeddingFunction if an API key is available
                 if self.embedding_function is None and hasattr(embedding_functions, 'HuggingFaceEmbeddingFunction'):
+                    import os
                     hf_api_key = None
                     if getattr(settings, 'grok', None) and getattr(settings.grok, 'api_key', None):
                         hf_api_key = getattr(settings.grok, 'api_key')
-                    elif 'CHROMA_HUGGINGFACE_API_KEY' in (os.environ if 'os' in globals() else {}):
-                        import os
+                    elif 'CHROMA_HUGGINGFACE_API_KEY' in os.environ:
                         hf_api_key = os.environ.get('CHROMA_HUGGINGFACE_API_KEY')
 
                     if hf_api_key:
@@ -115,26 +98,27 @@ class ChromaDBManager:
                                 model_name="sentence-transformers/all-MiniLM-L6-v2"
                             )
                             logger.info("Using HuggingFace embedding function with configured API key")
+                            return
                         except Exception as e:
                             tried.append(('HuggingFace', str(e)))
 
-                # If nothing worked, raise a helpful error
                 if self.embedding_function is None:
                     logger.warning(f"Embedding initialization attempts: {tried}")
                     raise Exception("No working embedding function available")
 
-            except Exception as e:
-                logger.error(f"Failed to initialize embedding function: {e}")
-                raise
-
-            # Create default collections
-            await self._create_default_collections()
+            await asyncio.wait_for(_init_client_and_embeddings(), timeout=15.0)
+            await asyncio.wait_for(self._create_default_collections(), timeout=5.0)
 
             self._initialized = True
             logger.info("ChromaDB initialized successfully")
             
+        except asyncio.TimeoutError:
+            logger.error("ChromaDB initialization timed out")
+            self.client = None
+            raise
         except Exception as e:
             logger.error(f"Failed to initialize ChromaDB: {e}")
+            self.client = None
             raise
     
     async def _create_default_collections(self):
