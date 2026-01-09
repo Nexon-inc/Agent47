@@ -85,11 +85,11 @@ class ChromaDBSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="CHROMA_", extra="allow")
 
 class KafkaSettings(BaseSettings):
-    kafka_bootstrap_servers: str = "localhost:9092"
-    kafka_client_id: str = "agent47"
-    kafka_group_id: str = "agent47_group"
-    kafka_auto_offset_reset: str = "earliest"
-    kafka_enable_auto_commit: bool = True
+    bootstrap_servers: str = "localhost:9092"
+    client_id: str = "agent47"
+    group_id: str = "agent47_group"
+    auto_offset_reset: str = "earliest"
+    enable_auto_commit: bool = True
     
     model_config = SettingsConfigDict(env_prefix="KAFKA_", extra="allow")
 

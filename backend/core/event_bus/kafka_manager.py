@@ -26,8 +26,8 @@ class EventBus:
             import inspect
 
             producer_kwargs = {
-                'bootstrap_servers': settings.kafka.kafka_bootstrap_servers,
-                'client_id': settings.kafka.kafka_client_id,
+                'bootstrap_servers': settings.kafka.bootstrap_servers,
+                'client_id': settings.kafka.client_id,
                 'value_serializer': lambda v: json.dumps(v).encode('utf-8'),
                 'key_serializer': lambda k: k.encode('utf-8') if k else None,
                 'acks': 'all',
@@ -50,14 +50,33 @@ class EventBus:
             try:
                 await asyncio.wait_for(self.producer.start(), timeout=10.0)
                 self._initialized = True
-                logger.info("Kafka producer initialized successfully")
+                logger.info(f"Kafka producer initialized successfully with bootstrap servers: {settings.kafka.bootstrap_servers}")
             except asyncio.TimeoutError:
-                logger.error("Kafka producer start timed out after 10s")
+                logger.error(f"Kafka producer start timed out after 10s. Bootstrap servers: {settings.kafka.bootstrap_servers}")
+                if self.producer:
+                    try:
+                        await self.producer.stop()
+                    except Exception as cleanup_error:
+                        logger.warning(f"Error during producer cleanup: {cleanup_error}")
                 self.producer = None
                 raise asyncio.TimeoutError("Kafka producer initialization timed out")
+            except Exception as start_error:
+                logger.error(f"Kafka producer start failed: {start_error}. Bootstrap servers: {settings.kafka.bootstrap_servers}")
+                if self.producer:
+                    try:
+                        await self.producer.stop()
+                    except Exception as cleanup_error:
+                        logger.warning(f"Error during producer cleanup: {cleanup_error}")
+                self.producer = None
+                raise
             
         except Exception as e:
-            logger.error(f"Failed to initialize Kafka producer: {e}")
+            logger.error(f"Failed to initialize Kafka producer: {e}. Bootstrap servers: {settings.kafka.bootstrap_servers}")
+            if self.producer:
+                try:
+                    await self.producer.stop()
+                except Exception as cleanup_error:
+                    logger.warning(f"Error during producer cleanup: {cleanup_error}")
             self.producer = None
             raise
     
@@ -151,8 +170,8 @@ class EventBus:
         try:
             consumer = AIOKafkaConsumer(
                 topic,
-                bootstrap_servers=settings.kafka.kafka_bootstrap_servers,
-                group_id=group_id or f"{settings.kafka.kafka_group_id}_{topic}",
+                bootstrap_servers=settings.kafka.bootstrap_servers,
+                group_id=group_id or f"{settings.kafka.group_id}_{topic}",
                 auto_offset_reset=auto_offset_reset,
                 enable_auto_commit=enable_auto_commit,
                 value_deserializer=lambda m: json.loads(m.decode('utf-8')),
@@ -235,7 +254,7 @@ class EventBus:
             from kafka.admin import KafkaAdminClient, NewTopic
             
             admin_client = KafkaAdminClient(
-                bootstrap_servers=settings.kafka.kafka_bootstrap_servers
+                bootstrap_servers=settings.kafka.bootstrap_servers
             )
             
             new_topic = NewTopic(
@@ -260,7 +279,7 @@ class EventBus:
             from kafka import KafkaConsumer
             
             consumer = KafkaConsumer(
-                bootstrap_servers=settings.kafka.kafka_bootstrap_servers
+                bootstrap_servers=settings.kafka.bootstrap_servers
             )
             
             topics = list(consumer.topics())
@@ -278,7 +297,7 @@ class EventBus:
             from kafka import KafkaConsumer
             
             consumer = KafkaConsumer(
-                bootstrap_servers=settings.kafka.kafka_bootstrap_servers
+                bootstrap_servers=settings.kafka.bootstrap_servers
             )
             
             partitions = consumer.partitions_for_topic(topic)
