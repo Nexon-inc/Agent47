@@ -2880,7 +2880,7 @@ async def get_subscription_reports(
 
 @router.get("/reports/financial")
 async def get_financial_reports(
-    period: str = Query("monthly", regex="^(monthly|yearly|quarterly)$"),
+    period: str = Query("monthly", pattern="^(monthly|yearly|quarterly)$"),
     admin_user: AdminUser = Depends(check_admin_permission),
     finance_manager: FinanceManager = Depends(get_finance_manager_dep),
     billing_manager: BillingManager = Depends(get_billing_manager_dep)

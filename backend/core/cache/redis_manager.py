@@ -121,22 +121,38 @@ class RedisManager:
             port = int(settings.redis.port or 6379)
             password = settings.redis.password  # Token from Upstash
 
-            # Upstash requires username "default" — ensure password has "default:" prefix
-            if password and not password.startswith("default:"):
-                password = f"default:{password}"
+            # Upstash requires username "default" with the token as password
+            # Handle both formats: "default:token" or just "token"
+            username = None
+            if password:
+                if password.startswith("default:"):
+                    # Password already includes username prefix
+                    username = "default"
+                    password = password[8:]  # Remove "default:" prefix
+                else:
+                    # For Upstash, use "default" as username
+                    username = "default"
 
-            self.redis_client = redis.Redis(
-                host=host,
-                port=port,
-                password=password,
-                encoding="utf-8",
-                decode_responses=False,
-                ssl=True,  # Critical for Upstash (TLS required)
-                socket_connect_timeout=5,
-                socket_timeout=5,
-                retry_on_timeout=True,
-                health_check_interval=30
-            )
+            # Build connection parameters
+            connection_params = {
+                "host": host,
+                "port": port,
+                "encoding": "utf-8",
+                "decode_responses": False,
+                "ssl": True,  # Critical for Upstash (TLS required)
+                "socket_connect_timeout": 5,
+                "socket_timeout": 5,
+                "retry_on_timeout": True,
+                "health_check_interval": 30
+            }
+            
+            # Add authentication if password is provided
+            if password:
+                connection_params["password"] = password
+                if username:
+                    connection_params["username"] = username
+
+            self.redis_client = redis.Redis(**connection_params)
             
             await self.redis_client.ping()
             self._initialized = True
