@@ -17,6 +17,66 @@ class EventBus:
         self._initialized = False
         self._running = False
     
+    def _get_kafka_connection_kwargs(self) -> Dict[str, Any]:
+        """Build common Kafka connection kwargs with SSL/TLS and SASL configuration"""
+        kwargs = {
+            'bootstrap_servers': settings.kafka.bootstrap_servers,
+        }
+        
+        # Auto-detect Google Cloud Managed Kafka and use SSL by default
+        security_protocol = settings.kafka.security_protocol
+        if (security_protocol == 'PLAINTEXT' and 
+            '.managedkafka.' in settings.kafka.bootstrap_servers.lower()):
+            logger.info("Detected Google Cloud Managed Kafka endpoint, defaulting to SSL")
+            security_protocol = 'SSL'
+        
+        # Configure SSL/TLS if security protocol requires it
+        if security_protocol in ('SSL', 'SASL_SSL'):
+            import ssl
+            ssl_context = ssl.create_default_context()
+            
+            # For Google Cloud Managed Kafka, we typically don't need custom certificates
+            # but we need to check hostname
+            ssl_context.check_hostname = settings.kafka.ssl_check_hostname
+            
+            # Allow self-signed certificates if needed (for dev/test)
+            if not settings.kafka.ssl_check_hostname:
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+            
+            # Load custom CA certificate if provided
+            if settings.kafka.ssl_cafile:
+                ssl_context.load_verify_locations(settings.kafka.ssl_cafile)
+            
+            # Load client certificate if provided
+            if settings.kafka.ssl_certfile and settings.kafka.ssl_keyfile:
+                ssl_context.load_cert_chain(
+                    certfile=settings.kafka.ssl_certfile,
+                    keyfile=settings.kafka.ssl_keyfile
+                )
+            
+            kwargs['ssl_context'] = ssl_context
+        
+        # Configure SASL authentication if needed
+        if security_protocol in ('SASL_PLAINTEXT', 'SASL_SSL'):
+            if settings.kafka.sasl_mechanism:
+                kwargs['security_protocol'] = security_protocol
+                kwargs['sasl_mechanism'] = settings.kafka.sasl_mechanism
+                
+                if settings.kafka.sasl_username and settings.kafka.sasl_password:
+                    kwargs['sasl_plain_username'] = settings.kafka.sasl_username
+                    kwargs['sasl_plain_password'] = settings.kafka.sasl_password
+                elif settings.kafka.sasl_mechanism == 'OAUTHBEARER':
+                    # For OAuth, we may need to set up OAuth token callback
+                    logger.warning("OAUTHBEARER mechanism detected but not fully configured")
+            else:
+                logger.warning(f"Security protocol {security_protocol} requires SASL mechanism but none specified")
+        elif security_protocol != 'PLAINTEXT':
+            # Set security protocol if not PLAINTEXT
+            kwargs['security_protocol'] = security_protocol
+        
+        return kwargs
+    
     async def initialize(self):
         if self._initialized:
             return
@@ -25,14 +85,17 @@ class EventBus:
             # Build kwargs and filter them to the constructor signature of AIOKafkaProducer
             import inspect
 
+            # Get common connection kwargs (SSL/TLS, SASL)
+            connection_kwargs = self._get_kafka_connection_kwargs()
+            
             producer_kwargs = {
-                'bootstrap_servers': settings.kafka.bootstrap_servers,
                 'client_id': settings.kafka.client_id,
                 'value_serializer': lambda v: json.dumps(v).encode('utf-8'),
                 'key_serializer': lambda k: k.encode('utf-8') if k else None,
                 'acks': 'all',
                 'retries': 3,
-                'max_in_flight_requests_per_connection': 5
+                'max_in_flight_requests_per_connection': 5,
+                **connection_kwargs
             }
 
             producer_kwargs['request_timeout_ms'] = 10000
@@ -168,15 +231,19 @@ class EventBus:
             await self.initialize()
         
         try:
-            consumer = AIOKafkaConsumer(
-                topic,
-                bootstrap_servers=settings.kafka.bootstrap_servers,
-                group_id=group_id or f"{settings.kafka.group_id}_{topic}",
-                auto_offset_reset=auto_offset_reset,
-                enable_auto_commit=enable_auto_commit,
-                value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-                key_deserializer=lambda m: m.decode('utf-8') if m else None
-            )
+            # Get common connection kwargs (SSL/TLS, SASL)
+            connection_kwargs = self._get_kafka_connection_kwargs()
+            
+            consumer_kwargs = {
+                'group_id': group_id or f"{settings.kafka.group_id}_{topic}",
+                'auto_offset_reset': auto_offset_reset,
+                'enable_auto_commit': enable_auto_commit,
+                'value_deserializer': lambda m: json.loads(m.decode('utf-8')),
+                'key_deserializer': lambda m: m.decode('utf-8') if m else None,
+                **connection_kwargs
+            }
+            
+            consumer = AIOKafkaConsumer(topic, **consumer_kwargs)
             
             await consumer.start()
             self.consumers[topic] = consumer

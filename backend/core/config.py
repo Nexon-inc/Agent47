@@ -90,6 +90,14 @@ class KafkaSettings(BaseSettings):
     group_id: str = "agent47_group"
     auto_offset_reset: str = "earliest"
     enable_auto_commit: bool = True
+    security_protocol: str = "PLAINTEXT"  # PLAINTEXT, SSL, SASL_PLAINTEXT, SASL_SSL
+    sasl_mechanism: Optional[str] = None  # PLAIN, SCRAM-SHA-256, SCRAM-SHA-512, OAUTHBEARER
+    sasl_username: Optional[str] = None
+    sasl_password: Optional[str] = None
+    ssl_check_hostname: bool = True
+    ssl_cafile: Optional[str] = None  # Path to CA certificate file
+    ssl_certfile: Optional[str] = None  # Path to client certificate file
+    ssl_keyfile: Optional[str] = None  # Path to client key file
     
     model_config = SettingsConfigDict(env_prefix="KAFKA_", extra="allow")
 
