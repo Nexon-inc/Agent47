@@ -102,6 +102,5 @@ pyyaml>=6.0.1
 # =============================================================================
 # Gooogle stuff
 # =============================================================================
-google-auth>=2.0.0
-google-cloud-managedkafka
-google-auth-transport-requests
+google-auth>=2.25.0
+google-cloud-managedkafka>=0.3.0
