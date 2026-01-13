@@ -79,13 +79,24 @@ class EventBus:
                         self.credentials = credentials
 
                     async def token(self):
-                        if not self.credentials.valid:
-                            logger.info("Refreshing Google OAuth token for Kafka...")
-                            self.credentials.refresh(Request())
-                        return {
-                            'token': self.credentials.token,
-                            'extensions': {}
-                        }
+                        try:
+                            if not self.credentials.valid or not self.credentials.token:
+                                logger.info("Google credentials invalid/expired → refreshing now...")
+                                self.credentials.refresh(Request())
+                            
+                            token_value = self.credentials.token
+                            if not token_value:
+                                logger.error("No access token after refresh! Credentials may not have cloud-platform scope.")
+                                raise ValueError("Failed to obtain OAuth token")
+                            
+                            logger.info(f"OAUTHBEARER token obtained (length: {len(token_value)}, starts with: {token_value[:10]}...)")
+                            return {
+                                'token': token_value,
+                                'extensions': {}
+                            }
+                        except Exception as e:
+                            logger.error(f"Token refresh failed: {str(e)}", exc_info=True)
+                            raise
 
                 token_provider = GoogleOAuthTokenProvider(credentials)
 
