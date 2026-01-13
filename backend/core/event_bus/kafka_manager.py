@@ -10,6 +10,9 @@ from aiokafka.errors import KafkaError
 from google.auth import default
 from google.auth.transport.requests import Request
 
+# NEW IMPORT ──────────────────────────────────────────────────────────────
+from aiokafka.abc import AbstractTokenProvider
+
 from ..config import settings
 
 logger = logging.getLogger(__name__)
@@ -70,18 +73,26 @@ class EventBus:
 
                 credentials, project_id = default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
 
-                async def oauth_token_provider():
-                    if not credentials.valid:
-                        credentials.refresh(Request())
-                    return {
-                        'token': credentials.token,
-                        'extensions': {}
-                    }
+                # ─── FIXED: Proper AbstractTokenProvider implementation ────────
+                class GoogleOAuthTokenProvider(AbstractTokenProvider):
+                    def __init__(self, credentials):
+                        self.credentials = credentials
+
+                    async def token(self):
+                        if not self.credentials.valid:
+                            logger.info("Refreshing Google OAuth token for Kafka...")
+                            self.credentials.refresh(Request())
+                        return {
+                            'token': self.credentials.token,
+                            'extensions': {}
+                        }
+
+                token_provider = GoogleOAuthTokenProvider(credentials)
 
                 kwargs.update({
                     'security_protocol': 'SASL_SSL',
                     'sasl_mechanism': 'OAUTHBEARER',
-                    'sasl_oauth_token_provider': oauth_token_provider,
+                    'sasl_oauth_token_provider': token_provider,  # ← instance, not function
                 })
 
             elif settings.kafka.sasl_mechanism:
@@ -225,9 +236,6 @@ class EventBus:
     # ... (subscribe_to_topic, _consume_messages, _process_message,
     # register_handler, unregister_handler, create_topic, list_topics,
     # get_topic_info, publish_batch_events remain unchanged)
-
-    # You can keep them exactly as they are
-
 
 class KafkaManager:
     def __init__(self):
