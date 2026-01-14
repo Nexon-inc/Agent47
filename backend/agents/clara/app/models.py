@@ -95,7 +95,8 @@ class SupportTicket(Base):
     interactions = relationship("CustomerInteraction", back_populates="ticket", cascade="all, delete-orphan")
     attachments = relationship("TicketAttachment", back_populates="ticket", cascade="all, delete-orphan")
     escalations = relationship("TicketEscalation", back_populates="ticket", cascade="all, delete-orphan")
-    feedback = relationship("CustomerFeedback", back_populates="ticket", uselist=False)
+    # Use fully-qualified path to avoid conflicts with other CustomerFeedback models
+    feedback = relationship("agents.clara.app.models.CustomerFeedback", back_populates="ticket", uselist=False)
 
 class CustomerInteraction(Base):
     __tablename__ = "customer_interactions"
