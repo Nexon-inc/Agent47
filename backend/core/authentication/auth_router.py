@@ -349,20 +349,18 @@ async def login(login_data: UserLoginRequest):
                     if _db_user and getattr(_db_user, 'id', None) is not None:
                         response_user_id = _db_user.id
                         
-                        # Check if user is admin
+                        # Check if user should get PRO tier (whitelist or admin)
                         try:
-                            from admin.admin_core import get_admin_core
-                            admin_core = await get_admin_core()
-                            admin_user = await admin_core._get_admin_user_by_email(user.email)
-                            if admin_user and admin_user.is_active:
+                            from .auth_manager import should_get_pro_tier
+                            if await should_get_pro_tier(user.email):
                                 is_admin_user = True
                                 if _db_user.tier != _UserTier.PRO:
                                     _db_user.tier = _UserTier.PRO
                                     await _session_db.commit()
-                                    logger.info(f"Set PRO tier for admin user: {user.email}")
+                                    logger.info(f"Set PRO tier for user: {user.email}")
                                 resolved_tier_value = _UserTier.PRO.value
-                        except Exception as admin_check_error:
-                            logger.debug(f"Admin check failed (not an admin): {admin_check_error}")
+                        except Exception as tier_check_error:
+                            logger.debug(f"Tier check failed: {tier_check_error}")
                         
                         if not is_admin_user:
                             if getattr(_db_user, 'tier', None) is None:

@@ -40,13 +40,11 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 user_tier = payload.get("tier")
                 user_email = payload.get("email")
                 
-                # Check if user is admin and set PRO tier
+                # Check if user should get PRO tier (whitelist or admin)
                 if user_email:
                     try:
-                        from admin.admin_core import get_admin_core
-                        admin_core = await get_admin_core()
-                        admin_user = await admin_core._get_admin_user_by_email(user_email)
-                        if admin_user and admin_user.is_active:
+                        from ..authentication.auth_manager import should_get_pro_tier
+                        if await should_get_pro_tier(user_email):
                             user_tier = "pro"
                             from ..database import get_database
                             from ..database.models import User, UserTier
@@ -58,7 +56,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                                 if db_user and db_user.tier != UserTier.PRO:
                                     db_user.tier = UserTier.PRO
                                     await session.commit()
-                                    logger.info(f"Set PRO tier for admin user in auth middleware: {user_email}")
+                                    logger.info(f"Set PRO tier for user in auth middleware: {user_email}")
                     except Exception:
                         pass
                 

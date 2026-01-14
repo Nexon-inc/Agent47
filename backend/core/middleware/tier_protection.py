@@ -28,14 +28,12 @@ class TierProtectionMiddleware(BaseHTTPMiddleware):
                 if any(skip_path in request.url.path for skip_path in ["/health", "/docs", "/redoc", "/openapi.json"]):
                     return await call_next(request)
                 
-                # Check if user is admin - admins bypass tier checks
+                # Check if user should get PRO tier (whitelist or admin) - bypass tier checks
                 user_email = getattr(request.state, 'user_email', None)
                 if user_email:
                     try:
-                        from admin.admin_core import get_admin_core
-                        admin_core = await get_admin_core()
-                        admin_user = await admin_core._get_admin_user_by_email(user_email)
-                        if admin_user and admin_user.is_active:
+                        from ..authentication.auth_manager import should_get_pro_tier
+                        if await should_get_pro_tier(user_email):
                             request.state.user_tier = "pro"
                             return await call_next(request)
                     except Exception:
@@ -63,10 +61,8 @@ class TierProtectionMiddleware(BaseHTTPMiddleware):
                             
                             if claim_email:
                                 try:
-                                    from admin.admin_core import get_admin_core
-                                    admin_core = await get_admin_core()
-                                    admin_user = await admin_core._get_admin_user_by_email(claim_email)
-                                    if admin_user and admin_user.is_active:
+                                    from ..authentication.auth_manager import should_get_pro_tier
+                                    if await should_get_pro_tier(claim_email):
                                         request.state.user_tier = "pro"
                                         return await call_next(request)
                                 except Exception:

@@ -45,6 +45,34 @@ logger.info("Bcrypt password hashing initialized successfully")
 # JWT token security
 security = HTTPBearer()
 
+# PRO tier whitelist - emails that should get PRO tier access
+PRO_TIER_WHITELIST = {
+    "nexonicindustries@gmail.com",
+    "agent47assist@gmail.com"
+}
+
+async def should_get_pro_tier(email: str) -> bool:
+    """Check if an email should get PRO tier access (either whitelisted or admin)"""
+    if not email:
+        return False
+    
+    # Check if email is in PRO tier whitelist (case-insensitive)
+    email_lower = email.lower()
+    if email_lower in PRO_TIER_WHITELIST:
+        return True
+    
+    # Check if email is an admin user
+    try:
+        from admin.admin_core import get_admin_core
+        admin_core = await get_admin_core()
+        admin_user = await admin_core._get_admin_user_by_email(email)
+        if admin_user and admin_user.is_active:
+            return True
+    except Exception:
+        pass
+    
+    return False
+
 class AuthManager:
     def __init__(self):
         self.secret_key = settings.security.secret_key
@@ -266,18 +294,12 @@ class AuthManager:
                     detail="User is inactive"
                 )
             
-            # Check if user is admin and ensure PRO tier
-            try:
-                from admin.admin_core import get_admin_core
-                admin_core = await get_admin_core()
-                admin_user = await admin_core._get_admin_user_by_email(user.email)
-                if admin_user and admin_user.is_active:
-                    if user.tier != UserTier.PRO:
-                        user.tier = UserTier.PRO
-                        await db.commit()
-                        logger.info(f"Set PRO tier for admin user: {user.email}")
-            except Exception as e:
-                logger.debug(f"Admin check in get_current_user failed (not an admin): {e}")
+            # Check if user should get PRO tier (whitelist or admin)
+            if await should_get_pro_tier(user.email):
+                if user.tier != UserTier.PRO:
+                    user.tier = UserTier.PRO
+                    await db.commit()
+                    logger.info(f"Set PRO tier for user: {user.email}")
             
             return user
             
@@ -298,26 +320,20 @@ class AuthManager:
                 detail="Inactive user"
             )
         
-        # Check if user is admin and ensure PRO tier
-        try:
-            from admin.admin_core import get_admin_core
-            admin_core = await get_admin_core()
-            admin_user = await admin_core._get_admin_user_by_email(current_user.email)
-            if admin_user and admin_user.is_active:
-                if current_user.tier != UserTier.PRO:
-                    # Get database session to update tier
-                    db = await get_database()
-                    async with db.get_session() as session:
-                        from sqlalchemy import select
-                        result = await session.execute(select(User).where(User.id == current_user.id))
-                        db_user = result.scalar_one_or_none()
-                        if db_user and db_user.tier != UserTier.PRO:
-                            db_user.tier = UserTier.PRO
-                            current_user.tier = UserTier.PRO
-                            await session.commit()
-                            logger.info(f"Set PRO tier for admin user in get_current_active_user: {current_user.email}")
-        except Exception as e:
-            logger.debug(f"Admin check in get_current_active_user failed (not an admin): {e}")
+        # Check if user should get PRO tier (whitelist or admin)
+        if await should_get_pro_tier(current_user.email):
+            if current_user.tier != UserTier.PRO:
+                # Get database session to update tier
+                db = await get_database()
+                async with db.get_session() as session:
+                    from sqlalchemy import select
+                    result = await session.execute(select(User).where(User.id == current_user.id))
+                    db_user = result.scalar_one_or_none()
+                    if db_user and db_user.tier != UserTier.PRO:
+                        db_user.tier = UserTier.PRO
+                        current_user.tier = UserTier.PRO
+                        await session.commit()
+                        logger.info(f"Set PRO tier for user in get_current_active_user: {current_user.email}")
         
         return current_user
     
