@@ -271,13 +271,39 @@ async def signup(user_data: UserSignupRequest):
                 response_user_id = user.id
             response_created_at = new_user_record.get('created_at') if new_user_record and 'created_at' in new_user_record else getattr(user, 'created_at', None)
 
+            # Check if user should get PRO tier (whitelist or admin) and set tier in database
+            resolved_tier_value = "free"
+            if response_user_id:
+                try:
+                    from ..database import get_database
+                    from .auth_manager import should_get_pro_tier
+                    db = get_database()
+                    async with db.get_session() as session_db:
+                        from sqlalchemy import select
+                        result_db = await session_db.execute(select(User).where(User.id == response_user_id))
+                        db_user = result_db.scalar_one_or_none()
+                        if db_user:
+                            if await should_get_pro_tier(user.email):
+                                db_user.tier = UserTier.PRO
+                                resolved_tier_value = "pro"
+                                await session_db.commit()
+                                logger.info(f"Set PRO tier for new user during signup: {user.email}")
+                            elif db_user.tier is None:
+                                db_user.tier = UserTier.FREE
+                                resolved_tier_value = "free"
+                                await session_db.commit()
+                            else:
+                                resolved_tier_value = db_user.tier.value if db_user.tier else "free"
+                except Exception as tier_error:
+                    logger.debug(f"Tier check during signup failed: {tier_error}")
+
             # Generate backend JWT tokens instead of using Supabase tokens
             # This ensures compatibility with backend authentication middleware
             auth_manager = await get_auth()
             
             # Create backend JWT tokens with tier information
             access_token = auth_manager.create_access_token(
-                data={"sub": str(response_user_id), "email": user.email, "tier": "free"}
+                data={"sub": str(response_user_id), "email": user.email, "tier": resolved_tier_value}
             )
             refresh_token = auth_manager.create_refresh_token(
                 data={"sub": str(response_user_id), "email": user.email}
@@ -293,6 +319,7 @@ async def signup(user_data: UserSignupRequest):
                     "email": user.email,
                     "username": user_data.username,
                     "full_name": f"{user_data.first_name} {user_data.last_name}",
+                    "tier": resolved_tier_value,
                     "is_active": True,
                     "is_verified": False,
                     "created_at": response_created_at,

@@ -598,7 +598,7 @@ export default function HistoryTab() {
       </Tabs>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Conversations</CardTitle>
@@ -606,7 +606,7 @@ export default function HistoryTab() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{conversationHistory.length}</div>
-            <p className="text-xs text-muted-foreground">+2 from last week</p>
+            <p className="text-xs text-muted-foreground">All time conversations</p>
           </CardContent>
         </Card>
 
@@ -616,19 +616,8 @@ export default function HistoryTab() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{taskHistory.length}</div>
-            <p className="text-xs text-muted-foreground">+12 from yesterday</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">98.5%</div>
-            <p className="text-xs text-muted-foreground">+0.5% from last month</p>
+            <div className="text-2xl font-bold">{taskHistory.filter(t => t.status === "completed").length}</div>
+            <p className="text-xs text-muted-foreground">Completed tasks</p>
           </CardContent>
         </Card>
       </div>

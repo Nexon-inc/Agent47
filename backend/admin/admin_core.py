@@ -432,8 +432,29 @@ class AdminCore(LoggerMixin):
                 self.logger.error(f"Auth manager is a string, not AuthManager instance: {self.auth}")
                 return None
             
-            # Authenticate user with main auth system
+            # Try authenticating with database first
             user = await self.auth.authenticate_user(email, password)
+            
+            # If database auth fails, try Supabase auth (for users who signed up via Supabase)
+            if not user:
+                try:
+                    from core.authentication.supabase_auth import supabase_auth_manager
+                    supabase_result = await supabase_auth_manager.signin(email, password)
+                    if supabase_result.get("success"):
+                        supabase_user = supabase_result.get("user")
+                        # Get user from database by email
+                        if self.database:
+                            async with self.database.get_session() as session:
+                                from core.database.models import User
+                                from sqlalchemy import select
+                                result = await session.execute(select(User).where(User.email == email))
+                                user = result.scalar_one_or_none()
+                                if not user:
+                                    self.logger.warning(f"User {email} authenticated with Supabase but not found in database")
+                                    return None
+                except Exception as supabase_auth_error:
+                    self.logger.debug(f"Supabase auth attempt failed: {supabase_auth_error}")
+            
             if not user:
                 self.logger.warning(f"Authentication failed for email: {email}")
                 return None

@@ -137,7 +137,7 @@ const agentTemplates = [
     title: "Research Agent",
     description: "Conducts comprehensive market research and competitive analysis with AI-powered data collection.",
     icon: Search,
-    color: "bg-blue-500",
+    color: "bg-sky-400",
     defaultSettings: {
       marketResearch: true,
       competitorAnalysis: true,
@@ -151,7 +151,7 @@ const agentTemplates = [
     title: "Business Maker Agent",
     description: "Helps launch and scale businesses with AI-powered insights, from idea validation to business models.",
     icon: Lightbulb,
-    color: "bg-indigo-500",
+    color: "bg-gray-800",
     defaultSettings: {
       ideaValidation: true,
       businessPlanning: true,
@@ -297,6 +297,7 @@ export default function AgentsOverviewTab() {
         settings: template.defaultSettings,
         isOnline: false,
         currentTask: undefined,
+        color: template.color || "bg-gray-500", // Ensure color is always present
         performance: {
           responseTime: 0,
           accuracy: 0,

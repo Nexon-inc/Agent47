@@ -83,7 +83,7 @@ function DashboardContent() {
   useEffect(() => {
     const checkUserAgents = async () => {
       // Prevent duplicate checks
-      if (hasCheckedAgents) return
+      if (hasCheckedAgents || showAgentSelection) return
       if (!isAuthenticated || !user) {
         setIsCheckingAgents(false)
         return
@@ -112,7 +112,7 @@ function DashboardContent() {
     }
 
     checkUserAgents()
-  }, [isAuthenticated, user, hasCheckedAgents, showAgentSelection])
+  }, [isAuthenticated, user]) // Removed hasCheckedAgents and showAgentSelection from dependencies to prevent re-runs
 
   const handleAgentSelectionComplete = () => {
     setShowAgentSelection(false)
