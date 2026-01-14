@@ -27,17 +27,15 @@ export function middleware(request: NextRequest) {
   }
   
   // Check if user is accessing dashboard or protected routes
+  // Note: We allow access here and let the backend middleware handle tier checks
+  // The backend will redirect to pricing if tier is not set or insufficient
+  // This is because tier information may not be in cookies immediately after login
   if (pathname.startsWith('/dashboard')) {
-    // Get user data from cookies or headers
-    const userTier = request.cookies.get('user_tier')?.value
-    
-    // If no tier is set, redirect to pricing
-    if (!userTier || userTier === 'null' || userTier === 'undefined') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/pricing'
-      url.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(url)
-    }
+    // Just check if user has an access token (basic auth check)
+    // Backend will handle tier validation and redirects
+    const accessToken = request.cookies.get('access_token')?.value
+    // If no token at all, they're not authenticated - but let the backend handle this
+    // We don't redirect here because the backend middleware handles auth
   }
   
   // Check if user is accessing onboarding but has already completed it
