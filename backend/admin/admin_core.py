@@ -308,14 +308,35 @@ class AdminCore(LoggerMixin):
                 if result.fetchone():
                     username = f"admin_{self.settings.admin_default_email.split('@')[0]}"
                 
+                from core.database.models import UserTier
+                
+                # Ensure usertier enum has 'pro' value
+                try:
+                    await session.execute(text("""
+                        DO $$ BEGIN
+                            IF NOT EXISTS (
+                                SELECT 1 FROM pg_enum 
+                                WHERE enumlabel = 'pro' 
+                                AND enumtypid = (SELECT oid FROM pg_type WHERE typname = 'usertier')
+                            ) THEN
+                                ALTER TYPE usertier ADD VALUE 'pro';
+                            END IF;
+                        END $$;
+                    """))
+                    await session.commit()
+                except Exception as enum_error:
+                    # Enum might already exist or type might not exist yet, continue anyway
+                    self.logger.warning(f"Could not add 'pro' to usertier enum (may already exist): {enum_error}")
+                
                 # Create user using raw SQL with ON CONFLICT handling
+                tier_value = UserTier.PRO.value  # Use enum value
                 await session.execute(
                     text("""
                         INSERT INTO users (email, username, hashed_password, full_name, tier, is_active, is_verified, created_at)
-                        VALUES (:email, :username, :hashed_password, :full_name, 'pro', :is_active, :is_verified, CURRENT_TIMESTAMP)
+                        VALUES (:email, :username, :hashed_password, :full_name, CAST(:tier AS usertier), :is_active, :is_verified, CURRENT_TIMESTAMP)
                         ON CONFLICT (email) DO UPDATE SET
                             hashed_password = EXCLUDED.hashed_password,
-                            tier = 'pro',
+                            tier = CAST(:tier AS usertier),
                             is_active = EXCLUDED.is_active,
                             is_verified = EXCLUDED.is_verified,
                             updated_at = CURRENT_TIMESTAMP
@@ -325,6 +346,7 @@ class AdminCore(LoggerMixin):
                         "username": username,
                         "hashed_password": hashed_password,
                         "full_name": "Super Admin",
+                        "tier": tier_value,
                         "is_active": True,
                         "is_verified": True
                     }
