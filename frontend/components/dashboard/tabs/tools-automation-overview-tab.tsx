@@ -623,26 +623,25 @@ export default function ToolsAutomationOverviewTab() {
           <div className="p-2 bg-green-100 rounded-lg">
             <Zap className="h-6 w-6 text-green-600" />
           </div>
-        <div>
+          <div>
             <h2 className="text-2xl font-bold text-gray-900">Tools & Automation</h2>
             <p className="text-gray-600">Manage integrations, automations, and calendar events</p>
           </div>
         </div>
-        <Button 
-          className="bg-green-600 hover:bg-green-700"
-          onClick={() => {
-            // Scroll to integrations section or show connection modal
-            const integrationsSection = document.getElementById('integrations-section')
-            if (integrationsSection) {
-              integrationsSection.scrollIntoView({ behavior: 'smooth' })
-            }
-          }}
-        >
-          <Wifi className="w-4 h-4 mr-2" />
-          Connect Your Tools
-        </Button>
-        </div>
         <div className="flex items-center space-x-2">
+          <Button 
+            className="bg-green-600 hover:bg-green-700"
+            onClick={() => {
+              // Scroll to integrations section or show connection modal
+              const integrationsSection = document.getElementById('integrations-section')
+              if (integrationsSection) {
+                integrationsSection.scrollIntoView({ behavior: 'smooth' })
+              }
+            }}
+          >
+            <Wifi className="w-4 h-4 mr-2" />
+            Connect Your Tools
+          </Button>
           <Button 
             variant="outline" 
             size="sm" 
