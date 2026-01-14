@@ -3,8 +3,8 @@ import json
 import logging
 from typing import Dict, Any, Optional, Callable, List, Union
 from datetime import datetime
-from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
-from aiokafka.errors import KafkaError
+from aiokafka import AIOKafkaProducer, AIOKafkaConsumer, AIOKafkaAdminClient
+from aiokafka.errors import KafkaError, UnknownTopicOrPartitionError
 
 # ─── Google Auth imports ────────────────────────────────────────────────
 from google.auth import default
@@ -35,7 +35,7 @@ class EventBus:
         # Auto-detect Google Cloud Managed Kafka
         is_managed_kafka = '.managedkafka.' in settings.kafka.bootstrap_servers.lower()
 
-        # NEW: Auto-detect Confluent Cloud (most common bootstrap pattern)
+        # Auto-detect Confluent Cloud
         is_confluent = 'confluent.cloud' in settings.kafka.bootstrap_servers.lower()
 
         security_protocol = settings.kafka.security_protocol
@@ -46,7 +46,7 @@ class EventBus:
                 logger.info("Detected Google Cloud Managed Kafka → forcing SASL_SSL + OAUTHBEARER")
                 security_protocol = 'SASL_SSL'
 
-        # NEW: Force correct protocol + auth for Confluent Cloud
+        # Force correct protocol + auth for Confluent Cloud
         if is_confluent:
             logger.info("Detected Confluent Cloud Kafka → forcing SASL_SSL + PLAIN authentication")
             security_protocol = 'SASL_SSL'
@@ -112,7 +112,7 @@ class EventBus:
                 kwargs.update({
                     'security_protocol': 'SASL_SSL',
                     'sasl_mechanism': 'OAUTHBEARER',
-                    'sasl_oauth_token_provider': token_provider,  # ← instance, not function
+                    'sasl_oauth_token_provider': token_provider,
                 })
 
             elif settings.kafka.sasl_mechanism:
@@ -168,6 +168,23 @@ class EventBus:
             self._initialized = True
             logger.info("Kafka producer initialized successfully")
 
+            # ─── NEW: Ensure health_check topic exists ───────────────────────
+            try:
+                admin_client = AIOKafkaAdminClient(**connection_kwargs)
+                await admin_client.start()
+                topics = await admin_client.list_topics()
+                if "health_check" not in topics:
+                    logger.info("health_check topic not found → creating it automatically")
+                    from aiokafka.admin import NewTopic
+                    new_topic = NewTopic("health_check", num_partitions=1, replication_factor=1)
+                    await admin_client.create_topics([new_topic])
+                    logger.info("Created health_check topic successfully")
+                else:
+                    logger.info("health_check topic already exists")
+                await admin_client.stop()
+            except Exception as e:
+                logger.warning(f"Could not auto-create health_check topic: {e}")
+
         except asyncio.TimeoutError:
             logger.error(f"Kafka producer start timed out after 20s. Bootstrap: {settings.kafka.bootstrap_servers}")
             if self.producer:
@@ -188,10 +205,6 @@ class EventBus:
             self.producer = None
             raise
 
-    # ──────────────────────────────────────────────────────────────────────
-    # The rest of your class remains unchanged
-    # ──────────────────────────────────────────────────────────────────────
-
     async def close(self):
         self._running = False
         for consumer in self.consumers.values():
@@ -211,14 +224,19 @@ class EventBus:
         try:
             if not self._initialized:
                 await self.initialize()
+
+            # Give a bit more time for metadata propagation after topic creation
+            await asyncio.sleep(2.0)
+
             await self.producer.send_and_wait(
                 topic="health_check",
                 value={"timestamp": datetime.utcnow().isoformat()},
                 key="health_check"
             )
+            logger.info("Kafka health check passed: test message sent to health_check topic")
             return True
         except Exception as e:
-            logger.error(f"Kafka health check failed: {e}")
+            logger.error(f"Kafka health check failed: {e}", exc_info=True)
             return False
 
     async def publish_event(
