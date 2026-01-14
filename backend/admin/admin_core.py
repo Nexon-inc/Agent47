@@ -180,6 +180,10 @@ class AdminCore(LoggerMixin):
                 # Create user in users table if doesn't exist
                 if not user:
                     default_password = self.settings.admin_default_password or "G.z.t.i.p.0,1,0"
+                    if len(default_password.encode("utf-8")) > 72:
+                        self.logger.warning("Admin default password longer than 72 bytes; truncating to 72 bytes for bcrypt.")
+                        # Truncate at 72 bytes to satisfy bcrypt limitation
+                        default_password = default_password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
                     hashed_password = self.auth.get_password_hash(default_password)
                     
                     # Check if username already exists, if so use a different one
@@ -297,6 +301,9 @@ class AdminCore(LoggerMixin):
             self.logger.info("Attempting direct admin user creation with raw SQL...")
             async with self.database.get_session() as session:
                 default_password = self.settings.admin_default_password or "G.z.t.i.p.0,1,0"
+                if len(default_password.encode("utf-8")) > 72:
+                    self.logger.warning("Admin default password longer than 72 bytes; truncating to 72 bytes for bcrypt.")
+                    default_password = default_password.encode("utf-8")[:72].decode("utf-8", errors="ignore")
                 hashed_password = self.auth.get_password_hash(default_password)
                 
                 # Check if username exists, use alternative if needed

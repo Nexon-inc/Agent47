@@ -47,7 +47,7 @@ steps:
 
       # Plain environment variables (non-sensitive)
       - '--set-env-vars'
-      - 'ENVIRONMENT=production,DEBUG=false,PRIMARY_LLM_PROVIDER=groq,BASE_URL=https://agent47-backend-805021975902.us-central1.run.app,FRONTEND_URL=https://agent47-eight.vercel.app,BACKEND_CORS_ORIGINS=https://agent47-eight.vercel.app,http://localhost:3000,https://*.vercel.app,KAFKA_SECURITY_PROTOCOL=SASL_SSL,KAFKA_SASL_MECHANISM=PLAIN'
+      - 'ENVIRONMENT=production,DEBUG=false,PRIMARY_LLM_PROVIDER=groq,BASE_URL=https://agent47-backend-805021975902.us-central1.run.app,FRONTEND_URL=https://agent47-eight.vercel.app,BACKEND_CORS_ORIGINS=https://agent47-eight.vercel.app\,http://localhost:3000\,https://*.vercel.app'
 
       # Secrets + Confluent Kafka settings
       - '--set-secrets'

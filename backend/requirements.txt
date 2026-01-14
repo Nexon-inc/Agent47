@@ -58,6 +58,8 @@ gotrue>=2.10.0,<3.0.0
 # =============================================================================
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
+# Pin bcrypt to a compatible version to avoid runtime backend issues
+bcrypt==4.0.1
 python-multipart>=0.0.6
 cryptography>=41.0.8
 
