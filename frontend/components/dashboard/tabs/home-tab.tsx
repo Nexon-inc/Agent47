@@ -646,8 +646,8 @@ export default function HomeTab() {
         <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
           {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000 
-            ? `Welcome, ${user?.name || user?.username || "User"}! 👋`
-            : `Welcome back, ${user?.name || user?.username || "User"}! 👋`
+            ? `Welcome, ${user?.username || user?.name || "User"}! 👋`
+            : `Welcome back, ${user?.username || user?.name || "User"}! 👋`
           }
         </h1>
           </div>
@@ -1222,71 +1222,7 @@ export default function HomeTab() {
 
                     </div>
 
-      {/* Tasks Section - Moved to bottom */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Active Tasks */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Active Tasks</CardTitle>
-            <CardDescription>Current tasks being processed by your AI agents</CardDescription>
-          </CardHeader>
-          <CardContent>
-              {activeTasks.length === 0 ? (
-              <div className="text-center text-gray-500  py-4">
-                <Activity className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No active tasks</p>
-                <p className="text-xs">Start a conversation with an agent to create tasks</p>
-                </div>
-              ) : (
-              <div className="space-y-3">
-                {activeTasks.map((task) => (
-                  <div key={task.id} className="p-3 bg-gray-50  rounded-lg">
-                    <h4 className="font-medium text-sm">{task.title}</h4>
-                    <p className="text-xs text-gray-600  mt-1">{task.description}</p>
-                    <Badge variant="outline" className="text-xs mt-2">
-                            {task.status}
-                          </Badge>
-                        </div>
-                ))}
-                    </div>
-              )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Completions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Completions</CardTitle>
-            <CardDescription>Summary of recently completed tasks</CardDescription>
-          </CardHeader>
-          <CardContent>
-              {taskSummaries.length === 0 ? (
-              <div className="text-center text-gray-500  py-4">
-                <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No completed tasks yet</p>
-                <p className="text-xs">Completed tasks will appear here with summaries</p>
-                </div>
-              ) : (
-              <div className="space-y-3">
-                {taskSummaries.map((summary) => (
-                  <div key={summary.id} className="p-3 bg-gray-50  rounded-lg">
-                    <h4 className="font-medium text-sm">{summary.title}</h4>
-                    <p className="text-xs text-gray-600  mt-1">{summary.description}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="outline" className="text-xs">
-                        Completed
-                      </Badge>
-                      <span className="text-xs text-gray-500">
-                        {new Date(summary.completed_at).toLocaleDateString()}
-                      </span>
-                      </div>
-                    </div>
-                ))}
-            </div>
-              )}
-          </CardContent>
-        </Card>
-      </div>
+      {/* Tasks Section Removed - Chat tab should fill the space fully */}
 
       {/* Agent Selection Modal */}
       {showAgentSelection && (

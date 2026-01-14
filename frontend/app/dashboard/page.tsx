@@ -77,12 +77,15 @@ function DashboardContent() {
     }
   }, [searchParams, tab])
 
-  // Check if user has selected agents on dashboard load
+  // Check if user has selected agents on dashboard load (only once)
   useEffect(() => {
+    let hasChecked = false
     const checkUserAgents = async () => {
+      if (hasChecked) return // Prevent duplicate checks
       if (isAuthenticated && user) {
         try {
           setIsCheckingAgents(true)
+          hasChecked = true
           const selectedAgents = await apiClient.getSelectedAgents()
           if (!selectedAgents || selectedAgents.length === 0) {
             // No agents selected - show modal

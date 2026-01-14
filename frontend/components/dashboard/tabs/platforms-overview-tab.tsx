@@ -166,23 +166,20 @@ export default function PlatformsOverviewTab() {
       setIsLoading(true)
       setIsRefreshing(true)
       
-      // Load platforms from OAuth router (for social media only)
-      // Filter to only social media platforms
+      // Load platforms from OAuth router - get ALL available platforms
       const [platformsResponse, connectionsResponse, metricsResponse] = await Promise.all([
         apiClient.get("/api/v1/platforms/").catch(() => ({ data: [] })),
         apiClient.get("/api/v1/platforms/connected").catch(() => ({ data: { platforms: [] } })),
         apiClient.get("/api/platforms/metrics").catch(() => ({ data: [] }))
       ])
       
-      // Filter to only social media platforms
-      const socialMediaPlatforms = (platformsResponse.data || []).filter(
-        (platform: Platform) => platform.platform_type === "social_media"
-      )
+      // Get all platforms (not just social media) - user can connect any platform
+      const allPlatforms = platformsResponse.data || []
       
       // Extract platforms array from connections response
       const connectedPlatformsList = connectionsResponse.data?.platforms || connectionsResponse.data || []
       
-      setAvailablePlatforms(socialMediaPlatforms)
+      setAvailablePlatforms(allPlatforms)
       setConnectedPlatforms(connectedPlatformsList)
       setPlatformMetrics(metricsResponse.data || [])
       setLastUpdated(new Date())
@@ -297,11 +294,8 @@ export default function PlatformsOverviewTab() {
     return platformMetrics.find(m => m.platform_id === platformId)
   }
 
-  // Filter platforms - only show social media platforms
+  // Filter platforms - show all platforms, filter by category if selected
   const filteredPlatforms = availablePlatforms.filter((platform) => {
-    // Only show social media platforms
-    if (platform.platform_type !== "social_media") return false
-    
     if (selectedCategory === "All") return true
     return platform.platform_type === selectedCategory.toLowerCase().replace(' ', '_')
   })
@@ -481,9 +475,9 @@ export default function PlatformsOverviewTab() {
         </Card>
       </div>
 
-      {/* Category Filter - Only Social Media Categories */}
+      {/* Category Filter - All Platform Types */}
       <div className="flex flex-wrap gap-2">
-        {["All"].map((category) => (
+        {["All", "Social Media", "Business", "Content", "Analytics", "Productivity", "E-commerce", "Communication"].map((category) => (
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}

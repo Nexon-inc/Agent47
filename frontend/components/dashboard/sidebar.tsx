@@ -26,26 +26,10 @@ const navigationItems = [
     icon: Home,
     href: "/dashboard?tab=home",
   },
-  // Calendar moved under Tools & Automation section per requirements
-  {
-    title: "Team Management",
-    icon: UserPlus,
-    href: "/dashboard?tab=team-management",
-  },
-  {
-    title: "Inbox",
-    icon: Inbox,
-    href: "/dashboard?tab=inbox",
-  },
   {
     title: "AI Agents",
     icon: Bot,
     href: "/dashboard?tab=agents-overview",
-  },
-  {
-    title: "History",
-    icon: History,
-    href: "/dashboard?tab=history",
   },
   {
     title: "Platforms",
@@ -58,9 +42,24 @@ const navigationItems = [
     href: "/dashboard?tab=tools-automation-overview",
   },
   {
+    title: "Team Management",
+    icon: UserPlus,
+    href: "/dashboard?tab=team-management",
+  },
+  {
+    title: "Inbox",
+    icon: Inbox,
+    href: "/dashboard?tab=inbox",
+  },
+  {
     title: "Analytics",
     icon: BarChart3,
     href: "/dashboard?tab=analytics",
+  },
+  {
+    title: "History",
+    icon: History,
+    href: "/dashboard?tab=history",
   },
   {
     title: "Account",

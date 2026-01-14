@@ -515,8 +515,18 @@ class ApiClient {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
 
-      // Handle tier validation errors
+      // Handle tier validation errors - only redirect if user hasn't selected a tier yet
       if (response.status === 403 && errorData.detail && errorData.detail.includes("Tier selection required")) {
+        // Check if user has a tier selected (they should have one after signup)
+        const authStore = require('@/lib/stores/auth-store').useAuthStore.getState();
+        const user = authStore?.user;
+        
+        // If user has a tier (even if free), don't redirect - they've already made a choice
+        if (user?.tier) {
+          // User has a tier, so this is a different 403 error - just throw it
+          throw new Error(errorData.detail || "Access denied");
+        }
+        
         // If caller asked to suppress automatic redirect (e.g., background calls), just throw
         if (suppressTierRedirect) {
           throw new Error("Tier selection required. Background call suppressed redirect.");

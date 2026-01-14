@@ -340,43 +340,23 @@ export default function ToolsAutomationOverviewTab() {
       setIsRefreshing(true)
       
       // Load integrations, usage, stats, and calendar data in parallel
-      // Also load platforms to get non-social media tools
-      const [integrationsResponse, usageResponse, statsResponse, calendarResponse, calendarStatsResponse, platformsResponse] = await Promise.all([
+      // Get available integrations from the correct endpoint
+      const [integrationsResponse, usageResponse, statsResponse, calendarResponse, calendarStatsResponse, availableIntegrationsResponse] = await Promise.all([
         apiClient.get("/api/integrations/").catch(() => ({ data: [] })),
         apiClient.get("/api/integrations/usage").catch(() => ({ data: [] })),
         apiClient.get("/api/integrations/stats").catch(() => ({ data: null })),
         apiClient.get("/api/calendar/events").catch(() => ({ data: [] })),
         apiClient.get("/api/calendar/stats").catch(() => ({ data: null })),
-        apiClient.get("/api/v1/platforms/").catch(() => ({ data: [] }))
+        apiClient.get("/api/integrations/available").catch(() => ({ data: { integrations: [] } }))
       ])
       
-      // Filter platforms to get non-social media tools
-      const nonSocialPlatforms = (platformsResponse.data || []).filter(
-        (platform: any) => platform.platform_type !== "social_media"
-      )
+      // Get available integrations from the response
+      const availableIntegrations = availableIntegrationsResponse.data?.integrations || availableIntegrationsResponse.data || []
       
-      // Combine integrations with non-social platforms
-      // Convert platforms to integration format
-      const platformIntegrations = nonSocialPlatforms.map((platform: any) => ({
-        id: platform.id || platform.name,
-        name: platform.name,
-        display_name: platform.display_name,
-        integration_type: platform.platform_type || "business",
-        description: platform.description || `Connect your ${platform.display_name} account`,
-        provider: platform.display_name,
-        api_version: platform.api_version || "1.0",
-        base_url: platform.base_url || "",
-        status: platform.status || "active",
-        pricing_tier: "free",
-        rate_limits: platform.rate_limits || {},
-        supported_features: platform.supported_features || {},
-        authentication_methods: platform.authentication_methods || { oauth2: true },
-        created_at: platform.created_at || new Date().toISOString(),
-        updated_at: platform.updated_at || new Date().toISOString()
-      }))
-      
-      // Combine both sources
-      const allIntegrations = [...(integrationsResponse.data || []), ...platformIntegrations]
+      // Use available integrations if the main endpoint doesn't return data
+      const allIntegrations = (integrationsResponse.data && integrationsResponse.data.length > 0) 
+        ? integrationsResponse.data 
+        : availableIntegrations
       
       setIntegrations(allIntegrations)
       setIntegrationUsage(usageResponse.data || [])
@@ -648,6 +628,20 @@ export default function ToolsAutomationOverviewTab() {
             <p className="text-gray-600">Manage integrations, automations, and calendar events</p>
           </div>
         </div>
+        <Button 
+          className="bg-green-600 hover:bg-green-700"
+          onClick={() => {
+            // Scroll to integrations section or show connection modal
+            const integrationsSection = document.getElementById('integrations-section')
+            if (integrationsSection) {
+              integrationsSection.scrollIntoView({ behavior: 'smooth' })
+            }
+          }}
+        >
+          <Wifi className="w-4 h-4 mr-2" />
+          Connect Your Tools
+        </Button>
+        </div>
         <div className="flex items-center space-x-2">
           <Button 
             variant="outline" 
@@ -768,7 +762,7 @@ export default function ToolsAutomationOverviewTab() {
       </Card>
 
       {/* Integrations */}
-      <Card>
+      <Card id="integrations-section">
         <CardHeader>
                 <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2">

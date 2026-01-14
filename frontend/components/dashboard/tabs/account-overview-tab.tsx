@@ -175,37 +175,37 @@ export default function AccountOverviewTab() {
     }
   }
 
-  // Set default data when backend is not available
+  // Set default data when backend is not available - use user data from auth store
   const setDefaultData = () => {
     const defaultData: AccountData = {
       profile: {
-        fullName: user?.username || "Not set",
+        fullName: user?.full_name || user?.username || "Not set",
         nickname: user?.username || "Not set",
-        company: "Not set",
-        jobTitle: "Not set",
-        location: "Not set",
-        website: "https://yourwebsite.com",
+        company: user?.onboarding_data?.profile?.business_name || "Not set",
+        jobTitle: user?.onboarding_data?.profile?.role || "Not set",
+        location: user?.onboarding_data?.profile?.country || "Not set",
+        website: user?.onboarding_data?.profile?.business_website || "https://yourwebsite.com",
         timezone: "UTC",
         language: "English",
         bio: "Tell us about yourself...",
       },
       business: {
-        role: "Not set",
-        industry: "Not set",
-        businessName: "Not set",
-        businessWebsite: "https://yourbusiness.com",
-        businessSize: "Not set",
-        businessStage: "Not set",
-        primaryGoals: [],
-        mainPurpose: "Not set",
+        role: user?.onboarding_data?.profile?.role || "Not set",
+        industry: user?.onboarding_data?.profile?.industry || "Not set",
+        businessName: user?.onboarding_data?.profile?.business_name || "Not set",
+        businessWebsite: user?.onboarding_data?.profile?.business_website || "https://yourbusiness.com",
+        businessSize: user?.onboarding_data?.profile?.business_size || "Not set",
+        businessStage: user?.onboarding_data?.profile?.business_stage || "Not set",
+        primaryGoals: user?.onboarding_data?.profile?.goals || [],
+        mainPurpose: user?.onboarding_data?.profile?.purpose || "Not set",
       },
       account: {
         email: user?.email || "Not available",
-        status: "Inactive",
-        emailVerified: false,
-        accountCreated: "Not available",
-        lastLogin: "Not available",
-        subscriptionTier: "Free Plan",
+        status: user?.is_active ? "Active" : "Inactive",
+        emailVerified: user?.is_verified || false,
+        accountCreated: user?.created_at ? new Date(user.created_at).toLocaleDateString() : "Not available",
+        lastLogin: user?.last_login ? new Date(user.last_login).toLocaleDateString() : "Not available",
+        subscriptionTier: user?.tier || "Free Plan",
       },
       preferences: {
         notifications: {

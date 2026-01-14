@@ -280,7 +280,9 @@ export default function AgentsOverviewTab() {
           isOnline: agentHealth?.is_online || false,
           isSelected: isSelected,
           isLocked: isLocked,
-          canSelect: canSelect
+          canSelect: canSelect,
+          // Ensure color is always present (fallback to gray if missing)
+          color: template.color || "bg-gray-500"
         } as Agent
       })
       
