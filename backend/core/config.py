@@ -1,8 +1,9 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import json
 
 # Load environment variables from project root .env explicitly
 _ROOT_ENV_PATH = Path(__file__).resolve().parents[2] / ".env"
@@ -565,6 +566,31 @@ class GoogleGeminiImageSettings(BaseSettings):
     
     model_config = SettingsConfigDict(env_prefix="GOOGLE_GEMINI_", extra="allow")
 
+def _parse_backend_cors_origins() -> List[str]:
+    """
+    Parse BACKEND_CORS_ORIGINS from the environment.
+    
+    Supports either:
+      - JSON array string, e.g. '["https://agent47-eight.vercel.app","http://localhost:3000"]'
+      - Comma-separated list, e.g. 'https://agent47-eight.vercel.app,http://localhost:3000'
+    Falls back to localhost defaults if parsing fails or env is not set.
+    """
+    default_origins = ["http://localhost:3000", "http://localhost:8000"]
+    raw = os.getenv("BACKEND_CORS_ORIGINS", "").strip()
+    if not raw:
+        return default_origins
+    try:
+        if raw.startswith("["):
+            parsed = json.loads(raw)
+            if isinstance(parsed, list) and all(isinstance(o, str) for o in parsed):
+                return parsed
+        # Fallback: comma-separated
+        parts = [o.strip() for o in raw.split(",") if o.strip()]
+        return parts or default_origins
+    except Exception:
+        return default_origins
+
+
 class Settings(BaseSettings):
     environment: str = "development"
     debug: bool = True
@@ -576,12 +602,16 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
     
-    frontend_url: str = "http://localhost:3000"
+    # Public frontend URL (e.g. https://agent47-eight.vercel.app)
+    frontend_url: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
     
+    # Public backend base URL (Cloud Run URL in production)
+    # Example: https://agent47-backend-805021975902.us-central1.run.app
     base_url: str = os.getenv("BASE_URL", "http://localhost:8000")
     
     api_v1_prefix: str = "/api/v1"
-    backend_cors_origins: list = ["http://localhost:3000", "http://localhost:8000"]
+    # CORS origins – read from BACKEND_CORS_ORIGINS env when set, otherwise localhost defaults
+    backend_cors_origins: List[str] = _parse_backend_cors_origins()
     
     supabase: SupabaseSettings = SupabaseSettings()
     redis: RedisSettings = RedisSettings()
