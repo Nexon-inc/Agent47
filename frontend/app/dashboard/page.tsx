@@ -78,33 +78,41 @@ function DashboardContent() {
   }, [searchParams, tab])
 
   // Check if user has selected agents on dashboard load (only once)
+  const [hasCheckedAgents, setHasCheckedAgents] = useState(false)
+  
   useEffect(() => {
-    let hasChecked = false
     const checkUserAgents = async () => {
-      if (hasChecked) return // Prevent duplicate checks
-      if (isAuthenticated && user) {
-        try {
-          setIsCheckingAgents(true)
-          hasChecked = true
-          const selectedAgents = await apiClient.getSelectedAgents()
-          if (!selectedAgents || selectedAgents.length === 0) {
-            // No agents selected - show modal
+      // Prevent duplicate checks
+      if (hasCheckedAgents) return
+      if (!isAuthenticated || !user) {
+        setIsCheckingAgents(false)
+        return
+      }
+      
+      try {
+        setIsCheckingAgents(true)
+        setHasCheckedAgents(true) // Mark as checked immediately to prevent duplicates
+        const selectedAgents = await apiClient.getSelectedAgents({ suppressTierRedirect: true })
+        if (!selectedAgents || selectedAgents.length === 0) {
+          // No agents selected - show modal only if not already showing
+          if (!showAgentSelection) {
             setShowAgentSelection(true)
           }
-        } catch (error) {
-          // If error (e.g., 404), user hasn't selected agents yet
-          console.log("No agents selected yet, showing modal")
-          setShowAgentSelection(true)
-        } finally {
-          setIsCheckingAgents(false)
         }
-      } else {
+      } catch (error) {
+        // If error (e.g., 404), user hasn't selected agents yet
+        console.log("No agents selected yet, showing modal", error)
+        // Only show modal if it's not already open
+        if (!showAgentSelection) {
+          setShowAgentSelection(true)
+        }
+      } finally {
         setIsCheckingAgents(false)
       }
     }
 
     checkUserAgents()
-  }, [isAuthenticated, user])
+  }, [isAuthenticated, user, hasCheckedAgents, showAgentSelection])
 
   const handleAgentSelectionComplete = () => {
     setShowAgentSelection(false)

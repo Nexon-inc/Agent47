@@ -646,8 +646,8 @@ export default function HomeTab() {
         <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
           {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000 
-            ? `Welcome, ${user?.username || user?.name || "User"}! 👋`
-            : `Welcome back, ${user?.username || user?.name || "User"}! 👋`
+            ? `Welcome, ${user?.full_name || user?.username || "User"}! 👋`
+            : `Welcome back, ${user?.full_name || user?.username || "User"}! 👋`
           }
         </h1>
           </div>

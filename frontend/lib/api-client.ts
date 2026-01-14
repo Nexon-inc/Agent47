@@ -1019,8 +1019,10 @@ class ApiClient {
     return this.makeRequest<any[]>('/intercommunication/summaries');
   }
 
-  async getSelectedAgents(): Promise<any[]> {
-    return this.makeRequest<any[]>('/api/v1/account/selected-agents');
+  async getSelectedAgents(options?: { suppressTierRedirect?: boolean }): Promise<any[]> {
+    return this.makeRequest<any[]>('/api/v1/account/selected-agents', {
+      suppressTierRedirect: options?.suppressTierRedirect || false
+    });
   }
 
   async getSystemStatus(): Promise<any> {
