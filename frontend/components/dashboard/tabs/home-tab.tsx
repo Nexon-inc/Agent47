@@ -54,7 +54,6 @@ import {
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useUserStore } from "@/lib/stores/user-store"
 import { apiClient } from "@/lib/api-client"
-import AgentSelectionModal from "@/components/dashboard/agent-selection-modal"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { useToast } from "@/hooks/use-toast"
@@ -161,7 +160,6 @@ export default function HomeTab() {
   // Check if user can use intercommunication based on their plan
   const canUseIntercommunication = userPlan === "starter" || userPlan === "pro"
   const [selectedAgent, setSelectedAgent] = useState<any>(null)
-  const [showAgentSelection, setShowAgentSelection] = useState(false)
   const [message, setMessage] = useState("")
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -212,18 +210,6 @@ export default function HomeTab() {
     }
   }, [chatMessages, user, isAuthenticated, selectedAgent])
 
-  // Check if user needs to select agents
-  useEffect(() => {
-    if (user && isAuthenticated) {
-      loadUserAgents().then(() => {
-        if (userAgents.length === 0) {
-          setShowAgentSelection(true)
-        }
-      }).catch((error) => {
-        setShowAgentSelection(true)
-      })
-    }
-  }, [user, isAuthenticated])
 
   // Load user tasks and summaries on component mount
   useEffect(() => {
@@ -421,10 +407,6 @@ export default function HomeTab() {
     })
   }, [selectedAgent, user, isAuthenticated, toast])
 
-  const handleAgentSelectionComplete = () => {
-    setShowAgentSelection(false)
-    loadUserAgents()
-  }
 
   const handleSendMessage = async () => {
     if (!message.trim() || isLoading || !selectedAgent) return
@@ -1201,16 +1183,6 @@ export default function HomeTab() {
                     </div>
 
       {/* Tasks Section Removed - Chat tab should fill the space fully */}
-
-      {/* Agent Selection Modal */}
-      {showAgentSelection && (
-      <AgentSelectionModal
-        isOpen={showAgentSelection}
-        onClose={() => setShowAgentSelection(false)}
-          onConfirm={handleAgentSelectionComplete}
-          userTier={user?.tier || "free"}
-        />
-      )}
     </div>
   )
 }
