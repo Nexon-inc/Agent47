@@ -49,6 +49,7 @@ steps:
       - '--set-env-vars'
       - 'ENVIRONMENT=production,DEBUG=false,PRIMARY_LLM_PROVIDER=groq,BASE_URL=https://agent47-eight.vercel.app'
 
+      # Secrets + Confluent Kafka settings
       - '--set-secrets'
       - >-
         SUPABASE_URL=supabase-url:latest,
@@ -67,7 +68,9 @@ steps:
         REDIS_HOST=redis-host:latest,
         REDIS_PORT=redis-port:latest,
         REDIS_PASSWORD=redis-password:latest,
-        KAFKA_BOOTSTRAP_SERVERS=kafka-bootstrap:latest,
+        KAFKA_BOOTSTRAP_SERVERS=kafka-bootstrap-servers:latest,
+        KAFKA_SASL_USERNAME=kafka-sasl-username:latest,
+        KAFKA_SASL_PASSWORD=kafka-sasl-password:latest,
         CHROMA_HOST=chroma-host:latest,
         CHROMA_PORT=chroma-port:latest,
         BILLING_PAYSTACK_SECRET_KEY=paystack-secret-key:latest,
@@ -101,7 +104,13 @@ steps:
         TIKTOK_CLIENT_ID=tiktok-client-id:latest,
         TIKTOK_CLIENT_SECRET=tiktok-client-secret:latest,
         PINTEREST_CLIENT_ID=pinterest-client-id:latest,
-        PINTEREST_CLIENT_SECRET=pinterest-secret-id:latest,
+        PINTERENT_CLIENT_SECRET=pinterest-secret-id:latest,
+      # Confluent Kafka static values (not secrets)
+      - '--set-env-vars'
+      - >-
+        KAFKA_SECURITY_PROTOCOL=SASL_SSL,
+        KAFKA_SASL_MECHANISM=PLAIN
+
       - '--memory'
       - '2Gi'
       - '--cpu'

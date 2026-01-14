@@ -35,6 +35,9 @@ class EventBus:
         # Auto-detect Google Cloud Managed Kafka
         is_managed_kafka = '.managedkafka.' in settings.kafka.bootstrap_servers.lower()
 
+        # NEW: Auto-detect Confluent Cloud (most common bootstrap pattern)
+        is_confluent = 'confluent.cloud' in settings.kafka.bootstrap_servers.lower()
+
         security_protocol = settings.kafka.security_protocol
 
         # Force correct protocol for Google Managed Kafka
@@ -42,6 +45,11 @@ class EventBus:
             if security_protocol in ('PLAINTEXT', None):
                 logger.info("Detected Google Cloud Managed Kafka → forcing SASL_SSL + OAUTHBEARER")
                 security_protocol = 'SASL_SSL'
+
+        # NEW: Force correct protocol + auth for Confluent Cloud
+        if is_confluent:
+            logger.info("Detected Confluent Cloud Kafka → forcing SASL_SSL + PLAIN authentication")
+            security_protocol = 'SASL_SSL'
 
         # Configure SSL/TLS if required
         if security_protocol in ('SSL', 'SASL_SSL'):
@@ -67,36 +75,37 @@ class EventBus:
 
         # Configure SASL
         if security_protocol in ('SASL_PLAINTEXT', 'SASL_SSL'):
-            if is_managed_kafka:
+            if is_confluent:
+                # ─── Confluent Cloud: SASL/PLAIN with API key + secret ───────
+                if settings.kafka.sasl_username and settings.kafka.sasl_password:
+                    logger.info("Applying Confluent SASL/PLAIN credentials")
+                    kwargs.update({
+                        'security_protocol': 'SASL_SSL',
+                        'sasl_mechanism': 'PLAIN',
+                        'sasl_plain_username': settings.kafka.sasl_username,
+                        'sasl_plain_password': settings.kafka.sasl_password,
+                    })
+                else:
+                    logger.error("Confluent Cloud detected but missing sasl_username or sasl_password!")
+
+            elif is_managed_kafka:
                 # ─── OAUTHBEARER for Google Managed Kafka ───────────────────────
                 logger.info("Configuring OAUTHBEARER authentication for Managed Kafka")
 
                 credentials, project_id = default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
 
-                # ─── FIXED: Proper AbstractTokenProvider implementation ────────
                 class GoogleOAuthTokenProvider(AbstractTokenProvider):
                     def __init__(self, credentials):
                         self.credentials = credentials
 
                     async def token(self):
-                        try:
-                            if not self.credentials.valid or not self.credentials.token:
-                                logger.info("Google credentials invalid/expired → refreshing now...")
-                                self.credentials.refresh(Request())
-                            
-                            token_value = self.credentials.token
-                            if not token_value:
-                                logger.error("No access token after refresh! Credentials may not have cloud-platform scope.")
-                                raise ValueError("Failed to obtain OAuth token")
-                            
-                            logger.info(f"OAUTHBEARER token obtained (length: {len(token_value)}, starts with: {token_value[:10]}...)")
-                            return {
-                                'token': token_value,
-                                'extensions': {}
-                            }
-                        except Exception as e:
-                            logger.error(f"Token refresh failed: {str(e)}", exc_info=True)
-                            raise
+                        if not self.credentials.valid:
+                            logger.info("Refreshing Google OAuth token for Kafka...")
+                            self.credentials.refresh(Request())
+                        return {
+                            'token': self.credentials.token,
+                            'extensions': {}
+                        }
 
                 token_provider = GoogleOAuthTokenProvider(credentials)
 
