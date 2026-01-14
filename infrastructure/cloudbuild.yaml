@@ -53,7 +53,7 @@ steps:
         PRIMARY_LLM_PROVIDER=groq,
         BASE_URL=https://agent47-backend-805021975902.us-central1.run.app,
         FRONTEND_URL=https://agent47-eight.vercel.app,
-        BACKEND_CORS_ORIGINS=["https://agent47-eight.vercel.app"\,"http://localhost:3000"\,"http://localhost:8000"]
+        BACKEND_CORS_ORIGINS=https://agent47-eight.vercel.app,http://localhost:3000,http://localhost:8000,https://*.vercel.app
 
       # Secrets + Confluent Kafka settings
       - '--set-secrets'
