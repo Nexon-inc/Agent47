@@ -515,7 +515,15 @@ class ApiClient {
       credentials: 'include',
     };
 
+    // DEBUG: log token/header state to help debug 401 issues (remove in production)
     try {
+      try {
+        // Avoid logging full token in production, but allow during debugging
+        // eslint-disable-next-line no-console
+        console.debug('[apiClient] makeRequest - token present?', !!this.getToken(), 'tokenPreview:', (this.getToken() || '').substring(0, 8));
+        // eslint-disable-next-line no-console
+        console.debug('[apiClient] makeRequest - headers:', headers);
+      } catch (e) {}
       const response = await fetch(url, config);
 
       // Handle 401 Unauthorized - try to refresh token
