@@ -144,6 +144,12 @@ class AdminAPI {
       this.token = null;
       if (typeof window !== 'undefined') {
         localStorage.removeItem('admin_token');
+        try {
+          // Clear the admin_token cookie so server-side middleware no longer sees it
+          document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+        } catch (e) {
+          console.warn('Failed to clear admin_token cookie:', e);
+        }
       }
     }
   }

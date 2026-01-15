@@ -166,9 +166,9 @@ export default function PricingPage() {
   const [showComparison, setShowComparison] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [realPlans, setRealPlans] = useState<BillingPlan[]>([])
-  const [currentSubscription, setCurrentSubscription] = useState<any>(null)
-  
+  // Use billing store data directly so UI reflects backend plans/subscription
+  const billingPlans = useBillingStore(state => state.billingPlans)
+  const currentSubscription = useBillingStore(state => state.subscription)
   const { fetchBillingPlans, fetchSubscription } = useBillingStore()
 
   // Fetch pricing plans from backend (suppress redirects to avoid reload loops)
@@ -179,8 +179,8 @@ export default function PricingPage() {
 
       try {
         await fetchBillingPlans(true)
-        const subscriptionData = await fetchSubscription(true)
-        setCurrentSubscription(subscriptionData)
+        await fetchSubscription(true)
+        // subscription is read from store via `currentSubscription`
         // billing plans are populated into store via fetchBillingPlans
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load pricing data')

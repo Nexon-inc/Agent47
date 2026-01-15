@@ -17,6 +17,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { useAuthStore } from "@/lib/stores/auth-store"
+import { useRouter } from "next/navigation"
 
 import { Home, BarChart3, Globe, Zap, Settings, Inbox, Users, LogOut, Bot, History, UserPlus } from "lucide-react"
 
@@ -71,7 +72,8 @@ const navigationItems = [
 export default function DashboardSidebar() {
   const searchParams = useSearchParams()
   const currentTab = searchParams.get("tab") ?? "home"
-  const { user } = useAuthStore()
+  const { user, logout } = useAuthStore()
+  const router = useRouter()
 
   const isActive = (href: string) => {
     const tab = new URLSearchParams(href.split("?")[1]).get("tab")
@@ -130,18 +132,27 @@ export default function DashboardSidebar() {
 
       <SidebarFooter className="border-t p-2">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              tooltip="Sign Out"
-              className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
-            >
-              <Link href="/auth" prefetch={true} className="flex items-center w-full">
-                <LogOut className="h-5 w-5 shrink-0" />
-                <span className="ml-3 group-data-[collapsible=icon]:hidden">Sign Out</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                tooltip="Sign Out"
+                className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
+              >
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    e.preventDefault()
+                    await logout()
+                    // ensure storage/cookies cleared then navigate to auth
+                    router.push('/auth')
+                  }}
+                  className="flex items-center w-full text-left"
+                >
+                  <LogOut className="h-5 w-5 shrink-0" />
+                  <span className="ml-3 group-data-[collapsible=icon]:hidden">Sign Out</span>
+                </button>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
 
