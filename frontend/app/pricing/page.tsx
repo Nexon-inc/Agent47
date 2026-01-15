@@ -405,8 +405,8 @@ export default function PricingPage() {
                   exit={{ opacity: 0 }}
                   className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto"
                 >
-                  {realPlans.length > 0 ? (
-                    realPlans.map((plan) => {
+                  {billingPlans.length > 0 ? (
+                    billingPlans.map((plan) => {
                       const tier = plan.tier.toLowerCase() as PricingTier
                       const isCurrentPlan = currentSubscription?.tier === plan.tier
                       const isUpgrade = currentSubscription && 
