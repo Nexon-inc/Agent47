@@ -119,64 +119,59 @@ export default function AccountOverviewTab() {
             }
           }
           const profileData = onboardingData?.profile || {}
-            
-            console.log("Raw userData:", userData)
-            console.log("Raw onboarding_data:", onboardingData)
-            console.log("Profile data:", profileData)
-            
-            // Transform backend data to match our interface (read from onboarding_data.profile)
-            const transformedData: AccountData = {
-              profile: {
-                fullName: userData.full_name || userData.username || profileData.full_name || profileData.name || "Not set",
-                nickname: userData.username || profileData.nickname || profileData.username || "Not set",
-                company: profileData.business_name || profileData.company || "Not set",
-                jobTitle: profileData.role || "Not set",
-                location: profileData.country || profileData.location || "Not set",
-                website: profileData.business_website || profileData.website || "https://yourwebsite.com",
-                timezone: profileData.timezone || "UTC",
-                language: profileData.language || "English",
-                bio: profileData.bio || "Tell us about yourself...",
+          
+          console.log("Raw userData:", userData)
+          console.log("Raw onboarding_data:", onboardingData)
+          console.log("Profile data:", profileData)
+          
+          // Transform backend data to match our interface (read from onboarding_data.profile)
+          const transformedData: AccountData = {
+            profile: {
+              fullName: userData.full_name || userData.username || profileData.full_name || profileData.name || "Not set",
+              nickname: userData.username || profileData.nickname || profileData.username || "Not set",
+              company: profileData.business_name || profileData.company || "Not set",
+              jobTitle: profileData.role || "Not set",
+              location: profileData.country || profileData.location || "Not set",
+              website: profileData.business_website || profileData.website || "https://yourwebsite.com",
+              timezone: profileData.timezone || "UTC",
+              language: profileData.language || "English",
+              bio: profileData.bio || "Tell us about yourself...",
+            },
+            business: {
+              role: profileData.role || "Not set",
+              industry: profileData.industry || "Not set",
+              businessName: profileData.business_name || profileData.company || "Not set",
+              businessWebsite: profileData.business_website || profileData.website || "https://yourbusiness.com",
+              businessSize: profileData.business_size || "Not set",
+              businessStage: profileData.business_stage || "Not set",
+              primaryGoals: Array.isArray(profileData.goals) ? profileData.goals : (profileData.goals ? [profileData.goals] : []),
+              mainPurpose: profileData.purpose || "Not set",
+            },
+            account: {
+              email: userData.email || "Not available",
+              status: userData.is_active ? "Active" : "Inactive",
+              emailVerified: userData.is_verified || false,
+              accountCreated: userData.created_at ? new Date(userData.created_at).toLocaleDateString() : "Not available",
+              lastLogin: userData.last_login ? new Date(userData.last_login).toLocaleDateString() : "Not available",
+              subscriptionTier: userData.tier ? userData.tier.charAt(0).toUpperCase() + userData.tier.slice(1) + " Plan" : "Free Plan",
+            },
+            preferences: {
+              notifications: {
+                email: true,
+                push: true,
+                sms: false,
               },
-              business: {
-                role: profileData.role || "Not set",
-                industry: profileData.industry || "Not set",
-                businessName: profileData.business_name || profileData.company || "Not set",
-                businessWebsite: profileData.business_website || profileData.website || "https://yourbusiness.com",
-                businessSize: profileData.business_size || "Not set",
-                businessStage: profileData.business_stage || "Not set",
-                primaryGoals: Array.isArray(profileData.goals) ? profileData.goals : (profileData.goals ? [profileData.goals] : []),
-                mainPurpose: profileData.purpose || "Not set",
+              privacy: {
+                profileVisibility: "public",
+                dataSharing: true,
               },
-              account: {
-                email: userData.email || "Not available",
-                status: userData.is_active ? "Active" : "Inactive",
-                emailVerified: userData.is_verified || false,
-                accountCreated: userData.created_at ? new Date(userData.created_at).toLocaleDateString() : "Not available",
-                lastLogin: userData.last_login ? new Date(userData.last_login).toLocaleDateString() : "Not available",
-                subscriptionTier: userData.tier ? userData.tier.charAt(0).toUpperCase() + userData.tier.slice(1) + " Plan" : "Free Plan",
-              },
-              preferences: {
-                notifications: {
-                  email: true,
-                  push: true,
-                  sms: false,
-                },
-                privacy: {
-                  profileVisibility: "public",
-                  dataSharing: true,
-                },
-              },
-            }
-            
-            setAccountData(transformedData)
-            setEditedData(transformedData)
-            setLastUpdated(new Date().toLocaleTimeString())
-            console.log("Account data loaded successfully:", transformedData)
-          } else {
-            console.log("No user data in response")
-            // Set default data if no backend data
-            setDefaultData()
+            },
           }
+          
+          setAccountData(transformedData)
+          setEditedData(transformedData)
+          setLastUpdated(new Date().toLocaleTimeString())
+          console.log("Account data loaded successfully:", transformedData)
         } catch (error) {
           console.error("Error loading account data from backend:", error)
           // Set default data if backend fails

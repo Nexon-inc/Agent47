@@ -38,6 +38,7 @@ export default function AuthPage() {
   const [loginEmail, setLoginEmail] = useState("")
   const [loginPassword, setLoginPassword] = useState("")
   const [resetEmail, setResetEmail] = useState("")
+  const [localError, setLocalError] = useState<string | null>(null)
 
   // Calculate password strength
   const calculatePasswordStrength = (pass: string) => {
@@ -67,10 +68,11 @@ export default function AuthPage() {
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     clearError()
+    setLocalError(null)
 
     // Validate passwords match
     if (password !== confirmPassword) {
-      clearError()
+      setLocalError("Passwords do not match")
       return
     }
 
@@ -83,9 +85,36 @@ export default function AuthPage() {
       last_name: lastName
     }
 
-    const success = await signup(signupData)
-    if (success) {
-      router.push("/onboarding")
+    try {
+      const success = await signup(signupData)
+      if (success) {
+        router.push("/onboarding")
+      } else {
+        // Get error from store
+        const errorMessage = useAuthStore.getState().error
+        if (errorMessage) {
+          // Check if user already exists - suggest login instead
+          if (errorMessage.toLowerCase().includes('already registered') || 
+              errorMessage.toLowerCase().includes('already exists') ||
+              errorMessage.toLowerCase().includes('already signed up')) {
+            setLocalError("This email is already registered. Redirecting to login...")
+            // Auto-switch to login tab after 2 seconds
+            setTimeout(() => {
+              setActiveTab("login")
+              setLoginEmail(email) // Pre-fill email in login form
+              setLocalError(null)
+            }, 2000)
+          } else {
+            setLocalError(errorMessage)
+          }
+        } else {
+          setLocalError("Signup failed. Please try again.")
+        }
+      }
+    } catch (error) {
+      console.error("Signup error:", error)
+      const errorMessage = error instanceof Error ? error.message : "Signup failed. Please try again."
+      setLocalError(errorMessage)
     }
   }
 
@@ -256,7 +285,11 @@ export default function AuthPage() {
 
                 {/* Extra demographic fields removed from signup */}
 
-                {error && <div className="text-red-500 text-sm py-2 px-3 bg-red-50 rounded-md">{error}</div>}
+                {(localError || error) && (
+                  <div className="text-red-500 text-sm py-2 px-3 bg-red-50 rounded-md">
+                    {localError || error}
+                  </div>
+                )}
 
                 <Button type="submit" className="w-full bg-[#3B82F6] hover:bg-blue-600" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Sign Up"}

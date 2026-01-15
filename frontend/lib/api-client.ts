@@ -61,10 +61,10 @@ export interface SignupData {
   first_name: string;
   last_name: string;
   nickname?: string;
-  country: string;
-  continent: string;
+  country?: string;
+  continent?: string;
   age?: string;
-  purpose: string;
+  purpose?: string;
   business_name?: string;
 }
 
