@@ -81,7 +81,7 @@ class ContentProject(Base):
     
     # Relationships
     user = relationship("User", backref="content_projects")
-    content_pieces = relationship("backend.agents.shakes.app.models.ContentPiece", back_populates="project", cascade="all, delete-orphan")
+    content_pieces = relationship("ContentPiece", back_populates="project", cascade="all, delete-orphan")
     seo_analysis = relationship("SEOAnalysis", back_populates="project", uselist=False)
     performance_metrics = relationship("ContentPerformance", back_populates="project", cascade="all, delete-orphan")
 
@@ -126,7 +126,7 @@ class ContentVersion(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    content_piece = relationship("backend.agents.shakes.app.models.ContentPiece", back_populates="versions")
+    content_piece = relationship("ContentPiece", back_populates="versions", foreign_keys=[content_piece_id])
     creator = relationship("User", foreign_keys=[created_by])
 
 class SEOAnalysis(Base):
@@ -153,7 +153,7 @@ class SEOAnalysis(Base):
     
     # Relationships
     project = relationship("ContentProject", back_populates="seo_analysis")
-    content_piece = relationship("backend.agents.shakes.app.models.ContentPiece", back_populates="seo_analysis")
+    content_piece = relationship("ContentPiece", back_populates="seo_analysis", foreign_keys=[content_piece_id])
 
 class ContentPerformance(Base):
     __tablename__ = "content_performance"
@@ -179,7 +179,7 @@ class ContentPerformance(Base):
     
     # Relationships
     project = relationship("ContentProject", back_populates="performance_metrics")
-    content_piece = relationship("backend.agents.shakes.app.models.ContentPiece", back_populates="performance_metrics")
+    content_piece = relationship("ContentPiece", back_populates="performance_metrics", foreign_keys=[content_piece_id])
 
 class BrandVoice(Base):
     __tablename__ = "shakes_brand_voices"
@@ -250,7 +250,7 @@ class ScheduledContent(Base):
     
     # Relationships
     calendar = relationship("ContentCalendar", back_populates="scheduled_content")
-    content_piece = relationship("backend.agents.shakes.app.models.ContentPiece")
+    content_piece = relationship("ContentPiece", foreign_keys=[content_piece_id])
 
 class ContentCollaboration(Base):
     __tablename__ = "content_collaboration"
@@ -280,9 +280,9 @@ class ContentComment(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    content_piece = relationship("backend.agents.shakes.app.models.ContentPiece")
-    user = relationship("User")
-    parent_comment = relationship("ContentComment", remote_side=[id])
+    content_piece = relationship("ContentPiece", foreign_keys=[content_piece_id])
+    user = relationship("User", foreign_keys=[user_id])
+    parent_comment = relationship("ContentComment", remote_side=[id], foreign_keys=[parent_comment_id])
     replies = relationship("ContentComment", back_populates="parent_comment")
 
 class ContentAnalytics(Base):
@@ -303,7 +303,7 @@ class ContentAnalytics(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    content_piece = relationship("backend.agents.shakes.app.models.ContentPiece")
+    content_piece = relationship("ContentPiece", foreign_keys=[content_piece_id])
 
 # Indexes for performance
 Index("idx_content_projects_user_status", ContentProject.user_id, ContentProject.status)

@@ -907,8 +907,8 @@ class OnboardingProgress(Base):
     extra_metadata = Column('metadata', JSON, default={})
     
     # Relationships
-    session = relationship("backend.agents.clara.app.models.OnboardingSession")
-    step = relationship("OnboardingStep")
+    session = relationship("OnboardingSession", foreign_keys=[session_id])
+    step = relationship("OnboardingStep", foreign_keys=[step_id])
 
 # Setup Wizard Models
 class SetupWizardStep(Base):
