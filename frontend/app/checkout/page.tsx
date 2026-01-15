@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Check, CreditCard, Lock, Loader2, AlertCircle } from "lucide-react"
+import { ArrowLeft, Check, CreditCard, Lock, Loader2, AlertCircle, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useBillingStore } from "@/lib/stores/billing-store"
 import { BillingPlan } from "@/lib/api-client"
@@ -207,86 +207,115 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 pb-10">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 pt-12 pb-16">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <Link href="/pricing" className="inline-flex items-center text-green-600 hover:text-green-700 mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+        <div className="max-w-5xl mx-auto">
+          <Link href="/pricing" className="inline-flex items-center text-green-600 hover:text-green-700 mb-8 font-medium transition-colors group">
+            <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
             Back to Pricing
           </Link>
 
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="bg-gradient-to-r from-green-400 to-green-600 p-6 text-white">
-              <h1 className="text-2xl font-bold">Complete Your Purchase</h1>
-              <p className="text-white/80">You're just one step away from unlocking Agent47's full potential.</p>
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+            {/* Header Section */}
+            <div className="relative bg-gradient-to-br from-green-500 via-green-600 to-green-700 p-8 md:p-10 text-white overflow-hidden">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/5 rounded-full -ml-36 -mb-36 blur-3xl"></div>
+              <div className="relative z-10">
+                <h1 className="text-3xl md:text-4xl font-extrabold mb-3">Complete Your Purchase</h1>
+                <p className="text-lg text-white/90">You're just one step away from unlocking Agent47's full potential.</p>
+              </div>
             </div>
 
-            <div className="p-6 md:p-8">
-              <div className="grid md:grid-cols-2 gap-8">
+            <div className="p-6 md:p-10">
+              <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
                 {/* Order Summary */}
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
 
-                  <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium text-gray-700">{currentPlan?.name || PLANS[planTier].name} Plan</span>
-                      <span className="font-medium text-gray-700">
-                        {planTier === "free" ? "Free" : `$${pricingPeriod === "monthly"
-                          ? (currentPlan?.price_usd || PLANS[planTier].monthlyPrice)
-                          : ((currentPlan?.yearly_price_usd || PLANS[planTier].yearlyPrice) / 12).toFixed(0)}`}
-                        {planTier !== "free" && "/mo"}
-                      </span>
-                    </div>
-                    <div className="text-sm text-gray-500 mb-4">{currentPlan?.description || PLANS[planTier].description}</div>
-
-                    <div className="border-t border-gray-200 pt-3 mb-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Billing</span>
-                        <span className="text-gray-700 capitalize">{pricingPeriod}</span>
-                      </div>
-                    </div>
-
-                    <div className="border-t border-gray-200 pt-3">
-                      <div className="flex justify-between font-medium">
-                        <span className="text-gray-700">Total</span>
-                        <span className="text-slate-900">
-                          {planTier === "free" ? "Free" : `$${price}`}
-                          {planTier !== "free" && pricingPeriod === "yearly" && " / year"}
-                          {planTier !== "free" && pricingPeriod === "monthly" && " / month"}
-                        </span>
-                      </div>
-                      {pricingPeriod === "yearly" && planTier !== "free" && (
-                        <div className="text-sm text-green-600 text-right mt-1">
-                          You save ${(PLANS[planTier].monthlyPrice * 12 - PLANS[planTier].yearlyPrice).toFixed(0)} with
-                          annual billing
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 border-2 border-gray-200 shadow-sm">
+                      <div className="space-y-5">
+                        <div className="flex justify-between items-center pb-4 border-b-2 border-gray-200">
+                          <div>
+                            <span className="text-xl font-bold text-gray-900">{currentPlan?.name || PLANS[planTier].name} Plan</span>
+                            <p className="text-sm text-gray-600 mt-1">{currentPlan?.description || PLANS[planTier].description}</p>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-2xl font-extrabold text-gray-900">
+                              {planTier === "free" ? "Free" : `$${pricingPeriod === "monthly"
+                                ? (currentPlan?.price_usd || PLANS[planTier].monthlyPrice)
+                                : ((currentPlan?.yearly_price_usd || PLANS[planTier].yearlyPrice) / 12).toFixed(0)}`}
+                            </span>
+                            {planTier !== "free" && (
+                              <span className="text-sm text-gray-600 block">/{pricingPeriod === "monthly" ? "month" : "month"}</span>
+                            )}
+                          </div>
                         </div>
-                      )}
+
+                        <div className="space-y-3">
+                          <div className="flex items-center text-gray-700">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                            <span className="font-medium">Cancel anytime from your dashboard</span>
+                          </div>
+                          <div className="flex items-center text-gray-700">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                            <span className="font-medium">Instant access to all features</span>
+                          </div>
+                          <div className="flex items-center text-gray-700">
+                            <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                            <span className="font-medium">24/7 support via email and chat</span>
+                          </div>
+                        </div>
+
+                        <div className="pt-4 border-t-2 border-gray-200">
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-sm font-medium text-gray-600">Billing Period</span>
+                            <span className="text-sm font-bold text-gray-900 capitalize">{pricingPeriod}</span>
+                          </div>
+                          <div className="flex justify-between items-center pt-3 border-t border-gray-300">
+                            <span className="text-lg font-bold text-gray-900">Total Amount</span>
+                            <div className="text-right">
+                              <span className="text-3xl font-extrabold text-gray-900">
+                                {planTier === "free" ? "Free" : `$${price}`}
+                              </span>
+                              {planTier !== "free" && (
+                                <span className="text-sm text-gray-600 block">
+                                  {pricingPeriod === "yearly" ? "per year" : "per month"}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {pricingPeriod === "yearly" && planTier !== "free" && (
+                            <div className="mt-3 text-sm font-semibold text-green-600 text-right">
+                              💰 You save ${(PLANS[planTier].monthlyPrice * 12 - PLANS[planTier].yearlyPrice).toFixed(0)} with annual billing
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-5">
                     <div className="flex items-start">
-                      <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-600">Cancel anytime from your dashboard</span>
-                    </div>
-                    <div className="flex items-start">
-                      <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-600">Instant access to all features</span>
-                    </div>
-                    <div className="flex items-start">
-                      <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                      <span className="text-gray-600">24/7 support via email and chat</span>
+                      <Lock className="w-6 h-6 text-blue-600 mr-3 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-bold text-blue-900 mb-1">Secure Payment</p>
+                        <p className="text-blue-700">Your payment is processed securely by Paystack. We never store your card details.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Payment Form */}
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment Details</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                    <CreditCard className="w-6 h-6 mr-2 text-green-600" />
+                    Payment Details
+                  </h2>
 
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="name" className="block text-sm font-bold text-gray-700 mb-2">
                         Cardholder Name
                       </label>
                       <input
@@ -296,13 +325,13 @@ export default function CheckoutPage() {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                        className="w-full h-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1E90FF] focus:border-[#1E90FF] outline-none transition-colors"
+                        className="w-full h-12 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
                         placeholder="John Doe"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="email" className="block text-sm font-bold text-gray-700 mb-2">
                         Email Address
                       </label>
                       <input
@@ -312,13 +341,13 @@ export default function CheckoutPage() {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full h-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1E90FF] focus:border-[#1E90FF] outline-none transition-colors"
+                        className="w-full h-12 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
                         placeholder="john@example.com"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="cardNumber" className="block text-sm font-bold text-gray-700 mb-2">
                         Card Number
                       </label>
                       <div className="relative">
@@ -329,16 +358,16 @@ export default function CheckoutPage() {
                           value={formData.cardNumber}
                           onChange={handleChange}
                           required
-                          className="w-full h-10 px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1E90FF] focus:border-[#1E90FF] outline-none transition-colors"
+                          className="w-full h-12 px-4 py-3 pl-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
                           placeholder="4242 4242 4242 4242"
                         />
-                        <CreditCard className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
+                        <CreditCard className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="expiry" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="expiry" className="block text-sm font-bold text-gray-700 mb-2">
                           Expiry Date
                         </label>
                         <input
@@ -348,13 +377,13 @@ export default function CheckoutPage() {
                           value={formData.expiry}
                           onChange={handleChange}
                           required
-                          className="w-full h-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1E90FF] focus:border-[#1E90FF] outline-none transition-colors"
+                          className="w-full h-12 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
                           placeholder="MM/YY"
                         />
                       </div>
 
                       <div>
-                        <label htmlFor="cvc" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="cvc" className="block text-sm font-bold text-gray-700 mb-2">
                           CVC
                         </label>
                         <input
@@ -364,7 +393,7 @@ export default function CheckoutPage() {
                           value={formData.cvc}
                           onChange={handleChange}
                           required
-                          className="w-full h-10 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1E90FF] focus:border-[#1E90FF] outline-none transition-colors"
+                          className="w-full h-12 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
                           placeholder="123"
                         />
                       </div>
@@ -375,8 +404,8 @@ export default function CheckoutPage() {
                         type="submit"
                         disabled={isLoading}
                         className={cn(
-                          "w-full h-12 bg-[#00FF88] text-white font-semibold rounded-lg transition-all duration-300 flex items-center justify-center",
-                          isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#33FF99] hover:scale-105",
+                          "w-full h-14 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-lg rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center group",
+                          isLoading ? "opacity-70 cursor-not-allowed" : "hover:from-green-600 hover:to-green-700",
                         )}
                       >
                         {isLoading ? (
@@ -401,17 +430,20 @@ export default function CheckoutPage() {
                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                               ></path>
                             </svg>
-                            Processing...
+                            Processing Payment...
                           </>
                         ) : (
-                          <>{planTier === "free" ? "Get Started Free" : "Complete Purchase"}</>
+                          <>
+                            {planTier === "free" ? "Get Started Free" : "Complete Purchase"}
+                            <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                          </>
                         )}
                       </button>
                     </div>
 
-                    <div className="text-center text-sm text-gray-500 flex items-center justify-center">
+                    <div className="text-center text-xs text-gray-500 flex items-center justify-center pt-2">
                       <Lock className="w-4 h-4 mr-1" />
-                      Secure payment via Paystack. We don't store your card details.
+                      Secured by Paystack • SSL Encrypted
                     </div>
                   </form>
                 </div>

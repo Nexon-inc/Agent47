@@ -539,57 +539,67 @@ export default function PricingPage() {
                     return (
                       <motion.div
                         key={tier}
-                        whileHover={{ scale: 1.02 }}
+                        whileHover={{ scale: 1.03, y: -5 }}
                         className={cn(
-                          "bg-white rounded-xl overflow-hidden shadow-lg border",
-                          plan.recommended ? "border-[#10B981]" : "border-gray-200",
-                          plan.recommended ? "md:-mt-4" : "",
+                          "bg-white rounded-2xl overflow-hidden shadow-xl border-2 transition-all duration-300",
+                          plan.recommended ? "border-green-500 shadow-green-100" : "border-gray-200 hover:border-gray-300",
+                          plan.recommended ? "md:-mt-4 md:mb-4" : "",
                         )}
                       >
                         {plan.recommended && (
-                          <div className="bg-[#10B981] text-white text-center py-2 font-medium">Recommended</div>
+                          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-2.5 font-bold text-sm tracking-wide">
+                            ⭐ MOST POPULAR
+                          </div>
                         )}
 
-                        <div className={cn("p-6 text-white bg-gradient-to-r", plan.color)}>
-                          <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                          <div className="flex items-baseline">
-                            <span className="text-3xl font-bold">
-                              ${billingPeriod === "yearly" ? plan.yearlyPrice : plan.price}
-                            </span>
-                            <span className="ml-2 opacity-80">
-                              /{billingPeriod === "yearly" ? "year" : plan.period}
-                            </span>
-                          </div>
-                          {billingPeriod === "yearly" && plan.price > 0 && (
-                            <div className="text-sm opacity-80 mt-1">
-                              ${(plan.yearlyPrice / 12).toFixed(2)}/month billed yearly
+                        <div className={cn("relative p-8 text-white bg-gradient-to-br overflow-hidden", plan.color)}>
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                          <div className="relative z-10">
+                            <h3 className="text-3xl font-extrabold mb-3">{plan.name}</h3>
+                            <div className="flex items-baseline mb-2">
+                              <span className="text-5xl font-black">
+                                ${billingPeriod === "yearly" ? plan.yearlyPrice : plan.price}
+                              </span>
+                              <span className="ml-2 text-xl opacity-90">
+                                /{billingPeriod === "yearly" ? "year" : plan.period}
+                              </span>
                             </div>
-                          )}
-                          <p className="mt-2 opacity-90">{plan.description}</p>
+                            {billingPeriod === "yearly" && plan.price > 0 && (
+                              <div className="text-sm opacity-90 mt-2 bg-white/20 px-3 py-1 rounded-full inline-block">
+                                ${(plan.yearlyPrice / 12).toFixed(2)}/month billed yearly
+                              </div>
+                            )}
+                            <p className="mt-4 text-lg opacity-95 font-medium">{plan.description}</p>
+                          </div>
                         </div>
 
-                        <div className="p-6">
-                          <ul className="space-y-3 mb-8">
+                        <div className="p-8">
+                          <ul className="space-y-4 mb-8">
                             {plan.features.map((feature, index) => (
                               <li key={index} className="flex items-start">
-                                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                                <span>{feature}</span>
+                                <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                  <Check className="w-4 h-4 text-green-600" />
+                                </div>
+                                <span className="text-gray-700 font-medium">{feature}</span>
                               </li>
                             ))}
                           </ul>
 
                           <button
                             onClick={() => handleSelectTier(tier)}
-                              disabled={loading}
+                            disabled={loading}
                             className={cn(
-                              "w-full py-3 rounded-lg font-medium transition-colors",
+                              "w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105",
                               tier === "free"
-                                ? "bg-green-500 text-white hover:bg-green-600"
-                                : "bg-[#3B82F6] text-white hover:bg-[#2563EB]",
+                                ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
+                                : plan.recommended
+                                ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
+                                : "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700",
+                              loading && "opacity-70 cursor-not-allowed hover:scale-100"
                             )}
                           >
                             {loading ? (
-                              <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                             ) : tier === "free" ? (
                               "Get Started Free"
                             ) : (
@@ -609,130 +619,202 @@ export default function PricingPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="max-w-2xl mx-auto"
+                  className="max-w-4xl mx-auto"
                 >
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                    <div className={cn("p-6 text-white bg-gradient-to-r", PRICING_PLANS[selectedTier].color)}>
-                      <h3 className="text-2xl font-bold mb-2">{PRICING_PLANS[selectedTier].name} Plan</h3>
-                      <div className="flex items-baseline">
-                        <span className="text-3xl font-bold">
-                          ${billingPeriod === "yearly" ? PRICING_PLANS[selectedTier].yearlyPrice : PRICING_PLANS[selectedTier].price}
-                        </span>
-                        <span className="ml-2 opacity-80">
-                          /{billingPeriod === "yearly" ? "year" : PRICING_PLANS[selectedTier].period}
-                        </span>
-                      </div>
-                      {billingPeriod === "yearly" && PRICING_PLANS[selectedTier].price > 0 && (
-                        <div className="text-sm opacity-80 mt-1">
-                          ${(PRICING_PLANS[selectedTier].yearlyPrice / 12).toFixed(2)}/month billed yearly
+                  <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+                    {/* Header Section */}
+                    <div className={cn("relative p-8 text-white bg-gradient-to-br", PRICING_PLANS[selectedTier].color)}>
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                      <div className="relative z-10">
+                        <button
+                          onClick={resetPayment}
+                          className="mb-4 text-white/80 hover:text-white transition-colors flex items-center text-sm"
+                        >
+                          <ArrowLeft className="w-4 h-4 mr-1" />
+                          Back to Plans
+                        </button>
+                        <h3 className="text-3xl font-bold mb-2">{PRICING_PLANS[selectedTier].name} Plan</h3>
+                        <div className="flex items-baseline mb-2">
+                          <span className="text-5xl font-extrabold">
+                            ${billingPeriod === "yearly" ? PRICING_PLANS[selectedTier].yearlyPrice : PRICING_PLANS[selectedTier].price}
+                          </span>
+                          <span className="ml-3 text-xl opacity-90">
+                            /{billingPeriod === "yearly" ? "year" : PRICING_PLANS[selectedTier].period}
+                          </span>
                         </div>
-                      )}
+                        {billingPeriod === "yearly" && PRICING_PLANS[selectedTier].price > 0 && (
+                          <div className="text-sm opacity-90 mt-2">
+                            ${(PRICING_PLANS[selectedTier].yearlyPrice / 12).toFixed(2)}/month billed yearly
+                            <span className="ml-2 bg-white/20 px-2 py-1 rounded-full text-xs font-medium">
+                              Save 10%
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="p-6">
-                      <h4 className="text-lg font-semibold mb-4 flex items-center">
-                        <CreditCard className="w-5 h-5 mr-2" />
-                        Payment Details
-                      </h4>
-
-                      <form onSubmit={handlePaymentSubmit}>
-                        <div className="space-y-4">
+                    <div className="p-8 md:p-10">
+                      <div className="grid md:grid-cols-2 gap-8">
+                        {/* Order Summary */}
+                        <div className="space-y-6">
                           <div>
-                            <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-1">
-                              Card Number
-                            </label>
-                            <input
-                              type="text"
-                              id="cardNumber"
-                              value={cardNumber}
-                              onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                              placeholder="1234 5678 9012 3456"
-                              maxLength={19}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
-                              required
-                            />
+                            <h4 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h4>
+                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200">
+                              <div className="space-y-4">
+                                <div className="flex justify-between items-center pb-4 border-b border-gray-200">
+                                  <span className="font-semibold text-gray-900">{PRICING_PLANS[selectedTier].name} Plan</span>
+                                  <span className="font-bold text-lg text-gray-900">
+                                    ${billingPeriod === "yearly" ? PRICING_PLANS[selectedTier].yearlyPrice : PRICING_PLANS[selectedTier].price}
+                                  </span>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                  <div className="flex items-start text-sm text-gray-600">
+                                    <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                                    <span>{PRICING_PLANS[selectedTier].agents} Agents</span>
+                                  </div>
+                                  <div className="flex items-start text-sm text-gray-600">
+                                    <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                                    <span>{PRICING_PLANS[selectedTier].support}</span>
+                                  </div>
+                                  <div className="flex items-start text-sm text-gray-600">
+                                    <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                                    <span>{PRICING_PLANS[selectedTier].integrations} Integrations</span>
+                                  </div>
+                                </div>
+
+                                <div className="pt-4 border-t border-gray-200">
+                                  <div className="flex justify-between items-center mb-2">
+                                    <span className="text-sm text-gray-600">Billing Period</span>
+                                    <span className="text-sm font-medium text-gray-900 capitalize">{billingPeriod}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-lg font-semibold text-gray-900">Total</span>
+                                    <span className="text-2xl font-bold text-gray-900">
+                                      ${billingPeriod === "yearly" ? PRICING_PLANS[selectedTier].yearlyPrice : PRICING_PLANS[selectedTier].price}
+                                      <span className="text-sm font-normal text-gray-600 ml-1">
+                                        /{billingPeriod === "yearly" ? "year" : "month"}
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <div className="flex items-start">
+                              <Shield className="w-5 h-5 text-blue-600 mr-3 flex-shrink-0 mt-0.5" />
+                              <div className="text-sm text-blue-900">
+                                <p className="font-semibold mb-1">Secure Payment</p>
+                                <p className="text-blue-700">Your payment is processed securely by Paystack. We never store your card details.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Payment Form */}
+                        <div>
+                          <h4 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                            <CreditCard className="w-6 h-6 mr-2 text-green-600" />
+                            Payment Details
+                          </h4>
+
+                          <form onSubmit={handlePaymentSubmit} className="space-y-5">
                             <div>
-                              <label htmlFor="cardExpiry" className="block text-sm font-medium text-gray-700 mb-1">
-                                Expiry Date
+                              <label htmlFor="cardNumber" className="block text-sm font-semibold text-gray-700 mb-2">
+                                Card Number
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type="text"
+                                  id="cardNumber"
+                                  value={cardNumber}
+                                  onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                                  placeholder="1234 5678 9012 3456"
+                                  maxLength={19}
+                                  className="w-full h-12 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
+                                  required
+                                />
+                                <CreditCard className="absolute right-4 top-3.5 w-5 h-5 text-gray-400" />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label htmlFor="cardExpiry" className="block text-sm font-semibold text-gray-700 mb-2">
+                                  Expiry Date
+                                </label>
+                                <input
+                                  type="text"
+                                  id="cardExpiry"
+                                  value={cardExpiry}
+                                  onChange={(e) => setCardExpiry(formatExpiryDate(e.target.value))}
+                                  placeholder="MM/YY"
+                                  maxLength={5}
+                                  className="w-full h-12 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
+                                  required
+                                />
+                              </div>
+
+                              <div>
+                                <label htmlFor="cardCvv" className="block text-sm font-semibold text-gray-700 mb-2">
+                                  CVV
+                                </label>
+                                <input
+                                  type="text"
+                                  id="cardCvv"
+                                  value={cardCvv}
+                                  onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                                  placeholder="123"
+                                  maxLength={4}
+                                  className="w-full h-12 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
+                                  required
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label htmlFor="cardName" className="block text-sm font-semibold text-gray-700 mb-2">
+                                Name on Card
                               </label>
                               <input
                                 type="text"
-                                id="cardExpiry"
-                                value={cardExpiry}
-                                onChange={(e) => setCardExpiry(formatExpiryDate(e.target.value))}
-                                placeholder="MM/YY"
-                                maxLength={5}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
+                                id="cardName"
+                                value={cardName}
+                                onChange={(e) => setCardName(e.target.value)}
+                                placeholder="John Doe"
+                                className="w-full h-12 px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all bg-gray-50 focus:bg-white text-gray-900 font-medium"
                                 required
                               />
                             </div>
 
-                            <div>
-                              <label htmlFor="cardCvv" className="block text-sm font-medium text-gray-700 mb-1">
-                                CVV
-                              </label>
-                              <input
-                                type="text"
-                                id="cardCvv"
-                                value={cardCvv}
-                                onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                                placeholder="123"
-                                maxLength={4}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
-                                required
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label htmlFor="cardName" className="block text-sm font-medium text-gray-700 mb-1">
-                              Name on Card
-                            </label>
-                            <input
-                              type="text"
-                              id="cardName"
-                              value={cardName}
-                              onChange={(e) => setCardName(e.target.value)}
-                              placeholder="John Doe"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent"
-                              required
-                            />
-                          </div>
-
-                          {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-start">
-                              <Info className="w-5 h-5 mr-2 flex-shrink-0" />
-                              <span>{error}</span>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between pt-4">
-                            <button
-                              type="button"
-                              onClick={resetPayment}
-                              className="text-gray-600 hover:text-gray-800 transition-colors"
-                            >
-                              Go Back
-                            </button>
+                            {error && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-red-50 border-2 border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-start"
+                              >
+                                <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5" />
+                                <span className="text-sm font-medium">{error}</span>
+                              </motion.div>
+                            )}
 
                             <button
                               type="submit"
-                              className="bg-[#3B82F6] text-white py-2 px-6 rounded-lg font-medium hover:bg-[#2563EB] transition-colors flex items-center"
+                              className="w-full h-14 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-lg rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] flex items-center justify-center group"
                             >
-                              Pay Now
-                              <ChevronRight className="ml-1 w-4 h-4" />
+                              <span>Complete Payment</span>
+                              <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </button>
-                          </div>
 
-                          <div className="flex items-center justify-center mt-6 text-sm text-gray-500">
-                            <Shield className="w-4 h-4 mr-1" />
-                            Secure payment powered by Paystack
-                          </div>
+                            <div className="flex items-center justify-center text-xs text-gray-500 pt-2">
+                              <Lock className="w-4 h-4 mr-1" />
+                              Secured by Paystack • SSL Encrypted
+                            </div>
+                          </form>
                         </div>
-                      </form>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
