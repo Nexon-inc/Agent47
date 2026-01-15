@@ -98,11 +98,10 @@ export default function AccountOverviewTab() {
       if (isAuthenticated && user && apiClient) {
         try {
           // Try to get user data from backend
-          const response = await apiClient.getAccountData()
-          console.log("Backend account data:", response)
+          const userData = await apiClient.getAccountData()
+          console.log("Backend account data:", userData)
           
-          if (response && response.user) {
-            const userData = response.user
+          if (userData) {
             
             // Transform backend data to match our interface (read from onboarding_data.profile)
             const transformedData: AccountData = {

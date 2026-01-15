@@ -475,14 +475,15 @@ class ApiClient {
     const url = `${this.baseURL}${endpoint}`;
     
     // Add authorization header if token exists
-    const headers: HeadersInit = {
+    const token = this.getToken();
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     };
 
-    if (this.accessToken) {
-      headers.Authorization = `Bearer ${this.accessToken}`;
-      headers['x-access-token'] = this.accessToken; // Add custom header for middleware
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+      headers['x-access-token'] = token; // Add custom header for middleware
     }
 
     const config: RequestInit = {
@@ -752,9 +753,9 @@ class ApiClient {
     return this.makeRequest<User>('/api/v1/auth/me');
   }
 
-  async getAccountData(): Promise<{ user: User }> {
+  async getAccountData(): Promise<User> {
     // Get comprehensive account data including onboarding and profile info
-    return this.makeRequest<{ user: User }>('/api/v1/auth/me');
+    return this.makeRequest<User>('/api/v1/auth/me');
   }
 
   // Onboarding Methods

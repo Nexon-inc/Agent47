@@ -119,6 +119,9 @@ async def admin_login(
             }
         }
         
+    except HTTPException:
+        # Re-raise HTTP exceptions (like 401) without modification
+        raise
     except Exception as e:
         logger.error(f"Admin login failed: {str(e)}")
         raise HTTPException(

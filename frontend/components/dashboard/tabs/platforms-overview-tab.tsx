@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import {
   Globe,
   Instagram,
@@ -89,6 +90,7 @@ export default function PlatformsOverviewTab() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [connectingPlatformId, setConnectingPlatformId] = useState<number | null>(null)
+  const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false)
   const { toast } = useToast()
 
   // Social Media Platform icons mapping (ONLY social media)
@@ -387,24 +389,84 @@ export default function PlatformsOverviewTab() {
             )}
             Refresh
           </Button>
-          <Button 
-            className="bg-green-600 hover:bg-green-700"
-            onClick={() => {
-              // Open platform selection modal or navigate to platforms page
-              // This button should trigger platform connection flow
-              if (availablePlatforms.length > 0) {
-                // If there are available platforms, show first one or a selection
-                const firstPlatform = availablePlatforms[0]
-                handleConnectPlatform(firstPlatform)
-              } else {
-                // Reload platforms if none available
-                loadPlatformsData()
-              }
-            }}
-          >
-          <Plus className="w-4 h-4 mr-2" />
-          Connect Platform
-        </Button>
+          <Dialog open={isConnectDialogOpen} onOpenChange={setIsConnectDialogOpen}>
+            <DialogTrigger asChild>
+              <Button 
+                className="bg-green-600 hover:bg-green-700"
+                data-connect-platform
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Connect Platform
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Connect a Platform</DialogTitle>
+                <DialogDescription>
+                  Select a platform to connect. You'll be redirected to authorize the connection.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-4">
+                {availablePlatforms.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Globe className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No platforms available</p>
+                    <p className="text-sm text-gray-500 mt-2">Loading platforms...</p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-4"
+                      onClick={loadPlatformsData}
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Refresh
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {availablePlatforms
+                      .filter(platform => {
+                        const connection = connectedPlatforms.find(c => 
+                          c.platform_name === platform.name || c.platform_id === platform.id
+                        )
+                        return !connection || (connection.status !== "connected" && connection.status !== "active")
+                      })
+                      .map((platform) => {
+                        const platformNameKey = platform.name.toLowerCase() as keyof typeof platformIcons
+                        const IconComponent = platformIcons[platformNameKey] || Globe
+                        const platformColor = platformColors[platformNameKey] || "from-gray-500 to-gray-600"
+                        const displayName = platform.display_name || platform.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+
+                        return (
+                          <Card 
+                            key={platform.id} 
+                            className="hover:shadow-md transition-shadow cursor-pointer"
+                            onClick={() => {
+                              setIsConnectDialogOpen(false)
+                              handleConnectPlatform(platform)
+                            }}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-center space-x-3">
+                                <div className={`w-12 h-12 bg-gradient-to-r ${platformColor} rounded-lg flex items-center justify-center shadow-sm`}>
+                                  <IconComponent className="w-6 h-6 text-white" />
+                                </div>
+                                <div className="flex-1">
+                                  <h3 className="font-medium text-gray-900">{displayName}</h3>
+                                  <p className="text-sm text-gray-500 capitalize">
+                                    {platform.platform_type?.replace('_', ' ') || 'Platform'}
+                                  </p>
+                                </div>
+                                <Plus className="w-5 h-5 text-gray-400" />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )
+                      })}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 

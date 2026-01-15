@@ -309,6 +309,22 @@ async def signup(user_data: UserSignupRequest):
                 data={"sub": str(response_user_id), "email": user.email}
             )
 
+            # Get onboarding data from database if user exists
+            onboarding_completed = False
+            onboarding_data = None
+            try:
+                from ..database import get_database
+                db = get_database()
+                async with db.get_session() as session_db:
+                    from sqlalchemy import select
+                    result_db = await session_db.execute(select(User).where(User.id == response_user_id))
+                    db_user = result_db.scalar_one_or_none()
+                    if db_user:
+                        onboarding_completed = getattr(db_user, 'onboarding_completed', False)
+                        onboarding_data = getattr(db_user, 'onboarding_data', None)
+            except Exception:
+                pass
+            
             return TokenResponse(
                 access_token=access_token,
                 refresh_token=refresh_token,
@@ -324,7 +340,9 @@ async def signup(user_data: UserSignupRequest):
                     "is_verified": False,
                     "created_at": response_created_at,
                     "last_login": None,
-                    "preferences": supabase_user_data
+                    "preferences": supabase_user_data,
+                    "onboarding_completed": onboarding_completed,
+                    "onboarding_data": onboarding_data
                 }
             )
         else:
