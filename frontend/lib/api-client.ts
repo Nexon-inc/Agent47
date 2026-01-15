@@ -475,6 +475,18 @@ class ApiClient {
   ): Promise<T> {
     // Ensure tokens are loaded from storage before making request
     this.loadTokensFromStorage();
+    // If we don't have an access token locally, try a server-side refresh
+    // This helps when authentication is cookie-based (server-set cookies on a different domain).
+    if (!this.getToken()) {
+      try {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) {
+          this.loadTokensFromStorage();
+        }
+      } catch (err) {
+        // ignore - we'll handle 401s below
+      }
+    }
     
     const url = `${this.baseURL}${endpoint}`;
     
@@ -495,6 +507,8 @@ class ApiClient {
     const config: RequestInit = {
       ...options,
       headers,
+      // Ensure cookies (auth/admin cookies) are sent for cross-origin requests
+      credentials: 'include',
     };
 
     try {
@@ -510,7 +524,7 @@ class ApiClient {
             headers.Authorization = `Bearer ${newToken}`;
             headers['x-access-token'] = newToken;
           }
-          const retryResponse = await fetch(url, { ...config, headers });
+          const retryResponse = await fetch(url, { ...config, headers, credentials: 'include' });
           return this.handleResponse<T>(retryResponse, endpoint, options.suppressTierRedirect === true);
         } else {
           // Token refresh failed, throw error with details
@@ -682,12 +696,14 @@ class ApiClient {
       }
 
       try {
+        const refreshBody = this.refreshToken ? JSON.stringify({ refresh_token: this.refreshToken }) : undefined;
         const response = await fetch(`${this.baseURL}/api/v1/auth/refresh`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ refresh_token: this.refreshToken }),
+          body: refreshBody,
+          credentials: 'include',
         });
 
         if (response.ok) {
@@ -703,7 +719,7 @@ class ApiClient {
       }
     }
 
-    // If refresh failed, clear all tokens
+      // If refresh failed, clear all tokens
     this.clearTokensFromStorage();
     return false;
   }
