@@ -174,7 +174,7 @@ export default function PlatformsOverviewTab() {
         console.log("Platforms API response:", platformsResponse);
         
         const connectionsResponse = await apiClient.get("/api/v1/platforms/connected").catch(() => ({ data: { platforms: [] } }));
-        const metricsResponse = await apiClient.get("/api/platforms/metrics").catch(() => ({ data: [] }));
+        const metricsResponse = await apiClient.get("/api/v1/platforms/metrics").catch(() => ({ data: [] }));
         
         // Get all platforms (not just social media) - user can connect any platform
         // API client wraps responses in { data: ... }
@@ -198,14 +198,6 @@ export default function PlatformsOverviewTab() {
         console.error("Failed to load platforms:", error);
         // Don't set empty array, just log the error
       }
-      
-      // Extract platforms array from connections response
-      const connectedPlatformsList = connectionsResponse.data?.platforms || connectionsResponse.data || []
-      
-      setAvailablePlatforms(allPlatforms)
-      setConnectedPlatforms(connectedPlatformsList)
-      setPlatformMetrics(metricsResponse.data || [])
-      setLastUpdated(new Date())
       
     } catch (error) {
       console.error("Failed to load platforms data:", error)

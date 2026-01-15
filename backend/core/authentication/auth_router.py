@@ -65,6 +65,7 @@ class UserResponse(BaseModel):
     tier: str
     is_active: bool
     is_verified: bool
+    is_admin: bool = False
     created_at: datetime
     last_login: Optional[datetime]
     preferences: Optional[Dict[str, Any]]
@@ -255,6 +256,7 @@ async def signup(user_data: UserSignupRequest):
 
             # Check if user should get PRO tier (whitelist or admin) and set tier in database
             resolved_tier_value = "free"
+            is_admin_user = False
             if response_user_id:
                 try:
                     from ..database import get_database
@@ -268,6 +270,7 @@ async def signup(user_data: UserSignupRequest):
                             if await should_get_pro_tier(user.email):
                                 db_user.tier = UserTier.PRO
                                 resolved_tier_value = "pro"
+                                is_admin_user = True
                                 await session_db.commit()
                                 logger.info(f"Set PRO tier for new user during signup: {user.email}")
                             elif db_user.tier is None:
@@ -320,6 +323,7 @@ async def signup(user_data: UserSignupRequest):
                     "tier": resolved_tier_value,
                     "is_active": True,
                     "is_verified": False,
+                    "is_admin": is_admin_user,
                     "created_at": response_created_at,
                     "last_login": None,
                     "preferences": supabase_user_data,
@@ -516,6 +520,7 @@ async def login(login_data: UserLoginRequest):
                     "tier": resolved_tier_value,
                     "is_active": user_metadata.get("is_active", True) if user_metadata else True,
                     "is_verified": user_metadata.get("is_verified", False) if user_metadata else False,
+                    "is_admin": is_admin_user,
                     "created_at": user.created_at,
                     "last_login": datetime.utcnow().isoformat(),
                     "preferences": user_metadata.get("preferences", {}) if user_metadata else {},
@@ -646,6 +651,15 @@ async def change_password(
 @auth_router.get("/auth/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
     """Get current user information including onboarding flags and tier."""
+    # Check if user is admin (pro tier or whitelisted)
+    from .auth_manager import should_get_pro_tier
+    is_admin = False
+    try:
+        if current_user.tier == UserTier.PRO:
+            is_admin = await should_get_pro_tier(current_user.email)
+    except Exception:
+        pass
+    
     return UserResponse(
         id=current_user.id,
         email=current_user.email,
@@ -654,6 +668,7 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
         tier=(current_user.tier.value if current_user.tier else "free"),
         is_active=current_user.is_active,
         is_verified=current_user.is_verified,
+        is_admin=is_admin,
         created_at=current_user.created_at,
         last_login=current_user.last_login,
         preferences=getattr(current_user, "preferences", None) or {},

@@ -76,12 +76,19 @@ export const useAuthStore = create<AuthState>()(
         try {
           const tokens = await apiClient.signup(data)
           
+          // Wait for tokens to be saved before updating state
+          // Check if user is admin based on tier or email whitelist
+          const isAdmin = tokens.user.tier === 'pro' || tokens.user.is_admin === true
+          
           set({
-            user: tokens.user,
+            user: { ...tokens.user, is_admin: isAdmin },
             isAuthenticated: true,
             isLoading: false,
             error: null
           })
+          
+          // Add a small delay to ensure localStorage is updated
+          await new Promise(resolve => setTimeout(resolve, 100))
           
           return true
         } catch (error) {
@@ -101,8 +108,11 @@ export const useAuthStore = create<AuthState>()(
         try {
           const tokens = await apiClient.login(data)
           
+          // Check if user is admin based on tier or email whitelist
+          const isAdmin = tokens.user.tier === 'pro' || tokens.user.is_admin === true
+          
           set({
-            user: tokens.user,
+            user: { ...tokens.user, is_admin: isAdmin },
             isAuthenticated: true,
             isLoading: false,
             error: null

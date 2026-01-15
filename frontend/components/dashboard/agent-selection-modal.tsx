@@ -318,7 +318,12 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
                         ? "opacity-50 cursor-not-allowed" 
                         : "hover:shadow-md"
                   }`}
-                  onClick={() => handleAgentToggle(agent.id)}
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    if (!isLocked) {
+                      handleAgentToggle(agent.id);
+                    }
+                  }}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">

@@ -101,21 +101,24 @@ export default function AccountOverviewTab() {
           const userData = await apiClient.getAccountData()
           console.log("Backend account data:", userData)
           
-          if (userData) {
-            // Handle onboarding_data - it might be null, undefined, empty object, or a proper object
-            let onboardingData = userData.onboarding_data
-            if (!onboardingData || (typeof onboardingData === 'object' && Object.keys(onboardingData).length === 0)) {
-              // If onboarding_data is empty/null, try to construct from user fields
-              onboardingData = {
-                profile: {
-                  full_name: userData.full_name,
-                  username: userData.username,
-                  email: userData.email,
-                  name: userData.full_name || userData.username
-                }
+          if (!userData) {
+            throw new Error("No user data received from backend")
+          }
+          
+          // Handle onboarding_data - it might be null, undefined, empty object, or a proper object
+          let onboardingData = userData.onboarding_data
+          if (!onboardingData || typeof onboardingData !== 'object' || Object.keys(onboardingData).length === 0) {
+            // If onboarding_data is empty/null, try to construct from user fields
+            onboardingData = {
+              profile: {
+                full_name: userData.full_name,
+                username: userData.username,
+                email: userData.email,
+                name: userData.full_name || userData.username
               }
             }
-            const profileData = onboardingData?.profile || {}
+          }
+          const profileData = onboardingData?.profile || {}
             
             console.log("Raw userData:", userData)
             console.log("Raw onboarding_data:", onboardingData)

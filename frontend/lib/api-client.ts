@@ -37,6 +37,7 @@ export interface User {
   tier: string;
   is_active: boolean;
   is_verified: boolean;
+  is_admin?: boolean;
   created_at: string;
   last_login?: string;
   preferences?: Record<string, any>;
@@ -1046,9 +1047,11 @@ class ApiClient {
   }
 
   async getSelectedAgents(options?: { suppressTierRedirect?: boolean }): Promise<any[]> {
-    return this.makeRequest<any[]>('/api/v1/account/selected-agents', {
+    const response = await this.makeRequest<any>('/api/v1/account/selected-agents', {
       suppressTierRedirect: options?.suppressTierRedirect || false
     });
+    // Ensure we return an array even if backend returns wrapped response
+    return Array.isArray(response) ? response : (response?.data || response?.agents || []);
   }
 
   async getSystemStatus(): Promise<any> {

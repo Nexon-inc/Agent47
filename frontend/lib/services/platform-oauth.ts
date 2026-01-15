@@ -80,12 +80,16 @@ export class PlatformOAuthService {
    */
   async getAvailablePlatforms(): Promise<PlatformConfig[]> {
     try {
-      const response = await apiClient.get('/platforms/available');
+      // Use the correct endpoint path
+      const response = await apiClient.get('/api/v1/platforms/');
       
-      if (response.success) {
-        return response.platforms;
+      // Handle wrapped response
+      const platforms = response?.data || response || [];
+      
+      if (Array.isArray(platforms)) {
+        return platforms;
       } else {
-        throw new Error('Failed to get available platforms');
+        throw new Error('Invalid response format from backend');
       }
     } catch (error) {
       console.error('Error getting available platforms:', error);
@@ -98,20 +102,23 @@ export class PlatformOAuthService {
    */
   async initiateConnection(platformName: string): Promise<OAuthInitiationResult> {
     try {
-      const response = await apiClient.get(`/platforms/connect/${platformName}`);
+      const response = await apiClient.get(`/api/v1/platforms/connect/${platformName}`);
       
-      if (response.success) {
+      // Handle wrapped response
+      const data = response?.data || response;
+      
+      if (data?.success || data?.auth_url) {
         return {
           success: true,
-          auth_url: response.auth_url,
-          platform: response.platform,
-          scopes: response.scopes,
-          state: response.state
+          auth_url: data.auth_url,
+          platform: data.platform || platformName,
+          scopes: data.scopes,
+          state: data.state
         };
       } else {
         return {
           success: false,
-          error: response.error || 'Failed to initiate connection'
+          error: data?.error || 'Failed to initiate connection'
         };
       }
     } catch (error: any) {
@@ -128,12 +135,16 @@ export class PlatformOAuthService {
    */
   async getConnectedPlatforms(): Promise<ConnectedPlatform[]> {
     try {
-      const response = await apiClient.get('/platforms/connected');
+      const response = await apiClient.get('/api/v1/platforms/connected');
       
-      if (response.success) {
-        return response.platforms;
+      // Handle wrapped response
+      const data = response?.data || response;
+      const platforms = data?.platforms || data || [];
+      
+      if (Array.isArray(platforms)) {
+        return platforms;
       } else {
-        throw new Error('Failed to get connected platforms');
+        throw new Error('Invalid response format from backend');
       }
     } catch (error) {
       console.error('Error getting connected platforms:', error);
@@ -146,17 +157,20 @@ export class PlatformOAuthService {
    */
   async disconnectPlatform(platformName: string): Promise<{ success: boolean; message?: string; error?: string }> {
     try {
-      const response = await apiClient.post(`/platforms/disconnect/${platformName}`);
+      const response = await apiClient.post(`/api/v1/platforms/disconnect/${platformName}`);
       
-      if (response.success) {
+      // Handle wrapped response
+      const data = response?.data || response;
+      
+      if (data?.success || response?.success) {
         return {
           success: true,
-          message: response.message
+          message: data?.message || 'Platform disconnected successfully'
         };
       } else {
         return {
           success: false,
-          error: response.error || 'Failed to disconnect platform'
+          error: data?.error || 'Failed to disconnect platform'
         };
       }
     } catch (error: any) {

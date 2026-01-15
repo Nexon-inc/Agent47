@@ -60,12 +60,13 @@ export default function IntegrationsTab() {
       
       // Load available integrations and connected integrations in parallel
       const [availableResponse, connectedResponse] = await Promise.all([
-        apiClient.get("/api/integrations/").catch(() => ({ data: [] })),
-        apiClient.get("/api/integrations/connected").catch(() => ({ data: { integrations: [] } }))
+        apiClient.get("/api/v1/integrations/").catch(() => ({ data: [] })),
+        apiClient.get("/api/v1/integrations/connected").catch(() => ({ data: { integrations: [] } }))
       ])
 
-      const availableIntegrations = availableResponse.data || []
-      const connected = connectedResponse.data?.integrations || []
+      // Handle wrapped response from apiClient.get()
+      const availableIntegrations = availableResponse?.data || availableResponse || []
+      const connected = connectedResponse?.data?.integrations || connectedResponse?.data || []
 
       // Create a set of connected integration names
       const connectedSet = new Set(connected.map((int: any) => int.integration_name || int.name))
@@ -130,7 +131,7 @@ export default function IntegrationsTab() {
       
       if (isConnected) {
         // Disconnect
-        await apiClient.post(`/api/integrations/disconnect/${integrationId}`)
+        await apiClient.post(`/api/v1/integrations/disconnect/${integrationId}`)
         setConnectedIntegrations(prev => {
           const newSet = new Set(prev)
           newSet.delete(integrationId)
@@ -143,18 +144,27 @@ export default function IntegrationsTab() {
       } else {
         // Connect - initiate OAuth or direct connection
         try {
-          const oauthResponse = await apiClient.get(`/api/integrations/oauth/${integrationId}`)
-          if (oauthResponse.data?.oauth_url) {
+          // Try OAuth first
+          const oauthResponse = await apiClient.get(`/api/v1/integrations/oauth/${integrationId}`).catch(() => null)
+          if (oauthResponse?.data?.oauth_url || oauthResponse?.oauth_url) {
             // Redirect to OAuth URL
-            window.location.href = oauthResponse.data.oauth_url
+            window.location.href = oauthResponse.data?.oauth_url || oauthResponse.oauth_url
           } else {
-            // If no OAuth, try direct connection (for API key based integrations)
-            // This would require a modal or form to collect credentials
-            console.log("Direct connection not yet implemented - requires credentials form")
+            // If no OAuth, try direct connection endpoint
+            try {
+              await apiClient.post(`/api/v1/integrations/connect/${integrationId}`, {})
+              // Reload integrations after connection
+              await loadIntegrationsData()
+            } catch (directError: any) {
+              // If direct connection fails, might need credentials
+              console.error("Direct connection failed, may require credentials:", directError)
+              throw new Error("Connection requires authentication. Please check integration settings.")
+            }
           }
         } catch (error: any) {
           // If OAuth not supported, might need direct credentials
           console.error("Failed to initiate connection:", error)
+          throw error
         }
       }
     } catch (error) {

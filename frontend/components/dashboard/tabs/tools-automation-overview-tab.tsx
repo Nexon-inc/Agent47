@@ -342,22 +342,22 @@ export default function ToolsAutomationOverviewTab() {
       // Load integrations, usage, stats, and calendar data in parallel
       // Get available integrations from the correct endpoint
       try {
-        const integrationsResponse = await apiClient.get("/api/integrations/");
+        const integrationsResponse = await apiClient.get("/api/v1/integrations/");
         console.log("Integrations API response:", integrationsResponse);
         
-        const availableIntegrationsResponse = await apiClient.get("/api/integrations/available").catch((err) => {
+        const availableIntegrationsResponse = await apiClient.get("/api/v1/integrations/available").catch((err) => {
           console.error("Failed to load available integrations:", err);
           return { data: { integrations: [] } };
         });
         
-        const usageResponse = await apiClient.get("/api/integrations/usage").catch(() => ({ data: [] }));
-        const statsResponse = await apiClient.get("/api/integrations/stats").catch(() => ({ data: null }));
-        const calendarResponse = await apiClient.get("/api/calendar/events").catch(() => ({ data: [] }));
-        const calendarStatsResponse = await apiClient.get("/api/calendar/stats").catch(() => ({ data: null }));
+        const usageResponse = await apiClient.get("/api/v1/integrations/usage").catch(() => ({ data: [] }));
+        const statsResponse = await apiClient.get("/api/v1/integrations/stats").catch(() => ({ data: null }));
+        const calendarResponse = await apiClient.get("/api/v1/calendar/events").catch(() => ({ data: [] }));
+        const calendarStatsResponse = await apiClient.get("/api/v1/calendar/stats").catch(() => ({ data: null }));
         
         // API client wraps responses in { data: ... }
-        const directIntegrations = integrationsResponse?.data || [];
-        const availableIntegrations = availableIntegrationsResponse?.data?.integrations || [];
+        const directIntegrations = integrationsResponse?.data || integrationsResponse || [];
+        const availableIntegrations = availableIntegrationsResponse?.data?.integrations || availableIntegrationsResponse?.data || [];
         
         // Use available integrations if the main endpoint doesn't return data
         const allIntegrations = directIntegrations.length > 0 
@@ -365,10 +365,10 @@ export default function ToolsAutomationOverviewTab() {
           : availableIntegrations;
         
         setIntegrations(allIntegrations);
-        setIntegrationUsage(usageResponse?.data || []);
-        setIntegrationStats(statsResponse?.data || null);
-        setCalendarEvents(calendarResponse?.data || []);
-        setCalendarStats(calendarStatsResponse?.data || null);
+        setIntegrationUsage(usageResponse?.data || usageResponse || []);
+        setIntegrationStats(statsResponse?.data || statsResponse || null);
+        setCalendarEvents(calendarResponse?.data || calendarResponse || []);
+        setCalendarStats(calendarStatsResponse?.data || calendarStatsResponse || null);
         setLastUpdated(new Date());
         
         console.log("Loaded integrations:", allIntegrations.length, allIntegrations);
@@ -420,9 +420,13 @@ export default function ToolsAutomationOverviewTab() {
   const handleDirectConnect = async (integrationId: number) => {
     setConnectingIntegrationId(integrationId)
     try {
-      await apiClient.post("/api/integrations/connect", null, {
-        params: { integration_id: integrationId }
-      })
+      const integration = integrations.find(i => i.id === integrationId)
+      if (!integration) {
+        throw new Error("Integration not found")
+      }
+      
+      // Try to connect using the integration name
+      await apiClient.post(`/api/v1/integrations/connect/${integration.name}`, {})
       await loadIntegrationsData()
       toast({
         title: "Integration connected",
@@ -432,7 +436,7 @@ export default function ToolsAutomationOverviewTab() {
       console.error("Failed to connect integration:", error)
       toast({
         title: "Connection failed",
-        description: error?.response?.data?.detail || "Failed to connect integration. Please try again.",
+        description: error?.response?.data?.detail || error?.message || "Failed to connect integration. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -472,18 +476,28 @@ export default function ToolsAutomationOverviewTab() {
       // Use OAuth flow for platform-based integrations
       const response = await apiClient.get(`/api/v1/platforms/connect/${integration.name}`)
       
-      if (response.data?.success && response.data?.auth_url) {
+      // Handle wrapped response
+      const data = response?.data || response
+      
+      if (data?.success && data?.auth_url) {
         toast({
           title: "Redirecting...",
           description: `Redirecting to ${integration.display_name} to authorize the connection.`,
         })
         // Redirect user to OAuth authorization page
-        window.location.href = response.data.auth_url
+        window.location.href = data.auth_url
+      } else if (data?.auth_url) {
+        // If auth_url exists but success flag is missing, still redirect
+        toast({
+          title: "Redirecting...",
+          description: `Redirecting to ${integration.display_name} to authorize the connection.`,
+        })
+        window.location.href = data.auth_url
       } else {
-        console.error("Failed to get OAuth URL:", response.data)
+        console.error("Failed to get OAuth URL:", data)
         toast({
           title: "Connection failed",
-          description: "Failed to initiate connection. Please try again.",
+          description: data?.error || "Failed to initiate connection. Please try again.",
           variant: "destructive",
         })
       }
