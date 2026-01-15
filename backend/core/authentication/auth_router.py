@@ -153,122 +153,104 @@ async def signup(user_data: UserSignupRequest):
                 "is_verified": False
             }
 
+            # Try to insert user record into database using Supabase REST client
+            # If this fails, we'll fall back to direct database access
             new_user_record = None
             try:
-                # Add timeout and retry for Supabase insert operation
-                max_retries = 3
-                retry_delay = 0.5
+                db_result = supabase_client.table('users').insert(insert_payload).execute()
                 
-                for attempt in range(max_retries):
-                    try:
-                        db_result = supabase_client.table('users').insert(insert_payload).execute()
-                        
-                        # Try to determine the integer DB id for the newly created user. Many Supabase
-                        # REST setups return the inserted row in db_result.data. If not, query by email.
-                        try:
-                            if hasattr(db_result, 'data') and db_result.data:
-                                new_user_record = db_result.data[0]
-                            else:
-                                sel = supabase_client.table('users').select('*').eq('email', user.email).limit(1).execute()
-                                if hasattr(sel, 'data') and sel.data:
-                                    new_user_record = sel.data[0]
-                        except Exception as lookup_error:
-                            logger.warning(f"Failed to get user record from insert result: {lookup_error}")
-                            # Non-fatal: we'll fall back to querying later
-                            new_user_record = None
-                        
-                        if new_user_record:
-                            break  # Success, exit retry loop
-                            
-                    except Exception as insert_error:
-                        if attempt < max_retries - 1:
-                            error_str = str(insert_error)
-                            # Don't retry on duplicate key errors
-                            if '23505' in error_str or 'duplicate key' in error_str.lower():
-                                raise  # Re-raise to be handled by outer exception handler
-                            logger.warning(f"Supabase insert failed (attempt {attempt + 1}/{max_retries}), retrying: {insert_error}")
-                            await asyncio.sleep(retry_delay * (attempt + 1))  # Exponential backoff
-                        else:
-                            logger.error(f"Supabase insert failed after {max_retries} attempts: {insert_error}")
-                            raise  # Re-raise to be handled by outer exception handler
-            except Exception as db_exc:
-                # Supabase REST may raise a structured error or a plain exception whose
-                # string contains Postgres error details. Inspect both the exception
-                # and its string form to detect unique constraint violations.
-                err = None
-                try:
-                    err = dict(db_exc)
-                except Exception:
-                    # Not a mapping-like exception
-                    err = None
-
-                exc_text = ''
-                try:
-                    exc_text = str(db_exc)
-                except Exception:
-                    exc_text = ''
-
-                is_dup = False
-                if err:
-                    code = err.get('code')
-                    msg = str(err.get('message', ''))
-                    if code == '23505' or 'duplicate key' in msg.lower():
-                        is_dup = True
-                if not is_dup and ('23505' in exc_text or 'duplicate key' in exc_text.lower()):
-                    is_dup = True
-
-                if is_dup:
-                    logger.warning(f"Signup conflict for {user_data.email}: {exc_text}")
-                    # Return specific field information
-                    detail_msg = 'Duplicate value for unique field'
-                    if err and err.get('message'):
-                        msg = str(err.get('message'))
-                        if 'email' in msg.lower():
-                            detail_msg = f"Email '{user_data.email}' is already registered"
-                        elif 'username' in msg.lower():
-                            detail_msg = f"Username '{user_data.username}' is already taken"
-                        else:
-                            detail_msg = msg
-                    elif 'email' in exc_text.lower():
-                        detail_msg = f"Email '{user_data.email}' is already registered"
-                    elif 'username' in exc_text.lower():
-                        detail_msg = f"Username '{user_data.username}' is already taken"
-                    
-                    raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=detail_msg)
-                # Re-raise for unknown DB errors so outer handler logs and returns 500
-                raise
+                # Try to get the inserted record
+                if hasattr(db_result, 'data') and db_result.data:
+                    new_user_record = db_result.data[0]
+                else:
+                    # Query by email if insert result doesn't have data
+                    sel = supabase_client.table('users').select('*').eq('email', user.email).limit(1).execute()
+                    if hasattr(sel, 'data') and sel.data:
+                        new_user_record = sel.data[0]
+            except Exception as rest_insert_error:
+                error_str = str(rest_insert_error).lower()
+                logger.warning(f"Supabase REST insert failed for {user.email}, will try direct database access: {rest_insert_error}")
+                
+                # Only fail if it's a duplicate key error (user already exists)
+                if '23505' in str(rest_insert_error) or 'duplicate key' in error_str or 'unique constraint' in error_str:
+                    if 'email' in error_str:
+                        raise HTTPException(
+                            status_code=status.HTTP_409_CONFLICT,
+                            detail=f"Email '{user_data.email}' is already registered"
+                        )
+                    elif 'username' in error_str:
+                        raise HTTPException(
+                            status_code=status.HTTP_409_CONFLICT,
+                            detail=f"Username '{user_data.username}' is already taken"
+                        )
+                    else:
+                        raise HTTPException(
+                            status_code=status.HTTP_409_CONFLICT,
+                            detail="This information is already registered"
+                        )
+                # For other REST errors, continue to direct database access below
+                new_user_record = None
 
             logger.info(f"New user registered: {user.email}")
 
-            # Ensure we get the integer DB id by querying our database if needed
+            # Ensure we get the integer DB id by querying our database
+            # If REST insert succeeded, we have new_user_record, otherwise query the DB
             response_user_id = None
             if new_user_record and 'id' in new_user_record:
                 response_user_id = new_user_record.get('id')
+            
+            # If we don't have a user record yet, try to create it via direct database access
             if response_user_id is None:
-                # Retry logic for database query (connection may be unstable)
-                max_retries = 3
-                retry_delay = 0.5
-                for attempt in range(max_retries):
-                    try:
-                        from ..database import get_database
-                        db = get_database()
-                        async with db.get_session() as session_db:
-                            from sqlalchemy import select
-                            result_db = await session_db.execute(select(User).where(User.email == user.email))
-                            db_user = result_db.scalar_one_or_none()
-                            if db_user and getattr(db_user, 'id', None) is not None:
-                                response_user_id = db_user.id
-                                break  # Success, exit retry loop
-                    except Exception as db_query_error:
-                        if attempt < max_retries - 1:
-                            logger.warning(f"Database query failed (attempt {attempt + 1}/{max_retries}), retrying: {db_query_error}")
-                            await asyncio.sleep(retry_delay * (attempt + 1))  # Exponential backoff
+                try:
+                    from ..database import get_database
+                    db = get_database()
+                    async with db.get_session() as session_db:
+                        from sqlalchemy import select
+                        # First, check if user already exists
+                        result_db = await session_db.execute(select(User).where(User.email == user.email))
+                        db_user = result_db.scalar_one_or_none()
+                        
+                        if db_user and getattr(db_user, 'id', None) is not None:
+                            # User already exists in database
+                            response_user_id = db_user.id
+                            logger.info(f"Found existing user in database for {user.email}: {response_user_id}")
                         else:
-                            logger.error(f"Database query failed after {max_retries} attempts: {db_query_error}")
-                            response_user_id = None
+                            # User doesn't exist in database, create it
+                            try:
+                                new_db_user = User(
+                                    email=user.email,
+                                    username=user_data.username,
+                                    hashed_password="",  # Password handled by Supabase Auth
+                                    full_name=f"{user_data.first_name} {user_data.last_name}",
+                                    is_active=True,
+                                    is_verified=False
+                                )
+                                session_db.add(new_db_user)
+                                await session_db.commit()
+                                await session_db.refresh(new_db_user)
+                                response_user_id = new_db_user.id
+                                logger.info(f"Created user record in database for {user.email}: {response_user_id}")
+                            except Exception as create_error:
+                                error_str = str(create_error).lower()
+                                if 'duplicate' in error_str or 'unique' in error_str or '23505' in str(create_error):
+                                    # User was created between check and insert, query again
+                                    result_db = await session_db.execute(select(User).where(User.email == user.email))
+                                    db_user = result_db.scalar_one_or_none()
+                                    if db_user:
+                                        response_user_id = db_user.id
+                                else:
+                                    logger.error(f"Failed to create user in database: {create_error}")
+                                    raise
+                except Exception as db_query_error:
+                    logger.error(f"Database query/creation failed: {db_query_error}", exc_info=True)
+                    # Use Supabase Auth UUID as fallback (may cause issues downstream if expecting int)
+                    response_user_id = user.id
+                    logger.warning(f"Using Supabase Auth UUID as user ID: {response_user_id}")
+            
             if response_user_id is None:
-                # Final fallback to Supabase Auth UUID (may break downstream int cast)
+                # Final fallback to Supabase Auth UUID
                 response_user_id = user.id
+                logger.warning(f"Using Supabase Auth UUID as final fallback: {response_user_id}")
             response_created_at = new_user_record.get('created_at') if new_user_record and 'created_at' in new_user_record else getattr(user, 'created_at', None)
 
             # Check if user should get PRO tier (whitelist or admin) and set tier in database
@@ -354,11 +336,30 @@ async def signup(user_data: UserSignupRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Signup error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during registration"
-        )
+        error_str = str(e).lower()
+        logger.error(f"Signup error for {user_data.email if 'user_data' in locals() else 'unknown'}: {str(e)}", exc_info=True)
+        
+        # Check for specific Supabase errors
+        if 'user already registered' in error_str or 'email already' in error_str or 'already exists' in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Email '{user_data.email}' is already registered. Please use a different email or try logging in."
+            )
+        elif 'invalid email' in error_str or 'email format' in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid email format. Please enter a valid email address."
+            )
+        elif 'password' in error_str and ('weak' in error_str or 'short' in error_str or 'requirement' in error_str):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password does not meet requirements. Password must be at least 6 characters long."
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Internal server error during registration: {str(e)}"
+            )
 
 @auth_router.post("/auth/login", response_model=TokenResponse)
 async def login(login_data: UserLoginRequest):
@@ -393,7 +394,9 @@ async def login(login_data: UserLoginRequest):
                     from sqlalchemy import select as _select
                     _res = await _session_db.execute(_select(User).where(User.email == user.email))
                     _db_user = _res.scalar_one_or_none()
+                    
                     if _db_user and getattr(_db_user, 'id', None) is not None:
+                        # User exists in database
                         response_user_id = _db_user.id
                         onboarding_completed = getattr(_db_user, 'onboarding_completed', False)
                         onboarding_data = getattr(_db_user, 'onboarding_data', None) or {}
@@ -413,10 +416,69 @@ async def login(login_data: UserLoginRequest):
                             resolved_tier_value = _UserTier.FREE.value
                         else:
                             resolved_tier_value = _db_user.tier.value
+                    else:
+                        # User authenticated with Supabase Auth but doesn't exist in database
+                        # Create user record in database
+                        logger.info(f"User {user.email} authenticated with Supabase Auth but not found in database, creating record...")
+                        try:
+                            # Get username from metadata or use email prefix
+                            username = user_metadata.get("username", "") if user_metadata else ""
+                            if not username:
+                                username = user.email.split('@')[0]
+                            
+                            new_db_user = User(
+                                email=user.email,
+                                username=username,
+                                hashed_password="",  # Password handled by Supabase Auth
+                                full_name=user_metadata.get("full_name", "") if user_metadata else "",
+                                is_active=True,
+                                is_verified=user.email_confirmed_at is not None
+                            )
+                            
+                            # Check if should get PRO tier
+                            from .auth_manager import should_get_pro_tier
+                            if await should_get_pro_tier(user.email):
+                                new_db_user.tier = _UserTier.PRO
+                                is_admin_user = True
+                                resolved_tier_value = "pro"
+                            else:
+                                new_db_user.tier = _UserTier.FREE
+                                resolved_tier_value = "free"
+                            
+                            _session_db.add(new_db_user)
+                            await _session_db.commit()
+                            await _session_db.refresh(new_db_user)
+                            response_user_id = new_db_user.id
+                            onboarding_completed = False
+                            onboarding_data = {}
+                            logger.info(f"Created user record in database for {user.email}: {response_user_id}")
+                        except Exception as create_error:
+                            error_str = str(create_error).lower()
+                            logger.error(f"Failed to create user record in database: {create_error}", exc_info=True)
+                            # If duplicate, query again
+                            if 'duplicate' in error_str or 'unique' in error_str or '23505' in str(create_error):
+                                _res = await _session_db.execute(_select(User).where(User.email == user.email))
+                                _db_user = _res.scalar_one_or_none()
+                                if _db_user:
+                                    response_user_id = _db_user.id
+                                    resolved_tier_value = _db_user.tier.value if _db_user.tier else "free"
+                                    onboarding_completed = getattr(_db_user, 'onboarding_completed', False)
+                                    onboarding_data = getattr(_db_user, 'onboarding_data', None) or {}
+                            else:
+                                # Use Supabase Auth UUID as fallback
+                                response_user_id = user.id
+                                resolved_tier_value = "free"
+                                onboarding_completed = False
+                                onboarding_data = {}
+                                
             except Exception as e:
-                logger.debug(f"User tier resolution error: {e}")
-                response_user_id = None
-                resolved_tier_value = None
+                logger.error(f"User tier resolution error: {e}", exc_info=True)
+                # Use Supabase Auth UUID as fallback
+                response_user_id = user.id
+                resolved_tier_value = "free"
+                onboarding_completed = False
+                onboarding_data = {}
+                
             if response_user_id is None:
                 response_user_id = user.id
             if not resolved_tier_value:
@@ -471,12 +533,25 @@ async def login(login_data: UserLoginRequest):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Login error for email {login_data.email}: {str(e)}")
-        logger.exception("Full login error traceback:")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during login"
-        )
+        error_str = str(e).lower()
+        logger.error(f"Login error for email {login_data.email}: {str(e)}", exc_info=True)
+        
+        # Check for specific authentication errors
+        if 'invalid credentials' in error_str or 'wrong password' in error_str or 'incorrect' in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+        elif 'user not found' in error_str or 'email not found' in error_str:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="No account found with this email address"
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Internal server error during login: {str(e)}"
+            )
 
 @auth_router.post("/auth/refresh", response_model=Dict[str, str])
 async def refresh_token(refresh_token: str):

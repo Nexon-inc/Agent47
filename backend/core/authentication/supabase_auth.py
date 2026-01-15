@@ -121,18 +121,32 @@ class SupabaseAuthManager:
             raise
         except Exception as e:
             error_str = str(e).lower()
+            logger.error(f"Signup failed for {email}: {e}", exc_info=True)
+            
             # Check if error is about user already existing in Supabase
-            if 'already registered' in error_str or 'user already exists' in error_str or 'email already' in error_str or 'already been registered' in error_str:
-                logger.warning(f"User {email} already exists in Supabase: {e}")
+            if 'already registered' in error_str or 'user already exists' in error_str or 'email already' in error_str or 'already been registered' in error_str or 'duplicate' in error_str:
+                logger.warning(f"User {email} already exists in Supabase Auth: {e}")
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail=f"Email '{email}' is already registered. Please use a different email or try logging in."
                 )
-            logger.error(f"Signup failed for {email}: {e}")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Signup failed: {str(e)}"
-            )
+            # Check for password validation errors
+            elif 'password' in error_str and ('weak' in error_str or 'short' in error_str or 'requirement' in error_str):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Password does not meet requirements. Password must be at least 6 characters long."
+                )
+            # Check for email validation errors
+            elif 'invalid email' in error_str or 'email format' in error_str:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid email format. Please enter a valid email address."
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Signup failed: {str(e)}"
+                )
     
     async def signin(self, email: str, password: str) -> Dict[str, Any]:
         """Sign in a user"""
@@ -158,12 +172,33 @@ class SupabaseAuthManager:
                     detail="Invalid credentials"
                 )
                 
+        except HTTPException:
+            raise
         except Exception as e:
-            logger.error(f"Signin failed for {email}: {e}")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials"
-            )
+            error_str = str(e).lower()
+            logger.error(f"Signin failed for {email}: {e}", exc_info=True)
+            
+            # Check for specific authentication errors
+            if 'invalid credentials' in error_str or 'wrong password' in error_str or 'incorrect' in error_str or 'invalid login' in error_str:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid email or password"
+                )
+            elif 'user not found' in error_str or 'email not found' in error_str or 'no user found' in error_str:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="No account found with this email address"
+                )
+            elif 'email not confirmed' in error_str or 'email not verified' in error_str:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Please verify your email address before logging in"
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=f"Login failed: {str(e)}"
+                )
     
     async def signout(self, access_token: str) -> bool:
         """Sign out a user"""
