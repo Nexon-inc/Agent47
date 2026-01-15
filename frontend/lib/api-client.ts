@@ -430,19 +430,23 @@ class ApiClient {
 
         // ALSO store in cookies for middleware
         const expiresIn = new Date(Date.now() + tokens.expires_in * 1000);
-        document.cookie = `access_token=${tokens.access_token}; path=/; expires=${expiresIn.toUTCString()}; SameSite=Lax`;
-        document.cookie = `refresh_token=${tokens.refresh_token}; path=/; expires=${expiresIn.toUTCString()}; SameSite=Lax`;
-        document.cookie = `user_tier=${tokens.user.tier || 'null'}; path=/; expires=${expiresIn.toUTCString()}; SameSite=Lax`;
-        document.cookie = `onboarding_completed=${tokens.user.onboarding_completed || 'false'}; path=/; expires=${expiresIn.toUTCString()}; SameSite=Lax`;
+        // Use SameSite=None and Secure to allow cross-site requests from the frontend host
+        const cookieAttrs = `path=/; expires=${expiresIn.toUTCString()}; SameSite=None; Secure`;
+        document.cookie = `access_token=${tokens.access_token}; ${cookieAttrs}`;
+        document.cookie = `refresh_token=${tokens.refresh_token}; ${cookieAttrs}`;
+        document.cookie = `user_tier=${tokens.user.tier || 'null'}; ${cookieAttrs}`;
+        document.cookie = `onboarding_completed=${tokens.user.onboarding_completed || 'false'}; ${cookieAttrs}`;
       } else {
         // Ensure we don't leave stale auth artifacts in storage
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user');
-        document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'user_tier=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-        document.cookie = 'onboarding_completed=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        // Clear cookies with SameSite=None; Secure to match how they were set
+        const expiredAttrs = 'path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure';
+        document.cookie = `access_token=; ${expiredAttrs}`;
+        document.cookie = `refresh_token=; ${expiredAttrs}`;
+        document.cookie = `user_tier=; ${expiredAttrs}`;
+        document.cookie = `onboarding_completed=; ${expiredAttrs}`;
       }
     }
 
