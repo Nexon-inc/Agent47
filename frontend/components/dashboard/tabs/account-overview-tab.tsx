@@ -103,9 +103,21 @@ export default function AccountOverviewTab() {
           
           if (userData) {
             // Handle onboarding_data - it might be null, undefined, empty object, or a proper object
-            const onboardingData = userData.onboarding_data || {}
+            let onboardingData = userData.onboarding_data
+            if (!onboardingData || (typeof onboardingData === 'object' && Object.keys(onboardingData).length === 0)) {
+              // If onboarding_data is empty/null, try to construct from user fields
+              onboardingData = {
+                profile: {
+                  full_name: userData.full_name,
+                  username: userData.username,
+                  email: userData.email,
+                  name: userData.full_name || userData.username
+                }
+              }
+            }
             const profileData = onboardingData?.profile || {}
             
+            console.log("Raw userData:", userData)
             console.log("Raw onboarding_data:", onboardingData)
             console.log("Profile data:", profileData)
             

@@ -311,7 +311,7 @@ async def signup(user_data: UserSignupRequest):
 
             # Get onboarding data from database if user exists
             onboarding_completed = False
-            onboarding_data = None
+            onboarding_data = {}
             try:
                 from ..database import get_database
                 db = get_database()
@@ -321,7 +321,7 @@ async def signup(user_data: UserSignupRequest):
                     db_user = result_db.scalar_one_or_none()
                     if db_user:
                         onboarding_completed = getattr(db_user, 'onboarding_completed', False)
-                        onboarding_data = getattr(db_user, 'onboarding_data', None)
+                        onboarding_data = getattr(db_user, 'onboarding_data', None) or {}
             except Exception:
                 pass
             
@@ -396,7 +396,7 @@ async def login(login_data: UserLoginRequest):
                     if _db_user and getattr(_db_user, 'id', None) is not None:
                         response_user_id = _db_user.id
                         onboarding_completed = getattr(_db_user, 'onboarding_completed', False)
-                        onboarding_data = getattr(_db_user, 'onboarding_data', None)
+                        onboarding_data = getattr(_db_user, 'onboarding_data', None) or {}
                         
                         # Check if user should get PRO tier (whitelist or admin)
                         from .auth_manager import should_get_pro_tier
@@ -581,8 +581,8 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
         is_verified=current_user.is_verified,
         created_at=current_user.created_at,
         last_login=current_user.last_login,
-        preferences=getattr(current_user, "preferences", {}),
-        onboarding_data=getattr(current_user, "onboarding_data", {}),
+        preferences=getattr(current_user, "preferences", None) or {},
+        onboarding_data=getattr(current_user, "onboarding_data", None) or {},
         onboarding_completed=getattr(current_user, "onboarding_completed", False),
         onboarding_completed_at=getattr(current_user, "onboarding_completed_at", None)
     )

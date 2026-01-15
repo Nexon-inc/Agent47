@@ -341,29 +341,45 @@ export default function ToolsAutomationOverviewTab() {
       
       // Load integrations, usage, stats, and calendar data in parallel
       // Get available integrations from the correct endpoint
-      const [integrationsResponse, usageResponse, statsResponse, calendarResponse, calendarStatsResponse, availableIntegrationsResponse] = await Promise.all([
-        apiClient.get("/api/integrations/").catch(() => ({ data: [] })),
-        apiClient.get("/api/integrations/usage").catch(() => ({ data: [] })),
-        apiClient.get("/api/integrations/stats").catch(() => ({ data: null })),
-        apiClient.get("/api/calendar/events").catch(() => ({ data: [] })),
-        apiClient.get("/api/calendar/stats").catch(() => ({ data: null })),
-        apiClient.get("/api/integrations/available").catch(() => ({ data: { integrations: [] } }))
-      ])
-      
-      // Get available integrations from the response
-      const availableIntegrations = availableIntegrationsResponse.data?.integrations || availableIntegrationsResponse.data || []
-      
-      // Use available integrations if the main endpoint doesn't return data
-      const allIntegrations = (integrationsResponse.data && integrationsResponse.data.length > 0) 
-        ? integrationsResponse.data 
-        : availableIntegrations
-      
-      setIntegrations(allIntegrations)
-      setIntegrationUsage(usageResponse.data || [])
-      setIntegrationStats(statsResponse.data)
-      setCalendarEvents(calendarResponse.data || [])
-      setCalendarStats(calendarStatsResponse.data)
-      setLastUpdated(new Date())
+      try {
+        const integrationsResponse = await apiClient.get("/api/integrations/");
+        console.log("Integrations API response:", integrationsResponse);
+        
+        const availableIntegrationsResponse = await apiClient.get("/api/integrations/available").catch((err) => {
+          console.error("Failed to load available integrations:", err);
+          return { data: { integrations: [] } };
+        });
+        
+        const usageResponse = await apiClient.get("/api/integrations/usage").catch(() => ({ data: [] }));
+        const statsResponse = await apiClient.get("/api/integrations/stats").catch(() => ({ data: null }));
+        const calendarResponse = await apiClient.get("/api/calendar/events").catch(() => ({ data: [] }));
+        const calendarStatsResponse = await apiClient.get("/api/calendar/stats").catch(() => ({ data: null }));
+        
+        // API client wraps responses in { data: ... }
+        const directIntegrations = integrationsResponse?.data || [];
+        const availableIntegrations = availableIntegrationsResponse?.data?.integrations || [];
+        
+        // Use available integrations if the main endpoint doesn't return data
+        const allIntegrations = directIntegrations.length > 0 
+          ? directIntegrations 
+          : availableIntegrations;
+        
+        setIntegrations(allIntegrations);
+        setIntegrationUsage(usageResponse?.data || []);
+        setIntegrationStats(statsResponse?.data || null);
+        setCalendarEvents(calendarResponse?.data || []);
+        setCalendarStats(calendarStatsResponse?.data || null);
+        setLastUpdated(new Date());
+        
+        console.log("Loaded integrations:", allIntegrations.length, allIntegrations);
+        
+        if (allIntegrations.length === 0) {
+          console.warn("No integrations loaded - check backend config initialization");
+        }
+      } catch (error) {
+        console.error("Failed to load integrations:", error);
+        // Don't set empty array, just log the error
+      }
       
     } catch (error) {
       console.error("Failed to load integrations data:", error)

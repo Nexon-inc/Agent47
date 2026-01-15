@@ -472,6 +472,9 @@ class ApiClient {
     endpoint: string,
     options: RequestInit & { suppressTierRedirect?: boolean } = {}
   ): Promise<T> {
+    // Ensure tokens are loaded from storage before making request
+    this.loadTokensFromStorage();
+    
     const url = `${this.baseURL}${endpoint}`;
     
     // Add authorization header if token exists
@@ -484,6 +487,8 @@ class ApiClient {
     if (token) {
       headers.Authorization = `Bearer ${token}`;
       headers['x-access-token'] = token; // Add custom header for middleware
+    } else {
+      console.warn(`No token available for request to ${endpoint}`);
     }
 
     const config: RequestInit = {
@@ -499,9 +504,17 @@ class ApiClient {
         const refreshed = await this.refreshAccessToken();
         if (refreshed) {
           // Retry the original request with new token
-          headers.Authorization = `Bearer ${this.accessToken}`;
+          const newToken = this.getToken();
+          if (newToken) {
+            headers.Authorization = `Bearer ${newToken}`;
+            headers['x-access-token'] = newToken;
+          }
           const retryResponse = await fetch(url, { ...config, headers });
           return this.handleResponse<T>(retryResponse, options.suppressTierRedirect === true);
+        } else {
+          // Token refresh failed, throw error with details
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.detail || "Authentication failed. Please log in again.");
         }
       }
 
@@ -589,7 +602,12 @@ class ApiClient {
       throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
-    return response.json();
+    const jsonData = await response.json();
+    // Log response for debugging
+    if (endpoint.includes('/auth/me') || endpoint.includes('/account')) {
+      console.log(`Response from ${endpoint}:`, jsonData);
+    }
+    return jsonData;
   }
 
   // Authentication Methods
@@ -755,7 +773,14 @@ class ApiClient {
 
   async getAccountData(): Promise<User> {
     // Get comprehensive account data including onboarding and profile info
-    return this.makeRequest<User>('/api/v1/auth/me');
+    try {
+      const data = await this.makeRequest<User>('/api/v1/auth/me');
+      console.log("getAccountData response:", data);
+      return data;
+    } catch (error) {
+      console.error("getAccountData error:", error);
+      throw error;
+    }
   }
 
   // Onboarding Methods
@@ -1093,9 +1118,8 @@ class ApiClient {
 
   // Generic GET method for backward compatibility
   async get(endpoint: string): Promise<{ data: any }> {
-    // Remove /api/v1 or /api prefix to get the actual endpoint path
-    const cleanEndpoint = endpoint.replace(/^\/api\/v1/, '').replace(/^\/api/, '');
-    const data = await this.makeRequest(cleanEndpoint);
+    // Use endpoint as-is - makeRequest will handle the full URL
+    const data = await this.makeRequest<any>(endpoint);
     return { data };
   }
 

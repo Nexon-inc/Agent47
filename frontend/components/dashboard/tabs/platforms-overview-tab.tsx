@@ -169,14 +169,35 @@ export default function PlatformsOverviewTab() {
       setIsRefreshing(true)
       
       // Load platforms from OAuth router - get ALL available platforms
-      const [platformsResponse, connectionsResponse, metricsResponse] = await Promise.all([
-        apiClient.get("/api/v1/platforms/").catch(() => ({ data: [] })),
-        apiClient.get("/api/v1/platforms/connected").catch(() => ({ data: { platforms: [] } })),
-        apiClient.get("/api/platforms/metrics").catch(() => ({ data: [] }))
-      ])
-      
-      // Get all platforms (not just social media) - user can connect any platform
-      const allPlatforms = platformsResponse.data || []
+      try {
+        const platformsResponse = await apiClient.get("/api/v1/platforms/");
+        console.log("Platforms API response:", platformsResponse);
+        
+        const connectionsResponse = await apiClient.get("/api/v1/platforms/connected").catch(() => ({ data: { platforms: [] } }));
+        const metricsResponse = await apiClient.get("/api/platforms/metrics").catch(() => ({ data: [] }));
+        
+        // Get all platforms (not just social media) - user can connect any platform
+        // API client wraps responses in { data: ... }
+        const allPlatforms = platformsResponse?.data || [];
+        
+        // Extract platforms array from connections response
+        const connectedPlatformsList = connectionsResponse?.data?.platforms || connectionsResponse?.data || [];
+        
+        setAvailablePlatforms(allPlatforms);
+        setConnectedPlatforms(connectedPlatformsList);
+        setPlatformMetrics(metricsResponse?.data || []);
+        setLastUpdated(new Date());
+        
+        console.log("Loaded platforms:", allPlatforms.length, allPlatforms);
+        console.log("Connected platforms:", connectedPlatformsList.length);
+        
+        if (allPlatforms.length === 0) {
+          console.warn("No platforms loaded - check backend config initialization");
+        }
+      } catch (error) {
+        console.error("Failed to load platforms:", error);
+        // Don't set empty array, just log the error
+      }
       
       // Extract platforms array from connections response
       const connectedPlatformsList = connectionsResponse.data?.platforms || connectionsResponse.data || []

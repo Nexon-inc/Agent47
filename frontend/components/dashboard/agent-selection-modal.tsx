@@ -219,8 +219,32 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
       }
     } catch (error: any) {
       console.error("Error saving agent selection:", error)
+      console.error("Error details:", {
+        message: error?.message,
+        response: error?.response,
+        status: error?.response?.status,
+        data: error?.response?.data
+      })
+      
       // Handle specific error messages from backend (including lock errors)
-      const errorMessage = error?.response?.data?.detail || error?.message || "Failed to save agent selection. Please try again."
+      let errorMessage = "Failed to save agent selection. Please try again."
+      
+      if (error?.message) {
+        errorMessage = error.message
+      } else if (error?.response?.data?.detail) {
+        errorMessage = error.response.data.detail
+      } else if (typeof error === 'string') {
+        errorMessage = error
+      }
+      
+      // Check for authentication errors
+      if (errorMessage.toLowerCase().includes('not authenticated') || 
+          errorMessage.toLowerCase().includes('unauthorized') ||
+          errorMessage.toLowerCase().includes('invalid token') ||
+          error?.response?.status === 401) {
+        errorMessage = "Authentication failed. Please log out and log back in to refresh your session."
+      }
+      
       setError(errorMessage)
       
       // If it's a lock error, show upgrade option
