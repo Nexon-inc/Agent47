@@ -511,7 +511,7 @@ class ApiClient {
             headers['x-access-token'] = newToken;
           }
           const retryResponse = await fetch(url, { ...config, headers });
-          return this.handleResponse<T>(retryResponse, options.suppressTierRedirect === true);
+          return this.handleResponse<T>(retryResponse, endpoint, options.suppressTierRedirect === true);
         } else {
           // Token refresh failed, throw error with details
           const errorData = await response.json().catch(() => ({}));
@@ -519,14 +519,14 @@ class ApiClient {
         }
       }
 
-      return this.handleResponse<T>(response, options.suppressTierRedirect === true);
+      return this.handleResponse<T>(response, endpoint, options.suppressTierRedirect === true);
     } catch (error) {
       console.error('API request failed:', error);
       throw new Error('Network error occurred');
     }
   }
 
-  private async handleResponse<T>(response: Response, suppressTierRedirect: boolean = false): Promise<T> {
+  private async handleResponse<T>(response: Response, endpoint: string, suppressTierRedirect: boolean = false): Promise<T> {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
 

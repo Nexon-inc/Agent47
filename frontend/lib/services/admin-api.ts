@@ -124,6 +124,14 @@ class AdminAPI {
     
     if (typeof window !== 'undefined') {
       localStorage.setItem('admin_token', data.access_token);
+      // Also set a cookie so server-side middleware can detect admin sessions
+      try {
+        const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString(); // 7 days
+        document.cookie = `admin_token=${data.access_token}; path=/; expires=${expires}; SameSite=Lax`;
+      } catch (e) {
+        // ignore cookie set failures in unusual environments
+        console.warn('Failed to set admin_token cookie:', e);
+      }
     }
 
     return data;
