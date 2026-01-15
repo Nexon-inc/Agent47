@@ -102,29 +102,35 @@ export default function AccountOverviewTab() {
           console.log("Backend account data:", userData)
           
           if (userData) {
+            // Handle onboarding_data - it might be null, undefined, empty object, or a proper object
+            const onboardingData = userData.onboarding_data || {}
+            const profileData = onboardingData?.profile || {}
+            
+            console.log("Raw onboarding_data:", onboardingData)
+            console.log("Profile data:", profileData)
             
             // Transform backend data to match our interface (read from onboarding_data.profile)
             const transformedData: AccountData = {
               profile: {
-                fullName: userData.full_name || userData.username || "Not set",
-                nickname: userData.username || "Not set",
-                company: userData.onboarding_data?.profile?.business_name || "Not set",
-                jobTitle: userData.onboarding_data?.profile?.role || "Not set",
-                location: userData.onboarding_data?.profile?.country || "Not set",
-                website: userData.onboarding_data?.profile?.business_website || "https://yourwebsite.com",
-                timezone: "UTC",
-                language: "English",
-                bio: "Tell us about yourself...",
+                fullName: userData.full_name || userData.username || profileData.full_name || profileData.name || "Not set",
+                nickname: userData.username || profileData.nickname || profileData.username || "Not set",
+                company: profileData.business_name || profileData.company || "Not set",
+                jobTitle: profileData.role || "Not set",
+                location: profileData.country || profileData.location || "Not set",
+                website: profileData.business_website || profileData.website || "https://yourwebsite.com",
+                timezone: profileData.timezone || "UTC",
+                language: profileData.language || "English",
+                bio: profileData.bio || "Tell us about yourself...",
               },
               business: {
-                role: userData.onboarding_data?.profile?.role || "Not set",
-                industry: userData.onboarding_data?.profile?.industry || "Not set",
-                businessName: userData.onboarding_data?.profile?.business_name || "Not set",
-                businessWebsite: userData.onboarding_data?.profile?.business_website || "https://yourbusiness.com",
-                businessSize: userData.onboarding_data?.profile?.business_size || "Not set",
-                businessStage: userData.onboarding_data?.profile?.business_stage || "Not set",
-                primaryGoals: userData.onboarding_data?.profile?.goals || [],
-                mainPurpose: userData.onboarding_data?.profile?.purpose || "Not set",
+                role: profileData.role || "Not set",
+                industry: profileData.industry || "Not set",
+                businessName: profileData.business_name || profileData.company || "Not set",
+                businessWebsite: profileData.business_website || profileData.website || "https://yourbusiness.com",
+                businessSize: profileData.business_size || "Not set",
+                businessStage: profileData.business_stage || "Not set",
+                primaryGoals: Array.isArray(profileData.goals) ? profileData.goals : (profileData.goals ? [profileData.goals] : []),
+                mainPurpose: profileData.purpose || "Not set",
               },
               account: {
                 email: userData.email || "Not available",
@@ -132,7 +138,7 @@ export default function AccountOverviewTab() {
                 emailVerified: userData.is_verified || false,
                 accountCreated: userData.created_at ? new Date(userData.created_at).toLocaleDateString() : "Not available",
                 lastLogin: userData.last_login ? new Date(userData.last_login).toLocaleDateString() : "Not available",
-                subscriptionTier: userData.tier || "Free Plan",
+                subscriptionTier: userData.tier ? userData.tier.charAt(0).toUpperCase() + userData.tier.slice(1) + " Plan" : "Free Plan",
               },
               preferences: {
                 notifications: {

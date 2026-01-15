@@ -23,13 +23,18 @@ async def get_current_user_id(request: Request) -> int:
         
         token = auth_header.split(" ")[1]
         auth_manager = await get_auth()
-        payload = auth_manager.verify_token(token)
+        payload = auth_manager.verify_token(token, "access")
         
-        user_id = payload.get("user_id")
+        # JWT payload uses "sub" for user ID, not "user_id"
+        user_id = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token payload")
         
-        return user_id
+        # Convert to int if it's a string
+        try:
+            return int(user_id) if isinstance(user_id, str) else user_id
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=401, detail="Invalid user ID in token")
         
     except Exception as e:
         logger.error(f"Failed to extract user ID from token: {e}")
@@ -43,8 +48,9 @@ async def get_platforms():
         configs = config_manager.get_all_configs()
         
         platforms = []
-        for name, config in configs.items():
+        for idx, (name, config) in enumerate(configs.items(), 1):
             platforms.append({
+                "id": idx,  # Add ID for frontend
                 "name": config.name,
                 "display_name": config.display_name,
                 "platform_type": config.platform_type.value,
@@ -52,8 +58,15 @@ async def get_platforms():
                 "scopes": config.scopes,
                 "supported_features": config.supported_features,
                 "supports_workspaces": config.supports_workspaces,
-                "icon_url": config.icon_url,
-                "color": config.color,
+                "api_version": getattr(config, "api_version", "1.0"),
+                "base_url": getattr(config, "api_base_url", ""),
+                "rate_limits": getattr(config, "rate_limits", {}),
+                "authentication_methods": {
+                    "oauth2": True,
+                    "api_key": False,
+                    "bearer_token": False
+                },
+                "status": "active",
                 "is_available": True
             })
         
@@ -70,8 +83,9 @@ async def get_available_platforms():
         configs = config_manager.get_all_configs()
         
         platforms = []
-        for name, config in configs.items():
+        for idx, (name, config) in enumerate(configs.items(), 1):
             platforms.append({
+                "id": idx,  # Add ID for frontend
                 "name": config.name,
                 "display_name": config.display_name,
                 "platform_type": config.platform_type.value,
@@ -79,7 +93,17 @@ async def get_available_platforms():
                 "scopes": config.scopes,
                 "supported_features": config.supported_features,
                 "supports_workspaces": config.supports_workspaces,
-                "max_users_per_app": config.max_users_per_app
+                "max_users_per_app": config.max_users_per_app,
+                "api_version": getattr(config, "api_version", "1.0"),
+                "base_url": getattr(config, "api_base_url", ""),
+                "rate_limits": getattr(config, "rate_limits", {}),
+                "authentication_methods": {
+                    "oauth2": True,
+                    "api_key": False,
+                    "bearer_token": False
+                },
+                "status": "active",
+                "is_available": True
             })
         
         return {
