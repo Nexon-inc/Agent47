@@ -450,8 +450,27 @@ class AdminCore(LoggerMixin):
                                 result = await session.execute(select(User).where(User.email == email))
                                 user = result.scalar_one_or_none()
                                 if not user:
-                                    self.logger.warning(f"User {email} authenticated with Supabase but not found in database")
-                                    return None
+                                    # User exists in Supabase but not in database - create them
+                                    self.logger.info(f"User {email} authenticated with Supabase but not found in database, creating user record...")
+                                    try:
+                                        # Create user in database
+                                        new_user = User(
+                                            email=email,
+                                            username=email.split('@')[0],  # Use email prefix as username
+                                            hashed_password="",  # Password handled by Supabase
+                                            full_name=supabase_user.user_metadata.get('full_name', '') if supabase_user.user_metadata else '',
+                                            tier=UserTier.PRO if email == self.settings.admin_default_email else UserTier.FREE,
+                                            is_active=True,
+                                            is_verified=supabase_user.email_confirmed_at is not None
+                                        )
+                                        session.add(new_user)
+                                        await session.commit()
+                                        await session.refresh(new_user)
+                                        user = new_user
+                                        self.logger.info(f"Created user record for {email} in database")
+                                    except Exception as create_error:
+                                        self.logger.error(f"Failed to create user record: {create_error}")
+                                        return None
                 except Exception as supabase_auth_error:
                     self.logger.debug(f"Supabase auth attempt failed: {supabase_auth_error}")
             

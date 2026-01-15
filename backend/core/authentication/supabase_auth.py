@@ -29,6 +29,37 @@ class SupabaseAuthManager:
         try:
             client = self._get_client()
             
+            # Check if user already exists in Supabase Auth
+            try:
+                # Try to get user by email (this will fail if user doesn't exist, which is what we want)
+                existing_users = client.auth.admin.list_users()
+                for user in existing_users.users:
+                    if user.email == email:
+                        logger.warning(f"User {email} already exists in Supabase Auth")
+                        # User exists in Supabase but might not be in our database
+                        # Try to sign them in instead
+                        try:
+                            signin_result = await self.signin(email, password)
+                            if signin_result.get("success"):
+                                return {
+                                    "user": signin_result.get("user"),
+                                    "session": signin_result.get("session"),
+                                    "success": True,
+                                    "existing_user": True
+                                }
+                        except Exception:
+                            pass
+                        # If signin fails, raise error
+                        raise HTTPException(
+                            status_code=status.HTTP_409_CONFLICT,
+                            detail=f"Email '{email}' is already registered. Please use a different email or try logging in."
+                        )
+            except HTTPException:
+                raise
+            except Exception as check_error:
+                # If checking fails, continue with signup (user might not exist)
+                logger.debug(f"Error checking existing user (non-fatal): {check_error}")
+            
             # Create user with Supabase Auth (disable email confirmation)
             result = client.auth.sign_up({
                 "email": email,
@@ -85,7 +116,18 @@ class SupabaseAuthManager:
                     detail="Failed to create user"
                 )
                 
+        except HTTPException:
+            # Re-raise HTTP exceptions (like 409 Conflict)
+            raise
         except Exception as e:
+            error_str = str(e).lower()
+            # Check if error is about user already existing in Supabase
+            if 'already registered' in error_str or 'user already exists' in error_str or 'email already' in error_str or 'already been registered' in error_str:
+                logger.warning(f"User {email} already exists in Supabase: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Email '{email}' is already registered. Please use a different email or try logging in."
+                )
             logger.error(f"Signup failed for {email}: {e}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

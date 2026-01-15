@@ -102,13 +102,16 @@ async def admin_login(
         ip_address = request.client.host if request.client else None
         user_agent = request.headers.get("user-agent")
         
+        logger.info(f"Admin login attempt for email: {email}")
         admin_user = await admin_core.authenticate_admin(email, password, ip_address, user_agent)
         if not admin_user:
+            logger.warning(f"Admin login failed for email: {email} - Invalid credentials")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid credentials"
             )
         
+        logger.info(f"Admin login successful for email: {email}")
         return {
             "access_token": admin_user.session_token,
             "token_type": "bearer",
@@ -123,10 +126,10 @@ async def admin_login(
         # Re-raise HTTP exceptions (like 401) without modification
         raise
     except Exception as e:
-        logger.error(f"Admin login failed: {str(e)}")
+        logger.error(f"Admin login failed: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Login failed"
+            detail=f"Login failed: {str(e)}"
         )
 
 @router.post("/logout")
