@@ -219,7 +219,32 @@ export default function InboxTab() {
         apiClient.get("/api/inbox/stats").catch(() => ({ data: null }))
       ])
       
-      setMessages(messagesResponse.data || [])
+      let allMessages = messagesResponse.data || []
+      
+      // Add welcome message if user just joined and has no messages
+      if (allMessages.length === 0 && user) {
+        const welcomeMessage: InboxMessage = {
+          id: 0,
+          user_id: user.id,
+          sender: "Agent47",
+          sender_type: "system",
+          subject: `Welcome to Agent47, ${user.username || user.email.split('@')[0]}!`,
+          message: `Hello ${user.username || user.email.split('@')[0]}! 👋\n\nWelcome to Agent47, your AI-powered agent platform. We're excited to have you on board!\n\nHere's what you can do:\n• Select and configure your AI agents\n• Connect to your favorite platforms and tools\n• Automate your workflows\n• Track your activity and history\n\nGet started by exploring the Agents tab and selecting the agents that best fit your needs. If you have any questions, check out our documentation or contact support.\n\nHappy automating!`,
+          message_type: "welcome",
+          priority: "high",
+          status: "unread",
+          is_read: false,
+          tags: ["welcome", "system"],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          attachments: [],
+          actions: [],
+          total_messages: 1
+        }
+        allMessages = [welcomeMessage, ...allMessages]
+      }
+      
+      setMessages(allMessages)
       setInboxStats(statsResponse.data)
       setLastUpdated(new Date())
       

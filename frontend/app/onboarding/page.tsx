@@ -656,9 +656,8 @@ export default function OnboardingPage() {
           username: user?.username || '',
           email: user?.email || '',
         },
-        social: social,
-        tutorials: tutorials,
-        workflow: workflow,
+        // Note: social, tutorials, and workflow data are not persisted to backend
+        // User info and integrations are managed separately
       }
       
       // Save to localStorage as backup

@@ -34,6 +34,7 @@ import {
   Loader2,
   Download,
   Filter,
+  User,
 } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
@@ -528,7 +529,93 @@ export default function HistoryTab() {
             <CheckCircle className="w-4 h-4 mr-2" />
             Tasks ({filteredTasks.length})
           </TabsTrigger>
+          <TabsTrigger value="account">
+            <User className="w-4 h-4 mr-2" />
+            Account Activity ({accountHistory.length})
+          </TabsTrigger>
+          <TabsTrigger value="navigation">
+            <Globe className="w-4 h-4 mr-2" />
+            Navigation ({navigationHistory.length})
+          </TabsTrigger>
         </TabsList>
+
+        {/* Account Activity Tab */}
+        <TabsContent value="account" className="space-y-4">
+          {accountHistory.length === 0 ? (
+            <EmptyState
+              icon={User}
+              title="No Account Activity"
+              description="Your account activities will appear here"
+            />
+          ) : (
+            <div className="space-y-4">
+              {accountHistory.map((activity) => (
+                <Card key={activity.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-4">
+                      <div className="text-2xl">{activity.icon}</div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{activity.event}</h3>
+                        <p className="text-sm text-gray-600 mt-1">{activity.description}</p>
+                        {Object.keys(activity.details || {}).length > 0 && (
+                          <div className="mt-3 p-3 bg-gray-50 rounded text-xs space-y-1">
+                            {Object.entries(activity.details).map(([key, value]: [string, any]) => (
+                              <div key={key} className="flex items-center justify-between">
+                                <span className="text-gray-600 capitalize">{key}:</span>
+                                <span className="font-medium text-gray-900">
+                                  {typeof value === 'object' ? JSON.stringify(value).substring(0, 50) : String(value)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        <span className="text-xs text-gray-500 mt-2 block">
+                          {activity.timestamp instanceof Date 
+                            ? activity.timestamp.toLocaleString()
+                            : new Date(activity.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Navigation History Tab */}
+        <TabsContent value="navigation" className="space-y-4">
+          {navigationHistory.length === 0 ? (
+            <EmptyState
+              icon={Globe}
+              title="No Navigation History"
+              description="Your tab visits will be tracked here as you navigate"
+            />
+          ) : (
+            <div className="space-y-4">
+              {navigationHistory.map((nav, index) => (
+                <Card key={nav.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">{nav.icon}</span>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 capitalize">{nav.tab}</h3>
+                          <p className="text-sm text-gray-500">Visit #{navigationHistory.length - index}</p>
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {nav.timestamp instanceof Date 
+                          ? nav.timestamp.toLocaleTimeString()
+                          : new Date(nav.timestamp).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
         <TabsContent value="conversations" className="space-y-4">
           {isLoading ? (

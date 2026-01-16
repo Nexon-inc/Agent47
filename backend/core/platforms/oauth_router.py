@@ -14,31 +14,43 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/platforms", tags=["platforms"])
 
-async def get_current_user_id(request: Request) -> int:
+async def get_current_user_id(request: Request) -> Optional[int]:
     """Extract user ID from JWT token"""
     try:
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
+            logger.warning(f"Missing or invalid authorization header. Auth header: {auth_header}")
             raise HTTPException(status_code=401, detail="Missing or invalid authorization header")
         
         token = auth_header.split(" ")[1]
         auth_manager = await get_auth()
-        payload = auth_manager.verify_token(token, "access")
+        
+        try:
+            payload = auth_manager.verify_token(token, "access")
+        except Exception as token_err:
+            logger.error(f"Token verification failed: {token_err}")
+            raise HTTPException(status_code=401, detail=f"Invalid token: {str(token_err)}")
         
         # JWT payload uses "sub" for user ID, not "user_id"
         user_id = payload.get("sub")
         if not user_id:
-            raise HTTPException(status_code=401, detail="Invalid token payload")
+            logger.error(f"Invalid token payload - 'sub' not found. Payload: {payload}")
+            raise HTTPException(status_code=401, detail="Invalid token payload - user ID not found")
         
         # Convert to int if it's a string
         try:
-            return int(user_id) if isinstance(user_id, str) else user_id
-        except (ValueError, TypeError):
+            user_id_int = int(user_id) if isinstance(user_id, str) else user_id
+            logger.info(f"Successfully authenticated user {user_id_int}")
+            return user_id_int
+        except (ValueError, TypeError) as type_err:
+            logger.error(f"Failed to convert user ID to int: {type_err}")
             raise HTTPException(status_code=401, detail="Invalid user ID in token")
         
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Failed to extract user ID from token: {e}")
-        raise HTTPException(status_code=401, detail="Invalid authentication token")
+        logger.error(f"Failed to extract user ID from token: {e}", exc_info=True)
+        raise HTTPException(status_code=401, detail=f"Authentication failed: {str(e)}")
 
 @router.get("/")
 async def get_platforms():
@@ -119,11 +131,15 @@ async def get_available_platforms():
 @router.get("/connect/{platform_name}")
 async def initiate_platform_connection(
     platform_name: str,
-    user_id: int = Depends(get_current_user_id),
+    user_id: Optional[int] = Depends(get_current_user_id),
     request: Request = None
 ):
     """Initiate OAuth connection to a platform"""
     try:
+        # If user_id is None, raise 401
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Authentication required to connect platforms")
+        
         oauth_service = await get_oauth_service()
         config_manager = await get_platform_config_manager()
         
@@ -131,40 +147,48 @@ async def initiate_platform_connection(
         try:
             config = config_manager.get_config(platform_name)
         except ValueError:
+            logger.error(f"Platform '{platform_name}' not found")
             raise HTTPException(status_code=404, detail=f"Platform '{platform_name}' not found")
         
         # Generate authorization URL
         auth_result = oauth_service.get_authorization_url(user_id, platform_name)
         
         if not auth_result["success"]:
+            logger.error(f"Failed to get auth URL for {platform_name}: {auth_result['error']}")
             raise HTTPException(status_code=400, detail=auth_result["error"])
         
         # Log connection attempt
-        audit_logger = await get_audit_logger()
-        from .audit_logger import AuditAction
-        await audit_logger.log_action(
-            user_id=user_id,
-            platform_name=platform_name,
-            action=AuditAction.PLATFORM_CONNECTED,
-            description=f"User initiated connection to {platform_name}",
-            success=True,
-            ip_address=request.client.host if request else None,
-            user_agent=request.headers.get("user-agent") if request else None
-        )
+        try:
+            audit_logger = await get_audit_logger()
+            from .audit_logger import AuditAction
+            await audit_logger.log_action(
+                user_id=user_id,
+                platform_name=platform_name,
+                action=AuditAction.PLATFORM_CONNECTED,
+                description=f"User initiated connection to {platform_name}",
+                success=True,
+                ip_address=request.client.host if request else None,
+                user_agent=request.headers.get("user-agent") if request else None
+            )
+        except Exception as audit_err:
+            logger.warning(f"Failed to log audit for {platform_name}: {audit_err}")
+            # Don't fail the request due to audit logging failure
+        
+        logger.info(f"Platform connection initiated for user {user_id} to {platform_name}")
         
         return {
             "success": True,
             "auth_url": auth_result["auth_url"],
             "platform": platform_name,
-            "scopes": auth_result["scopes"],
-            "state": auth_result["state"]
+            "scopes": auth_result.get("scopes", []),
+            "state": auth_result.get("state", "")
         }
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to initiate platform connection: {e}")
-        raise HTTPException(status_code=500, detail="Failed to initiate platform connection")
+        logger.error(f"Failed to initiate platform connection for {platform_name}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to initiate platform connection: {str(e)}")
 
 @router.get("/callback/{platform_name}")
 async def handle_oauth_callback(

@@ -97,8 +97,12 @@ class OnboardingProfileData(BaseModel):
 
 
 class OnboardingData(BaseModel):
-    # Only keep profile; remove social/tutorials/workflow per frontend alignment
-    profile: OnboardingProfileData = OnboardingProfileData()
+    # Accept profile data from frontend onboarding flow
+    # Social, tutorials, and workflow tracking removed - user info should be displayed from database
+    profile: Optional[Dict[str, Any]] = None
+    
+    class Config:
+        extra = "ignore"  # Ignore extra fields like social, tutorials, workflow
 
 class OnboardingResponse(BaseModel):
     success: bool
@@ -660,6 +664,9 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
     except Exception:
         pass
     
+    onboarding_data = getattr(current_user, "onboarding_data", None) or {}
+    logger.info(f"Returning user data for {current_user.email}. Onboarding data: {onboarding_data}")
+    
     return UserResponse(
         id=current_user.id,
         email=current_user.email,
@@ -672,7 +679,7 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
         created_at=current_user.created_at,
         last_login=current_user.last_login,
         preferences=getattr(current_user, "preferences", None) or {},
-        onboarding_data=getattr(current_user, "onboarding_data", None) or {},
+        onboarding_data=onboarding_data,
         onboarding_completed=getattr(current_user, "onboarding_completed", False),
         onboarding_completed_at=getattr(current_user, "onboarding_completed_at", None)
     )
@@ -691,19 +698,30 @@ async def save_onboarding_data(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Save user onboarding data"""
+    """Save user onboarding profile data"""
     try:
-        onboarding_dict = onboarding_data.dict() if hasattr(onboarding_data, 'dict') else onboarding_data
+        # Extract only profile data from onboarding_data
+        onboarding_dict = {}
+        if hasattr(onboarding_data, 'dict'):
+            raw_data = onboarding_data.dict()
+        else:
+            raw_data = onboarding_data if isinstance(onboarding_data, dict) else {}
+        
+        # Only include profile data, ignore social/tutorials/workflow
+        if raw_data.get("profile"):
+            onboarding_dict["profile"] = raw_data["profile"]
+        
+        logger.info(f"Received onboarding data for user {current_user.email}: {onboarding_dict}")
+        
         current_user.onboarding_data = onboarding_dict
         current_user.onboarding_completed = True
         current_user.onboarding_completed_at = datetime.utcnow()
         
-        # Extract website URL from onboarding data and save to User.website_url
-        # Priority: profile.website > profile.business_website > business.businessWebsite
+        # Extract website URL from profile data and save to User.website_url
+        # Priority: profile.website > profile.business_website
         website_url = ""
         if isinstance(onboarding_dict, dict):
             profile_data = onboarding_dict.get("profile", {})
-            business_data = onboarding_dict.get("business", {})
             
             # Check profile.website first
             if profile_data.get("website"):
@@ -711,16 +729,14 @@ async def save_onboarding_data(
             # Then profile.business_website
             elif profile_data.get("business_website"):
                 website_url = profile_data.get("business_website")
-            # Then business.businessWebsite
-            elif business_data.get("businessWebsite"):
-                website_url = business_data.get("businessWebsite")
         
         # Save website URL to User.website_url for easy agent access
         if website_url:
             current_user.website_url = website_url
         
         await db.commit()
-        logger.info(f"Onboarding data saved for user: {current_user.email}, website_url: {website_url}")
+        logger.info(f"Onboarding data saved successfully for user: {current_user.email}, website_url: {website_url}")
+        logger.info(f"Stored onboarding_data in database: {current_user.onboarding_data}")
         return OnboardingResponse(
             success=True,
             message="Onboarding data saved successfully",

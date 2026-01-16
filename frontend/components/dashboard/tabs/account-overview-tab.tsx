@@ -114,45 +114,46 @@ export default function AccountOverviewTab() {
           
           // Handle onboarding_data - prioritize it if it exists and has content
           let onboardingData = userData.onboarding_data
+          let profileData = {}
           
           // If onboarding_data exists and has actual data, use it
           if (onboardingData && typeof onboardingData === 'object' && Object.keys(onboardingData).length > 0) {
             console.log("Using onboarding_data from backend:", onboardingData)
+            // Extract profile data from onboarding_data
+            profileData = onboardingData.profile || {}
           } else {
             // If onboarding_data is empty/null, construct from user fields
             console.log("Onboarding data empty, constructing from user fields")
-            onboardingData = {
-              profile: {
-                full_name: userData.full_name || userData.username || "Not set",
-                username: userData.username || "Not set",
-                email: userData.email || "Not set",
-                name: userData.full_name || userData.username || "Not set",
-                role: "Not set",
-                industry: "Not set",
-                business_name: "Not set",
-                business_website: "Not set",
-                business_size: "Not set",
-                business_stage: "Not set",
-                goals: [],
-                purpose: "Not set",
-                country: "Not set",
-                timezone: "UTC",
-                language: "English",
-                bio: "",
-                nickname: userData.username || "Not set"
-              }
+            profileData = {
+              full_name: userData.full_name || userData.username || "",
+              name: userData.full_name || userData.username || "",
+              username: userData.username || "",
+              email: userData.email || "",
+              role: "",
+              industry: "",
+              business_name: "",
+              business_website: "",
+              business_size: "",
+              business_stage: "",
+              goals: [],
+              purpose: "",
+              country: "",
+              timezone: "UTC",
+              language: "English",
+              bio: "",
+              nickname: userData.username || ""
             }
           }
-          const profileData = onboardingData?.profile || {}
           
           console.log("Raw userData:", userData)
-          console.log("Processed onboarding_data:", onboardingData)
-          console.log("Profile data:", profileData)
+          console.log("Profile data extracted:", profileData)
           
-          // Helper function to format field for display - show empty string if no data, not "Not set" placeholder
+          // Helper function to format field for display - prioritize actual data
           const getDisplayValue = (value: any, defaultValue: string = ""): string => {
             if (value === null || value === undefined || value === "") return defaultValue
             if (typeof value === "string") return value.trim()
+            if (Array.isArray(value) && value.length === 0) return defaultValue
+            if (typeof value === "object") return defaultValue
             return String(value)
           }
 
@@ -163,21 +164,21 @@ export default function AccountOverviewTab() {
               nickname: getDisplayValue(profileData.nickname || profileData.username || userData.username),
               company: getDisplayValue(profileData.business_name),
               jobTitle: getDisplayValue(profileData.role),
-              location: getDisplayValue(profileData.country || profileData.location),
-              website: getDisplayValue(profileData.business_website),
-              timezone: profileData.timezone || "UTC",
-              language: profileData.language || "English",
+              location: getDisplayValue(profileData.country || profileData.location || ""),
+              website: getDisplayValue(profileData.website || profileData.business_website || ""),
+              timezone: getDisplayValue(profileData.timezone || "UTC"),
+              language: getDisplayValue(profileData.language || "English"),
               bio: getDisplayValue(profileData.bio),
             },
             business: {
               role: getDisplayValue(profileData.role),
               industry: getDisplayValue(profileData.industry),
               businessName: getDisplayValue(profileData.business_name),
-              businessWebsite: getDisplayValue(profileData.business_website),
+              businessWebsite: getDisplayValue(profileData.business_website || profileData.website || ""),
               businessSize: getDisplayValue(profileData.business_size),
               businessStage: getDisplayValue(profileData.business_stage),
               primaryGoals: Array.isArray(profileData.goals) ? profileData.goals : (profileData.goals ? [profileData.goals] : []),
-              mainPurpose: getDisplayValue(profileData.purpose),
+              mainPurpose: getDisplayValue(profileData.purpose || profileData.otherGoal),
             },
             account: {
               email: userData.email || "",
@@ -203,7 +204,7 @@ export default function AccountOverviewTab() {
           setAccountData(transformedData)
           setEditedData(transformedData)
           setLastUpdated(new Date().toLocaleTimeString())
-          console.log("Account data loaded successfully:", transformedData)
+          console.log("Account data loaded and transformed successfully:", transformedData)
         } catch (error) {
           console.error("Error loading account data from backend:", error)
           // Set default data if backend fails

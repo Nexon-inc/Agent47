@@ -368,9 +368,28 @@ export default function ToolsAutomationOverviewTab() {
         }
         
         // Use available integrations if the main endpoint doesn't return data
-        const allIntegrations = directIntegrations.length > 0 
+        let allIntegrations = directIntegrations.length > 0 
           ? directIntegrations 
           : availableIntegrations;
+        
+        // If no integrations from API, provide default tools list
+        if (allIntegrations.length === 0) {
+          allIntegrations = [
+            { id: 1, name: "slack", display_name: "Slack", integration_type: "communication", description: "Connect to Slack for team collaboration", provider: "slack", status: "available", pricing_tier: "free" },
+            { id: 2, name: "gmail", display_name: "Gmail", integration_type: "email", description: "Connect to Gmail for email management", provider: "google", status: "available", pricing_tier: "free" },
+            { id: 3, name: "mailchimp", display_name: "Mailchimp", integration_type: "email", description: "Connect to Mailchimp for email campaigns", provider: "mailchimp", status: "available", pricing_tier: "starter" },
+            { id: 4, name: "stripe", display_name: "Stripe", integration_type: "payment", description: "Connect to Stripe for payment processing", provider: "stripe", status: "available", pricing_tier: "pro" },
+            { id: 5, name: "shopify", display_name: "Shopify", integration_type: "ecommerce", description: "Connect to Shopify for store management", provider: "shopify", status: "available", pricing_tier: "pro" },
+            { id: 6, name: "salesforce", display_name: "Salesforce", integration_type: "crm", description: "Connect to Salesforce for CRM", provider: "salesforce", status: "available", pricing_tier: "pro" },
+            { id: 7, name: "hubspot", display_name: "HubSpot", integration_type: "crm", description: "Connect to HubSpot for sales and marketing", provider: "hubspot", status: "available", pricing_tier: "pro" },
+            { id: 8, name: "zapier", display_name: "Zapier", integration_type: "automation", description: "Connect to Zapier for workflow automation", provider: "zapier", status: "available", pricing_tier: "starter" },
+            { id: 9, name: "notion", display_name: "Notion", integration_type: "productivity", description: "Connect to Notion for document management", provider: "notion", status: "available", pricing_tier: "starter" },
+            { id: 10, name: "google_analytics", display_name: "Google Analytics", integration_type: "analytics", description: "Connect to Google Analytics for website analytics", provider: "google", status: "available", pricing_tier: "free" },
+            { id: 11, name: "trello", display_name: "Trello", integration_type: "productivity", description: "Connect to Trello for project management", provider: "trello", status: "available", pricing_tier: "starter" },
+            { id: 12, name: "asana", display_name: "Asana", integration_type: "productivity", description: "Connect to Asana for task management", provider: "asana", status: "available", pricing_tier: "pro" },
+          ]
+          console.warn("No integrations loaded - using default tools list");
+        }
         
         setIntegrations(allIntegrations);
         setIntegrationUsage(usageResponse?.data || usageResponse || []);
@@ -381,13 +400,24 @@ export default function ToolsAutomationOverviewTab() {
         
         console.log("Loaded integrations:", allIntegrations.length, allIntegrations);
         
-        if (allIntegrations.length === 0) {
-          console.warn("No integrations loaded - backend may not have integrations config initialized");
-        }
       } catch (error) {
         console.error("Failed to load integrations:", error);
-        // Set empty arrays for graceful fallback
-        setIntegrations([]);
+        // Set default tools when API is not available
+        const defaultTools = [
+          { id: 1, name: "slack", display_name: "Slack", integration_type: "communication", description: "Connect to Slack for team collaboration", provider: "slack", status: "available", pricing_tier: "free" },
+          { id: 2, name: "gmail", display_name: "Gmail", integration_type: "email", description: "Connect to Gmail for email management", provider: "google", status: "available", pricing_tier: "free" },
+          { id: 3, name: "mailchimp", display_name: "Mailchimp", integration_type: "email", description: "Connect to Mailchimp for email campaigns", provider: "mailchimp", status: "available", pricing_tier: "starter" },
+          { id: 4, name: "stripe", display_name: "Stripe", integration_type: "payment", description: "Connect to Stripe for payment processing", provider: "stripe", status: "available", pricing_tier: "pro" },
+          { id: 5, name: "shopify", display_name: "Shopify", integration_type: "ecommerce", description: "Connect to Shopify for store management", provider: "shopify", status: "available", pricing_tier: "pro" },
+          { id: 6, name: "salesforce", display_name: "Salesforce", integration_type: "crm", description: "Connect to Salesforce for CRM", provider: "salesforce", status: "available", pricing_tier: "pro" },
+          { id: 7, name: "hubspot", display_name: "HubSpot", integration_type: "crm", description: "Connect to HubSpot for sales and marketing", provider: "hubspot", status: "available", pricing_tier: "pro" },
+          { id: 8, name: "zapier", display_name: "Zapier", integration_type: "automation", description: "Connect to Zapier for workflow automation", provider: "zapier", status: "available", pricing_tier: "starter" },
+          { id: 9, name: "notion", display_name: "Notion", integration_type: "productivity", description: "Connect to Notion for document management", provider: "notion", status: "available", pricing_tier: "starter" },
+          { id: 10, name: "google_analytics", display_name: "Google Analytics", integration_type: "analytics", description: "Connect to Google Analytics for website analytics", provider: "google", status: "available", pricing_tier: "free" },
+          { id: 11, name: "trello", display_name: "Trello", integration_type: "productivity", description: "Connect to Trello for project management", provider: "trello", status: "available", pricing_tier: "starter" },
+          { id: 12, name: "asana", display_name: "Asana", integration_type: "productivity", description: "Connect to Asana for task management", provider: "asana", status: "available", pricing_tier: "pro" },
+        ]
+        setIntegrations(defaultTools);
         setIntegrationUsage([]);
         setIntegrationStats(null);
         setCalendarEvents([]);
