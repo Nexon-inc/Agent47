@@ -231,25 +231,10 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
       return
     }
 
-    // Validate user exists and is authenticated
-    if (!user || !user.email) {
-      // Try to refresh user data from backend before showing error
-      try {
-        console.log("User data missing, attempting to fetch fresh user data...")
-        const freshUser = await apiClient.getCurrentUser()
-        if (freshUser && freshUser.id) {
-          // Update user in auth store with fresh data
-          useAuthStore.setState({ user: freshUser })
-          // Continue with save
-        } else {
-          setError("User not found. Please log in again.")
-          return
-        }
-      } catch (err) {
-        console.error("Failed to fetch user data:", err)
-        setError("User not found. Please log in again.")
-        return
-      }
+    // If not authenticated, show login error
+    if (!isAuthenticated) {
+      setError("Please log in to select agents")
+      return
     }
 
     setIsLoading(true)

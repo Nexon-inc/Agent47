@@ -879,6 +879,8 @@ async def create_subscription(
 ):
     """Create a new subscription for the current user"""
     try:
+        logger.info(f"Creating subscription for user {current_user.id}, tier: {request.tier}")
+        
         billing_manager = await get_billing()
         billing_tier = BillingTier(request.tier)
         result = await billing_manager.create_subscription(
@@ -910,11 +912,20 @@ async def create_subscription(
             # Non-fatal: cookie setting failure should not block subscription creation
             logger.exception("Failed to set user_tier cookie on subscription creation")
 
+        logger.info(f"Subscription created successfully for user {current_user.id}")
         return result
-    except ValueError:
+    except ValueError as e:
+        logger.warning(f"Invalid billing tier: {e}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid billing tier"
+            detail=f"Invalid billing tier: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"Failed to create subscription for user {current_user.id}: {e}")
+        error_message = str(e) if str(e) else "Failed to create subscription"
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=error_message
         )
 
 @auth_router.post("/billing/choose-free")

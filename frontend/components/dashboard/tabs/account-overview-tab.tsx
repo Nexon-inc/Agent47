@@ -88,6 +88,8 @@ export default function AccountOverviewTab() {
   const [agentsLocked, setAgentsLocked] = useState(false)
   const [lockReason, setLockReason] = useState<string>("")
   const [trialEndDate, setTrialEndDate] = useState<Date | null>(null)
+  const [activities, setActivities] = useState<any[]>([])
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false)
 
   // Load account data from backend
   const loadAccountData = async () => {
@@ -147,35 +149,42 @@ export default function AccountOverviewTab() {
           console.log("Processed onboarding_data:", onboardingData)
           console.log("Profile data:", profileData)
           
+          // Helper function to format field for display - show empty string if no data, not "Not set" placeholder
+          const getDisplayValue = (value: any, defaultValue: string = ""): string => {
+            if (value === null || value === undefined || value === "") return defaultValue
+            if (typeof value === "string") return value.trim()
+            return String(value)
+          }
+
           // Transform backend data to match our interface (read from onboarding_data.profile)
           const transformedData: AccountData = {
             profile: {
-              fullName: userData.full_name || userData.username || profileData.full_name || profileData.name || "Not set",
-              nickname: userData.username || profileData.nickname || profileData.username || "Not set",
-              company: profileData.business_name || profileData.company || "Not set",
-              jobTitle: profileData.role || "Not set",
-              location: profileData.country || profileData.location || "Not set",
-              website: profileData.business_website || profileData.website || "https://yourwebsite.com",
+              fullName: getDisplayValue(profileData.full_name || profileData.name || userData.full_name || userData.username),
+              nickname: getDisplayValue(profileData.nickname || profileData.username || userData.username),
+              company: getDisplayValue(profileData.business_name),
+              jobTitle: getDisplayValue(profileData.role),
+              location: getDisplayValue(profileData.country || profileData.location),
+              website: getDisplayValue(profileData.business_website),
               timezone: profileData.timezone || "UTC",
               language: profileData.language || "English",
-              bio: profileData.bio || "Tell us about yourself...",
+              bio: getDisplayValue(profileData.bio),
             },
             business: {
-              role: profileData.role || "Not set",
-              industry: profileData.industry || "Not set",
-              businessName: profileData.business_name || profileData.company || "Not set",
-              businessWebsite: profileData.business_website || profileData.website || "https://yourbusiness.com",
-              businessSize: profileData.business_size || "Not set",
-              businessStage: profileData.business_stage || "Not set",
+              role: getDisplayValue(profileData.role),
+              industry: getDisplayValue(profileData.industry),
+              businessName: getDisplayValue(profileData.business_name),
+              businessWebsite: getDisplayValue(profileData.business_website),
+              businessSize: getDisplayValue(profileData.business_size),
+              businessStage: getDisplayValue(profileData.business_stage),
               primaryGoals: Array.isArray(profileData.goals) ? profileData.goals : (profileData.goals ? [profileData.goals] : []),
-              mainPurpose: profileData.purpose || "Not set",
+              mainPurpose: getDisplayValue(profileData.purpose),
             },
             account: {
-              email: userData.email || "Not available",
+              email: userData.email || "",
               status: userData.is_active ? "Active" : "Inactive",
               emailVerified: userData.is_verified || false,
-              accountCreated: userData.created_at ? new Date(userData.created_at).toLocaleDateString() : "Not available",
-              lastLogin: userData.last_login ? new Date(userData.last_login).toLocaleDateString() : "Not available",
+              accountCreated: userData.created_at ? new Date(userData.created_at).toLocaleDateString() : "",
+              lastLogin: userData.last_login ? new Date(userData.last_login).toLocaleDateString() : "",
               subscriptionTier: userData.tier ? userData.tier.charAt(0).toUpperCase() + userData.tier.slice(1) + " Plan" : "Free Plan",
             },
             preferences: {
@@ -346,6 +355,49 @@ export default function AccountOverviewTab() {
     }
   }
 
+  // Load user activities
+  const loadActivities = async () => {
+    try {
+      setIsLoadingActivities(true)
+      // Try to fetch activities from backend if endpoint exists
+      // For now, we'll use mock data showing signup, login, and agent selection activities
+      const mockActivities = [
+        {
+          id: 1,
+          type: "login",
+          description: "You signed in to your account",
+          timestamp: user?.last_login || new Date().toISOString(),
+          icon: "🔐",
+        },
+        {
+          id: 2,
+          type: "signup",
+          description: "You created your account",
+          timestamp: user?.created_at || new Date().toISOString(),
+          icon: "📝",
+        },
+      ]
+      
+      // Add agent selection activity if agents are selected
+      if (selectedAgents.length > 0) {
+        mockActivities.unshift({
+          id: 0,
+          type: "agent_selection",
+          description: `You selected ${selectedAgents.length} agent${selectedAgents.length > 1 ? 's' : ''}`,
+          timestamp: new Date().toISOString(),
+          icon: "🤖",
+        })
+      }
+      
+      setActivities(mockActivities)
+    } catch (error) {
+      console.error("Error loading activities:", error)
+      setActivities([])
+    } finally {
+      setIsLoadingActivities(false)
+    }
+  }
+
   // Check lock status whenever selectedAgents or user changes
   useEffect(() => {
     if (selectedAgents.length > 0) {
@@ -359,6 +411,7 @@ export default function AccountOverviewTab() {
     console.log("Account tab loaded, user:", user, "isAuthenticated:", isAuthenticated)
     loadAccountData()
     loadSelectedAgents()
+    loadActivities()
   }, [user, isAuthenticated])
 
   // Subscribe to real-time account updates via WebSocket
@@ -651,27 +704,27 @@ export default function AccountOverviewTab() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Full Name</Label>
-                      <p className="text-sm">{accountData.profile.fullName}</p>
+                      <p className="text-sm">{accountData.profile.fullName || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Nickname/Username</Label>
-                      <p className="text-sm">{accountData.profile.nickname}</p>
+                      <p className="text-sm">{accountData.profile.nickname || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Current Company/Organization</Label>
-                      <p className="text-sm">{accountData.profile.company}</p>
+                      <p className="text-sm">{accountData.profile.company || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Job Title</Label>
-                      <p className="text-sm">{accountData.profile.jobTitle}</p>
+                      <p className="text-sm">{accountData.profile.jobTitle || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Location</Label>
-                      <p className="text-sm">{accountData.profile.location}</p>
+                      <p className="text-sm">{accountData.profile.location || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Website</Label>
-                      <p className="text-sm">{accountData.profile.website}</p>
+                      <p className="text-sm">{accountData.profile.website || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Timezone</Label>
@@ -684,7 +737,7 @@ export default function AccountOverviewTab() {
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-500">Bio</Label>
-                    <p className="text-sm">{accountData.profile.bio}</p>
+                    <p className="text-sm">{accountData.profile.bio || <span className="text-gray-400 italic">Not set</span>}</p>
                   </div>
                 </div>
               )}
@@ -845,42 +898,46 @@ export default function AccountOverviewTab() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Role</Label>
-                      <p className="text-sm">{accountData.business.role}</p>
+                      <p className="text-sm">{accountData.business.role || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Industry</Label>
-                      <p className="text-sm">{accountData.business.industry}</p>
+                      <p className="text-sm">{accountData.business.industry || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Business Name</Label>
-                      <p className="text-sm">{accountData.business.businessName}</p>
+                      <p className="text-sm">{accountData.business.businessName || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Business Website</Label>
-                      <p className="text-sm">{accountData.business.businessWebsite}</p>
+                      <p className="text-sm">{accountData.business.businessWebsite || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Business Size</Label>
-                      <p className="text-sm">{accountData.business.businessSize}</p>
+                      <p className="text-sm">{accountData.business.businessSize || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Business Stage</Label>
-                      <p className="text-sm">{accountData.business.businessStage}</p>
+                      <p className="text-sm">{accountData.business.businessStage || <span className="text-gray-400 italic">Not set</span>}</p>
                     </div>
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-500">Primary Goals</Label>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {accountData.business.primaryGoals.map((goal) => (
-                        <Badge key={goal} variant="secondary">
-                          {goal}
-                        </Badge>
-                      ))}
-                    </div>
+                    {accountData.business.primaryGoals && accountData.business.primaryGoals.length > 0 ? (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {accountData.business.primaryGoals.map((goal) => (
+                          <Badge key={goal} variant="secondary">
+                            {goal}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-400 italic mt-2">Not set</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-sm font-medium text-gray-500">Main Purpose</Label>
-                    <p className="text-sm">{accountData.business.mainPurpose}</p>
+                    <p className="text-sm">{accountData.business.mainPurpose || <span className="text-gray-400 italic">Not set</span>}</p>
                   </div>
                 </div>
               )}
@@ -1241,13 +1298,35 @@ export default function AccountOverviewTab() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No recent activity to display</p>
-                <p className="text-sm text-gray-400">
-                  Your account activity will appear here once you start using the platform
-                </p>
-              </div>
+              {isLoadingActivities ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <span className="ml-2">Loading activities...</span>
+                </div>
+              ) : activities.length > 0 ? (
+                <div className="space-y-4">
+                  {activities.map((activity) => (
+                    <div key={activity.id} className="flex items-start gap-4 border-b pb-4 last:border-b-0">
+                      <div className="text-2xl">{activity.icon}</div>
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{activity.description}</p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(activity.timestamp).toLocaleDateString()} at{" "}
+                          {new Date(activity.timestamp).toLocaleTimeString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No recent activity to display</p>
+                  <p className="text-sm text-gray-400">
+                    Your account activity will appear here once you start using the platform
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

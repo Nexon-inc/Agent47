@@ -281,51 +281,98 @@ export default function PricingPage() {
     e.preventDefault()
     setError(null)
 
-    // Basic validation
-    if (!cardNumber.trim() || !cardExpiry.trim() || !cardCvv.trim() || !cardName.trim()) {
-      setError("Please fill in all fields")
-      return
-    }
-
-    if (cardNumber.replace(/\s/g, "").length < 16) {
-      setError("Please enter a valid card number")
-      return
-    }
-
-    if (cardExpiry.length < 5) {
-      setError("Please enter a valid expiry date (MM/YY)")
-      return
-    }
-
-    if (cardCvv.length < 3) {
-      setError("Please enter a valid CVV")
-      return
-    }
-
-    setPaymentStep("processing")
-
     try {
-      if (!selectedTier || selectedTier === "free") {
-        throw new Error("No tier selected")
+      // Check authentication first
+      if (!apiClient.isAuthenticated()) {
+        setError("You must be logged in to complete a payment. Please log in and try again.")
+        setPaymentStep("error")
+        return
       }
 
-      // Create subscription with Paystack
-      const response = await apiClient.createSubscription(selectedTier, "paystack", billingPeriod, { suppressRedirect: true })
-      
-      if (response.payment_url) {
-        // Redirect to Paystack payment page
-        window.location.href = response.payment_url
-      } else {
-        setPaymentStep("success")
-        // Redirect to dashboard after a short delay
-        setTimeout(() => {
-          // Set flag to show agent selection modal after entering dashboard
-          sessionStorage.setItem('from-pricing', 'true')
-          window.location.href = "/dashboard"
-        }, 2000)
+      // Basic validation
+      if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
+        setError("Please fill in all fields")
+        return
+      }
+
+      const cleanCardNumber = cardNumber.replace(/\s/g, "")
+      if (cleanCardNumber.length < 16) {
+        setError("Please enter a valid card number (16+ digits)")
+        return
+      }
+
+      if (cardExpiry.length < 5) {
+        setError("Please enter a valid expiry date (MM/YY)")
+        return
+      }
+
+      if (cardCvv.length < 3) {
+        setError("Please enter a valid CVV (3-4 digits)")
+        return
+      }
+
+      if (cardName.trim().length < 2) {
+        setError("Please enter a valid name on card")
+        return
+      }
+
+      if (!selectedTier || selectedTier === "free") {
+        setError("No tier selected. Please select a plan first.")
+        return
+      }
+
+      setPaymentStep("processing")
+
+      try {
+        // Create subscription with Paystack
+        console.log("Creating subscription for tier:", selectedTier, "period:", billingPeriod)
+        
+        const response = await apiClient.createSubscription(
+          selectedTier, 
+          "paystack", 
+          billingPeriod, 
+          { suppressRedirect: true }
+        )
+        
+        console.log("Subscription response:", response)
+        
+        if (response?.payment_url) {
+          // Redirect to Paystack payment page
+          console.log("Redirecting to Paystack:", response.payment_url)
+          window.location.href = response.payment_url
+        } else if (response?.status === "active") {
+          // Subscription created successfully without payment needed
+          setPaymentStep("success")
+          // Redirect to dashboard after a short delay
+          setTimeout(() => {
+            sessionStorage.setItem('from-pricing', 'true')
+            window.location.href = "/dashboard"
+          }, 2000)
+        } else {
+          // Unexpected response format
+          setError("Unexpected response from server. Please contact support if this continues.")
+          setPaymentStep("error")
+        }
+      } catch (apiError) {
+        console.error("API Error creating subscription:", apiError)
+        let errorMessage = 'Subscription creation failed'
+        
+        if (apiError instanceof Error) {
+          errorMessage = apiError.message
+          // Handle specific error messages
+          if (errorMessage.includes('already has an active subscription')) {
+            errorMessage = 'You already have an active subscription. Please contact support to upgrade.'
+          } else if (errorMessage.includes('not found')) {
+            errorMessage = 'User account not found. Please log in again.'
+          }
+        }
+        
+        setError(errorMessage)
+        setPaymentStep("error")
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Payment failed')
+      console.error("Payment submission error:", error)
+      setError(error instanceof Error ? error.message : 'Payment processing failed. Please try again.')
       setPaymentStep("error")
     }
   }
