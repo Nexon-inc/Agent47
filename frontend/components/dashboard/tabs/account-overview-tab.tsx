@@ -116,11 +116,23 @@ export default function AccountOverviewTab() {
           let onboardingData = userData.onboarding_data
           let profileData = {}
           
+          // Parse onboarding_data if it's a string (JSON from backend)
+          if (typeof onboardingData === 'string') {
+            try {
+              onboardingData = JSON.parse(onboardingData)
+              console.log("Parsed onboarding_data from string:", onboardingData)
+            } catch (e) {
+              console.error("Failed to parse onboarding_data as JSON:", e)
+              onboardingData = null
+            }
+          }
+          
           // If onboarding_data exists and has actual data, use it
           if (onboardingData && typeof onboardingData === 'object' && Object.keys(onboardingData).length > 0) {
             console.log("Using onboarding_data from backend:", onboardingData)
             // Extract profile data from onboarding_data
             profileData = onboardingData.profile || {}
+            console.log("Extracted profile data from onboarding_data:", profileData)
           } else {
             // If onboarding_data is empty/null, construct from user fields
             console.log("Onboarding data empty, constructing from user fields")

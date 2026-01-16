@@ -664,7 +664,28 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
     except Exception:
         pass
     
-    onboarding_data = getattr(current_user, "onboarding_data", None) or {}
+    # Ensure onboarding_data is properly deserialized as dict (not string)
+    onboarding_data = getattr(current_user, "onboarding_data", None)
+    if isinstance(onboarding_data, str):
+        try:
+            import json
+            onboarding_data = json.loads(onboarding_data)
+        except (json.JSONDecodeError, TypeError):
+            onboarding_data = {}
+    elif not onboarding_data:
+        onboarding_data = {}
+    
+    # Ensure preferences is properly deserialized as dict
+    preferences = getattr(current_user, "preferences", None)
+    if isinstance(preferences, str):
+        try:
+            import json
+            preferences = json.loads(preferences)
+        except (json.JSONDecodeError, TypeError):
+            preferences = {}
+    elif not preferences:
+        preferences = {}
+    
     logger.info(f"Returning user data for {current_user.email}. Onboarding data: {onboarding_data}")
     
     return UserResponse(
@@ -678,7 +699,7 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
         is_admin=is_admin,
         created_at=current_user.created_at,
         last_login=current_user.last_login,
-        preferences=getattr(current_user, "preferences", None) or {},
+        preferences=preferences,
         onboarding_data=onboarding_data,
         onboarding_completed=getattr(current_user, "onboarding_completed", False),
         onboarding_completed_at=getattr(current_user, "onboarding_completed_at", None)
@@ -754,10 +775,21 @@ async def save_onboarding_data(
 async def get_onboarding_data(current_user: User = Depends(get_current_active_user)):
     """Get user onboarding data"""
     try:
+        # Ensure onboarding_data is properly deserialized
+        onboarding_data = getattr(current_user, "onboarding_data", None)
+        if isinstance(onboarding_data, str):
+            try:
+                import json
+                onboarding_data = json.loads(onboarding_data)
+            except (json.JSONDecodeError, TypeError):
+                onboarding_data = {}
+        elif not onboarding_data:
+            onboarding_data = {}
+        
         return OnboardingResponse(
             success=True,
             message="Onboarding data retrieved successfully",
-            onboarding_data=current_user.onboarding_data
+            onboarding_data=onboarding_data
         )
         
     except Exception as e:

@@ -642,7 +642,7 @@ export default function OnboardingPage() {
     setIsLoading(true)
     try {
       // Get user data from auth store to include in onboarding data
-      const { user, isAuthenticated } = useAuthStore.getState()
+      const { user, isAuthenticated, refreshUser } = useAuthStore.getState()
       console.log("User data from auth store:", user)
       console.log("Is authenticated:", isAuthenticated)
       
@@ -669,6 +669,15 @@ export default function OnboardingPage() {
         try {
           await apiClient.saveOnboardingData(onboardingPayload)
           console.log("Onboarding data saved successfully to backend:", onboardingPayload)
+          
+          // Refresh user data to include the saved onboarding data
+          try {
+            await refreshUser()
+            console.log("User data refreshed after onboarding save")
+          } catch (refreshError) {
+            console.error("Failed to refresh user data after onboarding save:", refreshError)
+            // Continue anyway - user can still proceed
+          }
         } catch (apiError) {
           console.error("Failed to save onboarding data to backend:", apiError)
           // Continue with redirect even if backend save fails

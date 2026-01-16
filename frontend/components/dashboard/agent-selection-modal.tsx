@@ -95,40 +95,9 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
   useEffect(() => {
     if (isOpen && isAuthenticated) {
       setError(null) // Clear any previous errors
-      setIsLoadingExisting(true)
-      // Check if agents are locked before loading
-      checkIfLocked().then((locked) => {
-        if (locked) {
-          setError("Your agents are locked and cannot be changed. Please upgrade your plan to unlock them.")
-          setIsLoadingExisting(false)
-          // Close modal after showing error
-          setTimeout(() => {
-            onClose()
-          }, 3000)
-        } else {
-          loadExistingAgents()
-        }
-      }).catch((err) => {
-        console.error('Error checking agent lock status:', err)
-        // Don't show error, just proceed to load
-        setIsLoadingExisting(false)
-        loadExistingAgents()
-      })
+      loadExistingAgents()
     }
   }, [isOpen, isAuthenticated])
-
-  const checkIfLocked = async (): Promise<boolean> => {
-    try {
-      const existingAgents = await apiClient.getSelectedAgents()
-      if (existingAgents && existingAgents.length > 0) {
-        return existingAgents.some((agent: any) => agent.locked === true)
-      }
-      return false
-    } catch (error) {
-      console.error("Error checking lock status:", error)
-      return false
-    }
-  }
 
   const loadExistingAgents = async () => {
     try {
@@ -148,43 +117,10 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
       }
     } catch (error) {
       console.error("Error loading existing agents:", error)
-      // If it's an auth error, try to refresh token once and retry
-      const errMsg = (error as any)?.message || ''
-      const status = (error as any)?.response?.status
-      if (status === 401 || errMsg.toLowerCase().includes('not authenticated') || errMsg.toLowerCase().includes('unauthorized') || errMsg.toLowerCase().includes('invalid token')) {
-        try {
-          const refreshed = await apiClient.refreshAccessToken()
-          if (refreshed) {
-            try {
-              const retryAgents = await apiClient.getSelectedAgents()
-              if (retryAgents && retryAgents.length > 0) {
-                const agentIds = retryAgents
-                  .filter((agent: any) => agent.status === "active" || agent.status === "enabled")
-                  .map((agent: any) => agent.agent_id || agent.agent_key || agent.id || agent.key)
-                  .filter(Boolean)
-                setSelectedAgents(agentIds)
-                setError(null)
-              } else {
-                setSelectedAgents([])
-                setError(null)
-              }
-              return
-            } catch (retryErr) {
-              console.warn('Retry loading agents after refresh failed:', retryErr)
-            }
-          }
-        } catch (e) {
-          console.warn('Token refresh failed:', e)
-        }
-        // Don't show auth error - user might not have selected agents yet
-        // Just start with empty selection
-        setSelectedAgents([])
-        setError(null)
-      } else {
-        // If no agents exist yet, that's fine - start with empty selection
-        setSelectedAgents([])
-        setError(null)
-      }
+      // Silently handle errors - user might not have agents selected yet
+      // Just start with empty selection so they can select new agents
+      setSelectedAgents([])
+      setError(null)
     } finally {
       setIsLoadingExisting(false)
     }
@@ -275,7 +211,7 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
         data: error?.response?.data
       })
       
-      // Build friendly error message and handle auth errors by attempting a refresh+retry
+      // Build friendly error message
       let errorMessage = "Failed to save agent selection. Please try again."
       if (error?.message) {
         errorMessage = error.message
@@ -283,31 +219,6 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
         errorMessage = error.response.data.detail
       } else if (typeof error === 'string') {
         errorMessage = error
-      }
-
-      // Check for authentication errors - try refresh once before showing message
-      const isAuthErr = errorMessage.toLowerCase().includes('not authenticated') || 
-                        errorMessage.toLowerCase().includes('unauthorized') ||
-                        errorMessage.toLowerCase().includes('invalid token') ||
-                        error?.response?.status === 401
-
-      if (isAuthErr) {
-        try {
-          const refreshed = await apiClient.refreshAccessToken()
-          if (refreshed) {
-            // Retry saving once
-            const retryResp = await apiClient.saveSelectedAgents(selectedAgents)
-            if (retryResp && (retryResp.success || retryResp.agents)) {
-              console.log('Agents saved successfully after token refresh:', retryResp)
-              onConfirm()
-              return
-            }
-          }
-        } catch (e) {
-          console.warn('Token refresh + retry failed:', e)
-        }
-
-        errorMessage = "Authentication failed. Please log out and log back in to refresh your session."
       }
 
       setError(errorMessage)
