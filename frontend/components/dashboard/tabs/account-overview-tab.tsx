@@ -105,17 +105,26 @@ export default function AccountOverviewTab() {
             throw new Error("No user data received from backend")
           }
           
-          // Handle onboarding_data - it might be null, undefined, empty object, or a proper object
+          // Validate user exists
+          if (!userData.id) {
+            console.warn("User ID missing from response")
+          }
+          
+          // Handle onboarding_data - prioritize it if it exists and has content
           let onboardingData = userData.onboarding_data
-          if (!onboardingData || typeof onboardingData !== 'object' || Object.keys(onboardingData).length === 0) {
-            // If onboarding_data is empty/null, try to construct from user fields
+          
+          // If onboarding_data exists and has actual data, use it
+          if (onboardingData && typeof onboardingData === 'object' && Object.keys(onboardingData).length > 0) {
+            console.log("Using onboarding_data from backend:", onboardingData)
+          } else {
+            // If onboarding_data is empty/null, construct from user fields
+            console.log("Onboarding data empty, constructing from user fields")
             onboardingData = {
               profile: {
-                full_name: userData.full_name,
-                username: userData.username,
-                email: userData.email,
-                name: userData.full_name || userData.username,
-                // Add empty profile data for other fields
+                full_name: userData.full_name || userData.username || "Not set",
+                username: userData.username || "Not set",
+                email: userData.email || "Not set",
+                name: userData.full_name || userData.username || "Not set",
                 role: "Not set",
                 industry: "Not set",
                 business_name: "Not set",
@@ -128,14 +137,14 @@ export default function AccountOverviewTab() {
                 timezone: "UTC",
                 language: "English",
                 bio: "",
-                nickname: userData.username || ""
+                nickname: userData.username || "Not set"
               }
             }
           }
           const profileData = onboardingData?.profile || {}
           
           console.log("Raw userData:", userData)
-          console.log("Raw onboarding_data:", onboardingData)
+          console.log("Processed onboarding_data:", onboardingData)
           console.log("Profile data:", profileData)
           
           // Transform backend data to match our interface (read from onboarding_data.profile)

@@ -230,39 +230,47 @@ export default function PricingPage() {
 
   // Handle tier selection
   const handleSelectTier = async (tier: PricingTier) => {
-    setSelectedTier(tier)
+    try {
+      setSelectedTier(tier)
+      setError(null)
 
-    if (tier === "free") {
-      // Start local 14-day trial immediately and redirect user to dashboard.
-      const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
-      try {
-        localStorage.setItem('free_trial_expires_at', expiresAt)
-      } catch (e) {
-        console.warn('Could not persist free trial expiry locally', e)
+      if (tier === "free") {
+        // Start local 14-day trial immediately and redirect user to dashboard.
+        const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+        try {
+          localStorage.setItem('free_trial_expires_at', expiresAt)
+        } catch (e) {
+          console.warn('Could not persist free trial expiry locally', e)
+        }
+
+        // Fire-and-forget backend subscription creation so server record exists if possible
+        apiClient.createSubscription("free", "paystack", { suppressRedirect: true }).catch((err) => {
+          console.warn('Background free subscription creation failed:', err)
+        })
+
+        // Set a short-lived cookie so Next.js middleware allows immediate navigation to /dashboard
+        try {
+          const cookieExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()
+          document.cookie = `user_tier=free; path=/; expires=${cookieExpires}; SameSite=Lax`
+        } catch (e) {
+          console.warn('Could not set user_tier cookie locally', e)
+        }
+
+        // Show success state briefly then redirect
+        setPaymentStep("success")
+        setTimeout(() => {
+          // Set flag to show agent selection modal after entering dashboard
+          sessionStorage.setItem('from-pricing', 'true')
+          window.location.href = "/dashboard"
+        }, 800)
+      } else {
+        // For paid tiers, show payment form
+        setPaymentStep("payment")
       }
-
-      // Fire-and-forget backend subscription creation so server record exists if possible
-      apiClient.createSubscription("free", "paystack", { suppressRedirect: true }).catch((err) => {
-        console.warn('Background free subscription creation failed:', err)
-      })
-
-      // Set a short-lived cookie so Next.js middleware allows immediate navigation to /dashboard
-      try {
-        const cookieExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()
-        document.cookie = `user_tier=free; path=/; expires=${cookieExpires}; SameSite=Lax`
-      } catch (e) {
-        console.warn('Could not set user_tier cookie locally', e)
-      }
-
-      // Show success state briefly then redirect
-      setPaymentStep("success")
-      setTimeout(() => {
-        // Set flag to show agent selection modal after entering dashboard
-        sessionStorage.setItem('from-pricing', 'true')
-        window.location.href = "/dashboard"
-      }, 800)
-    } else {
-      setPaymentStep("payment")
+    } catch (err: any) {
+      console.error("Error in handleSelectTier:", err)
+      setError(err?.message || "Failed to process tier selection. Please try again.")
+      setSelectedTier(null)
     }
   }
 
@@ -590,11 +598,7 @@ export default function PricingPage() {
                             disabled={loading}
                             className={cn(
                               "w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105",
-                              tier === "free"
-                                ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
-                                : plan.recommended
-                                ? "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700"
-                                : "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700",
+                              "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700",
                               loading && "opacity-70 cursor-not-allowed hover:scale-100"
                             )}
                           >

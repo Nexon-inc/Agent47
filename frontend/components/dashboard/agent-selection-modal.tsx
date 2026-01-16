@@ -231,6 +231,17 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
       return
     }
 
+    // Validate user exists and is authenticated
+    if (!user) {
+      setError("User not found. Please log in again.")
+      return
+    }
+
+    if (!user.id) {
+      setError("Invalid user session. Please log in again.")
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
