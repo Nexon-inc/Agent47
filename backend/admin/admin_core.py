@@ -481,7 +481,7 @@ class AdminCore(LoggerMixin):
             # Check if user exists in admin_users table
             admin_user = await self._get_admin_user_by_email(email)
             if not admin_user:
-                # If not in admin table, check if it's the default admin email
+                # If not in admin table, check if it's the default admin email - auto-create admin on first login
                 if email == self.settings.admin_default_email:
                     # Create admin user on first login
                     # Ensure user.id is converted to string (it might be int)
@@ -492,8 +492,9 @@ class AdminCore(LoggerMixin):
                     admin_user = await self._create_admin_user_from_email(email, user_id_str)
                     if not admin_user:
                         return None
+                    self.logger.info(f"Auto-created admin user for default admin email on first login: {email}")
                 else:
-                    self.logger.warning(f"User {email} is not an admin")
+                    self.logger.warning(f"User {email} is not registered as admin. Only default admin email ({self.settings.admin_default_email}) can auto-create admin account on first login.")
                     return None
             
             # Ensure admin user has PRO tier

@@ -504,8 +504,10 @@ class ApiClient {
     if (token) {
       headers.Authorization = `Bearer ${token}`;
       headers['x-access-token'] = token; // Add custom header for middleware
+      // eslint-disable-next-line no-console
+      console.debug(`[apiClient] Authorization header set for ${endpoint}`);
     } else {
-      console.warn(`No token available for request to ${endpoint}`);
+      console.warn(`[apiClient] No token available for request to ${endpoint}. User may not be authenticated.`);
     }
 
     const config: RequestInit = {
@@ -555,6 +557,22 @@ class ApiClient {
   private async handleResponse<T>(response: Response, endpoint: string, suppressTierRedirect: boolean = false): Promise<T> {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+
+      // Handle 401 Unauthorized - improved debugging
+      if (response.status === 401) {
+        console.error(`[apiClient] 401 Unauthorized for ${endpoint}. CORS or token issue?`, {
+          endpoint,
+          tokenPresent: !!this.getToken(),
+          corsAllowed: response.headers.get('access-control-allow-origin'),
+          errorDetail: errorData.detail
+        });
+      }
+
+      // Handle CORS issues (manifests as 0 status in some cases)
+      if (response.status === 0) {
+        console.error(`[apiClient] CORS Error detected for ${endpoint}. Check that your Vercel URL is in BACKEND_CORS_ORIGINS.`);
+        throw new Error("CORS error: Backend not allowing requests from this frontend. Contact admin.");
+      }
 
       // Handle tier validation errors - only redirect if user hasn't selected a tier yet
       if (response.status === 403 && errorData.detail && errorData.detail.includes("Tier selection required")) {
