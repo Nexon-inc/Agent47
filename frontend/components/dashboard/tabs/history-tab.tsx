@@ -88,6 +88,10 @@ export default function HistoryTab() {
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
+  
+  // Account and navigation history
+  const [accountHistory, setAccountHistory] = useState<any[]>([])
+  const [navigationHistory, setNavigationHistory] = useState<any[]>([])
 
   // Agent icons mapping
   const agentIcons = {
@@ -121,6 +125,8 @@ export default function HistoryTab() {
   // Load history data
   useEffect(() => {
     loadHistoryData()
+    loadAccountHistory()
+    loadNavigationHistory()
   }, [])
 
   // Subscribe to real-time task updates via WebSocket
@@ -140,6 +146,102 @@ export default function HistoryTab() {
 
     return () => unsubscribe()
   }, [])
+
+  const loadAccountHistory = () => {
+    // Load account creation and signup history
+    if (user) {
+      const history: any[] = []
+      
+      // Account created event
+      if (user.created_at) {
+        history.push({
+          id: `account_created_${user.id}`,
+          type: "account",
+          event: "Account Created",
+          description: `Account created with email ${user.email}`,
+          timestamp: new Date(user.created_at),
+          icon: "📝",
+          details: {
+            email: user.email,
+            tier: user.tier,
+            username: user.username
+          }
+        })
+      }
+      
+      // Last login event
+      if (user.last_login) {
+        history.push({
+          id: `last_login_${user.id}`,
+          type: "account",
+          event: "Last Login",
+          description: "You logged in to your account",
+          timestamp: new Date(user.last_login),
+          icon: "🔐",
+          details: {}
+        })
+      }
+      
+      // Onboarding completed event
+      if (user.onboarding_completed) {
+        history.push({
+          id: `onboarding_${user.id}`,
+          type: "account",
+          event: "Onboarding Completed",
+          description: "You completed your account onboarding",
+          timestamp: user.onboarding_completed_at ? new Date(user.onboarding_completed_at) : new Date(user.created_at),
+          icon: "✅",
+          details: user.onboarding_data
+        })
+      }
+      
+      // Sort by timestamp (newest first)
+      history.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      setAccountHistory(history)
+    }
+  }
+
+  const loadNavigationHistory = () => {
+    // Track navigation to different tabs and pages
+    try {
+      const stored = localStorage.getItem('navigationHistory')
+      const history = stored ? JSON.parse(stored) : []
+      setNavigationHistory(history)
+    } catch (error) {
+      console.error("Failed to load navigation history:", error)
+      setNavigationHistory([])
+    }
+  }
+
+  const trackNavigation = (tabName: string) => {
+    // Record tab visit
+    const currentHistory = navigationHistory || []
+    const newEntry = {
+      id: `${tabName}_${Date.now()}`,
+      tab: tabName,
+      timestamp: new Date(),
+      icon: getTabIcon(tabName)
+    }
+    
+    const updated = [newEntry, ...currentHistory].slice(0, 50) // Keep last 50 navigation items
+    setNavigationHistory(updated)
+    localStorage.setItem('navigationHistory', JSON.stringify(updated))
+  }
+
+  const getTabIcon = (tabName: string) => {
+    const icons: Record<string, string> = {
+      home: "🏠",
+      agents: "🤖",
+      platforms: "🌐",
+      tools: "🔧",
+      history: "📋",
+      inbox: "📬",
+      calendar: "📅",
+      settings: "⚙️",
+      account: "👤",
+    }
+    return icons[tabName] || "📍"
+  }
 
   const loadHistoryData = async () => {
     try {

@@ -231,12 +231,7 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
       return
     }
 
-    // If not authenticated, show login error
-    if (!isAuthenticated) {
-      setError("Please log in to select agents")
-      return
-    }
-
+    // Remove authentication check - users can select agents immediately after signup
     setIsLoading(true)
     setError(null)
 
