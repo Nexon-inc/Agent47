@@ -90,6 +90,17 @@ export const useAuthStore = create<AuthState>()(
           // Add a small delay to ensure localStorage is updated
           await new Promise(resolve => setTimeout(resolve, 100))
           
+          // Fetch fresh user data from backend to ensure we have complete profile
+          try {
+            const freshUser = await apiClient.getCurrentUser()
+            if (freshUser && freshUser.id) {
+              set({ user: { ...freshUser, is_admin: isAdmin } })
+            }
+          } catch (err) {
+            console.warn('Failed to fetch fresh user data after signup:', err)
+            // Continue with the user data we have from signup response
+          }
+          
           return true
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Signup failed'
@@ -117,6 +128,17 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null
           })
+          
+          // Fetch fresh user data from backend to ensure we have complete profile
+          try {
+            const freshUser = await apiClient.getCurrentUser()
+            if (freshUser && freshUser.id) {
+              set({ user: { ...freshUser, is_admin: isAdmin } })
+            }
+          } catch (err) {
+            console.warn('Failed to fetch fresh user data after login:', err)
+            // Continue with the user data we have from login response
+          }
           
           return true
         } catch (error) {
