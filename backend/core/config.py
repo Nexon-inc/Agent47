@@ -460,7 +460,7 @@ class SecuritySettings(BaseSettings):
     secret_key: str = os.getenv("SECURITY_SECRET_KEY", os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production"))
     algorithm: str = os.getenv("SECURITY_ALGORITHM", "HS256")
     access_token_expire_minutes: int = int(os.getenv("SECURITY_ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
-    refresh_token_expire_days: int = int(os.getenv("SECURITY_REFRESH_TOKEN_EXPIRE_DAYS", "30"))
+    refresh_token_expire_days: int = int(os.getenv("SECURITY_REFRESH_TOKEN_EXPIRE_DAYS", "90"))
     model_config = SettingsConfigDict(env_prefix="SECURITY_", extra="allow")
 
 class BillingSettings(BaseSettings):

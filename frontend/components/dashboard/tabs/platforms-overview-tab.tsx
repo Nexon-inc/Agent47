@@ -170,33 +170,42 @@ export default function PlatformsOverviewTab() {
       
       // Load platforms from OAuth router - get ALL available platforms
       try {
-        const platformsResponse = await apiClient.get("/api/v1/platforms/");
+        // The API returns arrays directly, not wrapped in {data: ...}
+        const platformsResponse = await apiClient.get("/api/v1/platforms/") || [];
         console.log("Platforms API response:", platformsResponse);
         
-        const connectionsResponse = await apiClient.get("/api/v1/platforms/connected").catch(() => ({ data: { platforms: [] } }));
-        const metricsResponse = await apiClient.get("/api/v1/platforms/metrics").catch(() => ({ data: [] }));
+        const connectionsResponse = await apiClient.get("/api/v1/platforms/connected").catch(() => []);
+        const metricsResponse = await apiClient.get("/api/v1/platforms/metrics").catch(() => []);
         
-        // Get all platforms (not just social media) - user can connect any platform
-        // API client wraps responses in { data: ... }
-        const allPlatforms = platformsResponse?.data || [];
+        // Handle both wrapped and unwrapped responses
+        let allPlatforms = platformsResponse?.data || platformsResponse || [];
+        let connectedPlatformsList = connectionsResponse?.data || connectionsResponse || [];
         
-        // Extract platforms array from connections response
-        const connectedPlatformsList = connectionsResponse?.data?.platforms || connectionsResponse?.data || [];
+        // Ensure we have arrays
+        if (!Array.isArray(allPlatforms)) {
+          allPlatforms = allPlatforms?.platforms || [];
+        }
+        if (!Array.isArray(connectedPlatformsList)) {
+          connectedPlatformsList = connectedPlatformsList?.platforms || [];
+        }
         
         setAvailablePlatforms(allPlatforms);
         setConnectedPlatforms(connectedPlatformsList);
-        setPlatformMetrics(metricsResponse?.data || []);
+        setPlatformMetrics(metricsResponse?.data || metricsResponse || []);
         setLastUpdated(new Date());
         
         console.log("Loaded platforms:", allPlatforms.length, allPlatforms);
         console.log("Connected platforms:", connectedPlatformsList.length);
         
         if (allPlatforms.length === 0) {
-          console.warn("No platforms loaded - check backend config initialization");
+          console.warn("No platforms loaded - backend may not have platform config initialized");
         }
       } catch (error) {
         console.error("Failed to load platforms:", error);
-        // Don't set empty array, just log the error
+        // Set empty arrays for a graceful fallback
+        setAvailablePlatforms([]);
+        setConnectedPlatforms([]);
+        setPlatformMetrics([]);
       }
       
     } catch (error) {

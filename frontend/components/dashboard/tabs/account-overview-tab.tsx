@@ -114,7 +114,21 @@ export default function AccountOverviewTab() {
                 full_name: userData.full_name,
                 username: userData.username,
                 email: userData.email,
-                name: userData.full_name || userData.username
+                name: userData.full_name || userData.username,
+                // Add empty profile data for other fields
+                role: "Not set",
+                industry: "Not set",
+                business_name: "Not set",
+                business_website: "Not set",
+                business_size: "Not set",
+                business_stage: "Not set",
+                goals: [],
+                purpose: "Not set",
+                country: "Not set",
+                timezone: "UTC",
+                language: "English",
+                bio: "",
+                nickname: userData.username || ""
               }
             }
           }

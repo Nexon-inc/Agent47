@@ -94,10 +94,13 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
   // Load existing selected agents when modal opens
   useEffect(() => {
     if (isOpen && isAuthenticated) {
+      setError(null) // Clear any previous errors
+      setIsLoadingExisting(true)
       // Check if agents are locked before loading
       checkIfLocked().then((locked) => {
         if (locked) {
           setError("Your agents are locked and cannot be changed. Please upgrade your plan to unlock them.")
+          setIsLoadingExisting(false)
           // Close modal after showing error
           setTimeout(() => {
             onClose()
@@ -105,6 +108,11 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
         } else {
           loadExistingAgents()
         }
+      }).catch((err) => {
+        console.error('Error checking agent lock status:', err)
+        // Don't show error, just proceed to load
+        setIsLoadingExisting(false)
+        loadExistingAgents()
       })
     }
   }, [isOpen, isAuthenticated])
@@ -123,15 +131,20 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
   }
 
   const loadExistingAgents = async () => {
-    setIsLoadingExisting(true)
     try {
       const existingAgents = await apiClient.getSelectedAgents()
       if (existingAgents && existingAgents.length > 0) {
-        // Extract agent IDs from the response
+        // Extract agent IDs from the response - handle both agent_id and id fields
         const agentIds = existingAgents
-          .filter((agent: any) => agent.status === "active")
-          .map((agent: any) => agent.agent_id)
+          .filter((agent: any) => agent.status === "active" || agent.status === "enabled")
+          .map((agent: any) => agent.agent_id || agent.agent_key || agent.id || agent.key)
+          .filter(Boolean)
         setSelectedAgents(agentIds)
+        setError(null)
+      } else {
+        // No existing agents - start with empty selection
+        setSelectedAgents([])
+        setError(null)
       }
     } catch (error) {
       console.error("Error loading existing agents:", error)
@@ -142,23 +155,35 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
         try {
           const refreshed = await apiClient.refreshAccessToken()
           if (refreshed) {
-            const retryAgents = await apiClient.getSelectedAgents()
-            if (retryAgents && retryAgents.length > 0) {
-              const agentIds = retryAgents.filter((agent: any) => agent.status === "active").map((agent: any) => agent.agent_id)
-              setSelectedAgents(agentIds)
-              setIsLoadingExisting(false)
+            try {
+              const retryAgents = await apiClient.getSelectedAgents()
+              if (retryAgents && retryAgents.length > 0) {
+                const agentIds = retryAgents
+                  .filter((agent: any) => agent.status === "active" || agent.status === "enabled")
+                  .map((agent: any) => agent.agent_id || agent.agent_key || agent.id || agent.key)
+                  .filter(Boolean)
+                setSelectedAgents(agentIds)
+                setError(null)
+              } else {
+                setSelectedAgents([])
+                setError(null)
+              }
               return
+            } catch (retryErr) {
+              console.warn('Retry loading agents after refresh failed:', retryErr)
             }
           }
         } catch (e) {
-          console.warn('Retry after refresh failed:', e)
+          console.warn('Token refresh failed:', e)
         }
-        // If refresh failed or retry produced no result, prompt user to re-auth
-        setError("Authentication failed. Please log out and log back in to refresh your session.")
+        // Don't show auth error - user might not have selected agents yet
+        // Just start with empty selection
         setSelectedAgents([])
+        setError(null)
       } else {
         // If no agents exist yet, that's fine - start with empty selection
         setSelectedAgents([])
+        setError(null)
       }
     } finally {
       setIsLoadingExisting(false)

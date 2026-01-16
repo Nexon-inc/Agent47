@@ -342,22 +342,30 @@ export default function ToolsAutomationOverviewTab() {
       // Load integrations, usage, stats, and calendar data in parallel
       // Get available integrations from the correct endpoint
       try {
-        const integrationsResponse = await apiClient.get("/api/v1/integrations/");
+        const integrationsResponse = await apiClient.get("/api/v1/integrations/").catch(() => null);
         console.log("Integrations API response:", integrationsResponse);
         
         const availableIntegrationsResponse = await apiClient.get("/api/v1/integrations/available").catch((err) => {
           console.error("Failed to load available integrations:", err);
-          return { data: { integrations: [] } };
+          return null;
         });
         
-        const usageResponse = await apiClient.get("/api/v1/integrations/usage").catch(() => ({ data: [] }));
-        const statsResponse = await apiClient.get("/api/v1/integrations/stats").catch(() => ({ data: null }));
-        const calendarResponse = await apiClient.get("/api/v1/calendar/events").catch(() => ({ data: [] }));
-        const calendarStatsResponse = await apiClient.get("/api/v1/calendar/stats").catch(() => ({ data: null }));
+        const usageResponse = await apiClient.get("/api/v1/integrations/usage").catch(() => null);
+        const statsResponse = await apiClient.get("/api/v1/integrations/stats").catch(() => null);
+        const calendarResponse = await apiClient.get("/api/v1/calendar/events").catch(() => null);
+        const calendarStatsResponse = await apiClient.get("/api/v1/calendar/stats").catch(() => null);
         
-        // API client wraps responses in { data: ... }
-        const directIntegrations = integrationsResponse?.data || integrationsResponse || [];
-        const availableIntegrations = availableIntegrationsResponse?.data?.integrations || availableIntegrationsResponse?.data || [];
+        // Handle both wrapped and unwrapped responses
+        let directIntegrations = integrationsResponse?.data || integrationsResponse || [];
+        let availableIntegrations = availableIntegrationsResponse?.data?.integrations || availableIntegrationsResponse?.data || [];
+        
+        // Ensure we have arrays
+        if (!Array.isArray(directIntegrations)) {
+          directIntegrations = directIntegrations?.integrations || [];
+        }
+        if (!Array.isArray(availableIntegrations)) {
+          availableIntegrations = availableIntegrations?.integrations || [];
+        }
         
         // Use available integrations if the main endpoint doesn't return data
         const allIntegrations = directIntegrations.length > 0 
@@ -374,11 +382,16 @@ export default function ToolsAutomationOverviewTab() {
         console.log("Loaded integrations:", allIntegrations.length, allIntegrations);
         
         if (allIntegrations.length === 0) {
-          console.warn("No integrations loaded - check backend config initialization");
+          console.warn("No integrations loaded - backend may not have integrations config initialized");
         }
       } catch (error) {
         console.error("Failed to load integrations:", error);
-        // Don't set empty array, just log the error
+        // Set empty arrays for graceful fallback
+        setIntegrations([]);
+        setIntegrationUsage([]);
+        setIntegrationStats(null);
+        setCalendarEvents([]);
+        setCalendarStats(null);
       }
       
     } catch (error) {
