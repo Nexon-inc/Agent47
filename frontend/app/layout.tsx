@@ -2,6 +2,7 @@ import type React from "react"
 import "./globals.css"
 import type { Metadata } from "next"
 import { JetBrains_Mono } from "next/font/google"
+import { Analytics } from "@vercel/analytics/next"
 import { AuthProvider } from "@/components/auth-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { Toaster as SonnerToaster } from "@/components/ui/sonner"
@@ -29,8 +30,9 @@ export default function RootLayout({
       <body className={jetbrainsMono.className}>
           <AuthProvider>
             {children}
-          <Toaster />
-          <SonnerToaster position="top-right" richColors />
+            <Toaster />
+            <SonnerToaster position="top-right" richColors />
+            <Analytics />
           </AuthProvider>
       </body>
     </html>
