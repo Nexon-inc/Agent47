@@ -121,11 +121,27 @@ class SupabaseAuthManager:
             raise
         except Exception as e:
             error_str = str(e).lower()
-            logger.error(f"Signup failed for {email}: {e}", exc_info=True)
+            logger.error(f"Signup failed for {email}: {e}")
             
             # Check if error is about user already existing in Supabase
             if 'already registered' in error_str or 'user already exists' in error_str or 'email already' in error_str or 'already been registered' in error_str or 'duplicate' in error_str:
-                logger.warning(f"User {email} already exists in Supabase Auth: {e}")
+                logger.warning(f"User {email} already exists in Supabase Auth, attempting recovery...")
+                
+                # Attempt to sign in to "recover" the user session 
+                # if they already exist in Supabase but not in our local DB
+                try:
+                    signin_result = await self.signin(email, password)
+                    if signin_result.get("success"):
+                        logger.info(f"Recovery successful for {email}")
+                        return {
+                            "user": signin_result.get("user"),
+                            "session": signin_result.get("session"),
+                            "success": True,
+                            "existing_user": True
+                        }
+                except Exception as recovery_error:
+                    logger.warning(f"Recovery signin failed for {email}: {recovery_error}")
+                
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail=f"Email '{email}' is already registered. Please use a different email or try logging in."
