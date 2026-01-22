@@ -331,41 +331,7 @@ export default function AuthPage() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
 
-                  <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">Or sign up with</span>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    {["Google", "LinkedIn"].map((provider) => (
-                      <Button
-                        key={provider}
-                        variant="outline"
-                        type="button"
-                        className="flex items-center justify-center bg-transparent"
-                      >
-                        <span className="sr-only">Sign up with {provider}</span>
-                        {provider === "Google" && (
-                          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 110-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0012.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z" />
-                          </svg>
-                        )}
-                        {provider === "LinkedIn" && (
-                          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                              fillRule="evenodd"
-                              d="M16.338 16.338H13.67V12.16c0-1-.02-2.285-1.39-2.285-1.39 0-1.6 1.087-1.6 2.21v4.253h-2.667V8.5h2.56v1.17h.036c.358-.674 1.228-1.387 2.534-1.387 2.712 0 3.216 1.785 3.216 4.106v3.95zM5.5 7.33a1.667 1.667 0 110-3.335 1.667 1.667 0 010 3.335zm1.334 9.008H4.166V8.5h2.668v7.838zM17.5 1H2.5a1.5 1.5 0 00-1.5 1.5v15A1.5 1.5 0 002.5 19h15a1.5 1.5 0 001.5-1.5v-15A1.5 1.5 0 0017.5 1z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        )}
-                      </Button>
-                    ))}
-                  </div>
                 </form>
               )}
             </TabsContent>
@@ -481,32 +447,7 @@ export default function AuthPage() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
 
-                  <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300" />
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-2 bg-white text-gray-500">Or login with</span>
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 gap-3">
-                    {["Instagram"].map((provider) => (
-                      <Button
-                        key={provider}
-                        variant="outline"
-                        type="button"
-                        className="flex items-center justify-center bg-transparent"
-                      >
-                        <span className="sr-only">Login with {provider}</span>
-                        {provider === "Instagram" && (
-                          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-4.327 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                          </svg>
-                        )}
-                      </Button>
-                    ))}
-                  </div>
                 </form>
               )}
             </TabsContent>
@@ -522,9 +463,16 @@ export default function AuthPage() {
             Contact Support
           </Link>
         </p>
-        <Link href="https://nexonic-industries.vercel.app/" target="_blank" className="mt-4 block py-3 px-4 bg-gray-800 text-blue-400 hover:text-blue-300 font-medium text-sm rounded-md transition-colors">
-          Powered by Nexonic Industries
-        </Link>
+        <div className="mt-4 text-sm text-gray-500">
+          Powered by{" "}
+          <Link
+            href="https://nexonic-industries.vercel.app/"
+            target="_blank"
+            className="text-blue-500 hover:text-blue-400 font-medium transition-colors"
+          >
+            Nexonic Industries
+          </Link>
+        </div>
       </div>
     </div>
   )
