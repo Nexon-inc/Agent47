@@ -7,7 +7,7 @@ import json
 
 from ..database import get_db
 from ..services.agent_training_service import AgentTrainingService
-from ..models import AgentTraining, TrainingModule, TrainingSession, AgentPerformance, TrainingAssessment
+from ..models import ClaraAgentTraining, ClaraTrainingModule, ClaraTrainingSession, ClaraAgentPerformance, ClaraTrainingAssessment
 from ..core.integration_manager import IntegrationManager
 from ..core.event_bus import EventBus
 

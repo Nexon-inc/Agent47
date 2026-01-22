@@ -10,10 +10,10 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, TicketEscalation, CustomerFeedback,
-    SupportAgent, SupportWorkflow, TicketPriority,
+    ClaraSupportTicket, ClaraCustomerInteraction, ClaraTicketEscalation, ClaraCustomerFeedback,
+    ClaraSupportAgent, ClaraSupportWorkflow, TicketPriority,
     TicketStatus, TicketCategory, SupportChannel, SentimentType,
-    InteractionType, ChatSession, ChatMessage
+    InteractionType, ClaraChatSession, ClaraChatMessage
 )
 from core.database.models import UserProfile
 
@@ -70,7 +70,7 @@ class SupportService:
                     priority = await self._auto_assign_priority(description, category)
                 
                 # Create ticket
-                ticket = SupportTicket(
+                ticket = ClaraSupportTicket(
                     ticket_number=ticket_number,
                     customer_id=customer_id,
                     channel=channel,
@@ -95,7 +95,7 @@ class SupportService:
                     ticket.assigned_agent_id = assigned_agent.id
                 
                 # Create initial interaction
-                interaction = CustomerInteraction(
+                interaction = ClaraCustomerInteraction(
                     ticket_id=ticket.id,
                     interaction_type=InteractionType.CUSTOMER_MESSAGE,
                     channel=channel,
@@ -161,7 +161,7 @@ class SupportService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 ticket = await session.execute(
-                    select(SupportTicket).where(SupportTicket.id == ticket_id)
+                    select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 )
                 ticket = ticket.scalar_one_or_none()
                 
@@ -181,7 +181,7 @@ class SupportService:
                     ticket.closed_at = datetime.utcnow()
                 
                 # Create status update interaction
-                interaction = CustomerInteraction(
+                interaction = ClaraCustomerInteraction(
                     ticket_id=ticket_id,
                     interaction_type=InteractionType.SYSTEM_NOTIFICATION,
                     channel=ticket.channel,
@@ -226,7 +226,7 @@ class SupportService:
             async with db.get_session() as session:
                 # Check if agent exists and is available
                 agent = await session.execute(
-                    select(SupportAgent).where(SupportAgent.user_id == agent_id)
+                    select(ClaraSupportAgent).where(ClaraSupportAgent.user_id == agent_id)
                 )
                 agent = agent.scalar_one_or_none()
                 
@@ -241,7 +241,7 @@ class SupportService:
                 
                 # Update ticket assignment
                 ticket = await session.execute(
-                    select(SupportTicket).where(SupportTicket.id == ticket_id)
+                    select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 )
                 ticket = ticket.scalar_one_or_none()
                 
@@ -256,7 +256,7 @@ class SupportService:
                 # Update agent ticket count
                 if old_agent_id:
                     old_agent = await session.execute(
-                        select(SupportAgent).where(SupportAgent.user_id == old_agent_id)
+                        select(ClaraSupportAgent).where(ClaraSupportAgent.user_id == old_agent_id)
                     )
                     old_agent = old_agent.scalar_one_or_none()
                     if old_agent:
@@ -265,7 +265,7 @@ class SupportService:
                 agent.current_ticket_count += 1
                 
                 # Create assignment interaction
-                interaction = CustomerInteraction(
+                interaction = ClaraCustomerInteraction(
                     ticket_id=ticket_id,
                     interaction_type=InteractionType.SYSTEM_NOTIFICATION,
                     channel=ticket.channel,
@@ -311,7 +311,7 @@ class SupportService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Create escalation record
-                escalation = TicketEscalation(
+                escalation = ClaraTicketEscalation(
                     ticket_id=ticket_id,
                     escalated_from_agent_id=escalated_from_agent_id,
                     escalated_to_agent_id=escalated_to_agent_id,
@@ -323,7 +323,7 @@ class SupportService:
                 
                 # Update ticket
                 ticket = await session.execute(
-                    select(SupportTicket).where(SupportTicket.id == ticket_id)
+                    select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 )
                 ticket = ticket.scalar_one_or_none()
                 
@@ -346,7 +346,7 @@ class SupportService:
                         ticket.priority = TicketPriority.CRITICAL
                 
                 # Create escalation interaction
-                interaction = CustomerInteraction(
+                interaction = ClaraCustomerInteraction(
                     ticket_id=ticket_id,
                     interaction_type=InteractionType.ESCALATION,
                     channel=ticket.channel,
@@ -386,16 +386,16 @@ class SupportService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 ticket = await session.execute(
-                    select(SupportTicket)
+                    select(ClaraSupportTicket)
                     .options(
-                        selectinload(SupportTicket.customer),
-                        selectinload(SupportTicket.assigned_agent),
-                        selectinload(SupportTicket.interactions),
-                        selectinload(SupportTicket.attachments),
-                        selectinload(SupportTicket.escalations),
-                        selectinload(SupportTicket.feedback)
+                        selectinload(ClaraSupportTicket.customer),
+                        selectinload(ClaraSupportTicket.assigned_agent),
+                        selectinload(ClaraSupportTicket.interactions),
+                        selectinload(ClaraSupportTicket.attachments),
+                        selectinload(ClaraSupportTicket.escalations),
+                        selectinload(ClaraSupportTicket.feedback)
                     )
-                    .where(SupportTicket.id == ticket_id)
+                    .where(ClaraSupportTicket.id == ticket_id)
                 )
                 ticket = ticket.scalar_one_or_none()
                 
@@ -460,21 +460,21 @@ class SupportService:
         try:
             db = await get_clara_database()
             async with db.get_session() as session:
-                query = select(SupportTicket)
+                query = select(ClaraSupportTicket)
                 
                 # Apply filters
                 if customer_id:
-                    query = query.where(SupportTicket.customer_id == customer_id)
+                    query = query.where(ClaraSupportTicket.customer_id == customer_id)
                 if agent_id:
-                    query = query.where(SupportTicket.assigned_agent_id == agent_id)
+                    query = query.where(ClaraSupportTicket.assigned_agent_id == agent_id)
                 if status:
-                    query = query.where(SupportTicket.status == status)
+                    query = query.where(ClaraSupportTicket.status == status)
                 if priority:
-                    query = query.where(SupportTicket.priority == priority)
+                    query = query.where(ClaraSupportTicket.priority == priority)
                 if category:
-                    query = query.where(SupportTicket.category == category)
+                    query = query.where(ClaraSupportTicket.category == category)
                 if channel:
-                    query = query.where(SupportTicket.channel == channel)
+                    query = query.where(ClaraSupportTicket.channel == channel)
                 
                 # Get total count
                 count_query = select(func.count()).select_from(query.subquery())
@@ -482,7 +482,7 @@ class SupportService:
                 total_count = total_count.scalar()
                 
                 # Apply pagination and ordering
-                query = query.order_by(SupportTicket.created_at.desc()).limit(limit).offset(offset)
+                query = query.order_by(ClaraSupportTicket.created_at.desc()).limit(limit).offset(offset)
                 
                 tickets = await session.execute(query)
                 tickets = tickets.scalars().all()
@@ -560,17 +560,17 @@ class SupportService:
             logger.error(f"Failed to auto-assign priority: {e}")
             return TicketPriority.MEDIUM
     
-    async def _auto_assign_agent(self, ticket: SupportTicket, session: AsyncSession) -> Optional[SupportAgent]:
+    async def _auto_assign_agent(self, ticket: ClaraSupportTicket, session: AsyncSession) -> Optional[ClaraSupportAgent]:
         """Auto-assign ticket to available agent"""
         try:
             # Find available agents with matching skills
-            query = select(SupportAgent).where(
+            query = select(ClaraSupportAgent).where(
                 and_(
-                    SupportAgent.availability_status == "available",
-                    SupportAgent.current_ticket_count < SupportAgent.max_concurrent_tickets,
-                    SupportAgent.skills.contains([ticket.category.value])
+                    ClaraSupportAgent.availability_status == "available",
+                    ClaraSupportAgent.current_ticket_count < ClaraSupportAgent.max_concurrent_tickets,
+                    ClaraSupportAgent.skills.contains([ticket.category.value])
                 )
-            ).order_by(SupportAgent.current_ticket_count.asc(), SupportAgent.performance_score.desc())
+            ).order_by(ClaraSupportAgent.current_ticket_count.asc(), ClaraSupportAgent.performance_score.desc())
             
             agent = await session.execute(query)
             agent = agent.scalar_one_or_none()
@@ -644,7 +644,7 @@ class SupportService:
                 "sentiment_score": 0.0
             }
     
-    async def _estimate_resolution_time(self, ticket: SupportTicket) -> int:
+    async def _estimate_resolution_time(self, ticket: ClaraSupportTicket) -> int:
         """Estimate ticket resolution time in minutes"""
         try:
             # Base resolution times by category and priority

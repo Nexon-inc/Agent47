@@ -5,7 +5,7 @@ from typing import Dict, List, Any
 from ..database import get_db
 from ..services.influencer_tracking_service import InfluencerTrackingService
 
-router = APIRouter(prefix="/influencer-tracking", tags=["Influencer Performance Tracking"])
+router = APIRouter(prefix="/influencer-tracking", tags=["JackieInfluencer Performance Tracking"])
 
 @router.post("/track-performance")
 def track_influencer_performance(influencer_id: str, campaign_id: str, performance_data: Dict[str, Any], 

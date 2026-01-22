@@ -24,9 +24,9 @@ Key Features:
 - Real-Time News Monitoring via Google News API
 - Patent and Innovation Tracking via Google Patents API
 - Custom Research Queries with GPT-4-turbo
-- Multi-Language Research with translation APIs
+- Multi-JoeLanguage Research with translation APIs
 - Competitor Benchmarking
-- Automated Survey Creation via Typeform
+- Automated JoeSurvey Creation via Typeform
 - Data Export Tools (CSV, PDF, branded reports)
 - Real-Time Trend Alerts via Slack
 - Geo-Specific Research

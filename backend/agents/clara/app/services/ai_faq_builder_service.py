@@ -8,8 +8,8 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    FAQEntry, FAQCategory, FAQSource, FAQAnalytics, KnowledgeBase,
-    CustomerInteraction, SupportTicket, SupportAgent
+    ClaraFAQEntry, ClaraFAQCategory, ClaraFAQSource, ClaraFAQAnalytics, ClaraKnowledgeBase,
+    ClaraCustomerInteraction, ClaraSupportTicket, ClaraSupportAgent
 )
 from ..schemas.ai_faq_builder import (
     CreateFAQCategoryRequest, UpdateFAQCategoryRequest,
@@ -44,9 +44,9 @@ class AIFAQBuilderService:
         db: Session, 
         request: CreateFAQCategoryRequest
     ) -> FAQCategoryResponse:
-        """Create a new FAQ category"""
+        """Create a new ClaraFAQ category"""
         try:
-            category = FAQCategory(
+            category = ClaraFAQCategory(
                 name=request.name,
                 description=request.description,
                 parent_category_id=request.parent_category_id,
@@ -71,17 +71,17 @@ class AIFAQBuilderService:
             
         except Exception as e:
             db.rollback()
-            raise HTTPException(status_code=500, detail=f"Failed to create FAQ category: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to create ClaraFAQ category: {str(e)}")
     
     async def get_faq_category(
         self, 
         db: Session, 
         category_id: int
     ) -> FAQCategoryResponse:
-        """Get FAQ category by ID"""
-        category = db.query(FAQCategory).filter(FAQCategory.id == category_id).first()
+        """Get ClaraFAQ category by ID"""
+        category = db.query(ClaraFAQCategory).filter(ClaraFAQCategory.id == category_id).first()
         if not category:
-            raise HTTPException(status_code=404, detail="FAQ category not found")
+            raise HTTPException(status_code=404, detail="ClaraFAQ category not found")
         
         return FAQCategoryResponse(
             id=category.id,
@@ -100,11 +100,11 @@ class AIFAQBuilderService:
         limit: int = 100,
         is_active: Optional[bool] = None
     ) -> List[FAQCategoryResponse]:
-        """List FAQ categories"""
-        query = db.query(FAQCategory)
+        """List ClaraFAQ categories"""
+        query = db.query(ClaraFAQCategory)
         
         if is_active is not None:
-            query = query.filter(FAQCategory.is_active == is_active)
+            query = query.filter(ClaraFAQCategory.is_active == is_active)
         
         categories = query.offset(skip).limit(limit).all()
         
@@ -125,9 +125,9 @@ class AIFAQBuilderService:
         db: Session, 
         request: CreateFAQEntryRequest
     ) -> FAQEntryResponse:
-        """Create a new FAQ entry"""
+        """Create a new ClaraFAQ entry"""
         try:
-            entry = FAQEntry(
+            entry = ClaraFAQEntry(
                 question=request.question,
                 answer=request.answer,
                 category_id=request.category_id,
@@ -156,17 +156,17 @@ class AIFAQBuilderService:
             
         except Exception as e:
             db.rollback()
-            raise HTTPException(status_code=500, detail=f"Failed to create FAQ entry: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to create ClaraFAQ entry: {str(e)}")
     
     async def get_faq_entry(
         self, 
         db: Session, 
         entry_id: int
     ) -> FAQEntryResponse:
-        """Get FAQ entry by ID"""
-        entry = db.query(FAQEntry).filter(FAQEntry.id == entry_id).first()
+        """Get ClaraFAQ entry by ID"""
+        entry = db.query(ClaraFAQEntry).filter(ClaraFAQEntry.id == entry_id).first()
         if not entry:
-            raise HTTPException(status_code=404, detail="FAQ entry not found")
+            raise HTTPException(status_code=404, detail="ClaraFAQ entry not found")
         
         return FAQEntryResponse(
             id=entry.id,
@@ -188,13 +188,13 @@ class AIFAQBuilderService:
         category_id: Optional[int] = None,
         is_active: Optional[bool] = None
     ) -> List[FAQEntryResponse]:
-        """List FAQ entries"""
-        query = db.query(FAQEntry)
+        """List ClaraFAQ entries"""
+        query = db.query(ClaraFAQEntry)
         
         if category_id:
-            query = query.filter(FAQEntry.category_id == category_id)
+            query = query.filter(ClaraFAQEntry.category_id == category_id)
         if is_active is not None:
-            query = query.filter(FAQEntry.is_active == is_active)
+            query = query.filter(ClaraFAQEntry.is_active == is_active)
         
         entries = query.offset(skip).limit(limit).all()
         
@@ -217,20 +217,20 @@ class AIFAQBuilderService:
         db: Session, 
         request: GenerateFAQRequest
     ) -> List[FAQEntryResponse]:
-        """Generate FAQ entries from customer interactions"""
+        """Generate ClaraFAQ entries from customer interactions"""
         try:
             # Get recent customer interactions
-            interactions = db.query(CustomerInteraction).filter(
+            interactions = db.query(ClaraCustomerInteraction).filter(
                 and_(
-                    CustomerInteraction.created_at >= datetime.utcnow() - timedelta(days=request.days_back),
-                    CustomerInteraction.interaction_type == "question"
+                    ClaraCustomerInteraction.created_at >= datetime.utcnow() - timedelta(days=request.days_back),
+                    ClaraCustomerInteraction.interaction_type == "question"
                 )
             ).all()
             
             # Group similar questions
             question_groups = self._group_similar_questions(interactions)
             
-            # Generate FAQ entries
+            # Generate ClaraFAQ entries
             generated_entries = []
             for group in question_groups:
                 if len(group) >= request.min_occurrences:
@@ -238,8 +238,8 @@ class AIFAQBuilderService:
                     question = await self._generate_question_from_group(group)
                     answer = await self._generate_answer_from_group(group)
                     
-                    # Create FAQ entry
-                    entry = FAQEntry(
+                    # Create ClaraFAQ entry
+                    entry = ClaraFAQEntry(
                         question=question,
                         answer=answer,
                         category_id=request.category_id,
@@ -278,27 +278,27 @@ class AIFAQBuilderService:
             
         except Exception as e:
             db.rollback()
-            raise HTTPException(status_code=500, detail=f"Failed to generate FAQ from interactions: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to generate ClaraFAQ from interactions: {str(e)}")
     
     async def generate_faq_from_tickets(
         self, 
         db: Session, 
         request: GenerateFAQRequest
     ) -> List[FAQEntryResponse]:
-        """Generate FAQ entries from support tickets"""
+        """Generate ClaraFAQ entries from support tickets"""
         try:
             # Get recent support tickets
-            tickets = db.query(SupportTicket).filter(
+            tickets = db.query(ClaraSupportTicket).filter(
                 and_(
-                    SupportTicket.created_at >= datetime.utcnow() - timedelta(days=request.days_back),
-                    SupportTicket.status == "resolved"
+                    ClaraSupportTicket.created_at >= datetime.utcnow() - timedelta(days=request.days_back),
+                    ClaraSupportTicket.status == "resolved"
                 )
             ).all()
             
             # Group similar ticket issues
             ticket_groups = self._group_similar_tickets(tickets)
             
-            # Generate FAQ entries
+            # Generate ClaraFAQ entries
             generated_entries = []
             for group in ticket_groups:
                 if len(group) >= request.min_occurrences:
@@ -306,8 +306,8 @@ class AIFAQBuilderService:
                     question = await self._generate_question_from_tickets(group)
                     answer = await self._generate_answer_from_tickets(group)
                     
-                    # Create FAQ entry
-                    entry = FAQEntry(
+                    # Create ClaraFAQ entry
+                    entry = ClaraFAQEntry(
                         question=question,
                         answer=answer,
                         category_id=request.category_id,
@@ -339,28 +339,28 @@ class AIFAQBuilderService:
             
         except Exception as e:
             db.rollback()
-            raise HTTPException(status_code=500, detail=f"Failed to generate FAQ from tickets: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to generate ClaraFAQ from tickets: {str(e)}")
     
     async def generate_faq_from_website(
         self, 
         db: Session, 
         request: GenerateFAQRequest
     ) -> List[FAQEntryResponse]:
-        """Generate FAQ entries from website content"""
+        """Generate ClaraFAQ entries from website content"""
         try:
             # Extract content from website
             website_content = await self._extract_website_content(request.website_url)
             
-            # Process content to identify potential FAQ topics
+            # Process content to identify potential ClaraFAQ topics
             faq_topics = await self._identify_faq_topics(website_content)
             
-            # Generate FAQ entries
+            # Generate ClaraFAQ entries
             generated_entries = []
             for topic in faq_topics:
                 question = topic["question"]
                 answer = await self._generate_answer_from_content(topic["content"])
                 
-                entry = FAQEntry(
+                entry = ClaraFAQEntry(
                     question=question,
                     answer=answer,
                     category_id=request.category_id,
@@ -392,7 +392,7 @@ class AIFAQBuilderService:
             
         except Exception as e:
             db.rollback()
-            raise HTTPException(status_code=500, detail=f"Failed to generate FAQ from website: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to generate ClaraFAQ from website: {str(e)}")
     
     async def search_faq(
         self, 
@@ -400,7 +400,7 @@ class AIFAQBuilderService:
         query: str,
         limit: int = 10
     ) -> List[FAQEntryResponse]:
-        """Search FAQ entries"""
+        """Search ClaraFAQ entries"""
         try:
             # Use semantic search to find relevant entries
             relevant_entries = await self._semantic_search_faq(db, query, limit)
@@ -420,7 +420,7 @@ class AIFAQBuilderService:
             ]
             
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to search FAQ: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to search ClaraFAQ: {str(e)}")
     
     async def get_faq_analytics(
         self, 
@@ -428,21 +428,21 @@ class AIFAQBuilderService:
         start_date: datetime,
         end_date: datetime
     ) -> FAQAnalyticsResponse:
-        """Get FAQ analytics"""
+        """Get ClaraFAQ analytics"""
         try:
-            # Get FAQ entries in date range
-            entries = db.query(FAQEntry).filter(
+            # Get ClaraFAQ entries in date range
+            entries = db.query(ClaraFAQEntry).filter(
                 and_(
-                    FAQEntry.created_at >= start_date,
-                    FAQEntry.created_at <= end_date
+                    ClaraFAQEntry.created_at >= start_date,
+                    ClaraFAQEntry.created_at <= end_date
                 )
             ).all()
             
-            # Get FAQ analytics
-            analytics = db.query(FAQAnalytics).filter(
+            # Get ClaraFAQ analytics
+            analytics = db.query(ClaraFAQAnalytics).filter(
                 and_(
-                    FAQAnalytics.created_at >= start_date,
-                    FAQAnalytics.created_at <= end_date
+                    ClaraFAQAnalytics.created_at >= start_date,
+                    ClaraFAQAnalytics.created_at <= end_date
                 )
             ).all()
             
@@ -476,15 +476,15 @@ class AIFAQBuilderService:
             )
             
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to get FAQ analytics: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Failed to get ClaraFAQ analytics: {str(e)}")
     
     async def health_check(self) -> Dict[str, Any]:
-        """Check the health of AI FAQ Builder system"""
+        """Check the health of AI ClaraFAQ Builder system"""
         try:
             db = next(get_db())
-            category_count = db.query(FAQCategory).count()
-            entry_count = db.query(FAQEntry).count()
-            source_count = db.query(FAQSource).count()
+            category_count = db.query(ClaraFAQCategory).count()
+            entry_count = db.query(ClaraFAQEntry).count()
+            source_count = db.query(ClaraFAQSource).count()
             
             return {
                 "status": "healthy",
@@ -504,7 +504,7 @@ class AIFAQBuilderService:
                 "last_check": datetime.utcnow().isoformat()
             }
     
-    def _group_similar_questions(self, interactions: List[CustomerInteraction]) -> List[List[CustomerInteraction]]:
+    def _group_similar_questions(self, interactions: List[ClaraCustomerInteraction]) -> List[List[ClaraCustomerInteraction]]:
         """Group similar customer questions"""
         # Use NLP to group similar questions
         groups = []
@@ -531,7 +531,7 @@ class AIFAQBuilderService:
         
         return groups
     
-    def _group_similar_tickets(self, tickets: List[SupportTicket]) -> List[List[SupportTicket]]:
+    def _group_similar_tickets(self, tickets: List[ClaraSupportTicket]) -> List[List[ClaraSupportTicket]]:
         """Group similar support tickets"""
         groups = []
         processed = set()
@@ -557,7 +557,7 @@ class AIFAQBuilderService:
         
         return groups
     
-    async def _generate_question_from_group(self, group: List[CustomerInteraction]) -> str:
+    async def _generate_question_from_group(self, group: List[ClaraCustomerInteraction]) -> str:
         """Generate a question from a group of similar interactions"""
         # Use the most common question pattern
         questions = [i.content for i in group]
@@ -568,7 +568,7 @@ class AIFAQBuilderService:
         ai_response = await ai_manager.generate_text(messages=messages, max_tokens=200, temperature=0.3)
         return ai_response.text_content.strip() if ai_response.success else questions[0] if questions else ""
     
-    async def _generate_question_from_tickets(self, group: List[SupportTicket]) -> str:
+    async def _generate_question_from_tickets(self, group: List[ClaraSupportTicket]) -> str:
         """Generate a question from a group of similar tickets"""
         descriptions = [t.description for t in group]
         # Use AI Service Manager for extracting common questions
@@ -578,31 +578,31 @@ class AIFAQBuilderService:
         ai_response = await ai_manager.generate_text(messages=messages, max_tokens=200, temperature=0.3)
         return ai_response.text_content.strip() if ai_response.success else descriptions[0] if descriptions else ""
     
-    async def _generate_answer_from_group(self, group: List[CustomerInteraction]) -> str:
+    async def _generate_answer_from_group(self, group: List[ClaraCustomerInteraction]) -> str:
         """Generate an answer from a group of similar interactions"""
         # Use AI Service Manager to generate answer based on agent responses
         responses = [i.agent_response for i in group if i.agent_response]
         if responses:
             from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
-            prompt = f"Based on these customer support responses, generate a concise FAQ answer:\n\n" + "\n\n".join(responses)
+            prompt = f"Based on these customer support responses, generate a concise ClaraFAQ answer:\n\n" + "\n\n".join(responses)
             messages = [
-                {"role": "system", "content": "You are an AI assistant that creates FAQ answers from support responses."},
+                {"role": "system", "content": "You are an AI assistant that creates ClaraFAQ answers from support responses."},
                 {"role": "user", "content": prompt}
             ]
             ai_response = await ai_manager.generate_text(messages=messages, max_tokens=300, temperature=0.7)
             return ai_response.text_content if ai_response.success else "Please contact our support team for assistance."
         return "Please contact our support team for assistance."
     
-    async def _generate_answer_from_tickets(self, group: List[SupportTicket]) -> str:
+    async def _generate_answer_from_tickets(self, group: List[ClaraSupportTicket]) -> str:
         """Generate an answer from a group of similar tickets"""
         resolutions = [t.resolution for t in group if t.resolution]
         if resolutions:
             from core.ai import get_ai_service_manager
             ai_manager = await get_ai_service_manager()
-            prompt = f"Based on these ticket resolutions, generate a concise FAQ answer:\n\n" + "\n\n".join(resolutions)
+            prompt = f"Based on these ticket resolutions, generate a concise ClaraFAQ answer:\n\n" + "\n\n".join(resolutions)
             messages = [
-                {"role": "system", "content": "You are an AI assistant that creates FAQ answers from ticket resolutions."},
+                {"role": "system", "content": "You are an AI assistant that creates ClaraFAQ answers from ticket resolutions."},
                 {"role": "user", "content": prompt}
             ]
             ai_response = await ai_manager.generate_text(messages=messages, max_tokens=300, temperature=0.7)
@@ -615,11 +615,11 @@ class AIFAQBuilderService:
         return await self.integration_manager.fetch_website_content(url)
     
     async def _identify_faq_topics(self, content: str) -> List[Dict[str, Any]]:
-        """Identify potential FAQ topics from content"""
-        # Use NLP to identify FAQ-worthy topics
-        # Use AI Service Manager for identifying FAQ topics
+        """Identify potential ClaraFAQ topics from content"""
+        # Use NLP to identify ClaraFAQ-worthy topics
+        # Use AI Service Manager for identifying ClaraFAQ topics
         ai_manager = await get_ai_service_manager()
-        messages = [{"role": "system", "content": "You are an AI assistant that identifies FAQ topics from content. Return a comma-separated list of topics."}, {"role": "user", "content": f"Identify FAQ topics from: {content}"}]
+        messages = [{"role": "system", "content": "You are an AI assistant that identifies ClaraFAQ topics from content. Return a comma-separated list of topics."}, {"role": "user", "content": f"Identify ClaraFAQ topics from: {content}"}]
         ai_response = await ai_manager.generate_text(messages=messages, max_tokens=200, temperature=0.3)
         topics_str = ai_response.text_content if ai_response.success else ""
         topics = [t.strip() for t in topics_str.split(",") if t.strip()]
@@ -629,16 +629,16 @@ class AIFAQBuilderService:
         """Generate answer from content using AI Service Manager"""
         from core.ai import get_ai_service_manager
         ai_manager = await get_ai_service_manager()
-        prompt = f"Based on this content, generate a concise FAQ answer:\n\n{content}"
+        prompt = f"Based on this content, generate a concise ClaraFAQ answer:\n\n{content}"
         messages = [
-            {"role": "system", "content": "You are an AI assistant that creates FAQ answers from content."},
+            {"role": "system", "content": "You are an AI assistant that creates ClaraFAQ answers from content."},
             {"role": "user", "content": prompt}
         ]
         ai_response = await ai_manager.generate_text(messages=messages, max_tokens=300, temperature=0.7)
         return ai_response.text_content if ai_response.success else "Please contact our support team for assistance."
     
-    async def _semantic_search_faq(self, db: Session, query: str, limit: int) -> List[FAQEntry]:
-        """Perform semantic search on FAQ entries"""
+    async def _semantic_search_faq(self, db: Session, query: str, limit: int) -> List[ClaraFAQEntry]:
+        """Perform semantic search on ClaraFAQ entries"""
         # Use vector search to find relevant entries
         return await self.nlp_utils.semantic_search_faq(db, query, limit)
     
@@ -652,7 +652,7 @@ class AIFAQBuilderService:
         keywords = [k.strip() for k in keywords_str.split(",") if k.strip()]
         return keywords
     
-    def _extract_tags(self, group: List[CustomerInteraction]) -> List[str]:
+    def _extract_tags(self, group: List[ClaraCustomerInteraction]) -> List[str]:
         """Extract tags from interaction group"""
         tags = set()
         for interaction in group:
@@ -660,7 +660,7 @@ class AIFAQBuilderService:
                 tags.update(interaction.tags)
         return list(tags)
     
-    def _extract_tags_from_tickets(self, group: List[SupportTicket]) -> List[str]:
+    def _extract_tags_from_tickets(self, group: List[ClaraSupportTicket]) -> List[str]:
         """Extract tags from ticket group"""
         tags = set()
         for ticket in group:
@@ -669,7 +669,7 @@ class AIFAQBuilderService:
         return list(tags)
     
     async def _log_faq_event(self, event_type: str, data: Dict[str, Any]):
-        """Log FAQ events for analytics"""
+        """Log ClaraFAQ events for analytics"""
         try:
             log_data = {
                 "event_type": event_type,

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import LocalizedContent, RegionalTrend, CulturalAnalysis, TranslationProject
+from ..models import JackieLocalizedContent, RegionalTrend, JackieCulturalAnalysis, JackieTranslationProject
 
 class LocalizedMarketingService:
     def __init__(self, db: Session):
@@ -29,7 +29,7 @@ class LocalizedMarketingService:
         
         localized_result = self.nlp_processor.localize_content(prompt)
         
-        localized_record = LocalizedContent(
+        localized_record = JackieLocalizedContent(
             id=localization_id, original_content=content, target_region=target_region,
             content_type=content_type, localization_goals=json.dumps(localization_goals),
             localized_content=localized_result.get("localized_content", content),
@@ -146,7 +146,7 @@ class LocalizedMarketingService:
         
         cultural_analysis = self.nlp_processor.analyze_cultural_context(prompt)
         
-        analysis_record = CulturalAnalysis(
+        analysis_record = JackieCulturalAnalysis(
             id=analysis_id, content=content, target_culture=target_culture,
             cultural_dimensions=json.dumps(cultural_dimensions), analysis_result=json.dumps(cultural_analysis),
             created_at=datetime.utcnow()
@@ -289,13 +289,13 @@ class LocalizedMarketingService:
     def get_localization_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        total_localizations = self.db.query(LocalizedContent).filter(
-            LocalizedContent.created_at >= cutoff_date
+        total_localizations = self.db.query(JackieLocalizedContent).filter(
+            JackieLocalizedContent.created_at >= cutoff_date
         ).count()
         
-        regional_breakdown = self.db.query(LocalizedContent.target_region).filter(
-            LocalizedContent.created_at >= cutoff_date
-        ).group_by(LocalizedContent.target_region).all()
+        regional_breakdown = self.db.query(JackieLocalizedContent.target_region).filter(
+            JackieLocalizedContent.created_at >= cutoff_date
+        ).group_by(JackieLocalizedContent.target_region).all()
         
         return {
             "timeframe": timeframe, "total_localizations": total_localizations,
@@ -330,7 +330,7 @@ class LocalizedMarketingService:
                                  target_languages: List[str], content_items: List[Dict[str, Any]]) -> Dict[str, Any]:
         project_id = str(uuid.uuid4())
         
-        project = TranslationProject(
+        project = JackieTranslationProject(
             id=project_id, project_name=project_name, source_language=source_language,
             target_languages=json.dumps(target_languages), content_items=json.dumps(content_items),
             status="active", created_at=datetime.utcnow()

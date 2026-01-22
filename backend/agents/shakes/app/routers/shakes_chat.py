@@ -7,7 +7,7 @@ from core.authentication.auth_manager import get_current_user
 from core.database.connection import get_supabase
 from core.database.models import UserSelectedAgent
 from sqlalchemy import select
-from ..models import ContentProject
+from ..models import ShakesContentProject
 from ..database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 

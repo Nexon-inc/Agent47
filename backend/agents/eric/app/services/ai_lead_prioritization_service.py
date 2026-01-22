@@ -13,7 +13,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.analytics.analytics_manager import AnalyticsManager
 from core.event_bus.kafka_manager import EventBus as KafkaManager
 from core.cache.redis_manager import RedisManager
-from ..models import Lead, LeadInteraction, Deal, SalesActivity, SalesRep, CustomerProfile
+from ..models import EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile
 from ..models import LeadSource
 
 logger = logging.getLogger(__name__)
@@ -222,7 +222,7 @@ class AILeadPrioritizationService:
                     return {"success": False, "error": f"Invalid signal type: {signal_type}"}
                 
                 # Create lead interaction record
-                interaction = LeadInteraction(
+                interaction = EricLeadInteraction(
                     lead_id=lead_id,
                     interaction_type=signal_type,
                     interaction_data=signal_data,
@@ -271,7 +271,7 @@ class AILeadPrioritizationService:
                 # Get lead information
                 lead = await self._get_lead_with_context(session, lead_id)
                 if not lead:
-                    return {"success": False, "error": "Lead not found"}
+                    return {"success": False, "error": "EricLead not found"}
                 
                 # Calculate all scores
                 intent_score = await self._calculate_intent_score(session, lead_id)
@@ -387,15 +387,15 @@ class AILeadPrioritizationService:
                 start_date = datetime.utcnow() - timedelta(days=days)
                 
                 # Query prioritization activities
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.activity_type == "lead_prioritization",
-                        SalesActivity.created_at >= start_date
+                        EricSalesActivity.activity_type == "lead_prioritization",
+                        EricSalesActivity.created_at >= start_date
                     )
                 )
                 
                 if rep_id:
-                    query = query.where(SalesActivity.rep_id == rep_id)
+                    query = query.where(EricSalesActivity.rep_id == rep_id)
                 
                 activities = await session.execute(query)
                 activities = activities.scalars().all()
@@ -441,18 +441,18 @@ class AILeadPrioritizationService:
         lead_ids: Optional[List[int]],
         rep_id: Optional[int],
         limit: int
-    ) -> List[Lead]:
+    ) -> List[EricLead]:
         """Get leads for prioritization with filters"""
-        query = select(Lead)
+        query = select(EricLead)
         
         if lead_ids:
-            query = query.where(Lead.id.in_(lead_ids))
+            query = query.where(EricLead.id.in_(lead_ids))
         
         if rep_id:
-            query = query.where(Lead.assigned_rep_id == rep_id)
+            query = query.where(EricLead.assigned_rep_id == rep_id)
         
         # Only include active leads
-        query = query.where(Lead.status.in_(["new", "contacted", "qualified", "proposal"]))
+        query = query.where(EricLead.status.in_(["new", "contacted", "qualified", "proposal"]))
         
         query = query.limit(limit)
         
@@ -468,10 +468,10 @@ class AILeadPrioritizationService:
         try:
             # Get recent interactions
             start_date = datetime.utcnow() - timedelta(days=30)
-            query = select(LeadInteraction).where(
+            query = select(EricLeadInteraction).where(
                 and_(
-                    LeadInteraction.lead_id == lead_id,
-                    LeadInteraction.timestamp >= start_date
+                    EricLeadInteraction.lead_id == lead_id,
+                    EricLeadInteraction.timestamp >= start_date
                 )
             )
             
@@ -500,7 +500,7 @@ class AILeadPrioritizationService:
             logger.error(f"Error calculating intent score: {e}")
             return 0
     
-    async def _calculate_characteristic_score(self, lead: Lead) -> float:
+    async def _calculate_characteristic_score(self, lead: EricLead) -> float:
         """Calculate score based on lead characteristics"""
         try:
             score = 0
@@ -556,10 +556,10 @@ class AILeadPrioritizationService:
         try:
             # Get recent interactions
             start_date = datetime.utcnow() - timedelta(days=60)
-            query = select(LeadInteraction).where(
+            query = select(EricLeadInteraction).where(
                 and_(
-                    LeadInteraction.lead_id == lead_id,
-                    LeadInteraction.timestamp >= start_date
+                    EricLeadInteraction.lead_id == lead_id,
+                    EricLeadInteraction.timestamp >= start_date
                 )
             )
             
@@ -583,7 +583,7 @@ class AILeadPrioritizationService:
             logger.error(f"Error calculating engagement score: {e}")
             return 0
     
-    async def _calculate_urgency_score(self, lead: Lead) -> float:
+    async def _calculate_urgency_score(self, lead: EricLead) -> float:
         """Calculate urgency score based on timeline and other factors"""
         try:
             urgency_score = 0
@@ -636,7 +636,7 @@ class AILeadPrioritizationService:
     async def _determine_next_action(
         self,
         session: AsyncSession,
-        lead: Lead,
+        lead: EricLead,
         total_score: float
     ) -> Dict[str, Any]:
         """Determine the next best action for a lead"""
@@ -688,7 +688,7 @@ class AILeadPrioritizationService:
         """Store prioritization results in the database"""
         try:
             for lead_data in prioritized_leads:
-                activity = SalesActivity(
+                activity = EricSalesActivity(
                     activity_type="lead_prioritization",
                     lead_id=lead_data["lead_id"],
                     metadata={
@@ -716,7 +716,7 @@ class AILeadPrioritizationService:
     ) -> None:
         """Update lead's last activity timestamp"""
         try:
-            query = select(Lead).where(Lead.id == lead_id)
+            query = select(EricLead).where(EricLead.id == lead_id)
             lead = await session.execute(query)
             lead = lead.scalar_one_or_none()
             
@@ -742,9 +742,9 @@ class AILeadPrioritizationService:
         self,
         session: AsyncSession,
         lead_id: int
-    ) -> Optional[Lead]:
+    ) -> Optional[EricLead]:
         """Get lead with full context"""
-        query = select(Lead).where(Lead.id == lead_id)
+        query = select(EricLead).where(EricLead.id == lead_id)
         result = await session.execute(query)
         return result.scalar_one_or_none()
     
@@ -757,12 +757,12 @@ class AILeadPrioritizationService:
         """Get recent intent signals for a lead"""
         try:
             start_date = datetime.utcnow() - timedelta(days=days)
-            query = select(LeadInteraction).where(
+            query = select(EricLeadInteraction).where(
                 and_(
-                    LeadInteraction.lead_id == lead_id,
-                    LeadInteraction.timestamp >= start_date
+                    EricLeadInteraction.lead_id == lead_id,
+                    EricLeadInteraction.timestamp >= start_date
                 )
-            ).order_by(desc(LeadInteraction.timestamp))
+            ).order_by(desc(EricLeadInteraction.timestamp))
             
             interactions = await session.execute(query)
             interactions = interactions.scalars().all()
@@ -791,12 +791,12 @@ class AILeadPrioritizationService:
         """Get engagement history for a lead"""
         try:
             start_date = datetime.utcnow() - timedelta(days=days)
-            query = select(LeadInteraction).where(
+            query = select(EricLeadInteraction).where(
                 and_(
-                    LeadInteraction.lead_id == lead_id,
-                    LeadInteraction.timestamp >= start_date
+                    EricLeadInteraction.lead_id == lead_id,
+                    EricLeadInteraction.timestamp >= start_date
                 )
-            ).order_by(desc(LeadInteraction.timestamp))
+            ).order_by(desc(EricLeadInteraction.timestamp))
             
             interactions = await session.execute(query)
             interactions = interactions.scalars().all()
@@ -818,16 +818,16 @@ class AILeadPrioritizationService:
     async def _compare_with_similar_leads(
         self,
         session: AsyncSession,
-        lead: Lead
+        lead: EricLead
     ) -> Dict[str, Any]:
         """Compare lead with similar leads"""
         try:
             # Find similar leads based on industry and company size
-            query = select(Lead).where(
+            query = select(EricLead).where(
                 and_(
-                    Lead.industry == lead.industry,
-                    Lead.company_size == lead.company_size,
-                    Lead.id != lead.id
+                    EricLead.industry == lead.industry,
+                    EricLead.company_size == lead.company_size,
+                    EricLead.id != lead.id
                 )
             ).limit(10)
             
@@ -866,7 +866,7 @@ class AILeadPrioritizationService:
     
     async def _generate_priority_recommendations(
         self,
-        lead: Lead,
+        lead: EricLead,
         total_score: float,
         recent_signals: List[Dict[str, Any]]
     ) -> List[str]:
@@ -902,7 +902,7 @@ class AILeadPrioritizationService:
     ) -> bool:
         """Check if a lead was converted to a deal"""
         try:
-            query = select(Deal).where(Deal.lead_id == lead_id)
+            query = select(EricDeal).where(EricDeal.lead_id == lead_id)
             deals = await session.execute(query)
             deals = deals.scalars().all()
             
@@ -920,14 +920,14 @@ class AILeadPrioritizationService:
         """Get top intent signals in the given period"""
         try:
             query = select(
-                LeadInteraction.interaction_type,
-                func.count(LeadInteraction.id).label("count")
+                EricLeadInteraction.interaction_type,
+                func.count(EricLeadInteraction.id).label("count")
             ).where(
-                LeadInteraction.timestamp >= start_date
+                EricLeadInteraction.timestamp >= start_date
             ).group_by(
-                LeadInteraction.interaction_type
+                EricLeadInteraction.interaction_type
             ).order_by(
-                desc(func.count(LeadInteraction.id))
+                desc(func.count(EricLeadInteraction.id))
             ).limit(5)
             
             result = await session.execute(query)
@@ -948,7 +948,7 @@ class AILeadPrioritizationService:
     
     async def _get_priority_distribution(
         self,
-        activities: List[SalesActivity]
+        activities: List[EricSalesActivity]
     ) -> Dict[str, int]:
         """Get distribution of priority levels"""
         try:

@@ -13,7 +13,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.analytics.analytics_manager import AnalyticsManager
 from core.event_bus.kafka_manager import EventBus as KafkaManager
 from core.cache.redis_manager import RedisManager
-from ..models import Lead, Deal, SalesActivity, SalesRep, CustomerProfile
+from ..models import EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class SocialProofGeneratorService:
                 # Get lead information
                 lead = await self._get_lead_with_context(session, lead_id)
                 if not lead:
-                    return {"success": False, "error": "Lead not found"}
+                    return {"success": False, "error": "EricLead not found"}
                 
                 # Determine industry if not provided
                 if not industry:
@@ -332,15 +332,15 @@ class SocialProofGeneratorService:
                 start_date = datetime.utcnow() - timedelta(days=days)
                 
                 # Get social proof activities
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.activity_type == "social_proof_generation",
-                        SalesActivity.created_at >= start_date
+                        EricSalesActivity.activity_type == "social_proof_generation",
+                        EricSalesActivity.created_at >= start_date
                     )
                 )
                 
                 if lead_id:
-                    query = query.where(SalesActivity.lead_id == lead_id)
+                    query = query.where(EricSalesActivity.lead_id == lead_id)
                 
                 activities = await session.execute(query)
                 activities = activities.scalars().all()
@@ -368,9 +368,9 @@ class SocialProofGeneratorService:
         self,
         session: AsyncSession,
         lead_id: int
-    ) -> Optional[Lead]:
+    ) -> Optional[EricLead]:
         """Get lead with full context"""
-        query = select(Lead).where(Lead.id == lead_id)
+        query = select(EricLead).where(EricLead.id == lead_id)
         result = await session.execute(query)
         return result.scalar_one_or_none()
     
@@ -387,7 +387,7 @@ class SocialProofGeneratorService:
     async def _generate_proof_content(
         self,
         session: AsyncSession,
-        lead: Lead,
+        lead: EricLead,
         proof_type: str,
         industry: str,
         custom_context: Optional[Dict[str, Any]]
@@ -412,7 +412,7 @@ class SocialProofGeneratorService:
     async def _generate_testimonial_content(
         self,
         session: AsyncSession,
-        lead: Lead,
+        lead: EricLead,
         industry: str
     ) -> Dict[str, Any]:
         """Generate testimonial content"""
@@ -468,10 +468,10 @@ class SocialProofGeneratorService:
                 customer = customer_result.scalar_one_or_none()
                 
                 # Get deal information
-                deal_query = select(Deal).where(
+                deal_query = select(EricDeal).where(
                     and_(
-                        Deal.id == deal_id,
-                        Deal.brand_id == brand_id
+                        EricDeal.id == deal_id,
+                        EricDeal.brand_id == brand_id
                     )
                 )
                 deal_result = await db.execute(deal_query)
@@ -531,7 +531,7 @@ class SocialProofGeneratorService:
     
     async def _generate_review_content(
         self,
-        lead: Lead,
+        lead: EricLead,
         industry: str
     ) -> Dict[str, Any]:
         """Generate review content"""
@@ -587,7 +587,7 @@ class SocialProofGeneratorService:
     async def _generate_case_study_summary(
         self,
         session: AsyncSession,
-        lead: Lead,
+        lead: EricLead,
         industry: str
     ) -> Dict[str, Any]:
         """Generate case study summary"""
@@ -631,7 +631,7 @@ class SocialProofGeneratorService:
     async def _generate_metrics_content(
         self,
         session: AsyncSession,
-        lead: Lead,
+        lead: EricLead,
         industry: str
     ) -> Dict[str, Any]:
         """Generate metrics content"""
@@ -682,7 +682,7 @@ class SocialProofGeneratorService:
     async def _generate_pitch_integration(
         self,
         social_proof_content: Dict[str, Any],
-        lead: Lead,
+        lead: EricLead,
         industry: str
     ) -> Dict[str, Any]:
         """Generate pitch integration suggestions"""
@@ -710,7 +710,7 @@ class SocialProofGeneratorService:
         self,
         proof_type: str,
         content: Dict[str, Any],
-        lead: Lead,
+        lead: EricLead,
         industry: str
     ) -> Dict[str, Any]:
         """Generate integration suggestion for specific proof type"""
@@ -786,7 +786,7 @@ class SocialProofGeneratorService:
         """Fetch reviews from external platform"""
         try:
             # Query actual review data from database
-            from ..models import CustomerReview, Deal, CustomerProfile
+            from ..models import CustomerReview, EricDeal, CustomerProfile
             
             # Build query based on filters
             query = db.query(CustomerReview)
@@ -808,7 +808,7 @@ class SocialProofGeneratorService:
             
             if not reviews:
                 # Try to get metrics from deals
-                deals_query = db.query(Deal)
+                deals_query = db.query(EricDeal)
                 if industry:
                     deals_query = deals_query.join(CustomerProfile).filter(CustomerProfile.industry == industry)
                 
@@ -945,7 +945,7 @@ class SocialProofGeneratorService:
     ) -> List[Dict[str, Any]]:
         """Get customer's deal history"""
         try:
-            query = select(Deal).where(Deal.customer_id == customer_id)
+            query = select(EricDeal).where(EricDeal.customer_id == customer_id)
             deals = await session.execute(query)
             deals = deals.scalars().all()
             
@@ -998,7 +998,7 @@ class SocialProofGeneratorService:
     ) -> None:
         """Store social proof generation activity"""
         try:
-            activity = SalesActivity(
+            activity = EricSalesActivity(
                 activity_type="social_proof_generation",
                 lead_id=lead_id,
                 metadata={
@@ -1022,7 +1022,7 @@ class SocialProofGeneratorService:
         """Store testimonials in database"""
         try:
             for testimonial in testimonials:
-                activity = SalesActivity(
+                activity = EricSalesActivity(
                     activity_type="testimonial_collection",
                     metadata=testimonial
                 )
@@ -1062,7 +1062,7 @@ class SocialProofGeneratorService:
     ) -> None:
         """Store case study"""
         try:
-            activity = SalesActivity(
+            activity = EricSalesActivity(
                 activity_type="case_study_generation",
                 metadata={
                     "customer_id": customer_id,
@@ -1084,9 +1084,9 @@ class SocialProofGeneratorService:
         """Get relevant testimonials from database"""
         try:
             # Query testimonials from activities
-            query = select(SalesActivity).where(
-                SalesActivity.activity_type == "testimonial_collection"
-            ).order_by(SalesActivity.created_at.desc()).limit(10)
+            query = select(EricSalesActivity).where(
+                EricSalesActivity.activity_type == "testimonial_collection"
+            ).order_by(EricSalesActivity.created_at.desc()).limit(10)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -1117,9 +1117,9 @@ class SocialProofGeneratorService:
         """Get relevant case studies from database"""
         try:
             # Query case studies from activities
-            query = select(SalesActivity).where(
-                SalesActivity.activity_type == "case_study_generation"
-            ).order_by(SalesActivity.created_at.desc()).limit(5)
+            query = select(EricSalesActivity).where(
+                EricSalesActivity.activity_type == "case_study_generation"
+            ).order_by(EricSalesActivity.created_at.desc()).limit(5)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -1172,7 +1172,7 @@ class SocialProofGeneratorService:
     
     async def _analyze_social_proof_usage(
         self,
-        activities: List[SalesActivity]
+        activities: List[EricSalesActivity]
     ) -> Dict[str, Any]:
         """Analyze social proof usage patterns"""
         try:

@@ -10,8 +10,8 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.cache.redis_manager import init_redis
 from ..database import get_clara_database
 from ..models import (
-    ChatSession, ChatMessage, KnowledgeBase, SupportTicket,
-    CustomerInteraction, TicketCategory, SupportChannel,
+    ClaraChatSession, ClaraChatMessage, ClaraKnowledgeBase, ClaraSupportTicket,
+    ClaraCustomerInteraction, TicketCategory, SupportChannel,
     SentimentType, InteractionType
 )
 
@@ -55,7 +55,7 @@ class ChatbotService:
                 session_id = f"CHAT-{uuid.uuid4().hex[:16]}"
                 
                 # Create chat session
-                chat_session = ChatSession(
+                chat_session = ClaraChatSession(
                     session_id=session_id,
                     customer_id=customer_id,
                     channel=channel,
@@ -129,7 +129,7 @@ class ChatbotService:
                 session = await db.get_session()
             
             # Create chat message
-            chat_message = ChatMessage(
+            chat_message = ClaraChatMessage(
                 session_id=session_id,
                 sender_type=sender_type,
                 sender_id=sender_id,
@@ -142,10 +142,10 @@ class ChatbotService:
             
             # Update session message count
             await session.execute(
-                select(ChatSession).where(ChatSession.id == session_id)
+                select(ClaraChatSession).where(ClaraChatSession.id == session_id)
             )
             chat_session = session.execute(
-                select(ChatSession).where(ChatSession.id == session_id)
+                select(ClaraChatSession).where(ClaraChatSession.id == session_id)
             ).scalar_one_or_none()
             
             if chat_session:
@@ -234,7 +234,7 @@ class ChatbotService:
             async with db.get_session() as session:
                 # Get chat session
                 chat_session = await session.execute(
-                    select(ChatSession).where(ChatSession.session_id == session_id)
+                    select(ClaraChatSession).where(ClaraChatSession.session_id == session_id)
                 )
                 chat_session = chat_session.scalar_one_or_none()
                 
@@ -289,25 +289,25 @@ class ChatbotService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get chat sessions
-                sessions_query = select(ChatSession).where(
-                    ChatSession.customer_id == customer_id
-                ).order_by(ChatSession.start_time.desc()).limit(limit).offset(offset)
+                sessions_query = select(ClaraChatSession).where(
+                    ClaraChatSession.customer_id == customer_id
+                ).order_by(ClaraChatSession.start_time.desc()).limit(limit).offset(offset)
                 
                 chat_sessions = await session.execute(sessions_query)
                 chat_sessions = chat_sessions.scalars().all()
                 
                 # Get total count
                 total_count = await session.execute(
-                    select(func.count(ChatSession.id)).where(ChatSession.customer_id == customer_id)
+                    select(func.count(ClaraChatSession.id)).where(ClaraChatSession.customer_id == customer_id)
                 )
                 total_count = total_count.scalar()
                 
                 sessions_data = []
                 for chat_session in chat_sessions:
                     # Get messages for this session
-                    messages_query = select(ChatMessage).where(
-                        ChatMessage.session_id == chat_session.id
-                    ).order_by(ChatMessage.timestamp.asc()).limit(10)  # Last 10 messages
+                    messages_query = select(ClaraChatMessage).where(
+                        ClaraChatMessage.session_id == chat_session.id
+                    ).order_by(ClaraChatMessage.timestamp.asc()).limit(10)  # Last 10 messages
                     
                     messages = await session.execute(messages_query)
                     messages = messages.scalars().all()
@@ -447,16 +447,16 @@ Message: {message}"""
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Search by category and keywords
-                query = select(KnowledgeBase).where(
+                query = select(ClaraKnowledgeBase).where(
                     and_(
-                        KnowledgeBase.is_public == True,
+                        ClaraKnowledgeBase.is_public == True,
                         or_(
-                            KnowledgeBase.category == intent["category"],
-                            KnowledgeBase.tags.contains([intent["category"]]),
-                            KnowledgeBase.keywords.contains([intent["category"]])
+                            ClaraKnowledgeBase.category == intent["category"],
+                            ClaraKnowledgeBase.tags.contains([intent["category"]]),
+                            ClaraKnowledgeBase.keywords.contains([intent["category"]])
                         )
                     )
-                ).order_by(KnowledgeBase.success_rate.desc(), KnowledgeBase.usage_count.desc())
+                ).order_by(ClaraKnowledgeBase.success_rate.desc(), ClaraKnowledgeBase.usage_count.desc())
                 
                 results = await session.execute(query)
                 results = results.scalars().all()
@@ -627,7 +627,7 @@ Generate a natural, helpful response:"""
         try:
             # Update message count and other metrics
             chat_session = await session.execute(
-                select(ChatSession).where(ChatSession.id == session_id)
+                select(ClaraChatSession).where(ClaraChatSession.id == session_id)
             )
             chat_session = chat_session.scalar_one_or_none()
             

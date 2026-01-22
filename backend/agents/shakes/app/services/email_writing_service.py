@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class EmailWritingService:
         try:
             db = await get_shakes_database()
             async with db.get_session() as session:
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Email Sequence: {sequence_name}",
                     description=f"AI-generated {email_type} email sequence for {business_goal}",
@@ -89,7 +89,7 @@ class EmailWritingService:
                     ai_response = await ai_manager.generate_text(messages=messages, max_tokens=1000, temperature=0.7)
                     email_content = ai_response.text_content if ai_response.success else ""
                     
-                    content_piece = ContentPiece(
+                    content_piece = ShakesContentPiece(
                         project_id=project.id,
                         title=f"{sequence_name} - Email {email_number}",
                         content=email_content,
@@ -157,7 +157,7 @@ class EmailWritingService:
         try:
             db = await get_shakes_database()
             async with db.get_session() as session:
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Newsletter: {newsletter_title}",
                     description=f"AI-generated {newsletter_type} newsletter for {industry}",
@@ -190,7 +190,7 @@ class EmailWritingService:
                 
                 complete_newsletter = self._assemble_newsletter(newsletter_title, newsletter_content, newsletter_structure)
                 
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=newsletter_title,
                     content=complete_newsletter,

@@ -12,8 +12,8 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 
 from ..models import (
-    PredictionModel, AlertRule, SystemMetric, IssuePrediction,
-    SupportTicket, CustomerInteraction, SupportAgent
+    ClaraPredictionModel, ClaraAlertRule, ClaraSystemMetric, ClaraIssuePrediction,
+    ClaraSupportTicket, ClaraCustomerInteraction, ClaraSupportAgent
 )
 from ..schemas.predictive_issue_detection import (
     CreatePredictionModelRequest, UpdatePredictionModelRequest,
@@ -58,7 +58,7 @@ class PredictiveIssueDetectionService:
     ) -> PredictionModelResponse:
         """Create a new prediction model"""
         try:
-            model = PredictionModel(
+            model = ClaraPredictionModel(
                 name=request.name,
                 description=request.description,
                 model_type=request.model_type,
@@ -98,7 +98,7 @@ class PredictiveIssueDetectionService:
         model_id: int
     ) -> PredictionModelResponse:
         """Get prediction model by ID"""
-        model = db.query(PredictionModel).filter(PredictionModel.id == model_id).first()
+        model = db.query(ClaraPredictionModel).filter(ClaraPredictionModel.id == model_id).first()
         if not model:
             raise HTTPException(status_code=404, detail="Prediction model not found")
         
@@ -123,12 +123,12 @@ class PredictiveIssueDetectionService:
         is_active: Optional[bool] = None
     ) -> List[PredictionModelResponse]:
         """List prediction models"""
-        query = db.query(PredictionModel)
+        query = db.query(ClaraPredictionModel)
         
         if model_type:
-            query = query.filter(PredictionModel.model_type == model_type)
+            query = query.filter(ClaraPredictionModel.model_type == model_type)
         if is_active is not None:
-            query = query.filter(PredictionModel.is_active == is_active)
+            query = query.filter(ClaraPredictionModel.is_active == is_active)
         
         models = query.offset(skip).limit(limit).all()
         
@@ -153,7 +153,7 @@ class PredictiveIssueDetectionService:
         request: UpdatePredictionModelRequest
     ) -> PredictionModelResponse:
         """Update prediction model"""
-        model = db.query(PredictionModel).filter(PredictionModel.id == model_id).first()
+        model = db.query(ClaraPredictionModel).filter(ClaraPredictionModel.id == model_id).first()
         if not model:
             raise HTTPException(status_code=404, detail="Prediction model not found")
         
@@ -202,7 +202,7 @@ class PredictiveIssueDetectionService:
         model_id: int
     ) -> Dict[str, str]:
         """Delete prediction model"""
-        model = db.query(PredictionModel).filter(PredictionModel.id == model_id).first()
+        model = db.query(ClaraPredictionModel).filter(ClaraPredictionModel.id == model_id).first()
         if not model:
             raise HTTPException(status_code=404, detail="Prediction model not found")
         
@@ -228,7 +228,7 @@ class PredictiveIssueDetectionService:
     ) -> AlertRuleResponse:
         """Create a new alert rule"""
         try:
-            rule = AlertRule(
+            rule = ClaraAlertRule(
                 name=request.name,
                 description=request.description,
                 conditions=request.conditions,
@@ -265,7 +265,7 @@ class PredictiveIssueDetectionService:
         rule_id: int
     ) -> AlertRuleResponse:
         """Get alert rule by ID"""
-        rule = db.query(AlertRule).filter(AlertRule.id == rule_id).first()
+        rule = db.query(ClaraAlertRule).filter(ClaraAlertRule.id == rule_id).first()
         if not rule:
             raise HTTPException(status_code=404, detail="Alert rule not found")
         
@@ -290,12 +290,12 @@ class PredictiveIssueDetectionService:
         is_active: Optional[bool] = None
     ) -> List[AlertRuleResponse]:
         """List alert rules"""
-        query = db.query(AlertRule)
+        query = db.query(ClaraAlertRule)
         
         if severity:
-            query = query.filter(AlertRule.severity == severity)
+            query = query.filter(ClaraAlertRule.severity == severity)
         if is_active is not None:
-            query = query.filter(AlertRule.is_active == is_active)
+            query = query.filter(ClaraAlertRule.is_active == is_active)
         
         rules = query.offset(skip).limit(limit).all()
         
@@ -320,7 +320,7 @@ class PredictiveIssueDetectionService:
         request: UpdateAlertRuleRequest
     ) -> AlertRuleResponse:
         """Update alert rule"""
-        rule = db.query(AlertRule).filter(AlertRule.id == rule_id).first()
+        rule = db.query(ClaraAlertRule).filter(ClaraAlertRule.id == rule_id).first()
         if not rule:
             raise HTTPException(status_code=404, detail="Alert rule not found")
         
@@ -365,7 +365,7 @@ class PredictiveIssueDetectionService:
         rule_id: int
     ) -> Dict[str, str]:
         """Delete alert rule"""
-        rule = db.query(AlertRule).filter(AlertRule.id == rule_id).first()
+        rule = db.query(ClaraAlertRule).filter(ClaraAlertRule.id == rule_id).first()
         if not rule:
             raise HTTPException(status_code=404, detail="Alert rule not found")
         
@@ -385,7 +385,7 @@ class PredictiveIssueDetectionService:
     ) -> SystemMetricResponse:
         """Track a system metric"""
         try:
-            metric = SystemMetric(
+            metric = ClaraSystemMetric(
                 name=request.name,
                 value=request.value,
                 unit=request.unit,
@@ -427,13 +427,13 @@ class PredictiveIssueDetectionService:
         limit: int = 1000
     ) -> List[SystemMetricResponse]:
         """Get system metrics for a specific metric name and time range"""
-        metrics = db.query(SystemMetric).filter(
+        metrics = db.query(ClaraSystemMetric).filter(
             and_(
-                SystemMetric.name == metric_name,
-                SystemMetric.timestamp >= start_time,
-                SystemMetric.timestamp <= end_time
+                ClaraSystemMetric.name == metric_name,
+                ClaraSystemMetric.timestamp >= start_time,
+                ClaraSystemMetric.timestamp <= end_time
             )
-        ).order_by(SystemMetric.timestamp.desc()).limit(limit).all()
+        ).order_by(ClaraSystemMetric.timestamp.desc()).limit(limit).all()
         
         return [
             SystemMetricResponse(
@@ -456,7 +456,7 @@ class PredictiveIssueDetectionService:
         """Make predictions using a trained model"""
         try:
             # Get the model
-            model_record = db.query(PredictionModel).filter(PredictionModel.id == model_id).first()
+            model_record = db.query(ClaraPredictionModel).filter(ClaraPredictionModel.id == model_id).first()
             if not model_record:
                 raise HTTPException(status_code=404, detail="Prediction model not found")
             
@@ -487,7 +487,7 @@ class PredictiveIssueDetectionService:
             probability = model.predict_proba([features])[0].max() if hasattr(model, 'predict_proba') else None
             
             # Create prediction record
-            prediction_record = IssuePrediction(
+            prediction_record = ClaraIssuePrediction(
                 model_id=model_id,
                 input_data=input_data,
                 prediction=prediction,
@@ -641,7 +641,7 @@ class PredictiveIssueDetectionService:
         """Train a prediction model"""
         try:
             # Get the model
-            model_record = db.query(PredictionModel).filter(PredictionModel.id == model_id).first()
+            model_record = db.query(ClaraPredictionModel).filter(ClaraPredictionModel.id == model_id).first()
             if not model_record:
                 raise HTTPException(status_code=404, detail="Prediction model not found")
             
@@ -703,7 +703,7 @@ class PredictiveIssueDetectionService:
         """Evaluate a trained model"""
         try:
             # Get the model
-            model_record = db.query(PredictionModel).filter(PredictionModel.id == model_id).first()
+            model_record = db.query(ClaraPredictionModel).filter(ClaraPredictionModel.id == model_id).first()
             if not model_record:
                 raise HTTPException(status_code=404, detail="Prediction model not found")
             
@@ -786,18 +786,18 @@ class PredictiveIssueDetectionService:
         """Get comprehensive detection analytics"""
         try:
             # Get predictions in date range
-            predictions = db.query(IssuePrediction).filter(
+            predictions = db.query(ClaraIssuePrediction).filter(
                 and_(
-                    IssuePrediction.created_at >= start_date,
-                    IssuePrediction.created_at <= end_date
+                    ClaraIssuePrediction.created_at >= start_date,
+                    ClaraIssuePrediction.created_at <= end_date
                 )
             ).all()
             
             # Get system metrics in date range
-            metrics = db.query(SystemMetric).filter(
+            metrics = db.query(ClaraSystemMetric).filter(
                 and_(
-                    SystemMetric.created_at >= start_date,
-                    SystemMetric.created_at <= end_date
+                    ClaraSystemMetric.created_at >= start_date,
+                    ClaraSystemMetric.created_at <= end_date
                 )
             ).all()
             
@@ -847,13 +847,13 @@ class PredictiveIssueDetectionService:
         """Check the health of predictive issue detection system"""
         try:
             db = next(get_db())
-            model_count = db.query(PredictionModel).count()
-            rule_count = db.query(AlertRule).count()
-            metric_count = db.query(SystemMetric).count()
-            prediction_count = db.query(IssuePrediction).count()
+            model_count = db.query(ClaraPredictionModel).count()
+            rule_count = db.query(ClaraAlertRule).count()
+            metric_count = db.query(ClaraSystemMetric).count()
+            prediction_count = db.query(ClaraIssuePrediction).count()
             
             # Check model status
-            active_models = db.query(PredictionModel).filter(PredictionModel.is_active == True).count()
+            active_models = db.query(ClaraPredictionModel).filter(ClaraPredictionModel.is_active == True).count()
             trained_models = len(self.models)
             
             return {
@@ -880,7 +880,7 @@ class PredictiveIssueDetectionService:
                 "last_check": datetime.utcnow().isoformat()
             }
     
-    async def _initialize_model(self, model_record: PredictionModel):
+    async def _initialize_model(self, model_record: ClaraPredictionModel):
         """Initialize a prediction model"""
         try:
             if model_record.model_type == PredictionModelType.TICKET_VOLUME:
@@ -906,14 +906,14 @@ class PredictiveIssueDetectionService:
         except Exception as e:
             raise Exception(f"Failed to initialize model: {str(e)}")
     
-    async def _check_anomalies(self, db: Session, metric: SystemMetric):
+    async def _check_anomalies(self, db: Session, metric: ClaraSystemMetric):
         """Check for anomalies in a metric"""
         try:
             # Get recent metrics of the same type
-            recent_metrics = db.query(SystemMetric).filter(
+            recent_metrics = db.query(ClaraSystemMetric).filter(
                 and_(
-                    SystemMetric.name == metric.name,
-                    SystemMetric.timestamp >= metric.timestamp - timedelta(hours=1)
+                    ClaraSystemMetric.name == metric.name,
+                    ClaraSystemMetric.timestamp >= metric.timestamp - timedelta(hours=1)
                 )
             ).all()
             
@@ -941,11 +941,11 @@ class PredictiveIssueDetectionService:
         except Exception:
             pass  # Silently fail anomaly detection
     
-    async def _check_alert_rules(self, db: Session, metric: SystemMetric):
+    async def _check_alert_rules(self, db: Session, metric: ClaraSystemMetric):
         """Check alert rules against a metric"""
         try:
             # Get active alert rules
-            rules = db.query(AlertRule).filter(AlertRule.is_active == True).all()
+            rules = db.query(ClaraAlertRule).filter(ClaraAlertRule.is_active == True).all()
             
             for rule in rules:
                 if self._evaluate_rule_conditions(rule.conditions, metric):
@@ -955,7 +955,7 @@ class PredictiveIssueDetectionService:
         except Exception:
             pass  # Silently fail alert checking
     
-    def _evaluate_rule_conditions(self, conditions: Dict[str, Any], metric: SystemMetric) -> bool:
+    def _evaluate_rule_conditions(self, conditions: Dict[str, Any], metric: ClaraSystemMetric) -> bool:
         """Evaluate alert rule conditions"""
         try:
             if "metric_name" in conditions and conditions["metric_name"] != metric.name:
@@ -981,7 +981,7 @@ class PredictiveIssueDetectionService:
         except Exception:
             return False
     
-    async def _trigger_alert(self, rule: AlertRule, metric: SystemMetric):
+    async def _trigger_alert(self, rule: ClaraAlertRule, metric: ClaraSystemMetric):
         """Trigger an alert"""
         try:
             alert_data = {

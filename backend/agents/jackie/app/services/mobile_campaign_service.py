@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import MobileCampaign, PushNotification, MobileContent, AppEngagement
+from ..models import JackieMobileCampaign, JackiePushNotification, MobileContent, AppEngagement
 
 class MobileCampaignService:
     def __init__(self, db: Session):
@@ -28,7 +28,7 @@ class MobileCampaignService:
         
         campaign_result = self.nlp_processor.create_mobile_campaign(prompt)
         
-        campaign = MobileCampaign(
+        campaign = JackieMobileCampaign(
             id=campaign_id, campaign_data=json.dumps(campaign_data), mobile_platforms=json.dumps(mobile_platforms),
             target_devices=json.dumps(target_devices), campaign_strategy=json.dumps(campaign_result.get("strategy", {})),
             status="active", created_at=datetime.utcnow()
@@ -52,7 +52,7 @@ class MobileCampaignService:
         
         notification_result = self.nlp_processor.create_push_notification(prompt)
         
-        notification = PushNotification(
+        notification = JackiePushNotification(
             id=notification_id, notification_data=json.dumps(notification_data),
             target_users=json.dumps(target_users), notification_type=notification_type,
             notification_content=notification_result.get("content", ""),
@@ -102,7 +102,7 @@ class MobileCampaignService:
         return {"engagement_id": engagement_id, "user_id": user_id, "type": engagement_type}
     
     def optimize_mobile_campaign(self, campaign_id: str, optimization_goals: Dict[str, Any]) -> Dict[str, Any]:
-        campaign = self.db.query(MobileCampaign).filter(MobileCampaign.id == campaign_id).first()
+        campaign = self.db.query(JackieMobileCampaign).filter(JackieMobileCampaign.id == campaign_id).first()
         if not campaign:
             raise Exception("Mobile campaign not found")
         
@@ -156,8 +156,8 @@ class MobileCampaignService:
     def get_mobile_analytics(self, campaign_id: str, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        notifications_sent = self.db.query(PushNotification).filter(
-            PushNotification.created_at >= cutoff_date
+        notifications_sent = self.db.query(JackiePushNotification).filter(
+            JackiePushNotification.created_at >= cutoff_date
         ).count()
         
         content_created = self.db.query(MobileContent).filter(

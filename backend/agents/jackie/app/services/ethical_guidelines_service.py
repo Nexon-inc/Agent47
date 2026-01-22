@@ -23,9 +23,9 @@ class EthicalGuidelinesService:
         Content Type: {content_type}
         Target Audience: {target_audience}
         Industry: {industry}
-        Review Criteria: {review_criteria}
+        JackieReview Criteria: {review_criteria}
         
-        Review this content for ethical compliance and potential issues.
+        JackieReview this content for ethical compliance and potential issues.
         """
         
         review_result = self.nlp_processor.review_content_ethics(prompt)
@@ -137,7 +137,7 @@ class EthicalGuidelinesService:
         Target Audience: {target_audience}
         Industry: {industry}
         
-        Review the ethical implications of these targeting criteria.
+        JackieReview the ethical implications of these targeting criteria.
         """
         
         targeting_result = self.nlp_processor.review_targeting_ethics(prompt)
@@ -208,7 +208,7 @@ class EthicalGuidelinesService:
         Target Cultures: {target_cultures}
         Cultural Guidelines: {cultural_guidelines}
         
-        Review this content for cultural sensitivity and appropriateness.
+        JackieReview this content for cultural sensitivity and appropriateness.
         """
         
         cultural_result = self.nlp_processor.review_cultural_sensitivity(prompt)
@@ -359,7 +359,7 @@ class EthicalGuidelinesService:
         Testimonials: {testimonials}
         Testimonial Guidelines: {testimonial_guidelines}
         
-        Review testimonials for ethical compliance and authenticity.
+        JackieReview testimonials for ethical compliance and authenticity.
         """
         
         testimonial_result = self.nlp_processor.review_testimonial_ethics(prompt)

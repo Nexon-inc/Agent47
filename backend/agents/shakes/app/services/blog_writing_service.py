@@ -8,7 +8,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 # NLPUtils removed - using AI Service Manager instead
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, SEOAnalysis
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesSEOAnalysis
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class BlogWritingService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create content project
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Blog: {topic}",
                     description=f"AI-generated blog post about {topic}",
@@ -89,7 +89,7 @@ class BlogWritingService:
                 blog_content = ai_response.text_content if ai_response.success else ""
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=topic,
                     content=blog_content,
@@ -116,7 +116,7 @@ class BlogWritingService:
                 seo_analysis = ai_response.text_content if ai_response.success else "{}"
                 
                 # Create SEO analysis record
-                seo_record = SEOAnalysis(
+                seo_record = ShakesSEOAnalysis(
                     project_id=project.id,
                     content_piece_id=content_piece.id,
                     keyword_density=self._calculate_keyword_density(blog_content, keywords),
@@ -178,7 +178,7 @@ class BlogWritingService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -230,7 +230,7 @@ class BlogWritingService:
             async with db.get_session() as session:
                 # Get content piece and related data
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -239,7 +239,7 @@ class BlogWritingService:
                 
                 # Get SEO analysis
                 seo_result = await session.execute(
-                    select(SEOAnalysis).where(SEOAnalysis.content_piece_id == content_piece_id)
+                    select(ShakesSEOAnalysis).where(ShakesSEOAnalysis.content_piece_id == content_piece_id)
                 )
                 seo_analysis = seo_result.scalar_one_or_none()
                 

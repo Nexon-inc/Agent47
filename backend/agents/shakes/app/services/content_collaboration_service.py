@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, ContentCollaboration, ContentComment
+from ..models import ShakesContentProject, ShakesContentPiece, ContentCollaboration, ContentComment
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class ContentCollaborationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -346,7 +346,7 @@ class ContentCollaborationService:
             return {"success": False, "error": str(e)}
     
     def _create_collaboration_guidelines_prompt(
-        self, content_piece: ContentPiece, collaboration_type: str, team_members: List[int], collaboration_goals: List[str]
+        self, content_piece: ShakesContentPiece, collaboration_type: str, team_members: List[int], collaboration_goals: List[str]
     ) -> str:
         """Create prompt for collaboration guidelines"""
         return f"""

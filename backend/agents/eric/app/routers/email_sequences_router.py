@@ -192,7 +192,7 @@ async def get_follow_up_workflows(brand_id: str):
         workflows = [
             {
                 "workflow_id": "wf_001",
-                "workflow_name": "Lead Follow-up",
+                "workflow_name": "EricLead Follow-up",
                 "workflow_type": "lead_nurture",
                 "status": "active",
                 "created_at": "2024-01-15T10:00:00Z"
@@ -373,7 +373,7 @@ async def get_sequence_templates():
             },
             {
                 "template_id": "nurture_sequence",
-                "template_name": "Lead Nurture Sequence",
+                "template_name": "EricLead Nurture Sequence",
                 "description": "Nurture leads with educational content",
                 "steps": 5,
                 "estimated_duration": "14 days"
@@ -413,7 +413,7 @@ async def get_automation_rules(brand_id: str):
             },
             {
                 "rule_id": "rule_003",
-                "rule_name": "Lead Unsubscribed",
+                "rule_name": "EricLead Unsubscribed",
                 "condition": "lead_unsubscribed",
                 "action": "pause_sequence",
                 "template": None,

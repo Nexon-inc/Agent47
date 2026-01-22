@@ -270,16 +270,16 @@ async def get_high_value_customer_recommendations(
     try:
         async with get_eric_database() as session:
             from sqlalchemy import select
-            from ..models import Deal
+            from ..models import EricDeal
             
             # Get high-value customers
-            customers_query = select(Deal.customer_id).where(
+            customers_query = select(EricDeal.customer_id).where(
                 and_(
-                    Deal.status == "closed",
-                    Deal.value >= min_lifetime_value
+                    EricDeal.status == "closed",
+                    EricDeal.value >= min_lifetime_value
                 )
-            ).group_by(Deal.customer_id).having(
-                func.sum(Deal.value) >= min_lifetime_value
+            ).group_by(EricDeal.customer_id).having(
+                func.sum(EricDeal.value) >= min_lifetime_value
             ).limit(limit)
             
             result = await session.execute(customers_query)
@@ -382,23 +382,23 @@ async def get_segment_recommendations(
     try:
         async with get_eric_database() as session:
             from sqlalchemy import select
-            from ..models import Deal
+            from ..models import EricDeal
             
             # Get customers in the segment (simplified - would need customer segmentation data)
             # For now, we'll simulate based on deal values
             segment_filters = {
-                "enterprise": Deal.value >= 10000,
-                "business": and_(Deal.value >= 5000, Deal.value < 10000),
-                "professional": and_(Deal.value >= 1000, Deal.value < 5000),
-                "startup": Deal.value < 1000
+                "enterprise": EricDeal.value >= 10000,
+                "business": and_(EricDeal.value >= 5000, EricDeal.value < 10000),
+                "professional": and_(EricDeal.value >= 1000, EricDeal.value < 5000),
+                "startup": EricDeal.value < 1000
             }
             
             if segment not in segment_filters:
                 raise HTTPException(status_code=400, detail=f"Invalid segment: {segment}")
             
-            customers_query = select(Deal.customer_id).where(
+            customers_query = select(EricDeal.customer_id).where(
                 and_(
-                    Deal.status == "closed",
+                    EricDeal.status == "closed",
                     segment_filters[segment]
                 )
             ).distinct().limit(limit)

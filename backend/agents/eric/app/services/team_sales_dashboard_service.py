@@ -8,8 +8,8 @@ from fastapi import HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
 from ..models import (
-    SalesRep, Deal, SalesActivity, Lead, CustomerProfile,
-    TeamPerformanceMetric, SalesAnalytics, SalesForecast
+    EricSalesRep, EricDeal, EricSalesActivity, EricLead, CustomerProfile,
+    TeamPerformanceMetric, EricSalesAnalytics, EricSalesForecast
 )
 from ..database import get_eric_database
 from core.event_bus.kafka_manager import EventBus as KafkaProducer
@@ -101,8 +101,8 @@ class TeamSalesDashboardService:
             start_date = end_date - timedelta(days=30)
         
         # Get team members
-        team_members = db.query(SalesRep).filter(
-            SalesRep.team_id == team_id
+        team_members = db.query(EricSalesRep).filter(
+            EricSalesRep.team_id == team_id
         ).all()
         
         if not team_members:
@@ -149,8 +149,8 @@ class TeamSalesDashboardService:
             start_date = end_date - timedelta(days=30)
         
         # Get team members
-        team_members = db.query(SalesRep).filter(
-            SalesRep.team_id == team_id
+        team_members = db.query(EricSalesRep).filter(
+            EricSalesRep.team_id == team_id
         ).all()
         
         if not team_members:
@@ -197,8 +197,8 @@ class TeamSalesDashboardService:
         yesterday = datetime.now() - timedelta(days=1)
         
         # Get team members
-        team_members = db.query(SalesRep).filter(
-            SalesRep.team_id == team_id
+        team_members = db.query(EricSalesRep).filter(
+            EricSalesRep.team_id == team_id
         ).all()
         
         if not team_members:
@@ -207,26 +207,26 @@ class TeamSalesDashboardService:
         rep_ids = [rep.id for rep in team_members]
         
         # Recent deals
-        recent_deals = db.query(Deal).filter(
+        recent_deals = db.query(EricDeal).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.created_at >= yesterday
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.created_at >= yesterday
             )
         ).all()
         
         # Recent activities
-        recent_activities = db.query(SalesActivity).filter(
+        recent_activities = db.query(EricSalesActivity).filter(
             and_(
-                SalesActivity.sales_rep_id.in_(rep_ids),
-                SalesActivity.created_at >= yesterday
+                EricSalesActivity.sales_rep_id.in_(rep_ids),
+                EricSalesActivity.created_at >= yesterday
             )
         ).all()
         
         # Recent leads
-        recent_leads = db.query(Lead).filter(
+        recent_leads = db.query(EricLead).filter(
             and_(
-                Lead.assigned_to.in_(rep_ids),
-                Lead.created_at >= yesterday
+                EricLead.assigned_to.in_(rep_ids),
+                EricLead.created_at >= yesterday
             )
         ).all()
         
@@ -247,8 +247,8 @@ class TeamSalesDashboardService:
     ) -> Dict[str, Any]:
         """Get detailed pipeline analytics"""
         # Get team members
-        team_members = db.query(SalesRep).filter(
-            SalesRep.team_id == team_id
+        team_members = db.query(EricSalesRep).filter(
+            EricSalesRep.team_id == team_id
         ).all()
         
         if not team_members:
@@ -257,10 +257,10 @@ class TeamSalesDashboardService:
         rep_ids = [rep.id for rep in team_members]
         
         # Get all active deals
-        active_deals = db.query(Deal).filter(
+        active_deals = db.query(EricDeal).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.status.in_(["prospecting", "qualification", "proposal", "negotiation"])
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.status.in_(["prospecting", "qualification", "proposal", "negotiation"])
             )
         ).all()
         
@@ -310,8 +310,8 @@ class TeamSalesDashboardService:
             previous_start = current_start - timedelta(days=30)
         
         # Get team members
-        team_members = db.query(SalesRep).filter(
-            SalesRep.team_id == team_id
+        team_members = db.query(EricSalesRep).filter(
+            EricSalesRep.team_id == team_id
         ).all()
         
         if not team_members:
@@ -407,31 +407,31 @@ class TeamSalesDashboardService:
     ) -> TeamDashboardMetrics:
         """Calculate comprehensive team metrics"""
         # Total revenue
-        total_revenue = db.query(func.sum(Deal.value)).filter(
+        total_revenue = db.query(func.sum(EricDeal.value)).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.status == "closed",
-                Deal.closed_at >= start_date,
-                Deal.closed_at <= end_date
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.status == "closed",
+                EricDeal.closed_at >= start_date,
+                EricDeal.closed_at <= end_date
             )
         ).scalar() or 0
         
         # Total deals
-        total_deals = db.query(func.count(Deal.id)).filter(
+        total_deals = db.query(func.count(EricDeal.id)).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.status == "closed",
-                Deal.closed_at >= start_date,
-                Deal.closed_at <= end_date
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.status == "closed",
+                EricDeal.closed_at >= start_date,
+                EricDeal.closed_at <= end_date
             )
         ).scalar() or 0
         
         # Total leads
-        total_leads = db.query(func.count(Lead.id)).filter(
+        total_leads = db.query(func.count(EricLead.id)).filter(
             and_(
-                Lead.assigned_to.in_(rep_ids),
-                Lead.created_at >= start_date,
-                Lead.created_at <= end_date
+                EricLead.assigned_to.in_(rep_ids),
+                EricLead.created_at >= start_date,
+                EricLead.created_at <= end_date
             )
         ).scalar() or 0
         
@@ -442,39 +442,39 @@ class TeamSalesDashboardService:
         average_deal_size = total_revenue / total_deals if total_deals > 0 else 0
         
         # Pipeline value
-        pipeline_value = db.query(func.sum(Deal.value)).filter(
+        pipeline_value = db.query(func.sum(EricDeal.value)).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.status.in_(["prospecting", "qualification", "proposal", "negotiation"])
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.status.in_(["prospecting", "qualification", "proposal", "negotiation"])
             )
         ).scalar() or 0
         
         # Win rate
-        closed_deals = db.query(func.count(Deal.id)).filter(
+        closed_deals = db.query(func.count(EricDeal.id)).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.status == "closed",
-                Deal.closed_at >= start_date,
-                Deal.closed_at <= end_date
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.status == "closed",
+                EricDeal.closed_at >= start_date,
+                EricDeal.closed_at <= end_date
             )
         ).scalar() or 0
         
-        total_deals_attempted = db.query(func.count(Deal.id)).filter(
+        total_deals_attempted = db.query(func.count(EricDeal.id)).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.created_at >= start_date,
-                Deal.created_at <= end_date
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.created_at >= start_date,
+                EricDeal.created_at <= end_date
             )
         ).scalar() or 0
         
         win_rate = (closed_deals / total_deals_attempted * 100) if total_deals_attempted > 0 else 0
         
         # Average response time
-        activities = db.query(SalesActivity).filter(
+        activities = db.query(EricSalesActivity).filter(
             and_(
-                SalesActivity.sales_rep_id.in_(rep_ids),
-                SalesActivity.created_at >= start_date,
-                SalesActivity.created_at <= end_date
+                EricSalesActivity.sales_rep_id.in_(rep_ids),
+                EricSalesActivity.created_at >= start_date,
+                EricSalesActivity.created_at <= end_date
             )
         ).all()
         
@@ -515,36 +515,36 @@ class TeamSalesDashboardService:
     ) -> SalesRepPerformance:
         """Calculate individual sales rep metrics"""
         # Get rep info
-        rep = db.query(SalesRep).filter(SalesRep.id == rep_id).first()
+        rep = db.query(EricSalesRep).filter(EricSalesRep.id == rep_id).first()
         if not rep:
             raise HTTPException(status_code=404, detail="Sales rep not found")
         
         # Revenue
-        revenue = db.query(func.sum(Deal.value)).filter(
+        revenue = db.query(func.sum(EricDeal.value)).filter(
             and_(
-                Deal.sales_rep_id == rep_id,
-                Deal.status == "closed",
-                Deal.closed_at >= start_date,
-                Deal.closed_at <= end_date
+                EricDeal.sales_rep_id == rep_id,
+                EricDeal.status == "closed",
+                EricDeal.closed_at >= start_date,
+                EricDeal.closed_at <= end_date
             )
         ).scalar() or 0
         
         # Deals count
-        deals_count = db.query(func.count(Deal.id)).filter(
+        deals_count = db.query(func.count(EricDeal.id)).filter(
             and_(
-                Deal.sales_rep_id == rep_id,
-                Deal.status == "closed",
-                Deal.closed_at >= start_date,
-                Deal.closed_at <= end_date
+                EricDeal.sales_rep_id == rep_id,
+                EricDeal.status == "closed",
+                EricDeal.closed_at >= start_date,
+                EricDeal.closed_at <= end_date
             )
         ).scalar() or 0
         
         # Leads count
-        leads_count = db.query(func.count(Lead.id)).filter(
+        leads_count = db.query(func.count(EricLead.id)).filter(
             and_(
-                Lead.assigned_to == rep_id,
-                Lead.created_at >= start_date,
-                Lead.created_at <= end_date
+                EricLead.assigned_to == rep_id,
+                EricLead.created_at >= start_date,
+                EricLead.created_at <= end_date
             )
         ).scalar() or 0
         
@@ -552,20 +552,20 @@ class TeamSalesDashboardService:
         conversion_rate = (deals_count / leads_count * 100) if leads_count > 0 else 0
         
         # Activities completed
-        activities_completed = db.query(func.count(SalesActivity.id)).filter(
+        activities_completed = db.query(func.count(EricSalesActivity.id)).filter(
             and_(
-                SalesActivity.sales_rep_id == rep_id,
-                SalesActivity.created_at >= start_date,
-                SalesActivity.created_at <= end_date
+                EricSalesActivity.sales_rep_id == rep_id,
+                EricSalesActivity.created_at >= start_date,
+                EricSalesActivity.created_at <= end_date
             )
         ).scalar() or 0
         
         # Average response time
-        activities = db.query(SalesActivity).filter(
+        activities = db.query(EricSalesActivity).filter(
             and_(
-                SalesActivity.sales_rep_id == rep_id,
-                SalesActivity.created_at >= start_date,
-                SalesActivity.created_at <= end_date
+                EricSalesActivity.sales_rep_id == rep_id,
+                EricSalesActivity.created_at >= start_date,
+                EricSalesActivity.created_at <= end_date
             )
         ).all()
         
@@ -643,19 +643,19 @@ class TeamSalesDashboardService:
             next_stage = stages[i + 1]
             
             # Count deals that moved from current to next stage
-            moved_deals = db.query(func.count(Deal.id)).filter(
+            moved_deals = db.query(func.count(EricDeal.id)).filter(
                 and_(
-                    Deal.sales_rep_id.in_(rep_ids),
-                    Deal.status == next_stage,
-                    Deal.stage_history.contains(current_stage)
+                    EricDeal.sales_rep_id.in_(rep_ids),
+                    EricDeal.status == next_stage,
+                    EricDeal.stage_history.contains(current_stage)
                 )
             ).scalar() or 0
             
             # Count total deals in current stage
-            total_deals = db.query(func.count(Deal.id)).filter(
+            total_deals = db.query(func.count(EricDeal.id)).filter(
                 and_(
-                    Deal.sales_rep_id.in_(rep_ids),
-                    Deal.status == current_stage
+                    EricDeal.sales_rep_id.in_(rep_ids),
+                    EricDeal.status == current_stage
                 )
             ).scalar() or 0
             
@@ -675,10 +675,10 @@ class TeamSalesDashboardService:
         velocity_metrics = {}
         
         for stage in stages:
-            deals = db.query(Deal).filter(
+            deals = db.query(EricDeal).filter(
                 and_(
-                    Deal.sales_rep_id.in_(rep_ids),
-                    Deal.status == stage
+                    EricDeal.sales_rep_id.in_(rep_ids),
+                    EricDeal.status == stage
                 )
             ).all()
             
@@ -694,7 +694,7 @@ class TeamSalesDashboardService:
         
         return velocity_metrics
 
-    def _group_activities_by_type(self, activities: List[SalesActivity]) -> Dict[str, int]:
+    def _group_activities_by_type(self, activities: List[EricSalesActivity]) -> Dict[str, int]:
         """Group activities by type"""
         grouped = {}
         for activity in activities:
@@ -702,7 +702,7 @@ class TeamSalesDashboardService:
             grouped[activity_type] = grouped.get(activity_type, 0) + 1
         return grouped
 
-    def _group_deals_by_stage(self, deals: List[Deal]) -> Dict[str, int]:
+    def _group_deals_by_stage(self, deals: List[EricDeal]) -> Dict[str, int]:
         """Group deals by stage"""
         grouped = {}
         for deal in deals:

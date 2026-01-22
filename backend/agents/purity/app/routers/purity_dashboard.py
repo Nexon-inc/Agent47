@@ -9,7 +9,7 @@ from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from core.database.models import User
 from ..database import get_db
-from ..models import BusinessIdea, BusinessModel, PurityMarketResearch, CustomerAvatar, BusinessStage, ValidationStatus, IndustryType
+from ..models import PurityBusinessIdea, PurityBusinessModel, PurityMarketResearch, PurityCustomerAvatar, BusinessStage, ValidationStatus, IndustryType
 from ..services.business_idea_generator_service import BusinessIdeaGeneratorService
 from ..services.business_health_service import BusinessHealthService
 from ..services.financial_planning_service import FinancialPlanningService

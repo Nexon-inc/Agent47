@@ -48,9 +48,9 @@ def build_app() -> FastAPI:
     app.include_router(news_monitoring.router, prefix="/joe/news-monitoring", tags=["News Monitoring"])
     app.include_router(patent_tracking.router, prefix="/joe/patent-tracking", tags=["Patent Tracking"])
     app.include_router(custom_research.router, prefix="/joe/custom-research", tags=["Custom Research"])
-    app.include_router(multi_language_research.router, prefix="/joe/multi-language-research", tags=["Multi-Language Research"])
+    app.include_router(multi_language_research.router, prefix="/joe/multi-language-research", tags=["Multi-JoeLanguage Research"])
     app.include_router(competitor_benchmarking.router, prefix="/joe/competitor-benchmarking", tags=["Competitor Benchmarking"])
-    app.include_router(survey_creation.router, prefix="/joe/survey-creation", tags=["Survey Creation"])
+    app.include_router(survey_creation.router, prefix="/joe/survey-creation", tags=["JoeSurvey Creation"])
     
     # Include data management routers
     app.include_router(data_export.router, prefix="/joe/data-export", tags=["Data Export"])

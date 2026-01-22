@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class VideoScriptingService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create content project
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Video Script: {topic}",
                     description=f"AI-generated {video_type} script about {topic}",
@@ -116,7 +116,7 @@ class VideoScriptingService:
                 production_notes = ai_response.text_content if ai_response.success else ""
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=topic,
                     content=video_script,
@@ -180,7 +180,7 @@ class VideoScriptingService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create content project
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Podcast Script: {topic}",
                     description=f"AI-generated {podcast_type} script about {topic}",
@@ -222,7 +222,7 @@ class VideoScriptingService:
                 episode_notes = ai_response.text_content if ai_response.success else ""
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=topic,
                     content=podcast_script,
@@ -270,7 +270,7 @@ class VideoScriptingService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 

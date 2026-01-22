@@ -17,7 +17,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.analytics.analytics_manager import AnalyticsManager
 from core.event_bus.kafka_manager import EventBus as KafkaManager
 from core.cache.redis_manager import RedisManager
-from ..models import Lead, Deal, SalesActivity, SalesRep, CustomerProfile
+from ..models import EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile
 
 logger = logging.getLogger(__name__)
 
@@ -196,17 +196,17 @@ class VoicePitchSimulatorService:
                 # Build query filters
                 filters = []
                 if rep_id:
-                    filters.append(SalesActivity.rep_id == rep_id)
+                    filters.append(EricSalesActivity.rep_id == rep_id)
                 if scenario_type:
-                    filters.append(SalesActivity.metadata.contains({"scenario_type": scenario_type}))
+                    filters.append(EricSalesActivity.metadata.contains({"scenario_type": scenario_type}))
                 
                 # Query simulation activities
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.activity_type == "voice_pitch_simulation",
+                        EricSalesActivity.activity_type == "voice_pitch_simulation",
                         *filters
                     )
-                ).order_by(SalesActivity.created_at.desc()).limit(limit)
+                ).order_by(EricSalesActivity.created_at.desc()).limit(limit)
                 
                 activities = await session.execute(query)
                 activities = activities.scalars().all()
@@ -247,15 +247,15 @@ class VoicePitchSimulatorService:
                 start_date = datetime.utcnow() - timedelta(days=days)
                 
                 # Get simulation activities
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.activity_type == "voice_pitch_simulation",
-                        SalesActivity.created_at >= start_date
+                        EricSalesActivity.activity_type == "voice_pitch_simulation",
+                        EricSalesActivity.created_at >= start_date
                     )
                 )
                 
                 if rep_id:
-                    query = query.where(SalesActivity.rep_id == rep_id)
+                    query = query.where(EricSalesActivity.rep_id == rep_id)
                 
                 activities = await session.execute(query)
                 activities = activities.scalars().all()
@@ -350,9 +350,9 @@ class VoicePitchSimulatorService:
         self,
         session: AsyncSession,
         rep_id: int
-    ) -> Optional[SalesRep]:
+    ) -> Optional[EricSalesRep]:
         """Get sales rep information"""
-        query = select(SalesRep).where(SalesRep.id == rep_id)
+        query = select(EricSalesRep).where(EricSalesRep.id == rep_id)
         result = await session.execute(query)
         return result.scalar_one_or_none()
     
@@ -868,7 +868,7 @@ class VoicePitchSimulatorService:
     ) -> None:
         """Store simulation results"""
         try:
-            activity = SalesActivity(
+            activity = EricSalesActivity(
                 activity_type="voice_pitch_simulation",
                 rep_id=rep_id,
                 metadata={
@@ -945,7 +945,7 @@ class VoicePitchSimulatorService:
     
     async def _analyze_improvement_trends(
         self,
-        activities: List[SalesActivity]
+        activities: List[EricSalesActivity]
     ) -> Dict[str, Any]:
         """Analyze improvement trends over time"""
         try:
@@ -989,12 +989,12 @@ class VoicePitchSimulatorService:
     ) -> List[Dict[str, Any]]:
         """Get rep's performance history"""
         try:
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.rep_id == rep_id,
-                    SalesActivity.activity_type == "voice_pitch_simulation"
+                    EricSalesActivity.rep_id == rep_id,
+                    EricSalesActivity.activity_type == "voice_pitch_simulation"
                 )
-            ).order_by(SalesActivity.created_at.desc()).limit(20)
+            ).order_by(EricSalesActivity.created_at.desc()).limit(20)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -1102,16 +1102,16 @@ class VoicePitchSimulatorService:
                 start_date = datetime.utcnow() - timedelta(days=30)
                 end_date = datetime.utcnow()
             
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.rep_id == rep_id,
-                    SalesActivity.activity_type == "voice_pitch_simulation",
-                    SalesActivity.created_at >= start_date
+                    EricSalesActivity.rep_id == rep_id,
+                    EricSalesActivity.activity_type == "voice_pitch_simulation",
+                    EricSalesActivity.created_at >= start_date
                 )
             )
             
             if time_period == "30_days_ago":
-                query = query.where(SalesActivity.created_at <= end_date)
+                query = query.where(EricSalesActivity.created_at <= end_date)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()

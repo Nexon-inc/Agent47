@@ -15,7 +15,7 @@ class MultiLanguageResearchRequest(BaseModel):
     industry: str = Field(..., description="Industry context for research")
 
 class CulturalContextRequest(BaseModel):
-    language: str = Field(..., description="Language to analyze")
+    language: str = Field(..., description="JoeLanguage to analyze")
     industry: str = Field(..., description="Industry context")
     region: str = Field(default=None, description="Specific region")
 

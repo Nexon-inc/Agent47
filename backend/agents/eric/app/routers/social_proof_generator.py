@@ -307,22 +307,22 @@ async def get_social_proof_performance_metrics(
         service = SocialProofGeneratorService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity
+            from ..models import EricSalesActivity
             from sqlalchemy import select, func, and_
             from datetime import datetime, timedelta
             
             start_date = datetime.utcnow() - timedelta(days=days)
             
             # Get social proof activities
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.activity_type == "social_proof_generation",
-                    SalesActivity.created_at >= start_date
+                    EricSalesActivity.activity_type == "social_proof_generation",
+                    EricSalesActivity.created_at >= start_date
                 )
             )
             
             if lead_id:
-                query = query.where(SalesActivity.lead_id == lead_id)
+                query = query.where(EricSalesActivity.lead_id == lead_id)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -370,9 +370,9 @@ async def get_social_proof_effectiveness():
         db = await get_eric_database()
         async with db.get_session() as session:
             # Get recent social proof activities
-            query = select(SalesActivity).where(
-                SalesActivity.activity_type == "social_proof_generation"
-            ).order_by(SalesActivity.created_at.desc()).limit(100)
+            query = select(EricSalesActivity).where(
+                EricSalesActivity.activity_type == "social_proof_generation"
+            ).order_by(EricSalesActivity.created_at.desc()).limit(100)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -398,7 +398,7 @@ async def get_social_proof_effectiveness():
 @router.get("/social-proof/recommendations/{lead_id}")
 async def get_social_proof_recommendations(
     lead_id: int,
-    industry: Optional[str] = Query(None, description="Lead industry")
+    industry: Optional[str] = Query(None, description="EricLead industry")
 ):
     """Get personalized social proof recommendations for a lead"""
     try:
@@ -406,15 +406,15 @@ async def get_social_proof_recommendations(
         db = await get_eric_database()
         async with db.get_session() as session:
             # Get lead information
-            from ..models import Lead
+            from ..models import EricLead
             from sqlalchemy import select
             
-            query = select(Lead).where(Lead.id == lead_id)
+            query = select(EricLead).where(EricLead.id == lead_id)
             result = await session.execute(query)
             lead = result.scalar_one_or_none()
             
             if not lead:
-                raise HTTPException(status_code=404, detail="Lead not found")
+                raise HTTPException(status_code=404, detail="EricLead not found")
             
             # Determine industry
             lead_industry = industry or lead.industry or "general"

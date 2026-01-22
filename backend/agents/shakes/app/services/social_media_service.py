@@ -8,7 +8,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 # NLPUtils removed - using AI Service Manager instead
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, PlatformType
+from ..models import ShakesContentProject, ShakesContentPiece, PlatformType
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class SocialMediaContentService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create content project
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Social Media: {topic}",
                     description=f"AI-generated {platform} content about {topic}",
@@ -93,7 +93,7 @@ class SocialMediaContentService:
                     image_desc = ai_response.text_content if ai_response.success else ""
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=topic,
                     content=social_content,
@@ -154,7 +154,7 @@ class SocialMediaContentService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create content project for series
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Content Series: {series_topic}",
                     description=f"AI-generated {post_count}-post series for {platform}",
@@ -188,7 +188,7 @@ class SocialMediaContentService:
                     post_content = ai_response.text_content if ai_response.success else ""
                     
                     # Create content piece for each post
-                    content_piece = ContentPiece(
+                    content_piece = ShakesContentPiece(
                         project_id=project.id,
                         title=f"{series_topic} - Part {i + 1}",
                         content=post_content,
@@ -240,7 +240,7 @@ class SocialMediaContentService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 

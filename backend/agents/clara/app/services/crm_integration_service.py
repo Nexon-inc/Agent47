@@ -11,7 +11,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, CustomerProfile,
+    ClaraSupportTicket, ClaraCustomerInteraction, CustomerProfile,
     TicketPriority, TicketStatus, TicketCategory, SupportChannel
 )
 
@@ -70,7 +70,7 @@ class CRMIntegrationService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket details
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -205,7 +205,7 @@ class CRMIntegrationService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -251,7 +251,7 @@ class CRMIntegrationService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -318,7 +318,7 @@ class CRMIntegrationService:
     
     async def _prepare_ticket_for_crm(
         self,
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         crm_platform: str
     ) -> Dict[str, Any]:
         """Prepare ticket data for CRM sync"""

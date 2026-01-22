@@ -11,8 +11,8 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.storage.s3_manager import storage_manager
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, TicketCategory, SupportChannel,
-    SentimentType, InteractionType, TicketAttachment
+    ClaraSupportTicket, ClaraCustomerInteraction, TicketCategory, SupportChannel,
+    SentimentType, InteractionType, ClaraTicketAttachment
 )
 
 logger = logging.getLogger(__name__)
@@ -529,7 +529,7 @@ Voice Message: {text}"""
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Create interaction record
-                interaction = CustomerInteraction(
+                interaction = ClaraCustomerInteraction(
                     ticket_id=ticket_id,
                     interaction_type=InteractionType.CUSTOMER_MESSAGE,
                     channel=SupportChannel.PHONE,
@@ -549,7 +549,7 @@ Voice Message: {text}"""
                 
                 # Create attachment record if S3 upload was successful
                 if s3_url:
-                    attachment = TicketAttachment(
+                    attachment = ClaraTicketAttachment(
                         ticket_id=ticket_id,
                         filename=f"voice_message_{uuid.uuid4().hex[:8]}.wav",
                         file_path=s3_url,

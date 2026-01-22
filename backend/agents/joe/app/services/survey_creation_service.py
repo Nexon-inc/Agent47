@@ -28,7 +28,7 @@ class SurveyCreationService:
             await self.integration_manager.initialize()
             await self.event_bus.initialize()
             self._initialized = True
-            logger.info("Survey creation service initialized successfully")
+            logger.info("JoeSurvey creation service initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize survey creation service: {e}")
             raise
@@ -82,7 +82,7 @@ class SurveyCreationService:
                 }
                 
         except Exception as e:
-            logger.error(f"Survey creation failed: {e}")
+            logger.error(f"JoeSurvey creation failed: {e}")
             return {"success": False, "error": str(e)}
     
     async def get_survey_responses(

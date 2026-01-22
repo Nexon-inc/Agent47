@@ -11,7 +11,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, CustomerProfile,
+    ClaraSupportTicket, ClaraCustomerInteraction, CustomerProfile,
     TicketPriority, TicketStatus, TicketCategory, SupportChannel
 )
 
@@ -131,14 +131,14 @@ class SocialMediaService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Create collaboration inquiry ticket
-                ticket = SupportTicket(
+                ticket = ClaraSupportTicket(
                     ticket_number=f"COL-{datetime.now().strftime('%Y%m%d')}-{customer_id}",
                     customer_id=customer_id,
                     channel=SupportChannel.SOCIAL_MEDIA,
                     category=TicketCategory.FEATURE_REQUEST,
                     priority=TicketPriority.HIGH,
                     status=TicketStatus.OPEN,
-                    subject="Brand Collaboration Inquiry",
+                    subject="ClaraBrand Collaboration Inquiry",
                     description=inquiry_data.get("description", ""),
                     tags=["collaboration", "brand", "inquiry"],
                     metadata={

@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from datetime import datetime
 from ..services.business_intelligence_service import BusinessIntelligenceService
-from ..models import BusinessIdea, IndustryType, ValidationStatus
+from ..models import PurityBusinessIdea, IndustryType, ValidationStatus
 from ..database import get_purity_database
 
 router = APIRouter()
@@ -241,16 +241,16 @@ async def get_business_ideas(
         async with db.get_session() as session:
             from sqlalchemy import select
             
-            query = select(BusinessIdea)
+            query = select(PurityBusinessIdea)
             
             if user_id:
-                query = query.where(BusinessIdea.user_id == user_id)
+                query = query.where(PurityBusinessIdea.user_id == user_id)
             if industry:
-                query = query.where(BusinessIdea.industry == industry)
+                query = query.where(PurityBusinessIdea.industry == industry)
             if status:
-                query = query.where(BusinessIdea.status == status)
+                query = query.where(PurityBusinessIdea.status == status)
             
-            query = query.order_by(BusinessIdea.created_at.desc())
+            query = query.order_by(PurityBusinessIdea.created_at.desc())
             query = query.offset(offset).limit(limit)
             
             result = await session.execute(query)
@@ -289,7 +289,7 @@ async def get_business_idea(idea_id: int):
         async with db.get_session() as session:
             from sqlalchemy import select
             
-            query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+            query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
             result = await session.execute(query)
             idea = result.scalar_one_or_none()
             
@@ -332,7 +332,7 @@ async def update_business_idea(
             from sqlalchemy import select, update
             
             # Check if idea exists
-            query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+            query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
             result = await session.execute(query)
             idea = result.scalar_one_or_none()
             
@@ -352,7 +352,7 @@ async def update_business_idea(
                     update_fields[field] = value
             
             if update_fields:
-                stmt = update(BusinessIdea).where(BusinessIdea.id == idea_id).values(**update_fields)
+                stmt = update(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id).values(**update_fields)
                 await session.execute(stmt)
                 await session.commit()
                 
@@ -393,7 +393,7 @@ async def delete_business_idea(idea_id: int):
             from sqlalchemy import select, delete
             
             # Check if idea exists
-            query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+            query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
             result = await session.execute(query)
             idea = result.scalar_one_or_none()
             
@@ -401,7 +401,7 @@ async def delete_business_idea(idea_id: int):
                 raise HTTPException(status_code=404, detail="Business idea not found")
             
             # Delete idea
-            stmt = delete(BusinessIdea).where(BusinessIdea.id == idea_id)
+            stmt = delete(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
             await session.execute(stmt)
             await session.commit()
             
@@ -422,11 +422,11 @@ async def get_business_idea_summary(idea_id: int):
             from sqlalchemy.orm import selectinload
             
             # Get idea with all related data
-            query = select(BusinessIdea).options(
-                selectinload(BusinessIdea.business_models),
-                selectinload(BusinessIdea.market_research),
-                selectinload(BusinessIdea.customer_avatars)
-            ).where(BusinessIdea.id == idea_id)
+            query = select(PurityBusinessIdea).options(
+                selectinload(PurityBusinessIdea.business_models),
+                selectinload(PurityBusinessIdea.market_research),
+                selectinload(PurityBusinessIdea.customer_avatars)
+            ).where(PurityBusinessIdea.id == idea_id)
             
             result = await session.execute(query)
             idea = result.scalar_one_or_none()
@@ -469,7 +469,7 @@ async def get_business_idea_summary(idea_id: int):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get business idea summary: {str(e)}")
 
-def _calculate_completion_percentage(idea: BusinessIdea) -> float:
+def _calculate_completion_percentage(idea: PurityBusinessIdea) -> float:
     """Calculate completion percentage based on available data"""
     total_steps = 4
     completed_steps = 1  # Basic idea is always present
@@ -483,7 +483,7 @@ def _calculate_completion_percentage(idea: BusinessIdea) -> float:
     
     return (completed_steps / total_steps) * 100
 
-def _get_next_steps(idea: BusinessIdea) -> List[str]:
+def _get_next_steps(idea: PurityBusinessIdea) -> List[str]:
     """Get recommended next steps based on current data"""
     next_steps = []
     

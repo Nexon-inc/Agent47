@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, ContentTemplate
+from ..models import ShakesContentProject, ShakesContentPiece, ContentTemplate
 
 logger = logging.getLogger(__name__)
 
@@ -158,7 +158,7 @@ class ContentTemplatesService:
                 generated_content = ai_response.text_content if ai_response.success else ""
                 
                 # Create content project
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Generated from {content_template.template_name}",
                     description=f"Content generated using {content_template.template_name} template",
@@ -170,7 +170,7 @@ class ContentTemplatesService:
                 await session.flush()
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=f"{content_template.template_name} - Generated Content",
                     content=generated_content,

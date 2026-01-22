@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import BudgetRule, SpendingLimit, BudgetAlert, PacingRule
+from ..models import JackieBudgetRule, SpendingLimit, BudgetAlert, PacingRule
 
 class BudgetControlService:
     def __init__(self, db: Session):
@@ -27,7 +27,7 @@ class BudgetControlService:
         
         rule_result = self.nlp_processor.create_budget_rule(prompt)
         
-        rule = BudgetRule(
+        rule = JackieBudgetRule(
             id=rule_id, rule_name=rule_name, budget_amount=budget_amount, rule_type=rule_type,
             rule_config=json.dumps(rule_result), created_at=datetime.utcnow()
         )
@@ -105,7 +105,7 @@ class BudgetControlService:
     def get_budget_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        rules_created = self.db.query(BudgetRule).filter(BudgetRule.created_at >= cutoff_date).count()
+        rules_created = self.db.query(JackieBudgetRule).filter(JackieBudgetRule.created_at >= cutoff_date).count()
         limits_set = self.db.query(SpendingLimit).filter(SpendingLimit.created_at >= cutoff_date).count()
         alerts_generated = self.db.query(BudgetAlert).filter(BudgetAlert.created_at >= cutoff_date).count()
         pacing_rules = self.db.query(PacingRule).filter(PacingRule.created_at >= cutoff_date).count()

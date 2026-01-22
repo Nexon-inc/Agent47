@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, ScheduledContent
+from ..models import ShakesContentProject, ShakesContentPiece, ScheduledContent
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class SocialMediaAutomationService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create campaign project
-                campaign_project = ContentProject(
+                campaign_project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Automation Campaign: {campaign_name}",
                     description=f"Automated social media campaign across {', '.join(platforms)}",
@@ -101,7 +101,7 @@ class SocialMediaAutomationService:
                         content = ai_response.text_content if ai_response.success else ""
                         
                         # Create content piece
-                        content_piece = ContentPiece(
+                        content_piece = ShakesContentPiece(
                             project_id=campaign_project.id,
                             title=f"{post_plan['theme']} - {platform}",
                             content=content,
@@ -181,7 +181,7 @@ class SocialMediaAutomationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 

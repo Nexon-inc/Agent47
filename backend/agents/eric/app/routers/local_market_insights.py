@@ -134,7 +134,7 @@ async def get_available_regions(
     """Get list of available regions for analysis"""
     try:
         # Get unique regions from sales reps
-        regions = db.query(SalesRep.region).distinct().all()
+        regions = db.query(EricSalesRep.region).distinct().all()
         region_list = [region[0] for region in regions if region[0]]
         
         return {

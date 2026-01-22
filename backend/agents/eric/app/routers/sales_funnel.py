@@ -35,7 +35,7 @@ class FunnelStageUpdate(BaseModel):
     automation_rules: Optional[List[Dict[str, Any]]] = Field(None, description="Automation rules for stage")
 
 class MoveDealRequest(BaseModel):
-    deal_id: int = Field(..., description="Deal ID to move")
+    deal_id: int = Field(..., description="EricDeal ID to move")
     new_stage: str = Field(..., description="New stage name")
 
 class AutomationRulesRequest(BaseModel):
@@ -170,13 +170,13 @@ async def get_funnel_metrics(
         logger.error(f"Failed to get funnel metrics: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/deals/move", summary="Move Deal to Stage")
+@router.post("/deals/move", summary="Move EricDeal to Stage")
 async def move_deal_to_stage(request: MoveDealRequest):
     """Move a deal to a specific funnel stage"""
     try:
         success = await funnel_service.move_deal_to_stage(request.deal_id, request.new_stage)
         if success:
-            return {"message": f"Deal {request.deal_id} moved to {request.new_stage} successfully"}
+            return {"message": f"EricDeal {request.deal_id} moved to {request.new_stage} successfully"}
         else:
             raise HTTPException(status_code=400, detail="Failed to move deal")
     except ValueError as e:
@@ -253,10 +253,10 @@ async def get_deals_in_stage(
     try:
         async with get_eric_database() as session:
             from sqlalchemy import select
-            from ..models import Deal
+            from ..models import EricDeal
             
-            deals_query = select(Deal).where(
-                Deal.stage == stage_name
+            deals_query = select(EricDeal).where(
+                EricDeal.stage == stage_name
             ).limit(limit).offset(offset)
             
             result = await session.execute(deals_query)

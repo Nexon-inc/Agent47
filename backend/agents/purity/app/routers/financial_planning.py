@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, FinancialForecast, BusinessModel, PurityMarketResearch
+from ..models import PurityBusinessIdea, PurityFinancialForecast, PurityBusinessModel, PurityMarketResearch
 from ..services.financial_planning_service import FinancialPlanningService
 
 router = APIRouter(prefix="/financial-planning", tags=["Financial Planning"])
@@ -242,7 +242,7 @@ async def get_financial_forecast(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(FinancialForecast).where(FinancialForecast.id == forecast_id))
+        result = await db.execute(select(PurityFinancialForecast).where(PurityFinancialForecast.id == forecast_id))
         forecast = result.scalar_one_or_none()
         if not forecast:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Financial forecast not found")
@@ -275,7 +275,7 @@ async def get_business_forecasts(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(FinancialForecast).where(FinancialForecast.business_idea_id == business_idea_id))
+        result = await db.execute(select(PurityFinancialForecast).where(PurityFinancialForecast.business_idea_id == business_idea_id))
         forecasts = result.scalars().all()
         return [
             FinancialForecastResponse(
@@ -307,7 +307,7 @@ async def delete_financial_forecast(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(FinancialForecast).where(FinancialForecast.id == forecast_id))
+        result = await db.execute(select(PurityFinancialForecast).where(PurityFinancialForecast.id == forecast_id))
         forecast = result.scalar_one_or_none()
         if not forecast:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Financial forecast not found")

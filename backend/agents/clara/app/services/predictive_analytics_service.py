@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from core.ai import get_ai_service_manager, AIServiceManager
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, SupportAnalytics, CustomerProfile,
+    ClaraSupportTicket, ClaraCustomerInteraction, ClaraSupportAnalytics, CustomerProfile,
     TicketCategory, TicketPriority, SupportChannel, SentimentType
 )
 
@@ -51,17 +51,17 @@ class PredictiveAnalyticsService:
                 
                 # Build query
                 query = select(
-                    cast(SupportTicket.created_at, Date).label("date"),
-                    func.count(SupportTicket.id).label("count")
-                ).where(SupportTicket.created_at >= start_date)
+                    cast(ClaraSupportTicket.created_at, Date).label("date"),
+                    func.count(ClaraSupportTicket.id).label("count")
+                ).where(ClaraSupportTicket.created_at >= start_date)
                 
                 if category:
-                    query = query.where(SupportTicket.category == category)
+                    query = query.where(ClaraSupportTicket.category == category)
                 if channel:
-                    query = query.where(SupportTicket.channel == channel)
+                    query = query.where(ClaraSupportTicket.channel == channel)
                 
-                query = query.group_by(cast(SupportTicket.created_at, Date)).order_by(
-                    cast(SupportTicket.created_at, Date)
+                query = query.group_by(cast(ClaraSupportTicket.created_at, Date)).order_by(
+                    cast(ClaraSupportTicket.created_at, Date)
                 )
                 
                 historical_data = await session.execute(query)
@@ -147,12 +147,12 @@ class PredictiveAnalyticsService:
                 # Get recent tickets
                 cutoff_date = datetime.utcnow() - timedelta(days=analysis_period_days)
                 recent_tickets = await session.execute(
-                    select(SupportTicket).where(
+                    select(ClaraSupportTicket).where(
                         and_(
-                            SupportTicket.customer_id == customer_id,
-                            SupportTicket.created_at >= cutoff_date
+                            ClaraSupportTicket.customer_id == customer_id,
+                            ClaraSupportTicket.created_at >= cutoff_date
                         )
-                    ).order_by(SupportTicket.created_at.desc())
+                    ).order_by(ClaraSupportTicket.created_at.desc())
                 )
                 recent_tickets = recent_tickets.scalars().all()
                 
@@ -241,9 +241,9 @@ class PredictiveAnalyticsService:
                 # Get recent tickets for pattern analysis
                 cutoff_date = datetime.utcnow() - timedelta(days=analysis_period_days)
                 recent_tickets = await session.execute(
-                    select(SupportTicket).where(
-                        SupportTicket.created_at >= cutoff_date
-                    ).order_by(SupportTicket.created_at.desc())
+                    select(ClaraSupportTicket).where(
+                        ClaraSupportTicket.created_at >= cutoff_date
+                    ).order_by(ClaraSupportTicket.created_at.desc())
                 )
                 recent_tickets = recent_tickets.scalars().all()
                 
@@ -262,8 +262,8 @@ class PredictiveAnalyticsService:
                 # Get historical averages for comparison
                 historical_start = cutoff_date - timedelta(days=analysis_period_days * 2)
                 historical_tickets = await session.execute(
-                    select(SupportTicket).where(
-                        SupportTicket.created_at >= historical_start
+                    select(ClaraSupportTicket).where(
+                        ClaraSupportTicket.created_at >= historical_start
                     )
                 )
                 historical_tickets = historical_tickets.scalars().all()
@@ -370,10 +370,10 @@ class PredictiveAnalyticsService:
                 if "first_response_time" in metrics:
                     # Calculate average first response time
                     response_times = await session.execute(
-                        select(SupportTicket.first_response_time).where(
+                        select(ClaraSupportTicket.first_response_time).where(
                             and_(
-                                SupportTicket.first_response_time.isnot(None),
-                                SupportTicket.created_at >= datetime.utcnow() - timedelta(days=30)
+                                ClaraSupportTicket.first_response_time.isnot(None),
+                                ClaraSupportTicket.created_at >= datetime.utcnow() - timedelta(days=30)
                             )
                         )
                     )
@@ -385,10 +385,10 @@ class PredictiveAnalyticsService:
                 if "resolution_time" in metrics:
                     # Calculate average resolution time
                     resolution_times = await session.execute(
-                        select(SupportTicket.actual_resolution_time).where(
+                        select(ClaraSupportTicket.actual_resolution_time).where(
                             and_(
-                                SupportTicket.actual_resolution_time.isnot(None),
-                                SupportTicket.resolved_at >= datetime.utcnow() - timedelta(days=30)
+                                ClaraSupportTicket.actual_resolution_time.isnot(None),
+                                ClaraSupportTicket.resolved_at >= datetime.utcnow() - timedelta(days=30)
                             )
                         )
                     )
@@ -400,10 +400,10 @@ class PredictiveAnalyticsService:
                 if "customer_satisfaction" in metrics:
                     # Calculate average satisfaction
                     satisfaction_scores = await session.execute(
-                        select(SupportTicket.satisfaction_score).where(
+                        select(ClaraSupportTicket.satisfaction_score).where(
                             and_(
-                                SupportTicket.satisfaction_score.isnot(None),
-                                SupportTicket.updated_at >= datetime.utcnow() - timedelta(days=30)
+                                ClaraSupportTicket.satisfaction_score.isnot(None),
+                                ClaraSupportTicket.updated_at >= datetime.utcnow() - timedelta(days=30)
                             )
                         )
                     )
@@ -415,17 +415,17 @@ class PredictiveAnalyticsService:
                 if "first_contact_resolution_rate" in metrics:
                     # Calculate FCR rate
                     total_tickets = await session.execute(
-                        select(func.count(SupportTicket.id)).where(
-                            SupportTicket.created_at >= datetime.utcnow() - timedelta(days=30)
+                        select(func.count(ClaraSupportTicket.id)).where(
+                            ClaraSupportTicket.created_at >= datetime.utcnow() - timedelta(days=30)
                         )
                     )
                     total_tickets = total_tickets.scalar()
                     
                     fcr_tickets = await session.execute(
-                        select(func.count(SupportTicket.id)).where(
+                        select(func.count(ClaraSupportTicket.id)).where(
                             and_(
-                                SupportTicket.created_at >= datetime.utcnow() - timedelta(days=30),
-                                SupportTicket.interactions.any(CustomerInteraction.interaction_type == "resolution")
+                                ClaraSupportTicket.created_at >= datetime.utcnow() - timedelta(days=30),
+                                ClaraSupportTicket.interactions.any(ClaraCustomerInteraction.interaction_type == "resolution")
                             )
                         )
                     )

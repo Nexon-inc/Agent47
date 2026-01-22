@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, SEOAnalysis
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesSEOAnalysis
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class SEOOptimizationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -93,7 +93,7 @@ class SEOOptimizationService:
                 
                 # Update or create SEO analysis
                 seo_result = await session.execute(
-                    select(SEOAnalysis).where(SEOAnalysis.content_piece_id == content_piece_id)
+                    select(ShakesSEOAnalysis).where(ShakesSEOAnalysis.content_piece_id == content_piece_id)
                 )
                 seo_analysis = seo_result.scalar_one_or_none()
                 
@@ -108,7 +108,7 @@ class SEOOptimizationService:
                     seo_analysis.h3_tags = self._extract_headings(optimized_content, "h3")
                     seo_analysis.analyzed_at = datetime.utcnow()
                 else:
-                    seo_analysis = SEOAnalysis(
+                    seo_analysis = ShakesSEOAnalysis(
                         content_piece_id=content_piece_id,
                         keyword_density=self._calculate_keyword_density(optimized_content, target_keywords),
                         readability_score=self._calculate_readability_score(optimized_content),

@@ -7,7 +7,7 @@ import json
 
 from ..database import get_db
 from ..services.ai_faq_builder_service import AIFAQBuilderService
-from ..models import FAQEntry, FAQCategory, FAQSource, FAQAnalytics, KnowledgeBase
+from ..models import ClaraFAQEntry, ClaraFAQCategory, ClaraFAQSource, ClaraFAQAnalytics, ClaraKnowledgeBase
 from ..core.integration_manager import IntegrationManager
 from ..core.event_bus import EventBus
 
@@ -27,21 +27,21 @@ class UpdateFAQCategoryRequest(BaseModel):
     is_active: Optional[bool] = Field(None, description="Category active status")
 
 class CreateFAQEntryRequest(BaseModel):
-    question: str = Field(..., description="FAQ question")
-    answer: str = Field(..., description="FAQ answer")
+    question: str = Field(..., description="ClaraFAQ question")
+    answer: str = Field(..., description="ClaraFAQ answer")
     category_id: int = Field(..., description="Category ID")
-    tags: List[str] = Field([], description="FAQ tags")
-    priority: str = Field("medium", description="FAQ priority")
-    is_active: bool = Field(True, description="FAQ active status")
+    tags: List[str] = Field([], description="ClaraFAQ tags")
+    priority: str = Field("medium", description="ClaraFAQ priority")
+    is_active: bool = Field(True, description="ClaraFAQ active status")
     source_type: str = Field(..., description="Source type (auto_generated, manual, imported)")
 
 class UpdateFAQEntryRequest(BaseModel):
-    question: Optional[str] = Field(None, description="FAQ question")
-    answer: Optional[str] = Field(None, description="FAQ answer")
+    question: Optional[str] = Field(None, description="ClaraFAQ question")
+    answer: Optional[str] = Field(None, description="ClaraFAQ answer")
     category_id: Optional[int] = Field(None, description="Category ID")
-    tags: Optional[List[str]] = Field(None, description="FAQ tags")
-    priority: Optional[str] = Field(None, description="FAQ priority")
-    is_active: Optional[bool] = Field(None, description="FAQ active status")
+    tags: Optional[List[str]] = Field(None, description="ClaraFAQ tags")
+    priority: Optional[str] = Field(None, description="ClaraFAQ priority")
+    is_active: Optional[bool] = Field(None, description="ClaraFAQ active status")
 
 class GenerateFAQRequest(BaseModel):
     source_type: str = Field(..., description="Source type (interactions, tickets, website, documents)")
@@ -111,13 +111,13 @@ async def get_ai_faq_builder_service(db: AsyncSession = Depends(get_db)) -> AIFA
     event_bus = EventBus()
     return AIFAQBuilderService(db, integration_manager, event_bus)
 
-# FAQ Category Management
+# ClaraFAQ Category Management
 @router.post("/categories", response_model=FAQCategoryResponse, status_code=status.HTTP_201_CREATED)
 async def create_faq_category(
     request: CreateFAQCategoryRequest,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Create a new FAQ category"""
+    """Create a new ClaraFAQ category"""
     try:
         category = await service.create_faq_category(
             category_name=request.category_name,
@@ -135,7 +135,7 @@ async def get_faq_categories(
     include_faq_count: bool = True,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Get FAQ categories with optional filtering"""
+    """Get ClaraFAQ categories with optional filtering"""
     try:
         categories = await service.get_faq_categories(
             active_only=active_only,
@@ -150,11 +150,11 @@ async def get_faq_category(
     category_id: int,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Get a specific FAQ category by ID"""
+    """Get a specific ClaraFAQ category by ID"""
     try:
         category = await service.get_faq_category(category_id)
         if not category:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ category not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraFAQ category not found")
         return FAQCategoryResponse.from_orm(category)
     except HTTPException:
         raise
@@ -167,7 +167,7 @@ async def update_faq_category(
     request: UpdateFAQCategoryRequest,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Update a FAQ category"""
+    """Update a ClaraFAQ category"""
     try:
         category = await service.update_faq_category(
             category_id=category_id,
@@ -177,7 +177,7 @@ async def update_faq_category(
             is_active=request.is_active
         )
         if not category:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ category not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraFAQ category not found")
         return FAQCategoryResponse.from_orm(category)
     except HTTPException:
         raise
@@ -189,23 +189,23 @@ async def delete_faq_category(
     category_id: int,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Delete a FAQ category"""
+    """Delete a ClaraFAQ category"""
     try:
         success = await service.delete_faq_category(category_id)
         if not success:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ category not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraFAQ category not found")
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-# FAQ Entry Management
+# ClaraFAQ Entry Management
 @router.post("/entries", response_model=FAQEntryResponse, status_code=status.HTTP_201_CREATED)
 async def create_faq_entry(
     request: CreateFAQEntryRequest,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Create a new FAQ entry"""
+    """Create a new ClaraFAQ entry"""
     try:
         entry = await service.create_faq_entry(
             question=request.question,
@@ -232,7 +232,7 @@ async def get_faq_entries(
     offset: int = 0,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Get FAQ entries with optional filtering and search"""
+    """Get ClaraFAQ entries with optional filtering and search"""
     try:
         entries = await service.get_faq_entries(
             category_id=category_id,
@@ -253,11 +253,11 @@ async def get_faq_entry(
     entry_id: int,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Get a specific FAQ entry by ID"""
+    """Get a specific ClaraFAQ entry by ID"""
     try:
         entry = await service.get_faq_entry(entry_id)
         if not entry:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ entry not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraFAQ entry not found")
         return FAQEntryResponse.from_orm(entry)
     except HTTPException:
         raise
@@ -270,7 +270,7 @@ async def update_faq_entry(
     request: UpdateFAQEntryRequest,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Update a FAQ entry"""
+    """Update a ClaraFAQ entry"""
     try:
         entry = await service.update_faq_entry(
             entry_id=entry_id,
@@ -282,7 +282,7 @@ async def update_faq_entry(
             is_active=request.is_active
         )
         if not entry:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ entry not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraFAQ entry not found")
         return FAQEntryResponse.from_orm(entry)
     except HTTPException:
         raise
@@ -294,17 +294,17 @@ async def delete_faq_entry(
     entry_id: int,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Delete a FAQ entry"""
+    """Delete a ClaraFAQ entry"""
     try:
         success = await service.delete_faq_entry(entry_id)
         if not success:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ entry not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraFAQ entry not found")
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-# AI-Driven FAQ Generation
+# AI-Driven ClaraFAQ Generation
 @router.post("/generate", response_model=List[FAQEntryResponse])
 async def generate_faqs(
     request: GenerateFAQRequest,
@@ -405,7 +405,7 @@ async def generate_faqs_from_documents(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-# FAQ Source Management
+# ClaraFAQ Source Management
 @router.get("/sources", response_model=List[FAQSourceResponse])
 async def get_faq_sources(
     source_type: Optional[str] = None,
@@ -414,7 +414,7 @@ async def get_faq_sources(
     end_date: Optional[datetime] = None,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Get FAQ sources with optional filtering"""
+    """Get ClaraFAQ sources with optional filtering"""
     try:
         sources = await service.get_faq_sources(
             source_type=source_type,
@@ -431,18 +431,18 @@ async def get_faq_source(
     source_id: int,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Get a specific FAQ source by ID"""
+    """Get a specific ClaraFAQ source by ID"""
     try:
         source = await service.get_faq_source(source_id)
         if not source:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="FAQ source not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraFAQ source not found")
         return FAQSourceResponse.from_orm(source)
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-# FAQ Analytics and Insights
+# ClaraFAQ Analytics and Insights
 @router.get("/analytics", response_model=FAQAnalyticsResponse)
 async def get_faq_analytics(
     start_date: Optional[datetime] = None,
@@ -450,7 +450,7 @@ async def get_faq_analytics(
     category_id: Optional[int] = None,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Get FAQ analytics and insights"""
+    """Get ClaraFAQ analytics and insights"""
     try:
         analytics = await service.get_faq_analytics(
             start_date=start_date,
@@ -468,7 +468,7 @@ async def record_faq_view(
     session_id: Optional[str] = None,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Record a FAQ view"""
+    """Record a ClaraFAQ view"""
     try:
         result = await service.record_faq_view(
             entry_id=entry_id,
@@ -487,7 +487,7 @@ async def record_faq_feedback(
     session_id: Optional[str] = None,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Record FAQ feedback (helpful/not helpful)"""
+    """Record ClaraFAQ feedback (helpful/not helpful)"""
     try:
         result = await service.record_faq_feedback(
             entry_id=entry_id,
@@ -499,7 +499,7 @@ async def record_faq_feedback(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-# FAQ Search and Recommendations
+# ClaraFAQ Search and Recommendations
 @router.get("/search")
 async def search_faqs(
     query: str,
@@ -528,7 +528,7 @@ async def get_faq_recommendations(
     limit: int = 5,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Get personalized FAQ recommendations"""
+    """Get personalized ClaraFAQ recommendations"""
     try:
         recommendations = await service.get_faq_recommendations(
             context=context,
@@ -540,14 +540,14 @@ async def get_faq_recommendations(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-# FAQ Quality and Optimization
+# ClaraFAQ Quality and Optimization
 @router.post("/entries/{entry_id}/optimize")
 async def optimize_faq_entry(
     entry_id: int,
     optimization_type: str = "content",
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Optimize a FAQ entry using AI"""
+    """Optimize a ClaraFAQ entry using AI"""
     try:
         optimized_entry = await service.optimize_faq_entry(
             entry_id=entry_id,
@@ -564,7 +564,7 @@ async def batch_optimize_faqs(
     max_entries: int = 50,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Batch optimize multiple FAQ entries"""
+    """Batch optimize multiple ClaraFAQ entries"""
     try:
         optimization_results = await service.batch_optimize_faqs(
             category_id=category_id,
@@ -581,7 +581,7 @@ async def check_faq_duplicates(
     threshold: float = 0.8,
     service: AIFAQBuilderService = Depends(get_ai_faq_builder_service)
 ):
-    """Check for duplicate FAQ entries"""
+    """Check for duplicate ClaraFAQ entries"""
     try:
         duplicates = await service.check_faq_duplicates(
             entry_id=entry_id,
@@ -591,7 +591,7 @@ async def check_faq_duplicates(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
-# FAQ Export and Import
+# ClaraFAQ Export and Import
 @router.post("/export")
 async def export_faqs(
     category_id: Optional[int] = None,
@@ -629,10 +629,10 @@ async def import_faqs(
 # Health Check
 @router.get("/health")
 async def health_check():
-    """Health check endpoint for AI-Driven FAQ Builder"""
+    """Health check endpoint for AI-Driven ClaraFAQ Builder"""
     return {
         "status": "healthy",
-        "service": "AI-Driven FAQ Builder",
+        "service": "AI-Driven ClaraFAQ Builder",
         "features": [
             "faq_category_management",
             "faq_entry_management",
@@ -645,5 +645,5 @@ async def health_check():
             "duplicate_detection",
             "export_import"
         ],
-        "message": "AI-Driven FAQ Builder service is running and ready!"
+        "message": "AI-Driven ClaraFAQ Builder service is running and ready!"
     }

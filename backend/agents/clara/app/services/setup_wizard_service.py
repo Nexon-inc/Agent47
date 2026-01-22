@@ -8,8 +8,8 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    SetupWizardStep, SetupWizardSession, SetupWizardConfig, SetupWizardValidation,
-    SupportAgent, CustomerProfile, SupportTicket
+    SetupWizardStep, ClaraSetupWizardSession, SetupWizardConfig, SetupWizardValidation,
+    ClaraSupportAgent, CustomerProfile, ClaraSupportTicket
 )
 from ..schemas.setup_wizard import (
     CreateSetupWizardStepRequest, UpdateSetupWizardStepRequest,
@@ -240,7 +240,7 @@ class SetupWizardService:
     ) -> SetupWizardSessionResponse:
         """Create a new setup wizard session"""
         try:
-            session = SetupWizardSession(
+            session = ClaraSetupWizardSession(
                 user_id=request.user_id,
                 user_type=request.user_type,
                 current_step_id=request.current_step_id,
@@ -276,7 +276,7 @@ class SetupWizardService:
         session_id: int
     ) -> SetupWizardSessionResponse:
         """Get setup wizard session by ID"""
-        session = db.query(SetupWizardSession).filter(SetupWizardSession.id == session_id).first()
+        session = db.query(ClaraSetupWizardSession).filter(ClaraSetupWizardSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Setup wizard session not found")
         
@@ -299,7 +299,7 @@ class SetupWizardService:
         request: UpdateSetupWizardSessionRequest
     ) -> SetupWizardSessionResponse:
         """Update setup wizard session"""
-        session = db.query(SetupWizardSession).filter(SetupWizardSession.id == session_id).first()
+        session = db.query(ClaraSetupWizardSession).filter(ClaraSetupWizardSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Setup wizard session not found")
         
@@ -340,7 +340,7 @@ class SetupWizardService:
         session_id: int
     ) -> Optional[SetupWizardStepResponse]:
         """Get the next step for a setup wizard session"""
-        session = db.query(SetupWizardSession).filter(SetupWizardSession.id == session_id).first()
+        session = db.query(ClaraSetupWizardSession).filter(ClaraSetupWizardSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Setup wizard session not found")
         
@@ -595,10 +595,10 @@ class SetupWizardService:
         """Get setup wizard analytics"""
         try:
             # Get sessions in date range
-            sessions = db.query(SetupWizardSession).filter(
+            sessions = db.query(ClaraSetupWizardSession).filter(
                 and_(
-                    SetupWizardSession.started_at >= start_date,
-                    SetupWizardSession.started_at <= end_date
+                    ClaraSetupWizardSession.started_at >= start_date,
+                    ClaraSetupWizardSession.started_at <= end_date
                 )
             ).all()
             
@@ -647,7 +647,7 @@ class SetupWizardService:
         try:
             db = next(get_db())
             step_count = db.query(SetupWizardStep).count()
-            session_count = db.query(SetupWizardSession).count()
+            session_count = db.query(ClaraSetupWizardSession).count()
             config_count = db.query(SetupWizardConfig).count()
             
             return {

@@ -131,7 +131,7 @@ async def get_customer_support_resources(
 async def get_faq_categories(
     service: SelfServicePortalService = Depends(get_self_service_portal_service)
 ):
-    """Get FAQ categories and popular questions"""
+    """Get ClaraFAQ categories and popular questions"""
     try:
         result = await service.get_faq_categories()
         
@@ -157,7 +157,7 @@ async def get_portal_overview(
                     "Knowledge Base Search",
                     "Self-Service Ticket Creation",
                     "Personalized Support Resources",
-                    "FAQ Categories",
+                    "ClaraFAQ Categories",
                     "Ticket Tracking",
                     "Support History"
                 ],

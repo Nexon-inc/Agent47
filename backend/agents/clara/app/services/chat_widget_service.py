@@ -11,7 +11,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.cache.redis_manager import init_redis
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, SupportChannel,
+    ClaraSupportTicket, ClaraCustomerInteraction, SupportChannel,
     SentimentType, InteractionType
 )
 
@@ -176,10 +176,10 @@ class ChatWidgetService:
             async with db.get_session() as session:
                 # Get conversation count
                 conv_count = await session.execute(
-                    select(func.count(SupportTicket.id)).where(
+                    select(func.count(ClaraSupportTicket.id)).where(
                         and_(
-                            SupportTicket.metadata.contains({"widget_id": widget_id}),
-                            SupportTicket.created_at >= datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                            ClaraSupportTicket.metadata.contains({"widget_id": widget_id}),
+                            ClaraSupportTicket.created_at >= datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
                         )
                     )
                 )
@@ -187,10 +187,10 @@ class ChatWidgetService:
                 
                 # Get message count
                 msg_count = await session.execute(
-                    select(func.count(CustomerInteraction.id)).where(
+                    select(func.count(ClaraCustomerInteraction.id)).where(
                         and_(
-                            CustomerInteraction.metadata.contains({"widget_id": widget_id}),
-                            CustomerInteraction.created_at >= datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+                            ClaraCustomerInteraction.metadata.contains({"widget_id": widget_id}),
+                            ClaraCustomerInteraction.created_at >= datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
                         )
                     )
                 )
@@ -606,10 +606,10 @@ document.addEventListener('DOMContentLoaded', function() {{
                 
                 # Get conversation count
                 conv_count = await session.execute(
-                    select(func.count(SupportTicket.id)).where(
+                    select(func.count(ClaraSupportTicket.id)).where(
                         and_(
-                            SupportTicket.metadata.contains({"widget_id": widget_id}),
-                            SupportTicket.created_at >= start_date
+                            ClaraSupportTicket.metadata.contains({"widget_id": widget_id}),
+                            ClaraSupportTicket.created_at >= start_date
                         )
                     )
                 )
@@ -617,10 +617,10 @@ document.addEventListener('DOMContentLoaded', function() {{
                 
                 # Get message count
                 msg_count = await session.execute(
-                    select(func.count(CustomerInteraction.id)).where(
+                    select(func.count(ClaraCustomerInteraction.id)).where(
                         and_(
-                            CustomerInteraction.metadata.contains({"widget_id": widget_id}),
-                            CustomerInteraction.created_at >= start_date
+                            ClaraCustomerInteraction.metadata.contains({"widget_id": widget_id}),
+                            ClaraCustomerInteraction.created_at >= start_date
                         )
                     )
                 )
@@ -628,13 +628,13 @@ document.addEventListener('DOMContentLoaded', function() {{
                 
                 # Get average response time
                 response_times = await session.execute(
-                    select(CustomerInteraction.created_at).where(
+                    select(ClaraCustomerInteraction.created_at).where(
                         and_(
-                            CustomerInteraction.metadata.contains({"widget_id": widget_id}),
-                            CustomerInteraction.interaction_type == InteractionType.BOT_RESPONSE,
-                            CustomerInteraction.created_at >= start_date
+                            ClaraCustomerInteraction.metadata.contains({"widget_id": widget_id}),
+                            ClaraCustomerInteraction.interaction_type == InteractionType.BOT_RESPONSE,
+                            ClaraCustomerInteraction.created_at >= start_date
                         )
-                    ).order_by(CustomerInteraction.created_at)
+                    ).order_by(ClaraCustomerInteraction.created_at)
                 )
                 
                 response_times = response_times.scalars().all()
@@ -648,11 +648,11 @@ document.addEventListener('DOMContentLoaded', function() {{
                 
                 # Get satisfaction score (if available)
                 satisfaction_query = await session.execute(
-                    select(func.avg(CustomerInteraction.satisfaction_score)).where(
+                    select(func.avg(ClaraCustomerInteraction.satisfaction_score)).where(
                         and_(
-                            CustomerInteraction.metadata.contains({"widget_id": widget_id}),
-                            CustomerInteraction.satisfaction_score.isnot(None),
-                            CustomerInteraction.created_at >= start_date
+                            ClaraCustomerInteraction.metadata.contains({"widget_id": widget_id}),
+                            ClaraCustomerInteraction.satisfaction_score.isnot(None),
+                            ClaraCustomerInteraction.created_at >= start_date
                         )
                     )
                 )

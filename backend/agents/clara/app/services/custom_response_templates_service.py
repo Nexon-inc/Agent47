@@ -11,7 +11,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, CustomerProfile,
+    ClaraSupportTicket, ClaraCustomerInteraction, CustomerProfile,
     TicketPriority, TicketStatus, TicketCategory, SupportChannel
 )
 
@@ -523,7 +523,7 @@ class CustomResponseTemplatesService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -551,7 +551,7 @@ class CustomResponseTemplatesService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get agent
-                agent_query = select(SupportAgent).where(SupportAgent.user_id == agent_id)
+                agent_query = select(ClaraSupportAgent).where(ClaraSupportAgent.user_id == agent_id)
                 agent_result = await session.execute(agent_query)
                 agent = agent_result.scalar_one_or_none()
                 

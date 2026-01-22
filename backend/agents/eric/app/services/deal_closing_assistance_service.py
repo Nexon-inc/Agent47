@@ -17,7 +17,7 @@ from core.platforms.platform_manager import PlatformManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
 from ..models import CustomerProfile
-from ..models import Deal, SalesStage
+from ..models import EricDeal, SalesStage
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ class DealClosingAssistanceService:
             await self.kafka_manager.initialize()
             await self.redis_manager.initialize()
             self._initialized = True
-            logger.info("Deal closing assistance service initialized successfully")
+            logger.info("EricDeal closing assistance service initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize deal closing assistance service: {e}")
             raise
@@ -90,7 +90,7 @@ class DealClosingAssistanceService:
                 deal = deal_result.scalar_one_or_none()
                 
                 if not deal:
-                    raise ValueError(f"Deal {deal_id} not found")
+                    raise ValueError(f"EricDeal {deal_id} not found")
                 
                 # Analyze customer behavior and preferences
                 customer_analysis = await self._analyze_customer_behavior(deal.customer_id, brand_id)
@@ -134,7 +134,7 @@ class DealClosingAssistanceService:
                 deal = deal_result.scalar_one_or_none()
                 
                 if not deal:
-                    raise ValueError(f"Deal {deal_id} not found")
+                    raise ValueError(f"EricDeal {deal_id} not found")
                 
                 # Get customer profile
                 customer_profile = await self._get_customer_profile(deal.customer_id, brand_id)
@@ -178,7 +178,7 @@ class DealClosingAssistanceService:
                 deal = deal_result.scalar_one_or_none()
                 
                 if not deal:
-                    raise ValueError(f"Deal {deal_id} not found")
+                    raise ValueError(f"EricDeal {deal_id} not found")
                 
                 # Create sequence steps
                 sequence_steps = await self._create_sequence_steps(deal, sequence_type)
@@ -221,7 +221,7 @@ class DealClosingAssistanceService:
                 deal = deal_result.scalar_one_or_none()
                 
                 if not deal:
-                    raise ValueError(f"Deal {deal_id} not found")
+                    raise ValueError(f"EricDeal {deal_id} not found")
                 
                 # Use AI Service Manager for sentiment and intent analysis
                 ai_manager = await get_ai_service_manager()
@@ -313,7 +313,7 @@ class DealClosingAssistanceService:
                 deal = deal_result.scalar_one_or_none()
                 
                 if not deal:
-                    raise ValueError(f"Deal {deal_id} not found")
+                    raise ValueError(f"EricDeal {deal_id} not found")
                 
                 # Get all activities for this deal
                 activities_query = select(DealClosingActivity).where(
@@ -362,7 +362,7 @@ class DealClosingAssistanceService:
                 deal = deal_result.scalar_one_or_none()
                 
                 if not deal:
-                    raise ValueError(f"Deal {deal_id} not found")
+                    raise ValueError(f"EricDeal {deal_id} not found")
                 
                 # Validate closing terms
                 if not await self._validate_closing_terms(closing_terms):
@@ -407,11 +407,11 @@ class DealClosingAssistanceService:
             async with get_eric_database() as db:
                 # Get customer's interaction history
                 interactions = await db.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.customer_id == customer_id,
-                            SalesActivity.brand_id == brand_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
+                            EricSalesActivity.customer_id == customer_id,
+                            EricSalesActivity.brand_id == brand_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
                         )
                     )
                 )
@@ -419,10 +419,10 @@ class DealClosingAssistanceService:
                 
                 # Get customer's deal history
                 deals = await db.execute(
-                    select(Deal).where(
+                    select(EricDeal).where(
                         and_(
-                            Deal.customer_id == customer_id,
-                            Deal.brand_id == brand_id
+                            EricDeal.customer_id == customer_id,
+                            EricDeal.brand_id == brand_id
                         )
                     )
                 )
@@ -763,10 +763,10 @@ class DealClosingAssistanceService:
                     }
                 
                 # Get customer's deal history for additional insights
-                deals_query = select(Deal).where(
+                deals_query = select(EricDeal).where(
                     and_(
-                        Deal.customer_id == customer_id,
-                        Deal.brand_id == brand_id
+                        EricDeal.customer_id == customer_id,
+                        EricDeal.brand_id == brand_id
                     )
                 )
                 deals_result = await db.execute(deals_query)

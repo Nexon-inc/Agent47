@@ -3,11 +3,11 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 from ..services.geo_campaign_service import GeoCampaignService
-from ..models import BrandProfile
+from ..models import AriaBrandProfile
 from ..database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 
-router = APIRouter(prefix="/geo-campaign", tags=["Geo-Specific Campaign Planner"])
+router = APIRouter(prefix="/geo-campaign", tags=["Geo-Specific AriaCampaign Planner"])
 
 geo_campaign_service = GeoCampaignService()
 

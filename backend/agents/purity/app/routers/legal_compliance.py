@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, LegalRequirement, BusinessModel
+from ..models import PurityBusinessIdea, PurityLegalRequirement, PurityBusinessModel
 from ..services.legal_compliance_service import LegalComplianceService
 
 router = APIRouter(prefix="/legal-compliance", tags=["Legal & Compliance"])
@@ -177,7 +177,7 @@ async def get_legal_requirement(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LegalRequirement).where(LegalRequirement.id == requirement_id))
+        result = await db.execute(select(PurityLegalRequirement).where(PurityLegalRequirement.id == requirement_id))
         legal_req = result.scalar_one_or_none()
         if not legal_req:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Legal requirement not found")
@@ -210,7 +210,7 @@ async def get_business_legal_requirements(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LegalRequirement).where(LegalRequirement.business_idea_id == business_idea_id))
+        result = await db.execute(select(PurityLegalRequirement).where(PurityLegalRequirement.business_idea_id == business_idea_id))
         legal_reqs = result.scalars().all()
         return [
             LegalRequirementResponse(
@@ -243,7 +243,7 @@ async def update_legal_requirement(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LegalRequirement).where(LegalRequirement.id == requirement_id))
+        result = await db.execute(select(PurityLegalRequirement).where(PurityLegalRequirement.id == requirement_id))
         legal_req = result.scalar_one_or_none()
         if not legal_req:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Legal requirement not found")
@@ -291,7 +291,7 @@ async def delete_legal_requirement(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LegalRequirement).where(LegalRequirement.id == requirement_id))
+        result = await db.execute(select(PurityLegalRequirement).where(PurityLegalRequirement.id == requirement_id))
         legal_req = result.scalar_one_or_none()
         if not legal_req:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Legal requirement not found")

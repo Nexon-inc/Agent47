@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 from datetime import datetime
 from ..services.market_research_service import MarketResearchService
-from ..models import BusinessIdea, PurityMarketResearch, PurityCompetitorAnalysis, NicheOpportunity, IndustryType
+from ..models import PurityBusinessIdea, PurityMarketResearch, PurityCompetitorAnalysis, PurityNicheOpportunity, IndustryType
 from ..database import get_purity_database
 
 router = APIRouter()
@@ -440,12 +440,12 @@ async def get_niche_opportunities(
         async with db.get_session() as session:
             from sqlalchemy import select
             
-            query = select(NicheOpportunity)
+            query = select(PurityNicheOpportunity)
             
             if idea_id:
-                query = query.where(NicheOpportunity.idea_id == idea_id)
+                query = query.where(PurityNicheOpportunity.idea_id == idea_id)
             
-            query = query.order_by(NicheOpportunity.profitability_score.desc())
+            query = query.order_by(PurityNicheOpportunity.profitability_score.desc())
             query = query.offset(offset).limit(limit)
             
             result = await session.execute(query)
@@ -482,7 +482,7 @@ async def get_niche_opportunity_by_id(niche_id: int):
         async with db.get_session() as session:
             from sqlalchemy import select
             
-            query = select(NicheOpportunity).where(NicheOpportunity.id == niche_id)
+            query = select(PurityNicheOpportunity).where(PurityNicheOpportunity.id == niche_id)
             result = await session.execute(query)
             niche = result.scalar_one_or_none()
             
@@ -521,9 +521,9 @@ async def get_market_research_summary(idea_id: int):
             from sqlalchemy.orm import selectinload
             
             # Get idea with market research
-            idea_query = select(BusinessIdea).options(
-                selectinload(BusinessIdea.market_research)
-            ).where(BusinessIdea.id == idea_id)
+            idea_query = select(PurityBusinessIdea).options(
+                selectinload(PurityBusinessIdea.market_research)
+            ).where(PurityBusinessIdea.id == idea_id)
             
             idea_result = await session.execute(idea_query)
             idea = idea_result.scalar_one_or_none()
@@ -537,7 +537,7 @@ async def get_market_research_summary(idea_id: int):
             competitor_count = competitor_count_result.scalar()
             
             # Get niche opportunities count
-            niche_count_query = select(func.count(NicheOpportunity.id)).where(NicheOpportunity.idea_id == idea_id)
+            niche_count_query = select(func.count(PurityNicheOpportunity.id)).where(PurityNicheOpportunity.idea_id == idea_id)
             niche_count_result = await session.execute(niche_count_query)
             niche_count = niche_count_result.scalar()
             

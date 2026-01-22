@@ -12,8 +12,8 @@ from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep
 )
 
 logger = logging.getLogger(__name__)
@@ -55,26 +55,26 @@ class MobileAppMonitoringService:
                 start_of_day = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
                 
                 leads = await session.execute(
-                    select(Lead).where(
-                        Lead.brand_id == brand_id,
-                        Lead.created_at >= start_of_day
+                    select(EricLead).where(
+                        EricLead.brand_id == brand_id,
+                        EricLead.created_at >= start_of_day
                     )
                 )
                 leads = leads.scalars().all()
                 
                 deals = await session.execute(
-                    select(Deal).where(
-                        Deal.brand_id == brand_id,
-                        Deal.created_at >= start_of_day
+                    select(EricDeal).where(
+                        EricDeal.brand_id == brand_id,
+                        EricDeal.created_at >= start_of_day
                     )
                 )
                 deals = deals.scalars().all()
                 
                 activities = await session.execute(
-                    select(SalesActivity).where(
-                        SalesActivity.brand_id == brand_id,
-                        SalesActivity.scheduled_at >= current_time,
-                        SalesActivity.scheduled_at <= current_time + timedelta(hours=24)
+                    select(EricSalesActivity).where(
+                        EricSalesActivity.brand_id == brand_id,
+                        EricSalesActivity.scheduled_at >= current_time,
+                        EricSalesActivity.scheduled_at <= current_time + timedelta(hours=24)
                     )
                 )
                 activities = activities.scalars().all()
@@ -111,20 +111,20 @@ class MobileAppMonitoringService:
             current_time = datetime.utcnow()
             
             overdue_activities = await session.execute(
-                select(SalesActivity).where(
-                    SalesActivity.brand_id == brand_id,
-                    SalesActivity.scheduled_at < current_time,
-                    SalesActivity.status == "scheduled"
-                ).order_by(SalesActivity.scheduled_at)
+                select(EricSalesActivity).where(
+                    EricSalesActivity.brand_id == brand_id,
+                    EricSalesActivity.scheduled_at < current_time,
+                    EricSalesActivity.status == "scheduled"
+                ).order_by(EricSalesActivity.scheduled_at)
             )
             overdue_activities = overdue_activities.scalars().all()
             
             high_priority_leads = await session.execute(
-                select(Lead).where(
-                    Lead.brand_id == brand_id,
-                    Lead.lead_score >= 0.8,
-                    Lead.lead_status == "new"
-                ).order_by(desc(Lead.lead_score))
+                select(EricLead).where(
+                    EricLead.brand_id == brand_id,
+                    EricLead.lead_score >= 0.8,
+                    EricLead.lead_status == "new"
+                ).order_by(desc(EricLead.lead_score))
             )
             high_priority_leads = high_priority_leads.scalars().all()
             
@@ -145,7 +145,7 @@ class MobileAppMonitoringService:
                 urgent_actions.append({
                     "action_type": "high_priority_lead",
                     "priority": "high",
-                    "title": f"High Priority Lead: {lead.first_name} {lead.last_name}",
+                    "title": f"High Priority EricLead: {lead.first_name} {lead.last_name}",
                     "description": f"Score: {lead.lead_score}, Company: {lead.company}",
                     "lead_score": lead.lead_score,
                     "action_id": lead.id,
@@ -165,17 +165,17 @@ class MobileAppMonitoringService:
             start_of_week = current_time - timedelta(days=7)
             
             weekly_deals = await session.execute(
-                select(Deal).where(
-                    Deal.brand_id == brand_id,
-                    Deal.created_at >= start_of_week
+                select(EricDeal).where(
+                    EricDeal.brand_id == brand_id,
+                    EricDeal.created_at >= start_of_week
                 )
             )
             weekly_deals = weekly_deals.scalars().all()
             
             weekly_leads = await session.execute(
-                select(Lead).where(
-                    Lead.brand_id == brand_id,
-                    Lead.created_at >= start_of_week
+                select(EricLead).where(
+                    EricLead.brand_id == brand_id,
+                    EricLead.created_at >= start_of_week
                 )
             )
             weekly_leads = weekly_leads.scalars().all()
@@ -186,7 +186,7 @@ class MobileAppMonitoringService:
                 alerts.append({
                     "alert_type": "low_lead_generation",
                     "severity": "medium",
-                    "title": "Low Lead Generation",
+                    "title": "Low EricLead Generation",
                     "description": f"Only {len(weekly_leads)} leads generated this week",
                     "recommendation": "Increase marketing efforts and lead generation activities"
                 })
@@ -195,7 +195,7 @@ class MobileAppMonitoringService:
                 alerts.append({
                     "alert_type": "low_deal_creation",
                     "severity": "high",
-                    "title": "Low Deal Creation",
+                    "title": "Low EricDeal Creation",
                     "description": f"Only {len(weekly_deals)} deals created this week",
                     "recommendation": "Focus on lead qualification and deal progression"
                 })
@@ -223,17 +223,17 @@ class MobileAppMonitoringService:
             start_of_month = current_time.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             
             monthly_leads = await session.execute(
-                select(Lead).where(
-                    Lead.brand_id == brand_id,
-                    Lead.created_at >= start_of_month
+                select(EricLead).where(
+                    EricLead.brand_id == brand_id,
+                    EricLead.created_at >= start_of_month
                 )
             )
             monthly_leads = monthly_leads.scalars().all()
             
             monthly_deals = await session.execute(
-                select(Deal).where(
-                    Deal.brand_id == brand_id,
-                    Deal.created_at >= start_of_month
+                select(EricDeal).where(
+                    EricDeal.brand_id == brand_id,
+                    EricDeal.created_at >= start_of_month
                 )
             )
             monthly_deals = monthly_deals.scalars().all()
@@ -249,7 +249,7 @@ class MobileAppMonitoringService:
                 best_source = max(top_lead_sources, key=top_lead_sources.get)
                 insights.append({
                     "insight_type": "best_lead_source",
-                    "title": "Best Lead Source",
+                    "title": "Best EricLead Source",
                     "description": f"{best_source} is generating {top_lead_sources[best_source]} leads this month",
                     "value": top_lead_sources[best_source],
                     "trend": "positive"
@@ -259,7 +259,7 @@ class MobileAppMonitoringService:
             if avg_deal_value > 0:
                 insights.append({
                     "insight_type": "average_deal_value",
-                    "title": "Average Deal Value",
+                    "title": "Average EricDeal Value",
                     "description": f"Average deal value is ${avg_deal_value:,.2f}",
                     "value": avg_deal_value,
                     "trend": "stable"
@@ -275,11 +275,11 @@ class MobileAppMonitoringService:
         """Get pending approvals for the user"""
         try:
             pending_activities = await session.execute(
-                select(SalesActivity).where(
-                    SalesActivity.brand_id == brand_id,
-                    SalesActivity.status == "pending_approval",
-                    SalesActivity.assigned_to == user_id
-                ).order_by(SalesActivity.created_at)
+                select(EricSalesActivity).where(
+                    EricSalesActivity.brand_id == brand_id,
+                    EricSalesActivity.status == "pending_approval",
+                    EricSalesActivity.assigned_to == user_id
+                ).order_by(EricSalesActivity.created_at)
             )
             pending_activities = pending_activities.scalars().all()
             
@@ -305,18 +305,18 @@ class MobileAppMonitoringService:
         try:
             current_time = datetime.utcnow()
             recent_leads = await session.execute(
-                select(Lead).where(
-                    Lead.brand_id == brand_id,
-                    Lead.created_at >= current_time - timedelta(hours=1)
-                ).order_by(desc(Lead.created_at))
+                select(EricLead).where(
+                    EricLead.brand_id == brand_id,
+                    EricLead.created_at >= current_time - timedelta(hours=1)
+                ).order_by(desc(EricLead.created_at))
             )
             recent_leads = recent_leads.scalars().all()
             
             recent_deals = await session.execute(
-                select(Deal).where(
-                    Deal.brand_id == brand_id,
-                    Deal.created_at >= current_time - timedelta(hours=1)
-                ).order_by(desc(Deal.created_at))
+                select(EricDeal).where(
+                    EricDeal.brand_id == brand_id,
+                    EricDeal.created_at >= current_time - timedelta(hours=1)
+                ).order_by(desc(EricDeal.created_at))
             )
             recent_deals = recent_deals.scalars().all()
             
@@ -325,7 +325,7 @@ class MobileAppMonitoringService:
             for lead in recent_leads:
                 notifications.append({
                     "notification_type": "new_lead",
-                    "title": "New Lead",
+                    "title": "New EricLead",
                     "message": f"New lead from {lead.company}: {lead.first_name} {lead.last_name}",
                     "lead_id": lead.id,
                     "timestamp": lead.created_at.isoformat(),
@@ -336,8 +336,8 @@ class MobileAppMonitoringService:
                 if deal.status == "closed_won":
                     notifications.append({
                         "notification_type": "deal_won",
-                        "title": "Deal Won!",
-                        "message": f"Deal closed: {deal.title} - ${deal.value:,.2f}",
+                        "title": "EricDeal Won!",
+                        "message": f"EricDeal closed: {deal.title} - ${deal.value:,.2f}",
                         "deal_id": deal.id,
                         "timestamp": deal.created_at.isoformat(),
                         "priority": "high"
@@ -345,8 +345,8 @@ class MobileAppMonitoringService:
                 elif deal.status == "closed_lost":
                     notifications.append({
                         "notification_type": "deal_lost",
-                        "title": "Deal Lost",
-                        "message": f"Deal lost: {deal.title}",
+                        "title": "EricDeal Lost",
+                        "message": f"EricDeal lost: {deal.title}",
                         "deal_id": deal.id,
                         "timestamp": deal.created_at.isoformat(),
                         "priority": "medium"
@@ -365,7 +365,7 @@ class MobileAppMonitoringService:
             async with db.get_session() as session:
                 if action_type == "sales_activity":
                     activity = await session.execute(
-                        select(SalesActivity).where(SalesActivity.id == action_id)
+                        select(EricSalesActivity).where(EricSalesActivity.id == action_id)
                     )
                     activity = activity.scalar_one_or_none()
                     
@@ -389,12 +389,12 @@ class MobileAppMonitoringService:
                 
                 elif action_type == "deal_approval":
                     deal = await session.execute(
-                        select(Deal).where(Deal.id == action_id)
+                        select(EricDeal).where(EricDeal.id == action_id)
                     )
                     deal = deal.scalar_one_or_none()
                     
                     if not deal:
-                        return {"success": False, "error": "Deal not found"}
+                        return {"success": False, "error": "EricDeal not found"}
                     
                     deal.status = "approved"
                     deal.approved_by = user_id
@@ -406,7 +406,7 @@ class MobileAppMonitoringService:
                     
                     return {
                         "success": True,
-                        "message": "Deal approved successfully",
+                        "message": "EricDeal approved successfully",
                         "deal_id": action_id
                     }
                 
@@ -424,7 +424,7 @@ class MobileAppMonitoringService:
             async with db.get_session() as session:
                 if action_type == "sales_activity":
                     activity = await session.execute(
-                        select(SalesActivity).where(SalesActivity.id == action_id)
+                        select(EricSalesActivity).where(EricSalesActivity.id == action_id)
                     )
                     activity = activity.scalar_one_or_none()
                     
@@ -448,12 +448,12 @@ class MobileAppMonitoringService:
                 
                 elif action_type == "deal_approval":
                     deal = await session.execute(
-                        select(Deal).where(Deal.id == action_id)
+                        select(EricDeal).where(EricDeal.id == action_id)
                     )
                     deal = deal.scalar_one_or_none()
                     
                     if not deal:
-                        return {"success": False, "error": "Deal not found"}
+                        return {"success": False, "error": "EricDeal not found"}
                     
                     deal.status = "rejected"
                     deal.rejected_by = user_id
@@ -466,7 +466,7 @@ class MobileAppMonitoringService:
                     
                     return {
                         "success": True,
-                        "message": "Deal rejected successfully",
+                        "message": "EricDeal rejected successfully",
                         "deal_id": action_id
                     }
                 
@@ -508,11 +508,11 @@ class MobileAppMonitoringService:
             current_time = datetime.utcnow()
             
             user_activities = await session.execute(
-                select(SalesActivity).where(
-                    SalesActivity.brand_id == brand_id,
-                    SalesActivity.assigned_to == user_id,
-                    SalesActivity.scheduled_at >= current_time - timedelta(hours=24)
-                ).order_by(desc(SalesActivity.scheduled_at))
+                select(EricSalesActivity).where(
+                    EricSalesActivity.brand_id == brand_id,
+                    EricSalesActivity.assigned_to == user_id,
+                    EricSalesActivity.scheduled_at >= current_time - timedelta(hours=24)
+                ).order_by(desc(EricSalesActivity.scheduled_at))
             )
             user_activities = user_activities.scalars().all()
             

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 
-from ..models import ContentProject, ContentPiece, ContentType, ContentStatus
+from ..models import ShakesContentProject, ShakesContentPiece, ContentType, ContentStatus
 from ..database import get_db
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.utils.platform_integration_loader import (

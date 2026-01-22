@@ -15,7 +15,7 @@ class PlatformEnum(enum.Enum):
     reddit = "reddit"
 
 
-class PostStatus(enum.Enum):
+class AriaPostStatus(enum.Enum):
     draft = "draft"
     scheduled = "scheduled"
     publishing = "publishing"
@@ -29,7 +29,7 @@ class ApprovalStatus(enum.Enum):
     rejected = "rejected"
 
 
-class SocialAccount(Base):
+class AriaSocialAccount(Base):
     __tablename__ = "social_accounts"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
@@ -47,7 +47,7 @@ class SocialAccount(Base):
     )
 
 
-class AccountGroup(Base):
+class AriaAccountGroup(Base):
     __tablename__ = "account_groups"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
@@ -56,7 +56,7 @@ class AccountGroup(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class BrandProfile(Base):
+class AriaBrandProfile(Base):
     __tablename__ = "brand_profiles"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
@@ -68,7 +68,7 @@ class BrandProfile(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 
-class Campaign(Base):
+class AriaCampaign(Base):
     __tablename__ = "campaigns"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
@@ -81,7 +81,7 @@ class Campaign(Base):
     metrics = Column(JSON, default=dict)
 
 
-class ScheduledPost(Base):
+class AriaScheduledPost(Base):
     __tablename__ = "scheduled_posts"
     id = Column(Integer, primary_key=True)
     idempotency_key = Column(String(255), nullable=False, unique=True, index=True)
@@ -95,7 +95,7 @@ class ScheduledPost(Base):
     media_refs = Column(JSON, default=list)
     scheduled_at = Column(DateTime(timezone=True), nullable=False, index=True)
     timezone = Column(String(64), default="UTC")
-    status = Column(Enum(PostStatus), default=PostStatus.scheduled, index=True)
+    status = Column(Enum(AriaPostStatus), default=AriaPostStatus.scheduled, index=True)
     last_error = Column(Text)
     geo_lat = Column(Float)
     geo_lng = Column(Float)
@@ -107,7 +107,7 @@ class ScheduledPost(Base):
     )
 
 
-class PostVariant(Base):
+class AriaPostVariant(Base):
     __tablename__ = "post_variants"
     id = Column(Integer, primary_key=True)
     scheduled_post_id = Column(Integer, ForeignKey("scheduled_posts.id"), nullable=False, index=True)
@@ -119,7 +119,7 @@ class PostVariant(Base):
     metrics = Column(JSON, default=dict)
 
 
-class PublishedPost(Base):
+class AriaPublishedPost(Base):
     __tablename__ = "published_posts"
     id = Column(Integer, primary_key=True)
     scheduled_post_id = Column(Integer, ForeignKey("scheduled_posts.id"), nullable=False, index=True)
@@ -131,7 +131,7 @@ class PublishedPost(Base):
     error = Column(Text)
 
 
-class Approval(Base):
+class AriaApproval(Base):
     __tablename__ = "approvals"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -142,7 +142,7 @@ class Approval(Base):
     decided_at = Column(DateTime(timezone=True))
 
 
-class EngagementEvent(Base):
+class AriaEngagementEvent(Base):
     __tablename__ = "engagement_events"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
@@ -158,7 +158,7 @@ class EngagementEvent(Base):
     occurred_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
-class AnalyticsSnapshot(Base):
+class AriaAnalyticsSnapshot(Base):
     __tablename__ = "analytics_snapshots"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
@@ -177,7 +177,7 @@ class AnalyticsSnapshot(Base):
     snapshot_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
-class TrendSignal(Base):
+class AriaTrendSignal(Base):
     __tablename__ = "trend_signals"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
@@ -190,7 +190,7 @@ class TrendSignal(Base):
     captured_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
-class InfluencerLead(Base):
+class AriaInfluencerLead(Base):
     __tablename__ = "influencer_leads"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
@@ -203,7 +203,7 @@ class InfluencerLead(Base):
     discovered_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
 
 
-class WebhookEvent(Base):
+class AriaWebhookEvent(Base):
     __tablename__ = "webhook_events"
     id = Column(Integer, primary_key=True)
     source = Column(String(64), nullable=False)

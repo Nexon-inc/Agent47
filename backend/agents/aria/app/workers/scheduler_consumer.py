@@ -4,7 +4,7 @@ from typing import Dict, Any
 from sqlalchemy import select, and_
 from core.database.connection import get_supabase
 from core.event_bus.kafka_manager import get_kafka
-from ..models import ScheduledPost, PostStatus
+from ..models import AriaScheduledPost, AriaPostStatus
 from ..config import aria_settings
 
 
@@ -29,9 +29,9 @@ class SchedulerConsumer:
         db = await get_supabase()
         while True:
             async with db.get_session() as session:
-                result = await session.execute(select(ScheduledPost).where(ScheduledPost.id == scheduled_post_id))
-                post: ScheduledPost = result.scalar_one_or_none()
-                if not post or post.status != PostStatus.scheduled:
+                result = await session.execute(select(AriaScheduledPost).where(AriaScheduledPost.id == scheduled_post_id))
+                post: AriaScheduledPost = result.scalar_one_or_none()
+                if not post or post.status != AriaPostStatus.scheduled:
                     return
                 if post.scheduled_at and post.scheduled_at <= datetime.utcnow():
                     await self.kafka.publish_event(

@@ -11,7 +11,7 @@ from core.cache.redis_manager import init_redis
 from core.storage.chroma_manager import ChromaManager
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
-from ..models import Lead, Deal, LeadInteraction, LeadStatus, SalesStage, CustomerProfile
+from ..models import EricLead, EricDeal, EricLeadInteraction, LeadStatus, SalesStage, CustomerProfile
 from ..database import get_eric_database
 
 logger = logging.getLogger(__name__)
@@ -70,28 +70,28 @@ class CustomerInsightsService:
                 start_date = end_date - timedelta(days=30)
             
             # Get customer interactions
-            interactions = db.query(LeadInteraction).join(Lead).filter(
+            interactions = db.query(EricLeadInteraction).join(EricLead).filter(
                 and_(
-                    Lead.brand_id == brand_id,
-                    LeadInteraction.created_at >= start_date,
-                    LeadInteraction.created_at <= end_date
+                    EricLead.brand_id == brand_id,
+                    EricLeadInteraction.created_at >= start_date,
+                    EricLeadInteraction.created_at <= end_date
                 )
             ).all()
             
             # Get leads and deals
-            leads = db.query(Lead).filter(
+            leads = db.query(EricLead).filter(
                 and_(
-                    Lead.brand_id == brand_id,
-                    Lead.created_at >= start_date,
-                    Lead.created_at <= end_date
+                    EricLead.brand_id == brand_id,
+                    EricLead.created_at >= start_date,
+                    EricLead.created_at <= end_date
                 )
             ).all()
             
-            deals = db.query(Deal).filter(
+            deals = db.query(EricDeal).filter(
                 and_(
-                    Deal.brand_id == brand_id,
-                    Deal.created_at >= start_date,
-                    Deal.created_at <= end_date
+                    EricDeal.brand_id == brand_id,
+                    EricDeal.created_at >= start_date,
+                    EricDeal.created_at <= end_date
                 )
             ).all()
             
@@ -137,16 +137,16 @@ class CustomerInsightsService:
             
             if lead_id:
                 # Analyze specific lead journey
-                lead = db.query(Lead).filter(Lead.id == lead_id).first()
+                lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
                 if not lead:
                     return {
                         "success": False,
-                        "error": "Lead not found"
+                        "error": "EricLead not found"
                     }
                 
-                interactions = db.query(LeadInteraction).filter(
-                    LeadInteraction.lead_id == lead_id
-                ).order_by(LeadInteraction.created_at).all()
+                interactions = db.query(EricLeadInteraction).filter(
+                    EricLeadInteraction.lead_id == lead_id
+                ).order_by(EricLeadInteraction.created_at).all()
                 
                 journey_analysis = await self._analyze_single_lead_journey(lead, interactions)
                 
@@ -157,7 +157,7 @@ class CustomerInsightsService:
                 }
             else:
                 # Analyze overall lead journey patterns
-                leads = db.query(Lead).filter(Lead.brand_id == brand_id).all()
+                leads = db.query(EricLead).filter(EricLead.brand_id == brand_id).all()
                 
                 journey_patterns = await self._analyze_journey_patterns(leads, db)
                 
@@ -186,7 +186,7 @@ class CustomerInsightsService:
             db = next(get_db())
             
             # Get customer data
-            query = db.query(Lead).filter(Lead.brand_id == brand_id)
+            query = db.query(EricLead).filter(EricLead.brand_id == brand_id)
             if customer_segment:
                 # Filter by segment (implement segment filtering logic)
                 pass
@@ -228,7 +228,7 @@ class CustomerInsightsService:
             db = next(get_db())
             
             # Get customer data
-            customers = db.query(Lead).filter(Lead.brand_id == brand_id).all()
+            customers = db.query(EricLead).filter(EricLead.brand_id == brand_id).all()
             
             # Calculate churn risk factors
             churn_analysis = await self._calculate_churn_risk(customers, db)
@@ -257,9 +257,9 @@ class CustomerInsightsService:
     
     async def _analyze_behavior_patterns(
         self,
-        interactions: List[LeadInteraction],
-        leads: List[Lead],
-        deals: List[Deal]
+        interactions: List[EricLeadInteraction],
+        leads: List[EricLead],
+        deals: List[EricDeal]
     ) -> Dict[str, Any]:
         """Analyze customer behavior patterns"""
         try:
@@ -321,8 +321,8 @@ class CustomerInsightsService:
     
     async def _generate_customer_segments(
         self,
-        leads: List[Lead],
-        interactions: List[LeadInteraction]
+        leads: List[EricLead],
+        interactions: List[EricLeadInteraction]
     ) -> Dict[str, Any]:
         """Generate customer segments based on behavior"""
         try:
@@ -390,7 +390,7 @@ class CustomerInsightsService:
     
     async def _analyze_engagement_patterns(
         self,
-        interactions: List[LeadInteraction]
+        interactions: List[EricLeadInteraction]
     ) -> Dict[str, Any]:
         """Analyze customer engagement patterns"""
         try:
@@ -449,8 +449,8 @@ class CustomerInsightsService:
     
     async def _analyze_single_lead_journey(
         self,
-        lead: Lead,
-        interactions: List[LeadInteraction]
+        lead: EricLead,
+        interactions: List[EricLeadInteraction]
     ) -> Dict[str, Any]:
         """Analyze journey for a single lead"""
         try:
@@ -528,7 +528,7 @@ class CustomerInsightsService:
     
     async def _analyze_journey_patterns(
         self,
-        leads: List[Lead],
+        leads: List[EricLead],
         db: Session
     ) -> Dict[str, Any]:
         """Analyze overall journey patterns"""
@@ -545,8 +545,8 @@ class CustomerInsightsService:
             converted_leads = 0
             
             for lead in leads:
-                interactions = db.query(LeadInteraction).filter(
-                    LeadInteraction.lead_id == lead.id
+                interactions = db.query(EricLeadInteraction).filter(
+                    EricLeadInteraction.lead_id == lead.id
                 ).all()
                 
                 if interactions:
@@ -577,7 +577,7 @@ class CustomerInsightsService:
     
     async def _analyze_communication_preferences(
         self,
-        customers: List[Lead],
+        customers: List[EricLead],
         db: Session
     ) -> Dict[str, Any]:
         """Analyze communication channel preferences"""
@@ -586,8 +586,8 @@ class CustomerInsightsService:
             response_rates = {}
             
             for customer in customers:
-                interactions = db.query(LeadInteraction).filter(
-                    LeadInteraction.lead_id == customer.id
+                interactions = db.query(EricLeadInteraction).filter(
+                    EricLeadInteraction.lead_id == customer.id
                 ).all()
                 
                 for interaction in interactions:
@@ -623,7 +623,7 @@ class CustomerInsightsService:
     
     async def _analyze_product_preferences(
         self,
-        customers: List[Lead],
+        customers: List[EricLead],
         db: Session
     ) -> Dict[str, Any]:
         """Analyze product and service preferences from customer data"""
@@ -635,7 +635,7 @@ class CustomerInsightsService:
             # Query deals and interactions for product preferences
             for customer in customers:
                 # Get deals for this customer
-                deals = db.query(Deal).filter(Deal.customer_id == customer.id).all()
+                deals = db.query(EricDeal).filter(EricDeal.customer_id == customer.id).all()
                 
                 for deal in deals:
                     if deal.product_id:
@@ -658,8 +658,8 @@ class CustomerInsightsService:
                         pricing_tier_preferences[tier] += 1
                 
                 # Get interactions for feature interest
-                interactions = db.query(LeadInteraction).filter(
-                    LeadInteraction.lead_id == customer.id
+                interactions = db.query(EricLeadInteraction).filter(
+                    EricLeadInteraction.lead_id == customer.id
                 ).all()
                 
                 for interaction in interactions:
@@ -685,7 +685,7 @@ class CustomerInsightsService:
     
     async def _analyze_timing_preferences(
         self,
-        customers: List[Lead],
+        customers: List[EricLead],
         db: Session
     ) -> Dict[str, Any]:
         """Analyze timing preferences for interactions"""
@@ -694,8 +694,8 @@ class CustomerInsightsService:
             daily_preferences = {}
             
             for customer in customers:
-                interactions = db.query(LeadInteraction).filter(
-                    LeadInteraction.lead_id == customer.id
+                interactions = db.query(EricLeadInteraction).filter(
+                    EricLeadInteraction.lead_id == customer.id
                 ).all()
                 
                 for interaction in interactions:
@@ -728,7 +728,7 @@ class CustomerInsightsService:
     
     async def _analyze_pricing_preferences(
         self,
-        customers: List[Lead],
+        customers: List[EricLead],
         db: Session
     ) -> Dict[str, Any]:
         """Analyze pricing preferences and sensitivity from customer data"""
@@ -742,7 +742,7 @@ class CustomerInsightsService:
             price_negotiations = 0
             
             for customer in customers:
-                deals = db.query(Deal).filter(Deal.customer_id == customer.id).all()
+                deals = db.query(EricDeal).filter(EricDeal.customer_id == customer.id).all()
                 
                 for deal in deals:
                     total_deals += 1
@@ -798,7 +798,7 @@ class CustomerInsightsService:
     
     async def _calculate_churn_risk(
         self,
-        customers: List[Lead],
+        customers: List[EricLead],
         db: Session
     ) -> Dict[str, Any]:
         """Calculate churn risk for customers"""
@@ -810,8 +810,8 @@ class CustomerInsightsService:
             }
             
             for customer in customers:
-                interactions = db.query(LeadInteraction).filter(
-                    LeadInteraction.lead_id == customer.id
+                interactions = db.query(EricLeadInteraction).filter(
+                    EricLeadInteraction.lead_id == customer.id
                 ).all()
                 
                 # Calculate churn risk factors
@@ -936,8 +936,8 @@ class CustomerInsightsService:
     
     async def _generate_journey_insights(
         self,
-        interactions: List[LeadInteraction],
-        lead: Lead
+        interactions: List[EricLeadInteraction],
+        lead: EricLead
     ) -> List[str]:
         """Generate insights for a single lead journey"""
         try:
@@ -960,7 +960,7 @@ class CustomerInsightsService:
             if days_since_last > 7:
                 insights.append(f"No activity for {days_since_last} days - re-engage")
             
-            # Lead score insights
+            # EricLead score insights
             if lead.lead_score and lead.lead_score < 0.4:
                 insights.append("Low lead score - focus on qualification")
             elif lead.lead_score and lead.lead_score > 0.8:

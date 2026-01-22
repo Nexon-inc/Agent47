@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from ..services.gamified_incentives_service import GamifiedIncentivesService
 from ..database import get_eric_database
-from ..models import SalesRep
+from ..models import EricSalesRep
 
 router = APIRouter()
 
@@ -204,7 +204,7 @@ async def get_team_stats(
             start_date = await service._get_period_start_date(period)
             
             sales_reps = await session.execute(
-                select(SalesRep).where(SalesRep.brand_id == brand_id)
+                select(EricSalesRep).where(EricSalesRep.brand_id == brand_id)
             )
             sales_reps = sales_reps.scalars().all()
             
@@ -341,7 +341,7 @@ async def get_challenge_progress(
             
             for rep_id in challenge["participants"]:
                 rep = await session.execute(
-                    select(SalesRep).where(SalesRep.id == rep_id)
+                    select(EricSalesRep).where(EricSalesRep.id == rep_id)
                 )
                 rep = rep.scalar_one_or_none()
                 

@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from core.ai import get_ai_service_manager, AIServiceManager
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerProfile, ChatSession, CustomerInteraction,
+    ClaraSupportTicket, CustomerProfile, ClaraChatSession, ClaraCustomerInteraction,
     TicketCategory, SupportChannel, SentimentType
 )
 
@@ -59,23 +59,23 @@ class ProactiveChatService:
                 
                 # Get customer's recent activity
                 recent_tickets = await session.execute(
-                    select(SupportTicket).where(
+                    select(ClaraSupportTicket).where(
                         and_(
-                            SupportTicket.customer_id == customer_id,
-                            SupportTicket.created_at >= start_date
+                            ClaraSupportTicket.customer_id == customer_id,
+                            ClaraSupportTicket.created_at >= start_date
                         )
-                    ).order_by(SupportTicket.created_at.desc())
+                    ).order_by(ClaraSupportTicket.created_at.desc())
                 )
                 recent_tickets = recent_tickets.scalars().all()
                 
                 # Get recent chat sessions
                 recent_chats = await session.execute(
-                    select(ChatSession).where(
+                    select(ClaraChatSession).where(
                         and_(
-                            ChatSession.customer_id == customer_id,
-                            ChatSession.start_time >= start_date
+                            ClaraChatSession.customer_id == customer_id,
+                            ClaraChatSession.start_time >= start_date
                         )
-                    ).order_by(ChatSession.start_time.desc())
+                    ).order_by(ClaraChatSession.start_time.desc())
                 )
                 recent_chats = recent_chats.scalars().all()
                 
@@ -125,10 +125,10 @@ class ProactiveChatService:
             async with db.get_session() as session:
                 # Check if customer already has an active chat
                 active_chat = await session.execute(
-                    select(ChatSession).where(
+                    select(ClaraChatSession).where(
                         and_(
-                            ChatSession.customer_id == customer_id,
-                            ChatSession.status == "active"
+                            ClaraChatSession.customer_id == customer_id,
+                            ClaraChatSession.status == "active"
                         )
                     )
                 )
@@ -143,11 +143,11 @@ class ProactiveChatService:
                 
                 # Check if customer has been contacted recently (avoid spam)
                 recent_contact = await session.execute(
-                    select(CustomerInteraction).where(
+                    select(ClaraCustomerInteraction).where(
                         and_(
-                            CustomerInteraction.customer_id == customer_id,
-                            CustomerInteraction.interaction_type == "proactive_outreach",
-                            CustomerInteraction.created_at >= datetime.utcnow() - timedelta(hours=24)
+                            ClaraCustomerInteraction.customer_id == customer_id,
+                            ClaraCustomerInteraction.interaction_type == "proactive_outreach",
+                            ClaraCustomerInteraction.created_at >= datetime.utcnow() - timedelta(hours=24)
                         )
                     )
                 )
@@ -231,7 +231,7 @@ class ProactiveChatService:
                     message = custom_message
                 
                 # Create proactive interaction record
-                interaction = CustomerInteraction(
+                interaction = ClaraCustomerInteraction(
                     customer_id=customer_id,
                     interaction_type="proactive_outreach",
                     channel=SupportChannel.CHAT,
@@ -299,25 +299,25 @@ class ProactiveChatService:
                 
                 # Get proactive interactions
                 proactive_interactions = await session.execute(
-                    select(CustomerInteraction).where(
+                    select(ClaraCustomerInteraction).where(
                         and_(
-                            CustomerInteraction.customer_id == customer_id,
-                            CustomerInteraction.interaction_type == "proactive_outreach",
-                            CustomerInteraction.created_at >= start_date
+                            ClaraCustomerInteraction.customer_id == customer_id,
+                            ClaraCustomerInteraction.interaction_type == "proactive_outreach",
+                            ClaraCustomerInteraction.created_at >= start_date
                         )
-                    ).order_by(CustomerInteraction.created_at.desc())
+                    ).order_by(ClaraCustomerInteraction.created_at.desc())
                 )
                 proactive_interactions = proactive_interactions.scalars().all()
                 
                 # Get resulting chat sessions
                 chat_sessions = await session.execute(
-                    select(ChatSession).where(
+                    select(ClaraChatSession).where(
                         and_(
-                            ChatSession.customer_id == customer_id,
-                            ChatSession.metadata.contains({"proactive": True}),
-                            ChatSession.start_time >= start_date
+                            ClaraChatSession.customer_id == customer_id,
+                            ClaraChatSession.metadata.contains({"proactive": True}),
+                            ClaraChatSession.start_time >= start_date
                         )
-                    ).order_by(ChatSession.start_time.desc())
+                    ).order_by(ClaraChatSession.start_time.desc())
                 )
                 chat_sessions = chat_sessions.scalars().all()
                 
@@ -391,8 +391,8 @@ class ProactiveChatService:
     
     def _calculate_engagement_level(
         self,
-        tickets: List[SupportTicket],
-        chats: List[ChatSession]
+        tickets: List[ClaraSupportTicket],
+        chats: List[ClaraChatSession]
     ) -> str:
         """Calculate customer engagement level"""
         total_interactions = len(tickets) + len(chats)
@@ -410,8 +410,8 @@ class ProactiveChatService:
     
     def _get_last_activity(
         self,
-        tickets: List[SupportTicket],
-        chats: List[ChatSession]
+        tickets: List[ClaraSupportTicket],
+        chats: List[ClaraChatSession]
     ) -> Optional[str]:
         """Get last activity timestamp"""
         all_activities = []
@@ -430,7 +430,7 @@ class ProactiveChatService:
     
     def _analyze_satisfaction_trend(
         self,
-        tickets: List[SupportTicket]
+        tickets: List[ClaraSupportTicket]
     ) -> Dict[str, Any]:
         """Analyze customer satisfaction trend"""
         satisfaction_scores = [t.sentiment_score for t in tickets if t.sentiment_score is not None]
@@ -468,7 +468,7 @@ class ProactiveChatService:
     
     def _analyze_issue_patterns(
         self,
-        tickets: List[SupportTicket]
+        tickets: List[ClaraSupportTicket]
     ) -> Dict[str, Any]:
         """Analyze patterns in customer issues"""
         if not tickets:
@@ -505,8 +505,8 @@ class ProactiveChatService:
     
     def _analyze_channel_preferences(
         self,
-        tickets: List[SupportTicket],
-        chats: List[ChatSession]
+        tickets: List[ClaraSupportTicket],
+        chats: List[ClaraChatSession]
     ) -> Dict[str, Any]:
         """Analyze customer channel preferences"""
         channel_usage = {}
@@ -532,8 +532,8 @@ class ProactiveChatService:
         self,
         customer_id: int,
         profile: CustomerProfile,
-        tickets: List[SupportTicket],
-        chats: List[ChatSession],
+        tickets: List[ClaraSupportTicket],
+        chats: List[ClaraChatSession],
         behavior_analysis: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """Identify proactive engagement triggers"""

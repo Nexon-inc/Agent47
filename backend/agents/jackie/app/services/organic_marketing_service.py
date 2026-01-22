@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import OrganicStrategy, ContentPiece, SocialPost, CommunityEngagement
+from ..models import OrganicStrategy, ContentPiece, JackieSocialPost, CommunityEngagement
 
 class OrganicMarketingService:
     def __init__(self, db: Session):
@@ -78,7 +78,7 @@ class OrganicMarketingService:
         
         post_result = self.nlp_processor.create_organic_social_post(prompt)
         
-        post = SocialPost(
+        post = JackieSocialPost(
             id=post_id, platform=platform, content_brief=content_brief,
             target_audience=json.dumps(target_audience), engagement_goals=json.dumps(engagement_goals),
             post_content=post_result.get("post_content", ""), hashtags=json.dumps(post_result.get("hashtags", [])),
@@ -231,8 +231,8 @@ class OrganicMarketingService:
             ContentPiece.created_at >= cutoff_date
         ).count()
         
-        social_posts_count = self.db.query(SocialPost).filter(
-            SocialPost.created_at >= cutoff_date
+        social_posts_count = self.db.query(JackieSocialPost).filter(
+            JackieSocialPost.created_at >= cutoff_date
         ).count()
         
         engagement_count = self.db.query(CommunityEngagement).filter(

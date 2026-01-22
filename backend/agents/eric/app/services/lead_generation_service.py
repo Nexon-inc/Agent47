@@ -11,7 +11,7 @@ from core.storage.chroma_manager import ChromaManager
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
-from ..models import Lead, LeadInteraction, LeadSource, LeadStatus
+from ..models import EricLead, EricLeadInteraction, LeadSource, LeadStatus
 from ..database import get_eric_database
 
 logger = logging.getLogger(__name__)
@@ -166,12 +166,12 @@ class LeadGenerationService:
             
             db = await get_eric_database()
             async with db.get_session() as session:
-                lead = session.query(Lead).filter(Lead.id == lead_id).first()
+                lead = session.query(EricLead).filter(EricLead.id == lead_id).first()
                 
                 if not lead:
                     return {
                         "success": False,
-                        "error": "Lead not found"
+                        "error": "EricLead not found"
                     }
                 
                 qualification_score = 0.0
@@ -235,12 +235,12 @@ class LeadGenerationService:
             
             db = await get_eric_database()
             async with db.get_session() as session:
-                lead = session.query(Lead).filter(Lead.id == lead_id).first()
+                lead = session.query(EricLead).filter(EricLead.id == lead_id).first()
                 
                 if not lead:
                     return {
                         "success": False,
-                        "error": "Lead not found"
+                        "error": "EricLead not found"
                     }
                 
                 intent_score = 0.0
@@ -316,22 +316,22 @@ class LeadGenerationService:
             await self.initialize()
             
             db = next(get_db())
-            query = db.query(Lead).filter(Lead.brand_id == brand_id)
+            query = db.query(EricLead).filter(EricLead.brand_id == brand_id)
             
             if filters:
                 if filters.get("min_score"):
-                    query = query.filter(Lead.lead_score >= filters["min_score"])
+                    query = query.filter(EricLead.lead_score >= filters["min_score"])
                 
                 if filters.get("lead_status"):
-                    query = query.filter(Lead.lead_status == filters["lead_status"])
+                    query = query.filter(EricLead.lead_status == filters["lead_status"])
                 
                 if filters.get("lead_source"):
-                    query = query.filter(Lead.lead_source == filters["lead_source"])
+                    query = query.filter(EricLead.lead_source == filters["lead_source"])
                 
                 if filters.get("industry"):
-                    query = query.filter(Lead.industry == filters["industry"])
+                    query = query.filter(EricLead.industry == filters["industry"])
             
-            leads = query.order_by(desc(Lead.lead_score)).limit(50).all()
+            leads = query.order_by(desc(EricLead.lead_score)).limit(50).all()
             
             recommendations = []
             for lead in leads:
@@ -416,7 +416,7 @@ class LeadGenerationService:
         
         return recommendations
     
-    def _get_recommended_action(self, lead: Lead) -> str:
+    def _get_recommended_action(self, lead: EricLead) -> str:
         """Get recommended action for a lead"""
         if lead.lead_score >= 0.8:
             return "Immediate follow-up call"
@@ -577,7 +577,7 @@ For each lead, provide:
 - Pain Points (3-5 key challenges)
 - Budget Range
 - Decision Timeline
-- Lead Score (0.0-1.0)
+- EricLead Score (0.0-1.0)
 
 Return as JSON array with this structure:
 [
@@ -659,7 +659,7 @@ Return as JSON array with this structure:
                     try:
                         # Create lead record
                         # Note: user_id is used as brand_id for Eric agent
-                        lead = Lead(
+                        lead = EricLead(
                             brand_id=user_id,
                             first_name=lead_data.get("first_name", "Unknown"),
                             last_name=lead_data.get("last_name", "Unknown"),

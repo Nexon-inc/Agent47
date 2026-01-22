@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import OnboardingSession, TutorialStep, SetupWizard, UserProgress
+from ..models import JackieOnboardingSession, TutorialStep, SetupWizard, JackieUserProgress
 
 class OnboardingService:
     def __init__(self, db: Session):
@@ -28,7 +28,7 @@ class OnboardingService:
         
         session_result = self.nlp_processor.create_onboarding_session(prompt)
         
-        session = OnboardingSession(
+        session = JackieOnboardingSession(
             id=session_id, user_id=user_id, business_info=json.dumps(business_info),
             onboarding_type=onboarding_type, session_data=json.dumps(session_result),
             status="active", created_at=datetime.utcnow()
@@ -90,7 +90,7 @@ class OnboardingService:
                           current_step: str) -> Dict[str, Any]:
         progress_id = str(uuid.uuid4())
         
-        progress = UserProgress(
+        progress = JackieUserProgress(
             id=progress_id, user_id=user_id, session_id=session_id,
             progress_data=json.dumps(progress_data), current_step=current_step,
             created_at=datetime.utcnow()
@@ -153,13 +153,13 @@ class OnboardingService:
     def get_onboarding_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        sessions_count = self.db.query(OnboardingSession).filter(
-            OnboardingSession.created_at >= cutoff_date
+        sessions_count = self.db.query(JackieOnboardingSession).filter(
+            JackieOnboardingSession.created_at >= cutoff_date
         ).count()
         
-        completed_sessions = self.db.query(OnboardingSession).filter(
-            OnboardingSession.created_at >= cutoff_date,
-            OnboardingSession.status == "completed"
+        completed_sessions = self.db.query(JackieOnboardingSession).filter(
+            JackieOnboardingSession.created_at >= cutoff_date,
+            JackieOnboardingSession.status == "completed"
         ).count()
         
         wizards_created = self.db.query(SetupWizard).filter(

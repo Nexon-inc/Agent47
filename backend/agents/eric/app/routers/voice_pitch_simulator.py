@@ -223,22 +223,22 @@ async def get_voice_performance_metrics(
         service = VoicePitchSimulatorService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity
+            from ..models import EricSalesActivity
             from sqlalchemy import select, func, and_
             from datetime import datetime, timedelta
             
             start_date = datetime.utcnow() - timedelta(days=days)
             
             # Get simulation activities
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.activity_type == "voice_pitch_simulation",
-                    SalesActivity.created_at >= start_date
+                    EricSalesActivity.activity_type == "voice_pitch_simulation",
+                    EricSalesActivity.created_at >= start_date
                 )
             )
             
             if rep_id:
-                query = query.where(SalesActivity.rep_id == rep_id)
+                query = query.where(EricSalesActivity.rep_id == rep_id)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -308,20 +308,20 @@ async def get_improvement_trends(
         service = VoicePitchSimulatorService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity
+            from ..models import EricSalesActivity
             from sqlalchemy import select, and_
             from datetime import datetime, timedelta
             
             start_date = datetime.utcnow() - timedelta(days=days)
             
             # Get rep's simulation activities
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.rep_id == rep_id,
-                    SalesActivity.activity_type == "voice_pitch_simulation",
-                    SalesActivity.created_at >= start_date
+                    EricSalesActivity.rep_id == rep_id,
+                    EricSalesActivity.activity_type == "voice_pitch_simulation",
+                    EricSalesActivity.created_at >= start_date
                 )
-            ).order_by(SalesActivity.created_at)
+            ).order_by(EricSalesActivity.created_at)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -386,11 +386,11 @@ async def get_voice_recommendations(
         service = VoicePitchSimulatorService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesRep
+            from ..models import EricSalesRep
             from sqlalchemy import select
             
             # Get rep information
-            query = select(SalesRep).where(SalesRep.id == rep_id)
+            query = select(EricSalesRep).where(EricSalesRep.id == rep_id)
             result = await session.execute(query)
             rep = result.scalar_one_or_none()
             
@@ -474,7 +474,7 @@ async def get_scenario_templates():
                 "closing": {
                     "duration": 60,
                     "structure": [
-                        "Objection handling (20 seconds)",
+                        "EricObjection handling (20 seconds)",
                         "Value reinforcement (25 seconds)",
                         "Closing technique (15 seconds)"
                     ],

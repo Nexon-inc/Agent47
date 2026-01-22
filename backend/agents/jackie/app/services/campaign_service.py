@@ -10,7 +10,7 @@ from core.utils.nlp_utils import NLPUtils
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
 from ..models import (
-    MarketingCampaign, CampaignContent, AdCampaign, CampaignAnalytics,
+    JackieMarketingCampaign, JackieCampaignContent, JackieAdCampaign, JackieCampaignAnalytics,
     CampaignStatus, CampaignType, PlatformType, ContentType
 )
 
@@ -51,7 +51,7 @@ class CampaignService:
             async with self.db.get_session() as session:
                 campaign_id = f"CAMP_{uuid.uuid4().hex[:8].upper()}"
                 
-                campaign = MarketingCampaign(
+                campaign = JackieMarketingCampaign(
                     campaign_id=campaign_id,
                     user_id=user_id,
                     name=name,
@@ -112,7 +112,7 @@ class CampaignService:
     async def get_campaign_details(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(MarketingCampaign).where(MarketingCampaign.id == campaign_id)
+                query = select(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id)
                 result = await session.execute(query)
                 campaign = result.scalar_one_or_none()
                 
@@ -162,7 +162,7 @@ class CampaignService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(MarketingCampaign).where(MarketingCampaign.id == campaign_id)
+                query = select(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id)
                 result = await session.execute(query)
                 campaign = result.scalar_one_or_none()
                 
@@ -186,7 +186,7 @@ class CampaignService:
                     update_data["kpis"] = kpis
                 
                 if update_data:
-                    stmt = update(MarketingCampaign).where(MarketingCampaign.id == campaign_id).values(**update_data)
+                    stmt = update(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id).values(**update_data)
                     await session.execute(stmt)
                     await session.commit()
                 
@@ -208,14 +208,14 @@ class CampaignService:
     async def delete_campaign(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(MarketingCampaign).where(MarketingCampaign.id == campaign_id)
+                query = select(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id)
                 result = await session.execute(query)
                 campaign = result.scalar_one_or_none()
                 
                 if not campaign:
                     return {"success": False, "error": "Campaign not found"}
                 
-                stmt = delete(MarketingCampaign).where(MarketingCampaign.id == campaign_id)
+                stmt = delete(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id)
                 await session.execute(stmt)
                 await session.commit()
                 
@@ -243,12 +243,12 @@ class CampaignService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(MarketingCampaign).where(MarketingCampaign.user_id == user_id)
+                query = select(JackieMarketingCampaign).where(JackieMarketingCampaign.user_id == user_id)
                 
                 if status:
-                    query = query.where(MarketingCampaign.status == status)
+                    query = query.where(JackieMarketingCampaign.status == status)
                 if campaign_type:
-                    query = query.where(MarketingCampaign.campaign_type == campaign_type)
+                    query = query.where(JackieMarketingCampaign.campaign_type == campaign_type)
                 
                 query = query.offset(offset).limit(limit)
                 result = await session.execute(query)
@@ -285,7 +285,7 @@ class CampaignService:
     async def optimize_campaign(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(MarketingCampaign).where(MarketingCampaign.id == campaign_id)
+                query = select(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id)
                 result = await session.execute(query)
                 campaign = result.scalar_one_or_none()
                 
@@ -320,14 +320,14 @@ class CampaignService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(CampaignAnalytics).where(CampaignAnalytics.campaign_id == campaign_id)
+                query = select(JackieCampaignAnalytics).where(JackieCampaignAnalytics.campaign_id == campaign_id)
                 
                 if start_date:
                     start_dt = datetime.fromisoformat(start_date)
-                    query = query.where(CampaignAnalytics.date >= start_dt)
+                    query = query.where(JackieCampaignAnalytics.date >= start_dt)
                 if end_date:
                     end_dt = datetime.fromisoformat(end_date)
-                    query = query.where(CampaignAnalytics.date <= end_dt)
+                    query = query.where(JackieCampaignAnalytics.date <= end_dt)
                 
                 result = await session.execute(query)
                 analytics = result.scalars().all()
@@ -363,7 +363,7 @@ class CampaignService:
     async def duplicate_campaign(self, campaign_id: int, new_name: str) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(MarketingCampaign).where(MarketingCampaign.id == campaign_id)
+                query = select(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id)
                 result = await session.execute(query)
                 original_campaign = result.scalar_one_or_none()
                 
@@ -372,7 +372,7 @@ class CampaignService:
                 
                 new_campaign_id = f"CAMP_{uuid.uuid4().hex[:8].upper()}"
                 
-                new_campaign = MarketingCampaign(
+                new_campaign = JackieMarketingCampaign(
                     campaign_id=new_campaign_id,
                     user_id=original_campaign.user_id,
                     name=new_name,
@@ -414,7 +414,7 @@ class CampaignService:
             scheduled_dt = datetime.fromisoformat(scheduled_time)
             
             async with self.db.get_session() as session:
-                stmt = update(MarketingCampaign).where(MarketingCampaign.id == campaign_id).values(
+                stmt = update(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id).values(
                     status=CampaignStatus.SCHEDULED,
                     start_date=scheduled_dt
                 )
@@ -430,7 +430,7 @@ class CampaignService:
     async def pause_campaign(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                stmt = update(MarketingCampaign).where(MarketingCampaign.id == campaign_id).values(
+                stmt = update(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id).values(
                     status=CampaignStatus.PAUSED
                 )
                 await session.execute(stmt)
@@ -445,7 +445,7 @@ class CampaignService:
     async def resume_campaign(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                stmt = update(MarketingCampaign).where(MarketingCampaign.id == campaign_id).values(
+                stmt = update(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id).values(
                     status=CampaignStatus.ACTIVE
                 )
                 await session.execute(stmt)
@@ -457,7 +457,7 @@ class CampaignService:
             logger.error(f"Failed to resume campaign: {e}")
             return {"success": False, "error": str(e)}
     
-    async def _perform_ai_optimization(self, campaign: MarketingCampaign) -> Dict[str, Any]:
+    async def _perform_ai_optimization(self, campaign: JackieMarketingCampaign) -> Dict[str, Any]:
         optimization_suggestions = []
         
         if campaign.spent_budget > 0 and campaign.budget > 0:

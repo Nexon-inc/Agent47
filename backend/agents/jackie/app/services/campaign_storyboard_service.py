@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import CampaignStoryboard, StoryboardScene, FlowVisualization, ChannelFlow
+from ..models import CampaignStoryboard, JackieStoryboardScene, JackieFlowVisualization, ChannelFlow
 
 class CampaignStoryboardService:
     def __init__(self, db: Session):
@@ -31,7 +31,7 @@ class CampaignStoryboardService:
         scene_id = str(uuid.uuid4())
         scene_result = self.nlp_processor.create_storyboard_scene(f"Scene Data: {scene_data}")
         
-        scene = StoryboardScene(
+        scene = JackieStoryboardScene(
             id=scene_id, scene_data=json.dumps(scene_data), scene_order=scene_order, channel=channel,
             scene_content=json.dumps(scene_result), created_at=datetime.utcnow()
         )
@@ -44,7 +44,7 @@ class CampaignStoryboardService:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
         storyboards_created = self.db.query(CampaignStoryboard).filter(CampaignStoryboard.created_at >= cutoff_date).count()
-        scenes_created = self.db.query(StoryboardScene).filter(StoryboardScene.created_at >= cutoff_date).count()
+        scenes_created = self.db.query(JackieStoryboardScene).filter(JackieStoryboardScene.created_at >= cutoff_date).count()
         
         return {
             "timeframe": timeframe, "storyboards_created": storyboards_created,

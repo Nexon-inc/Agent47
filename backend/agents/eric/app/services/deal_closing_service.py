@@ -11,7 +11,7 @@ from core.cache.redis_manager import init_redis
 from core.storage.chroma_manager import ChromaManager
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
-from ..models import Lead, Deal, LeadInteraction, LeadStatus, SalesStage, Objection, SalesActivity
+from ..models import EricLead, EricDeal, EricLeadInteraction, LeadStatus, SalesStage, EricObjection, EricSalesActivity
 from ..database import get_eric_database
 
 logger = logging.getLogger(__name__)
@@ -57,16 +57,16 @@ class DealClosingService:
             await self.initialize()
             
             db = next(get_db())
-            deal = db.query(Deal).filter(Deal.id == deal_id).first()
+            deal = db.query(EricDeal).filter(EricDeal.id == deal_id).first()
             
             if not deal:
                 return {
                     "success": False,
-                    "error": "Deal not found"
+                    "error": "EricDeal not found"
                 }
             
             # Get associated lead
-            lead = db.query(Lead).filter(Lead.id == deal.lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == deal.lead_id).first()
             
             # Analyze deal context
             deal_analysis = await self._analyze_deal_context(deal, lead, db)
@@ -111,12 +111,12 @@ class DealClosingService:
             await self.initialize()
             
             db = next(get_db())
-            deal = db.query(Deal).filter(Deal.id == deal_id).first()
+            deal = db.query(EricDeal).filter(EricDeal.id == deal_id).first()
             
             if not deal:
                 return {
                     "success": False,
-                    "error": "Deal not found"
+                    "error": "EricDeal not found"
                 }
             
             # Analyze current deal value
@@ -162,16 +162,16 @@ class DealClosingService:
             await self.initialize()
             
             db = next(get_db())
-            deal = db.query(Deal).filter(Deal.id == deal_id).first()
+            deal = db.query(EricDeal).filter(EricDeal.id == deal_id).first()
             
             if not deal:
                 return {
                     "success": False,
-                    "error": "Deal not found"
+                    "error": "EricDeal not found"
                 }
             
             # Record objection
-            objection = Objection(
+            objection = EricObjection(
                 deal_id=deal_id,
                 objection_type=objection_data.get("objection_type"),
                 objection_text=objection_data.get("objection_text"),
@@ -223,12 +223,12 @@ class DealClosingService:
             await self.initialize()
             
             db = next(get_db())
-            deal = db.query(Deal).filter(Deal.id == deal_id).first()
+            deal = db.query(EricDeal).filter(EricDeal.id == deal_id).first()
             
             if not deal:
                 return {
                     "success": False,
-                    "error": "Deal not found"
+                    "error": "EricDeal not found"
                 }
             
             # Generate playbook sections
@@ -268,12 +268,12 @@ class DealClosingService:
             await self.initialize()
             
             db = next(get_db())
-            deal = db.query(Deal).filter(Deal.id == deal_id).first()
+            deal = db.query(EricDeal).filter(EricDeal.id == deal_id).first()
             
             if not deal:
                 return {
                     "success": False,
-                    "error": "Deal not found"
+                    "error": "EricDeal not found"
                 }
             
             # Update deal progress
@@ -313,15 +313,15 @@ class DealClosingService:
     
     async def _analyze_deal_context(
         self,
-        deal: Deal,
-        lead: Lead,
+        deal: EricDeal,
+        lead: EricLead,
         db: Session
     ) -> Dict[str, Any]:
         """Analyze deal context and factors"""
         try:
             # Get deal interactions
-            interactions = db.query(LeadInteraction).filter(
-                LeadInteraction.lead_id == deal.lead_id
+            interactions = db.query(EricLeadInteraction).filter(
+                EricLeadInteraction.lead_id == deal.lead_id
             ).all()
             
             # Analyze deal factors
@@ -372,8 +372,8 @@ class DealClosingService:
     
     async def _generate_closing_strategies(
         self,
-        deal: Deal,
-        lead: Lead,
+        deal: EricDeal,
+        lead: EricLead,
         deal_analysis: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """Generate closing strategies based on deal analysis"""
@@ -386,7 +386,7 @@ class DealClosingService:
                 strategies.append({
                     "type": "urgency",
                     "title": "High Urgency - Immediate Action Required",
-                    "description": "Deal shows high urgency signals. Focus on quick closing with limited-time offers.",
+                    "description": "EricDeal shows high urgency signals. Focus on quick closing with limited-time offers.",
                     "tactics": [
                         "Present limited-time pricing",
                         "Schedule immediate decision meeting",
@@ -399,7 +399,7 @@ class DealClosingService:
             if deal.deal_value > 10000:
                 strategies.append({
                     "type": "value",
-                    "title": "High-Value Deal - Executive Engagement",
+                    "title": "High-Value EricDeal - Executive Engagement",
                     "description": "High-value deal requiring executive-level engagement and custom solutions.",
                     "tactics": [
                         "Engage executive sponsors",
@@ -446,8 +446,8 @@ class DealClosingService:
     
     async def _generate_personalized_offers(
         self,
-        deal: Deal,
-        lead: Lead,
+        deal: EricDeal,
+        lead: EricLead,
         deal_analysis: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """Generate personalized offers for the deal"""
@@ -533,8 +533,8 @@ class DealClosingService:
     
     async def _generate_objection_handling(
         self,
-        deal: Deal,
-        lead: Lead,
+        deal: EricDeal,
+        lead: EricLead,
         deal_analysis: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate objection handling strategies"""
@@ -583,7 +583,7 @@ class DealClosingService:
     
     async def _generate_closing_timeline(
         self,
-        deal: Deal,
+        deal: EricDeal,
         deal_analysis: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate closing timeline and milestones"""
@@ -636,7 +636,7 @@ class DealClosingService:
     
     async def _analyze_current_deal_value(
         self,
-        deal: Deal,
+        deal: EricDeal,
         db: Session
     ) -> Dict[str, Any]:
         """Analyze current deal value and components"""
@@ -669,7 +669,7 @@ class DealClosingService:
     
     async def _generate_value_optimization_strategies(
         self,
-        deal: Deal,
+        deal: EricDeal,
         optimization_goals: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
         """Generate value optimization strategies"""
@@ -717,7 +717,7 @@ class DealClosingService:
     
     async def _identify_upsell_opportunities(
         self,
-        deal: Deal,
+        deal: EricDeal,
         db: Session
     ) -> List[Dict[str, Any]]:
         """Identify upsell opportunities"""
@@ -763,7 +763,7 @@ class DealClosingService:
     
     async def _identify_cross_sell_opportunities(
         self,
-        deal: Deal,
+        deal: EricDeal,
         db: Session
     ) -> List[Dict[str, Any]]:
         """Identify cross-sell opportunities"""
@@ -798,7 +798,7 @@ class DealClosingService:
     
     async def _optimize_pricing_strategy(
         self,
-        deal: Deal,
+        deal: EricDeal,
         optimization_goals: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Optimize pricing strategy"""
@@ -844,7 +844,7 @@ class DealClosingService:
     
     async def _generate_objection_response(
         self,
-        deal: Deal,
+        deal: EricDeal,
         objection_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate response to specific objection"""
@@ -856,9 +856,9 @@ class DealClosingService:
             response_prompt = f"""
             Generate a professional response to this sales objection:
             
-            Objection Type: {objection_type}
-            Objection Text: {objection_text}
-            Deal Value: ${deal.deal_value:,.2f}
+            EricObjection Type: {objection_type}
+            EricObjection Text: {objection_text}
+            EricDeal Value: ${deal.deal_value:,.2f}
             
             Provide a response that:
             1. Acknowledges the concern
@@ -909,8 +909,8 @@ class DealClosingService:
     
     async def _identify_risk_factors(
         self,
-        deal: Deal,
-        lead: Lead,
+        deal: EricDeal,
+        lead: EricLead,
         deal_factors: Dict[str, Any]
     ) -> List[str]:
         """Identify risk factors for the deal"""
@@ -919,7 +919,7 @@ class DealClosingService:
             
             # Time-based risks
             if deal_factors.get("days_in_pipeline", 0) > 60:
-                risk_factors.append("Deal aging - may lose momentum")
+                risk_factors.append("EricDeal aging - may lose momentum")
             
             if deal_factors.get("last_activity_days", 0) > 14:
                 risk_factors.append("No recent activity - customer may be disengaged")
@@ -943,7 +943,7 @@ class DealClosingService:
     
     async def _calculate_optimization_potential(
         self,
-        deal: Deal
+        deal: EricDeal
     ) -> Dict[str, Any]:
         """Calculate optimization potential for the deal"""
         try:
@@ -962,7 +962,7 @@ class DealClosingService:
     
     async def _calculate_total_potential_value(
         self,
-        deal: Deal,
+        deal: EricDeal,
         upsell_opportunities: List[Dict[str, Any]],
         cross_sell_opportunities: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
@@ -986,7 +986,7 @@ class DealClosingService:
             return {}
     
     # Additional helper methods for playbook generation
-    async def _generate_deal_summary(self, deal: Deal, db: Session) -> Dict[str, Any]:
+    async def _generate_deal_summary(self, deal: EricDeal, db: Session) -> Dict[str, Any]:
         """Generate deal summary for playbook"""
         return {
             "deal_id": deal.id,
@@ -997,9 +997,9 @@ class DealClosingService:
             "expected_close": deal.expected_close_date.isoformat() if deal.expected_close_date else None
         }
     
-    async def _generate_customer_profile(self, deal: Deal, db: Session) -> Dict[str, Any]:
+    async def _generate_customer_profile(self, deal: EricDeal, db: Session) -> Dict[str, Any]:
         """Generate customer profile for playbook"""
-        lead = db.query(Lead).filter(Lead.id == deal.lead_id).first()
+        lead = db.query(EricLead).filter(EricLead.id == deal.lead_id).first()
         return {
             "name": f"{lead.first_name} {lead.last_name}",
             "company": lead.company,
@@ -1010,7 +1010,7 @@ class DealClosingService:
             "timeline": lead.timeline
         }
     
-    async def _generate_value_proposition(self, deal: Deal, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _generate_value_proposition(self, deal: EricDeal, config: Dict[str, Any]) -> Dict[str, Any]:
         """Generate value proposition for playbook"""
         return {
             "primary_value": "Increased efficiency and cost savings",
@@ -1019,7 +1019,7 @@ class DealClosingService:
             "payback_period": "6 months"
         }
     
-    async def _generate_closing_scripts(self, deal: Deal, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def _generate_closing_scripts(self, deal: EricDeal, config: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate closing scripts for playbook"""
         return [
             {
@@ -1036,7 +1036,7 @@ class DealClosingService:
             }
         ]
     
-    async def _generate_objection_handlers(self, deal: Deal, db: Session) -> List[Dict[str, Any]]:
+    async def _generate_objection_handlers(self, deal: EricDeal, db: Session) -> List[Dict[str, Any]]:
         """Generate objection handlers for playbook"""
         return [
             {
@@ -1051,7 +1051,7 @@ class DealClosingService:
             }
         ]
     
-    async def _generate_negotiation_tactics(self, deal: Deal, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def _generate_negotiation_tactics(self, deal: EricDeal, config: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate negotiation tactics for playbook"""
         return [
             {
@@ -1066,10 +1066,10 @@ class DealClosingService:
             }
         ]
     
-    async def _define_success_metrics(self, deal: Deal, config: Dict[str, Any]) -> Dict[str, Any]:
+    async def _define_success_metrics(self, deal: EricDeal, config: Dict[str, Any]) -> Dict[str, Any]:
         """Define success metrics for playbook"""
         return {
-            "primary_metric": "Deal closed at target value",
+            "primary_metric": "EricDeal closed at target value",
             "secondary_metrics": [
                 "Close within timeline",
                 "Maintain relationship quality",
@@ -1080,7 +1080,7 @@ class DealClosingService:
         }
     
     # Additional helper methods for progress tracking
-    async def _analyze_closing_progress(self, deal: Deal, progress_data: Dict[str, Any], db: Session) -> Dict[str, Any]:
+    async def _analyze_closing_progress(self, deal: EricDeal, progress_data: Dict[str, Any], db: Session) -> Dict[str, Any]:
         """Analyze closing progress"""
         return {
             "current_stage": deal.sales_stage.value,
@@ -1090,7 +1090,7 @@ class DealClosingService:
             "days_to_close": (deal.expected_close_date - datetime.now()).days if deal.expected_close_date else None
         }
     
-    async def _generate_next_steps(self, deal: Deal, progress_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    async def _generate_next_steps(self, deal: EricDeal, progress_analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate next steps based on progress"""
         return [
             {
@@ -1111,7 +1111,7 @@ class DealClosingService:
         ]
     
     # Additional helper methods for recommendations
-    async def _generate_closing_recommendations_summary(self, deal: Deal, strategies: List[Dict[str, Any]], offers: List[Dict[str, Any]]) -> List[str]:
+    async def _generate_closing_recommendations_summary(self, deal: EricDeal, strategies: List[Dict[str, Any]], offers: List[Dict[str, Any]]) -> List[str]:
         """Generate summary of closing recommendations"""
         recommendations = []
         
@@ -1126,7 +1126,7 @@ class DealClosingService:
         
         return recommendations
     
-    async def _generate_objection_recommendations(self, deal: Deal, objection_data: Dict[str, Any]) -> List[str]:
+    async def _generate_objection_recommendations(self, deal: EricDeal, objection_data: Dict[str, Any]) -> List[str]:
         """Generate recommendations for objection handling"""
         return [
             "Address objection within 24 hours",
@@ -1135,7 +1135,7 @@ class DealClosingService:
             "Offer trial or pilot program"
         ]
     
-    async def _generate_progress_recommendations(self, deal: Deal, progress_analysis: Dict[str, Any]) -> List[str]:
+    async def _generate_progress_recommendations(self, deal: EricDeal, progress_analysis: Dict[str, Any]) -> List[str]:
         """Generate recommendations based on progress"""
         recommendations = []
         
@@ -1155,10 +1155,10 @@ class DealClosingService:
         try:
             async with get_eric_database() as db:
                 # Get deal information
-                deal_query = select(Deal).where(
+                deal_query = select(EricDeal).where(
                     and_(
-                        Deal.id == deal_id,
-                        Deal.brand_id == brand_id
+                        EricDeal.id == deal_id,
+                        EricDeal.brand_id == brand_id
                     )
                 )
                 deal_result = await db.execute(deal_query)
@@ -1169,14 +1169,14 @@ class DealClosingService:
                         "deal_id": deal_id,
                         "health_score": 0,
                         "status": "not_found",
-                        "risk_factors": ["Deal not found"],
+                        "risk_factors": ["EricDeal not found"],
                         "recommendations": ["Verify deal exists"]
                     }
                 
                 # Get deal activities
-                activities_query = select(SalesActivity).where(
-                    SalesActivity.deal_id == deal_id
-                ).order_by(SalesActivity.created_at.desc())
+                activities_query = select(EricSalesActivity).where(
+                    EricSalesActivity.deal_id == deal_id
+                ).order_by(EricSalesActivity.created_at.desc())
                 
                 activities_result = await db.execute(activities_query)
                 activities = activities_result.scalars().all()

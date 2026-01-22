@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, LaunchStrategy, BusinessModel, PurityMarketResearch
+from ..models import PurityBusinessIdea, PurityLaunchStrategy, PurityBusinessModel, PurityMarketResearch
 from ..services.launch_strategy_service import LaunchStrategyService
 
 router = APIRouter(prefix="/launch-strategy", tags=["Launch Strategy"])
@@ -238,7 +238,7 @@ async def get_launch_strategy(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LaunchStrategy).where(LaunchStrategy.id == strategy_id))
+        result = await db.execute(select(PurityLaunchStrategy).where(PurityLaunchStrategy.id == strategy_id))
         strategy = result.scalar_one_or_none()
         if not strategy:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Launch strategy not found")
@@ -269,7 +269,7 @@ async def get_business_launch_strategies(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LaunchStrategy).where(LaunchStrategy.business_idea_id == business_idea_id))
+        result = await db.execute(select(PurityLaunchStrategy).where(PurityLaunchStrategy.business_idea_id == business_idea_id))
         strategies = result.scalars().all()
         return [
             LaunchStrategyResponse(
@@ -300,7 +300,7 @@ async def update_launch_strategy(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LaunchStrategy).where(LaunchStrategy.id == strategy_id))
+        result = await db.execute(select(PurityLaunchStrategy).where(PurityLaunchStrategy.id == strategy_id))
         strategy = result.scalar_one_or_none()
         if not strategy:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Launch strategy not found")
@@ -344,7 +344,7 @@ async def delete_launch_strategy(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LaunchStrategy).where(LaunchStrategy.id == strategy_id))
+        result = await db.execute(select(PurityLaunchStrategy).where(PurityLaunchStrategy.id == strategy_id))
         strategy = result.scalar_one_or_none()
         if not strategy:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Launch strategy not found")
@@ -363,7 +363,7 @@ async def get_mvp_blueprint(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LaunchStrategy).where(LaunchStrategy.id == blueprint_id))
+        result = await db.execute(select(PurityLaunchStrategy).where(PurityLaunchStrategy.id == blueprint_id))
         blueprint = result.scalar_one_or_none()
         if not blueprint:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MVP blueprint not found")
@@ -391,7 +391,7 @@ async def get_go_to_market_strategy(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LaunchStrategy).where(LaunchStrategy.id == gtm_id))
+        result = await db.execute(select(PurityLaunchStrategy).where(PurityLaunchStrategy.id == gtm_id))
         gtm_strategy = result.scalar_one_or_none()
         if not gtm_strategy:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Go-to-market strategy not found")
@@ -420,7 +420,7 @@ async def get_launch_timeline(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(LaunchStrategy).where(LaunchStrategy.id == timeline_id))
+        result = await db.execute(select(PurityLaunchStrategy).where(PurityLaunchStrategy.id == timeline_id))
         timeline = result.scalar_one_or_none()
         if not timeline:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Launch timeline not found")

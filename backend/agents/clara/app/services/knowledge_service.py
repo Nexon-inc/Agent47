@@ -7,7 +7,7 @@ import json
 import asyncio
 from enum import Enum
 
-from ..models import KnowledgeBase, SupportTicket, CustomerInteraction
+from ..models import ClaraKnowledgeBase, ClaraSupportTicket, ClaraCustomerInteraction
 from ..database import get_clara_database
 from core.config import settings
 from core.integrations import IntegrationManager
@@ -51,7 +51,7 @@ class KnowledgeService:
     ) -> Dict[str, Any]:
         """Get knowledge base article by ID"""
         try:
-            article = db.query(KnowledgeBase).filter(KnowledgeBase.id == article_id).first()
+            article = db.query(ClaraKnowledgeBase).filter(ClaraKnowledgeBase.id == article_id).first()
             if not article:
                 raise HTTPException(status_code=404, detail="Knowledge base article not found")
             
@@ -78,7 +78,7 @@ class KnowledgeService:
     ) -> Dict[str, Any]:
         """Create a new knowledge base article"""
         try:
-            article = KnowledgeBase(
+            article = ClaraKnowledgeBase(
                 title=title,
                 content=content,
                 category=category,
@@ -116,7 +116,7 @@ class KnowledgeService:
     ) -> Dict[str, Any]:
         """Update knowledge base article"""
         try:
-            article = db.query(KnowledgeBase).filter(KnowledgeBase.id == article_id).first()
+            article = db.query(ClaraKnowledgeBase).filter(ClaraKnowledgeBase.id == article_id).first()
             if not article:
                 raise HTTPException(status_code=404, detail="Knowledge base article not found")
             
@@ -155,7 +155,7 @@ class KnowledgeService:
     ) -> Dict[str, str]:
         """Delete knowledge base article"""
         try:
-            article = db.query(KnowledgeBase).filter(KnowledgeBase.id == article_id).first()
+            article = db.query(ClaraKnowledgeBase).filter(ClaraKnowledgeBase.id == article_id).first()
             if not article:
                 raise HTTPException(status_code=404, detail="Knowledge base article not found")
             
@@ -177,10 +177,10 @@ class KnowledgeService:
     ) -> List[Dict[str, Any]]:
         """List knowledge base articles"""
         try:
-            query = db.query(KnowledgeBase)
+            query = db.query(ClaraKnowledgeBase)
             
             if category:
-                query = query.filter(KnowledgeBase.category == category)
+                query = query.filter(ClaraKnowledgeBase.category == category)
             
             articles = query.offset(skip).limit(limit).all()
             
@@ -203,7 +203,7 @@ class KnowledgeService:
         """Check the health of knowledge base system"""
         try:
             db = next(get_db())
-            article_count = db.query(KnowledgeBase).count()
+            article_count = db.query(ClaraKnowledgeBase).count()
             
             return {
                 "status": "healthy",

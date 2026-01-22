@@ -7,7 +7,7 @@ import json
 
 from ..database import get_db
 from ..services.customer_journey_service import CustomerJourneyService
-from ..models import CustomerJourney, JourneyEvent, JourneyStage, CustomerProfile
+from ..models import ClaraCustomerJourney, ClaraJourneyEvent, ClaraJourneyStage, CustomerProfile
 from ..core.integration_manager import IntegrationManager
 from ..core.event_bus import EventBus
 
@@ -16,7 +16,7 @@ router = APIRouter()
 # Pydantic models for request/response
 class CreateJourneyRequest(BaseModel):
     customer_id: str = Field(..., description="Customer ID")
-    brand_id: Optional[int] = Field(None, description="Brand ID")
+    brand_id: Optional[int] = Field(None, description="ClaraBrand ID")
     initial_channel: str = Field(..., description="Initial contact channel")
     initial_intent: str = Field(..., description="Initial customer intent")
     source: Optional[str] = Field(None, description="Journey source (website, app, social, etc.)")

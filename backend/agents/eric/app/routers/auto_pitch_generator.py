@@ -320,15 +320,15 @@ async def get_pitch_recommendations(
         db = await get_eric_database()
         async with db.get_session() as session:
             # Get lead information
-            from ..models import Lead
+            from ..models import EricLead
             from sqlalchemy import select
             
-            query = select(Lead).where(Lead.id == lead_id)
+            query = select(EricLead).where(EricLead.id == lead_id)
             result = await session.execute(query)
             lead = result.scalar_one_or_none()
             
             if not lead:
-                raise HTTPException(status_code=404, detail="Lead not found")
+                raise HTTPException(status_code=404, detail="EricLead not found")
             
             # Analyze lead characteristics for style recommendation
             recommended_style = preferred_style or "consultative"
@@ -390,13 +390,13 @@ async def delete_pitch(pitch_id: int):
         service = AutoPitchGeneratorService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity
+            from ..models import EricSalesActivity
             from sqlalchemy import select
             
             # Find and delete the pitch activity
-            query = select(SalesActivity).where(
-                SalesActivity.id == pitch_id,
-                SalesActivity.activity_type == "pitch_generation"
+            query = select(EricSalesActivity).where(
+                EricSalesActivity.id == pitch_id,
+                EricSalesActivity.activity_type == "pitch_generation"
             )
             result = await session.execute(query)
             activity = result.scalar_one_or_none()

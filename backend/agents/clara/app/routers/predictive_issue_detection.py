@@ -7,7 +7,7 @@ import json
 
 from ..database import get_db
 from ..services.predictive_issue_detection_service import PredictiveIssueDetectionService
-from ..models import IssuePrediction, PredictionModel, SystemMetric, AlertRule, IssuePattern
+from ..models import ClaraIssuePrediction, ClaraPredictionModel, ClaraSystemMetric, ClaraAlertRule, ClaraIssuePattern
 from ..core.integration_manager import IntegrationManager
 from ..core.event_bus import EventBus
 

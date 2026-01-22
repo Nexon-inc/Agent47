@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, BrandIdentity, BusinessModel
+from ..models import PurityBusinessIdea, PurityBrandIdentity, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class CopywritingAssistantService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -94,7 +94,7 @@ class CopywritingAssistantService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -156,7 +156,7 @@ class CopywritingAssistantService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -217,7 +217,7 @@ class CopywritingAssistantService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -270,7 +270,7 @@ class CopywritingAssistantService:
     
     def _create_landing_page_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_audience: str,
         value_proposition: str,
         call_to_action: str,
@@ -331,7 +331,7 @@ class CopywritingAssistantService:
     
     def _create_ad_copy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         ad_platform: str,
         ad_type: str,
         target_audience: str,
@@ -386,7 +386,7 @@ class CopywritingAssistantService:
     
     def _create_product_description_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         product_name: str,
         product_features: List[str],
         target_audience: str,
@@ -433,7 +433,7 @@ class CopywritingAssistantService:
     
     def _create_email_copy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         email_type: str,
         target_audience: str,
         email_purpose: str,

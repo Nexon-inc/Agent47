@@ -11,7 +11,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, CustomerProfile,
+    ClaraSupportTicket, ClaraCustomerInteraction, CustomerProfile,
     TicketPriority, TicketStatus, TicketCategory, SupportChannel
 )
 
@@ -57,7 +57,7 @@ class CustomerLoyaltyService:
                     raise ValueError(f"Customer profile {customer_id} not found")
                 
                 # Get customer support history
-                tickets_query = select(SupportTicket).where(SupportTicket.customer_id == customer_id)
+                tickets_query = select(ClaraSupportTicket).where(ClaraSupportTicket.customer_id == customer_id)
                 tickets_result = await session.execute(tickets_query)
                 tickets = tickets_result.scalars().all()
                 
@@ -220,7 +220,7 @@ class CustomerLoyaltyService:
     async def _calculate_trust_score_factors(
         self,
         profile: CustomerProfile,
-        tickets: List[SupportTicket]
+        tickets: List[ClaraSupportTicket]
     ) -> float:
         """Calculate trust score based on multiple factors"""
         try:
@@ -260,7 +260,7 @@ class CustomerLoyaltyService:
     async def _predict_churn_risk(
         self,
         profile: CustomerProfile,
-        tickets: List[SupportTicket],
+        tickets: List[ClaraSupportTicket],
         trust_score: float
     ) -> float:
         """Predict customer churn risk"""
@@ -301,7 +301,7 @@ class CustomerLoyaltyService:
         else:
             return "new"
     
-    async def _calculate_avg_response_time(self, tickets: List[SupportTicket]) -> float:
+    async def _calculate_avg_response_time(self, tickets: List[ClaraSupportTicket]) -> float:
         """Calculate average response time for tickets"""
         try:
             response_times = []

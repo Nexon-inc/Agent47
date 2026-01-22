@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class SentimentAnalyzerService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -119,7 +119,7 @@ class SentimentAnalyzerService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -174,7 +174,7 @@ class SentimentAnalyzerService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -238,11 +238,11 @@ class SentimentAnalyzerService:
                 end_date = datetime.utcnow()
                 start_date = end_date - timedelta(days=time_period_days)
                 
-                content_query = select(ContentPiece).join(ContentProject).where(
+                content_query = select(ShakesContentPiece).join(ShakesContentProject).where(
                     and_(
-                        ContentProject.user_id == user_id,
-                        ContentPiece.created_at >= start_date,
-                        ContentPiece.created_at <= end_date
+                        ShakesContentProject.user_id == user_id,
+                        ShakesContentPiece.created_at >= start_date,
+                        ShakesContentPiece.created_at <= end_date
                     )
                 )
                 content_result = await session.execute(content_query)
@@ -283,7 +283,7 @@ class SentimentAnalyzerService:
             return {"success": False, "error": str(e)}
     
     async def _perform_sentiment_analysis(
-        self, content_piece: ContentPiece, analysis_depth: str, sentiment_categories: List[str]
+        self, content_piece: ShakesContentPiece, analysis_depth: str, sentiment_categories: List[str]
     ) -> Dict[str, Any]:
         """Perform sentiment analysis on content"""
         analysis_prompt = self._create_sentiment_analysis_prompt(
@@ -308,7 +308,7 @@ class SentimentAnalyzerService:
         }
     
     async def _analyze_audience_segment_sentiment(
-        self, content_piece: ContentPiece, segment: str, sentiment_metrics: List[str]
+        self, content_piece: ShakesContentPiece, segment: str, sentiment_metrics: List[str]
     ) -> Dict[str, Any]:
         """Analyze sentiment for specific audience segment"""
         segment_prompt = self._create_audience_segment_prompt(
@@ -365,7 +365,7 @@ class SentimentAnalyzerService:
         ]
     
     async def _generate_sentiment_optimization(
-        self, content_piece: ContentPiece, current_sentiment: Dict[str, Any], target_sentiment: str, optimization_goals: List[str]
+        self, content_piece: ShakesContentPiece, current_sentiment: Dict[str, Any], target_sentiment: str, optimization_goals: List[str]
     ) -> Dict[str, Any]:
         """Generate sentiment optimization strategy"""
         optimization_prompt = self._create_sentiment_optimization_prompt(
@@ -386,7 +386,7 @@ class SentimentAnalyzerService:
         }
     
     async def _generate_optimized_content(
-        self, content_piece: ContentPiece, sentiment_optimization: Dict[str, Any], target_sentiment: str
+        self, content_piece: ShakesContentPiece, sentiment_optimization: Dict[str, Any], target_sentiment: str
     ) -> str:
         """Generate optimized content with target sentiment"""
         optimization_prompt = self._create_content_optimization_prompt(
@@ -414,7 +414,7 @@ class SentimentAnalyzerService:
         return report_result
     
     async def _analyze_sentiment_trends(
-        self, content_pieces: List[ContentPiece], trend_categories: List[str], time_period_days: int
+        self, content_pieces: List[ShakesContentPiece], trend_categories: List[str], time_period_days: int
     ) -> Dict[str, Any]:
         """Analyze sentiment trends across content pieces"""
         trends = {}
@@ -518,7 +518,7 @@ class SentimentAnalyzerService:
             return 0.4
     
     def _create_sentiment_analysis_prompt(
-        self, content_piece: ContentPiece, analysis_depth: str, sentiment_categories: List[str]
+        self, content_piece: ShakesContentPiece, analysis_depth: str, sentiment_categories: List[str]
     ) -> str:
         """Create prompt for sentiment analysis"""
         return f"""
@@ -543,7 +543,7 @@ class SentimentAnalyzerService:
         """
     
     def _create_audience_segment_prompt(
-        self, content_piece: ContentPiece, segment: str, sentiment_metrics: List[str]
+        self, content_piece: ShakesContentPiece, segment: str, sentiment_metrics: List[str]
     ) -> str:
         """Create prompt for audience segment analysis"""
         return f"""
@@ -606,7 +606,7 @@ class SentimentAnalyzerService:
         """
     
     def _create_sentiment_optimization_prompt(
-        self, content_piece: ContentPiece, current_sentiment: Dict[str, Any], target_sentiment: str, optimization_goals: List[str]
+        self, content_piece: ShakesContentPiece, current_sentiment: Dict[str, Any], target_sentiment: str, optimization_goals: List[str]
     ) -> str:
         """Create prompt for sentiment optimization"""
         return f"""
@@ -628,7 +628,7 @@ class SentimentAnalyzerService:
         """
     
     def _create_content_optimization_prompt(
-        self, content_piece: ContentPiece, sentiment_optimization: Dict[str, Any], target_sentiment: str
+        self, content_piece: ShakesContentPiece, sentiment_optimization: Dict[str, Any], target_sentiment: str
     ) -> str:
         """Create prompt for content optimization"""
         return f"""

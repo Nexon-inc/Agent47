@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import VoiceAd, AudioContent, VoiceScript, AdPlatform
+from ..models import VoiceAd, AudioContent, VoiceScript, JackieAdPlatform
 
 class VoiceAdGeneratorService:
     def __init__(self, db: Session):
@@ -54,7 +54,7 @@ class VoiceAdGeneratorService:
         
         optimization_result = self.nlp_processor.optimize_for_platform(prompt)
         
-        platform_opt = AdPlatform(
+        platform_opt = JackieAdPlatform(
             id=optimization_id, platform=platform, ad_content=json.dumps(ad_content),
             platform_requirements=json.dumps(platform_requirements), optimization_data=json.dumps(optimization_result),
             created_at=datetime.utcnow()

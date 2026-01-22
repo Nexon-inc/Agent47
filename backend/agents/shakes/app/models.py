@@ -58,7 +58,7 @@ class SEOStatus(enum.Enum):
     FULLY_OPTIMIZED = "fully_optimized"
     EXPERT_OPTIMIZED = "expert_optimized"
 
-class ContentProject(Base):
+class ShakesContentProject(Base):
     __tablename__ = "content_projects"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -81,11 +81,11 @@ class ContentProject(Base):
     
     # Relationships
     user = relationship("User", backref="content_projects")
-    content_pieces = relationship("ContentPiece", back_populates="project", cascade="all, delete-orphan")
-    seo_analysis = relationship("SEOAnalysis", back_populates="project", uselist=False)
+    content_pieces = relationship("ShakesContentPiece", back_populates="project", cascade="all, delete-orphan")
+    seo_analysis = relationship("ShakesSEOAnalysis", back_populates="project", uselist=False)
     performance_metrics = relationship("ContentPerformance", back_populates="project", cascade="all, delete-orphan")
 
-class ContentPiece(Base):
+class ShakesContentPiece(Base):
     __tablename__ = "shakes_content_pieces"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -109,12 +109,12 @@ class ContentPiece(Base):
     published_at = Column(DateTime(timezone=True))
     
     # Relationships
-    project = relationship("ContentProject", back_populates="content_pieces")
-    versions = relationship("ContentVersion", back_populates="content_piece", cascade="all, delete-orphan")
-    seo_analysis = relationship("SEOAnalysis", back_populates="content_piece", uselist=False)
+    project = relationship("ShakesContentProject", back_populates="content_pieces")
+    versions = relationship("ShakesContentVersion", back_populates="content_piece", cascade="all, delete-orphan")
+    seo_analysis = relationship("ShakesSEOAnalysis", back_populates="content_piece", uselist=False)
     performance_metrics = relationship("ContentPerformance", back_populates="content_piece", cascade="all, delete-orphan")
 
-class ContentVersion(Base):
+class ShakesContentVersion(Base):
     __tablename__ = "content_versions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -126,10 +126,10 @@ class ContentVersion(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    content_piece = relationship("ContentPiece", back_populates="versions", foreign_keys=[content_piece_id])
+    content_piece = relationship("ShakesContentPiece", back_populates="versions", foreign_keys=[content_piece_id])
     creator = relationship("User", foreign_keys=[created_by])
 
-class SEOAnalysis(Base):
+class ShakesSEOAnalysis(Base):
     __tablename__ = "seo_analysis"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -152,8 +152,8 @@ class SEOAnalysis(Base):
     analyzed_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    project = relationship("ContentProject", back_populates="seo_analysis")
-    content_piece = relationship("ContentPiece", back_populates="seo_analysis", foreign_keys=[content_piece_id])
+    project = relationship("ShakesContentProject", back_populates="seo_analysis")
+    content_piece = relationship("ShakesContentPiece", back_populates="seo_analysis", foreign_keys=[content_piece_id])
 
 class ContentPerformance(Base):
     __tablename__ = "content_performance"
@@ -178,10 +178,10 @@ class ContentPerformance(Base):
     measured_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    project = relationship("ContentProject", back_populates="performance_metrics")
-    content_piece = relationship("ContentPiece", back_populates="performance_metrics", foreign_keys=[content_piece_id])
+    project = relationship("ShakesContentProject", back_populates="performance_metrics")
+    content_piece = relationship("ShakesContentPiece", back_populates="performance_metrics", foreign_keys=[content_piece_id])
 
-class BrandVoice(Base):
+class ShakesBrandVoice(Base):
     __tablename__ = "shakes_brand_voices"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -199,7 +199,7 @@ class BrandVoice(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    user = relationship("User", backref="brand_voices")
+    user = relationship("User", backref="shakes_brand_voices")
 
 class ContentTemplate(Base):
     __tablename__ = "content_templates"
@@ -250,7 +250,7 @@ class ScheduledContent(Base):
     
     # Relationships
     calendar = relationship("ContentCalendar", back_populates="scheduled_content")
-    content_piece = relationship("ContentPiece", foreign_keys=[content_piece_id])
+    content_piece = relationship("ShakesContentPiece", foreign_keys=[content_piece_id])
 
 class ContentCollaboration(Base):
     __tablename__ = "content_collaboration"
@@ -264,7 +264,7 @@ class ContentCollaboration(Base):
     status = Column(String(20), default="assigned")  # assigned, in_progress, completed, overdue
     
     # Relationships
-    project = relationship("ContentProject")
+    project = relationship("ShakesContentProject")
     user = relationship("User")
 
 class ContentComment(Base):
@@ -280,7 +280,7 @@ class ContentComment(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    content_piece = relationship("ContentPiece", foreign_keys=[content_piece_id])
+    content_piece = relationship("ShakesContentPiece", foreign_keys=[content_piece_id])
     user = relationship("User", foreign_keys=[user_id])
     parent_comment = relationship("ContentComment", remote_side=[id], foreign_keys=[parent_comment_id])
     replies = relationship("ContentComment", back_populates="parent_comment")
@@ -303,12 +303,12 @@ class ContentAnalytics(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    content_piece = relationship("ContentPiece", foreign_keys=[content_piece_id])
+    content_piece = relationship("ShakesContentPiece", foreign_keys=[content_piece_id])
 
 # Indexes for performance
-Index("idx_content_projects_user_status", ContentProject.user_id, ContentProject.status)
-Index("idx_content_pieces_project_status", ContentPiece.project_id, ContentPiece.status)
-Index("idx_seo_analysis_project", SEOAnalysis.project_id)
+Index("idx_content_projects_user_status", ShakesContentProject.user_id, ShakesContentProject.status)
+Index("idx_content_pieces_project_status", ShakesContentPiece.project_id, ShakesContentPiece.status)
+Index("idx_seo_analysis_project", ShakesSEOAnalysis.project_id)
 Index("idx_content_performance_piece", ContentPerformance.content_piece_id)
 Index("idx_scheduled_content_time", ScheduledContent.scheduled_time)
 Index("idx_content_collaboration_user", ContentCollaboration.user_id)

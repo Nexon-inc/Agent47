@@ -12,8 +12,8 @@ from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep
 )
 
 logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ class AISalesTrainingService:
                 ]
             },
             "objection_handling": {
-                "name": "Objection Handling Mastery",
+                "name": "EricObjection Handling Mastery",
                 "description": "Master the art of handling customer objections effectively",
                 "duration": 90,
                 "difficulty": "advanced",
@@ -155,7 +155,7 @@ class AISalesTrainingService:
             db = await get_eric_database()
             async with db.get_session() as session:
                 rep = await session.execute(
-                    select(SalesRep).where(SalesRep.id == rep_id)
+                    select(EricSalesRep).where(EricSalesRep.id == rep_id)
                 )
                 rep = rep.scalar_one_or_none()
                 
@@ -192,33 +192,33 @@ class AISalesTrainingService:
             start_date = datetime.utcnow() - timedelta(days=90)
             
             deals = await session.execute(
-                select(Deal).where(
-                    Deal.assigned_to == rep_id,
-                    Deal.created_at >= start_date
+                select(EricDeal).where(
+                    EricDeal.assigned_to == rep_id,
+                    EricDeal.created_at >= start_date
                 )
             )
             deals = deals.scalars().all()
             
             leads = await session.execute(
-                select(Lead).where(
-                    Lead.assigned_to == rep_id,
-                    Lead.created_at >= start_date
+                select(EricLead).where(
+                    EricLead.assigned_to == rep_id,
+                    EricLead.created_at >= start_date
                 )
             )
             leads = leads.scalars().all()
             
             objections = await session.execute(
-                select(Objection).where(
-                    Objection.assigned_to == rep_id,
-                    Objection.created_at >= start_date
+                select(EricObjection).where(
+                    EricObjection.assigned_to == rep_id,
+                    EricObjection.created_at >= start_date
                 )
             )
             objections = objections.scalars().all()
             
             activities = await session.execute(
-                select(SalesActivity).where(
-                    SalesActivity.assigned_to == rep_id,
-                    SalesActivity.created_at >= start_date
+                select(EricSalesActivity).where(
+                    EricSalesActivity.assigned_to == rep_id,
+                    EricSalesActivity.created_at >= start_date
                 )
             )
             activities = activities.scalars().all()
@@ -551,10 +551,10 @@ class AISalesTrainingService:
         """Calculate average response time for a sales rep"""
         try:
             interactions = await session.execute(
-                select(LeadInteraction).where(
-                    LeadInteraction.assigned_to == rep_id,
-                    LeadInteraction.created_at >= start_date,
-                    LeadInteraction.response_time.isnot(None)
+                select(EricLeadInteraction).where(
+                    EricLeadInteraction.assigned_to == rep_id,
+                    EricLeadInteraction.created_at >= start_date,
+                    EricLeadInteraction.response_time.isnot(None)
                 )
             )
             interactions = interactions.scalars().all()
@@ -633,7 +633,7 @@ class AISalesTrainingService:
             if training_type == "objection_handling":
                 content_modules = [
                     {
-                        "module_name": "Price Objection Handling",
+                        "module_name": "Price EricObjection Handling",
                         "duration_minutes": 15,
                         "content_type": "video",
                         "difficulty": "intermediate",
@@ -644,7 +644,7 @@ class AISalesTrainingService:
                         ]
                     },
                     {
-                        "module_name": "Timeline Objection Handling",
+                        "module_name": "Timeline EricObjection Handling",
                         "duration_minutes": 12,
                         "content_type": "interactive",
                         "difficulty": "beginner",
@@ -688,7 +688,7 @@ class AISalesTrainingService:
                         "content_type": "video",
                         "difficulty": "beginner",
                         "key_points": [
-                            "Lead qualification criteria",
+                            "EricLead qualification criteria",
                             "Cold calling techniques",
                             "Follow-up strategies"
                         ]

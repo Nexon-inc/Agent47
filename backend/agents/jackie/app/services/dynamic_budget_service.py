@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import BudgetAllocation, AllocationRule, PerformanceThreshold, BudgetAdjustment
+from ..models import JackieBudgetAllocation, AllocationRule, JackiePerformanceThreshold, JackieBudgetAdjustment
 
 class DynamicBudgetService:
     def __init__(self, db: Session):
@@ -27,7 +27,7 @@ class DynamicBudgetService:
         
         allocation_result = self.nlp_processor.create_budget_allocation(prompt)
         
-        allocation = BudgetAllocation(
+        allocation = JackieBudgetAllocation(
             id=allocation_id, campaign_id=campaign_id, total_budget=total_budget,
             allocation_rules=json.dumps(allocation_rules), allocation_data=json.dumps(allocation_result),
             created_at=datetime.utcnow()
@@ -49,7 +49,7 @@ class DynamicBudgetService:
         
         adjustment_result = self.nlp_processor.adjust_budget_based_on_performance(prompt)
         
-        adjustment = BudgetAdjustment(
+        adjustment = JackieBudgetAdjustment(
             id=adjustment_id, campaign_id=campaign_id, current_performance=json.dumps(current_performance),
             adjustment_data=json.dumps(adjustment_result), created_at=datetime.utcnow()
         )
@@ -70,7 +70,7 @@ class DynamicBudgetService:
         
         threshold_result = self.nlp_processor.set_performance_thresholds(prompt)
         
-        threshold = PerformanceThreshold(
+        threshold = JackiePerformanceThreshold(
             id=threshold_id, threshold_type=threshold_type, threshold_values=json.dumps(threshold_values),
             threshold_config=json.dumps(threshold_result), created_at=datetime.utcnow()
         )
@@ -82,9 +82,9 @@ class DynamicBudgetService:
     def get_dynamic_budget_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        allocations_created = self.db.query(BudgetAllocation).filter(BudgetAllocation.created_at >= cutoff_date).count()
-        adjustments_made = self.db.query(BudgetAdjustment).filter(BudgetAdjustment.created_at >= cutoff_date).count()
-        thresholds_set = self.db.query(PerformanceThreshold).filter(PerformanceThreshold.created_at >= cutoff_date).count()
+        allocations_created = self.db.query(JackieBudgetAllocation).filter(JackieBudgetAllocation.created_at >= cutoff_date).count()
+        adjustments_made = self.db.query(JackieBudgetAdjustment).filter(JackieBudgetAdjustment.created_at >= cutoff_date).count()
+        thresholds_set = self.db.query(JackiePerformanceThreshold).filter(JackiePerformanceThreshold.created_at >= cutoff_date).count()
         
         return {
             "timeframe": timeframe, "allocations_created": allocations_created,

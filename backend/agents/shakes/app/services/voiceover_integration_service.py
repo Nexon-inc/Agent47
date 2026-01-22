@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class VoiceoverIntegrationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -108,7 +108,7 @@ class VoiceoverIntegrationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -205,7 +205,7 @@ class VoiceoverIntegrationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -249,7 +249,7 @@ class VoiceoverIntegrationService:
             return {"success": False, "error": str(e)}
     
     async def _prepare_voiceover_script(
-        self, content_piece: ContentPiece, voice_characteristics: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, voice_characteristics: Dict[str, Any]
     ) -> str:
         """Prepare content for voiceover generation"""
         script_prompt = self._create_script_preparation_prompt(
@@ -349,7 +349,7 @@ class VoiceoverIntegrationService:
         }
     
     async def _generate_translations(
-        self, content_piece: ContentPiece, target_languages: List[str], translation_style: str
+        self, content_piece: ShakesContentPiece, target_languages: List[str], translation_style: str
     ) -> Dict[str, str]:
         """Generate translations for content"""
         translations = {}
@@ -600,7 +600,7 @@ class VoiceoverIntegrationService:
             return []
     
     async def _generate_optimized_script(
-        self, content_piece: ContentPiece, script_style: str, target_duration: int
+        self, content_piece: ShakesContentPiece, script_style: str, target_duration: int
     ) -> str:
         """Generate optimized voiceover script"""
         script_prompt = self._create_optimized_script_prompt(
@@ -674,7 +674,7 @@ class VoiceoverIntegrationService:
         ]
     
     def _create_script_preparation_prompt(
-        self, content_piece: ContentPiece, voice_characteristics: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, voice_characteristics: Dict[str, Any]
     ) -> str:
         """Create prompt for script preparation"""
         return f"""
@@ -694,7 +694,7 @@ class VoiceoverIntegrationService:
         """
     
     def _create_translation_prompt(
-        self, content_piece: ContentPiece, language: str, translation_style: str
+        self, content_piece: ShakesContentPiece, language: str, translation_style: str
     ) -> str:
         """Create prompt for translation"""
         return f"""
@@ -735,7 +735,7 @@ class VoiceoverIntegrationService:
         """
     
     def _create_optimized_script_prompt(
-        self, content_piece: ContentPiece, script_style: str, target_duration: int
+        self, content_piece: ShakesContentPiece, script_style: str, target_duration: int
     ) -> str:
         """Create prompt for optimized script"""
         return f"""

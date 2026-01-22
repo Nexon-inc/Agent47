@@ -8,7 +8,7 @@ from ..services.objection_handling_service import ObjectionHandlingService, Obje
 from ..database import get_eric_database
 from core.cache.redis_manager import RedisManager
 
-router = APIRouter(prefix="/objection-handling", tags=["Objection Handling"])
+router = APIRouter(prefix="/objection-handling", tags=["EricObjection Handling"])
 objection_service = ObjectionHandlingService()
 redis_manager = RedisManager()
 
@@ -33,8 +33,8 @@ class OutcomeRecordRequest(BaseModel):
     customer_reaction: str
     outcome: str  # resolved, escalated, lost
 
-# Objection Analysis Endpoints
-@router.post("/analyze", response_model=ObjectionAnalysis, summary="Analyze Objection")
+# EricObjection Analysis Endpoints
+@router.post("/analyze", response_model=ObjectionAnalysis, summary="Analyze EricObjection")
 async def analyze_objection(request: ObjectionAnalysisRequest):
     """Analyze an objection and suggest responses"""
     try:
@@ -48,7 +48,7 @@ async def analyze_objection(request: ObjectionAnalysisRequest):
         logger.error(f"Failed to analyze objection: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/sessions", response_model=ObjectionHandlingSession, summary="Create Objection Handling Session")
+@router.post("/sessions", response_model=ObjectionHandlingSession, summary="Create EricObjection Handling Session")
 async def create_objection_handling_session(session_data: ObjectionHandlingSessionCreate):
     """Create a new objection handling session"""
     try:
@@ -63,7 +63,7 @@ async def create_objection_handling_session(session_data: ObjectionHandlingSessi
         logger.error(f"Failed to create objection handling session: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/sessions/{session_id}", response_model=ObjectionHandlingSession, summary="Get Objection Handling Session")
+@router.get("/sessions/{session_id}", response_model=ObjectionHandlingSession, summary="Get EricObjection Handling Session")
 async def get_objection_handling_session(session_id: int):
     """Get an objection handling session by ID"""
     try:
@@ -119,8 +119,8 @@ async def record_outcome(session_id: int, request: OutcomeRecordRequest):
         logger.error(f"Failed to record outcome: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-# Objection Types and Responses Endpoints
-@router.get("/objection-types", response_model=List[ObjectionType], summary="Get Objection Types")
+# EricObjection Types and Responses Endpoints
+@router.get("/objection-types", response_model=List[ObjectionType], summary="Get EricObjection Types")
 async def get_objection_types():
     """Get all objection types"""
     try:
@@ -130,7 +130,7 @@ async def get_objection_types():
         logger.error(f"Failed to get objection types: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/objection-types/{objection_type}/responses", response_model=List[ObjectionResponse], summary="Get Responses for Objection Type")
+@router.get("/objection-types/{objection_type}/responses", response_model=List[ObjectionResponse], summary="Get Responses for EricObjection Type")
 async def get_responses_for_objection_type(objection_type: str):
     """Get responses for a specific objection type"""
     try:
@@ -141,7 +141,7 @@ async def get_responses_for_objection_type(objection_type: str):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # Analytics Endpoints
-@router.get("/analytics", summary="Get Objection Handling Analytics")
+@router.get("/analytics", summary="Get EricObjection Handling Analytics")
 async def get_objection_handling_analytics(lead_id: int = None, sales_rep_id: int = None, date_range: str = "30d"):
     """Get analytics for objection handling"""
     try:
@@ -151,7 +151,7 @@ async def get_objection_handling_analytics(lead_id: int = None, sales_rep_id: in
         logger.error(f"Failed to get objection handling analytics: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/analytics/objection-types", summary="Get Objection Type Analytics")
+@router.get("/analytics/objection-types", summary="Get EricObjection Type Analytics")
 async def get_objection_type_analytics():
     """Get analytics for objection types"""
     try:
@@ -232,7 +232,7 @@ async def get_response_effectiveness_analytics():
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # Training and Improvement Endpoints
-@router.post("/feedback", summary="Submit Objection Handling Feedback")
+@router.post("/feedback", summary="Submit EricObjection Handling Feedback")
 async def submit_objection_handling_feedback():
     """Submit feedback for objection handling improvement"""
     try:
@@ -274,7 +274,7 @@ async def get_training_suggestions(sales_rep_id: int = None):
             "training_modules": [
                 "Advanced ROI Calculation",
                 "Competitive Differentiation",
-                "Objection Prevention Strategies"
+                "EricObjection Prevention Strategies"
             ]
         }
         return suggestions
@@ -283,7 +283,7 @@ async def get_training_suggestions(sales_rep_id: int = None):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # Utility Endpoints
-@router.get("/common-phrases", summary="Get Common Objection Phrases")
+@router.get("/common-phrases", summary="Get Common EricObjection Phrases")
 async def get_common_objection_phrases():
     """Get common phrases for each objection type"""
     try:
@@ -387,16 +387,16 @@ async def get_escalation_criteria():
         raise HTTPException(status_code=500, detail="Internal server error")
 
 # Health Check Endpoint
-@router.get("/health", summary="Objection Handling Health Check")
+@router.get("/health", summary="EricObjection Handling Health Check")
 async def health_check():
     """Check the health of the objection handling service"""
     try:
         return {
             "status": "healthy",
-            "service": "Objection Handling",
+            "service": "EricObjection Handling",
             "timestamp": datetime.utcnow().isoformat(),
             "features": [
-                "Objection Analysis",
+                "EricObjection Analysis",
                 "Response Suggestions",
                 "Session Management",
                 "Analytics and Reporting",

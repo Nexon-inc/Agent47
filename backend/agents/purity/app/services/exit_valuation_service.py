@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, ExitValuation, BusinessModel
+from ..models import PurityBusinessIdea, PurityExitValuation, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -27,7 +27,7 @@ class ExitValuationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -94,7 +94,7 @@ class ExitValuationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -153,7 +153,7 @@ class ExitValuationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -203,7 +203,7 @@ class ExitValuationService:
     
     def _create_valuation_estimate_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         current_revenue: float,
         growth_rate: float,
         profit_margins: float,
@@ -268,7 +268,7 @@ class ExitValuationService:
     
     def _create_exit_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         exit_timeline: str,
         exit_type: str,
         target_buyers: List[str],
@@ -338,7 +338,7 @@ class ExitValuationService:
     
     def _create_exit_scenarios_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         exit_scenarios: List[str],
         market_conditions: Dict[str, Any],
         timing_factors: Dict[str, Any]

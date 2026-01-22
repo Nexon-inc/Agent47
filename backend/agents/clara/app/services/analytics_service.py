@@ -7,7 +7,7 @@ import json
 import asyncio
 from enum import Enum
 
-from ..models import SupportAnalytics, SupportTicket, CustomerInteraction, SupportAgent
+from ..models import ClaraSupportAnalytics, ClaraSupportTicket, ClaraCustomerInteraction, ClaraSupportAgent
 from ..database import get_clara_database
 from core.config import settings
 from core.integrations import IntegrationManager
@@ -31,23 +31,23 @@ class AnalyticsService:
         """Get comprehensive support analytics"""
         try:
             # Build base queries
-            tickets_query = db.query(SupportTicket).filter(
+            tickets_query = db.query(ClaraSupportTicket).filter(
                 and_(
-                    SupportTicket.created_at >= start_date,
-                    SupportTicket.created_at <= end_date
+                    ClaraSupportTicket.created_at >= start_date,
+                    ClaraSupportTicket.created_at <= end_date
                 )
             )
             
-            interactions_query = db.query(CustomerInteraction).filter(
+            interactions_query = db.query(ClaraCustomerInteraction).filter(
                 and_(
-                    CustomerInteraction.created_at >= start_date,
-                    CustomerInteraction.created_at <= end_date
+                    ClaraCustomerInteraction.created_at >= start_date,
+                    ClaraCustomerInteraction.created_at <= end_date
                 )
             )
             
             if agent_id:
-                tickets_query = tickets_query.filter(SupportTicket.assigned_agent_id == agent_id)
-                interactions_query = interactions_query.filter(CustomerInteraction.agent_id == agent_id)
+                tickets_query = tickets_query.filter(ClaraSupportTicket.assigned_agent_id == agent_id)
+                interactions_query = interactions_query.filter(ClaraCustomerInteraction.agent_id == agent_id)
             
             tickets = tickets_query.all()
             interactions = interactions_query.all()
@@ -109,9 +109,9 @@ class AnalyticsService:
         try:
             # Get all agents if no specific agent_id
             if agent_id:
-                agents = [db.query(SupportAgent).filter(SupportAgent.id == agent_id).first()]
+                agents = [db.query(ClaraSupportAgent).filter(ClaraSupportAgent.id == agent_id).first()]
             else:
-                agents = db.query(SupportAgent).all()
+                agents = db.query(ClaraSupportAgent).all()
             
             performance_data = []
             
@@ -120,20 +120,20 @@ class AnalyticsService:
                     continue
                 
                 # Get agent's tickets
-                tickets = db.query(SupportTicket).filter(
+                tickets = db.query(ClaraSupportTicket).filter(
                     and_(
-                        SupportTicket.assigned_agent_id == agent.id,
-                        SupportTicket.created_at >= start_date,
-                        SupportTicket.created_at <= end_date
+                        ClaraSupportTicket.assigned_agent_id == agent.id,
+                        ClaraSupportTicket.created_at >= start_date,
+                        ClaraSupportTicket.created_at <= end_date
                     )
                 ).all()
                 
                 # Get agent's interactions
-                interactions = db.query(CustomerInteraction).filter(
+                interactions = db.query(ClaraCustomerInteraction).filter(
                     and_(
-                        CustomerInteraction.agent_id == agent.id,
-                        CustomerInteraction.created_at >= start_date,
-                        CustomerInteraction.created_at <= end_date
+                        ClaraCustomerInteraction.agent_id == agent.id,
+                        ClaraCustomerInteraction.created_at >= start_date,
+                        ClaraCustomerInteraction.created_at <= end_date
                     )
                 ).all()
                 
@@ -177,17 +177,17 @@ class AnalyticsService:
                 next_date = current_date + timedelta(days=1)
                 
                 if metric == "tickets":
-                    count = db.query(SupportTicket).filter(
+                    count = db.query(ClaraSupportTicket).filter(
                         and_(
-                            SupportTicket.created_at >= current_date,
-                            SupportTicket.created_at < next_date
+                            ClaraSupportTicket.created_at >= current_date,
+                            ClaraSupportTicket.created_at < next_date
                         )
                     ).count()
                 elif metric == "interactions":
-                    count = db.query(CustomerInteraction).filter(
+                    count = db.query(ClaraCustomerInteraction).filter(
                         and_(
-                            CustomerInteraction.created_at >= current_date,
-                            CustomerInteraction.created_at < next_date
+                            ClaraCustomerInteraction.created_at >= current_date,
+                            ClaraCustomerInteraction.created_at < next_date
                         )
                     ).count()
                 else:
@@ -213,7 +213,7 @@ class AnalyticsService:
     ) -> Dict[str, str]:
         """Log analytics event"""
         try:
-            analytics = SupportAnalytics(
+            analytics = ClaraSupportAnalytics(
                 event_type=event_type,
                 event_data=event_data,
                 created_at=datetime.utcnow()
@@ -232,9 +232,9 @@ class AnalyticsService:
         """Check the health of analytics system"""
         try:
             db = next(get_db())
-            analytics_count = db.query(SupportAnalytics).count()
-            tickets_count = db.query(SupportTicket).count()
-            interactions_count = db.query(CustomerInteraction).count()
+            analytics_count = db.query(ClaraSupportAnalytics).count()
+            tickets_count = db.query(ClaraSupportTicket).count()
+            interactions_count = db.query(ClaraCustomerInteraction).count()
             
             return {
                 "status": "healthy",
@@ -254,7 +254,7 @@ class AnalyticsService:
                 "last_check": datetime.utcnow().isoformat()
             }
     
-    def _calculate_avg_resolution_time(self, tickets: List[SupportTicket]) -> float:
+    def _calculate_avg_resolution_time(self, tickets: List[ClaraSupportTicket]) -> float:
         """Calculate average resolution time in hours"""
         resolved_tickets = [t for t in tickets if t.status == "resolved" and t.resolved_at]
         
@@ -268,7 +268,7 @@ class AnalyticsService:
         
         return total_hours / len(resolved_tickets)
     
-    def _calculate_customer_satisfaction(self, interactions: List[CustomerInteraction]) -> float:
+    def _calculate_customer_satisfaction(self, interactions: List[ClaraCustomerInteraction]) -> float:
         """Calculate customer satisfaction score"""
         satisfaction_interactions = [i for i in interactions if i.satisfaction_score is not None]
         

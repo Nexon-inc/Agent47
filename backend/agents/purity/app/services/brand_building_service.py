@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, BrandIdentity, BusinessModel
+from ..models import PurityBusinessIdea, PurityBrandIdentity, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,10 +26,10 @@ class BrandBuildingService:
         brand_values: List[str],
         color_preferences: Optional[List[str]] = None,
         style_preferences: Optional[str] = None
-    ) -> BrandIdentity:
+    ) -> PurityBrandIdentity:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -57,7 +57,7 @@ class BrandBuildingService:
             ai_response = ai_response_obj.text_content if ai_response_obj.success else "{}"
             brand_data = json.loads(ai_response)
             
-            brand_identity = BrandIdentity(
+            brand_identity = PurityBrandIdentity(
                 business_idea_id=business_idea_id,
                 brand_name=brand_name,
                 industry=industry,
@@ -98,7 +98,7 @@ class BrandBuildingService:
     ) -> Dict[str, Any]:
         try:
             brand_identity_result = await db.execute(
-                select(BrandIdentity).where(BrandIdentity.id == brand_identity_id)
+                select(PurityBrandIdentity).where(PurityBrandIdentity.id == brand_identity_id)
             )
             brand_identity = brand_identity_result.scalar_one_or_none()
             if not brand_identity:
@@ -153,7 +153,7 @@ class BrandBuildingService:
     ) -> Dict[str, Any]:
         try:
             brand_identity_result = await db.execute(
-                select(BrandIdentity).where(BrandIdentity.id == brand_identity_id)
+                select(PurityBrandIdentity).where(PurityBrandIdentity.id == brand_identity_id)
             )
             brand_identity = brand_identity_result.scalar_one_or_none()
             if not brand_identity:
@@ -208,7 +208,7 @@ class BrandBuildingService:
     ) -> Dict[str, Any]:
         try:
             brand_identity_result = await db.execute(
-                select(BrandIdentity).where(BrandIdentity.id == brand_identity_id)
+                select(PurityBrandIdentity).where(PurityBrandIdentity.id == brand_identity_id)
             )
             brand_identity = brand_identity_result.scalar_one_or_none()
             if not brand_identity:
@@ -264,10 +264,10 @@ class BrandBuildingService:
         brand_values: List[str],
         color_preferences: Optional[List[str]] = None,
         style_preferences: Optional[str] = None
-    ) -> BrandIdentity:
+    ) -> PurityBrandIdentity:
         try:
             result = await db.execute(
-                select(BrandIdentity).where(BrandIdentity.id == identity_id)
+                select(PurityBrandIdentity).where(PurityBrandIdentity.id == identity_id)
             )
             brand_identity = result.scalar_one_or_none()
             if not brand_identity:
@@ -355,7 +355,7 @@ class BrandBuildingService:
     
     def _create_logo_generation_prompt(
         self,
-        brand_identity: BrandIdentity,
+        brand_identity: PurityBrandIdentity,
         logo_style: str,
         color_scheme: List[str],
         logo_type: str,
@@ -399,7 +399,7 @@ class BrandBuildingService:
     
     def _create_slogan_development_prompt(
         self,
-        brand_identity: BrandIdentity,
+        brand_identity: PurityBrandIdentity,
         tone: str,
         length_preference: str,
         key_message: str,
@@ -437,7 +437,7 @@ class BrandBuildingService:
     
     def _create_style_guide_prompt(
         self,
-        brand_identity: BrandIdentity,
+        brand_identity: PurityBrandIdentity,
         include_logo_usage: bool,
         include_color_palette: bool,
         include_typography: bool,

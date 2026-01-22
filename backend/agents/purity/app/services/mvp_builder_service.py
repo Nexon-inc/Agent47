@@ -7,7 +7,7 @@ from sqlalchemy import select, insert, update, delete
 from sqlalchemy.orm import selectinload
 
 from ..database import get_purity_database
-from ..models import MVPBlueprint, BusinessIdea
+from ..models import PurityMVPBlueprint, PurityBusinessIdea
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -123,7 +123,7 @@ class MVPBuilderService:
                 "created_at": datetime.utcnow()
             }
 
-            stmt = insert(MVPBlueprint).values(**mvp_blueprint)
+            stmt = insert(PurityMVPBlueprint).values(**mvp_blueprint)
             await db.execute(stmt)
             await db.commit()
 
@@ -150,7 +150,7 @@ class MVPBuilderService:
         market_validation: Dict[str, Any]
     ) -> Dict[str, Any]:
         try:
-            stmt = select(MVPBlueprint).where(MVPBlueprint.id == mvp_blueprint_id)
+            stmt = select(PurityMVPBlueprint).where(PurityMVPBlueprint.id == mvp_blueprint_id)
             result = await db.execute(stmt)
             blueprint = result.scalar_one_or_none()
 
@@ -236,7 +236,7 @@ class MVPBuilderService:
         budget_constraints: Dict[str, Any]
     ) -> Dict[str, Any]:
         try:
-            stmt = select(MVPBlueprint).where(MVPBlueprint.id == mvp_blueprint_id)
+            stmt = select(PurityMVPBlueprint).where(PurityMVPBlueprint.id == mvp_blueprint_id)
             result = await db.execute(stmt)
             blueprint = result.scalar_one_or_none()
 
@@ -333,7 +333,7 @@ class MVPBuilderService:
         validation_criteria: Dict[str, Any]
     ) -> Dict[str, Any]:
         try:
-            stmt = select(MVPBlueprint).where(MVPBlueprint.id == mvp_blueprint_id)
+            stmt = select(PurityMVPBlueprint).where(PurityMVPBlueprint.id == mvp_blueprint_id)
             result = await db.execute(stmt)
             blueprint = result.scalar_one_or_none()
 

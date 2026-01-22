@@ -6,9 +6,9 @@ from sqlalchemy.orm import selectinload
 import logging
 
 from ..models import (
-    SocialAccount, AccountGroup, BrandProfile, Campaign, 
-    ScheduledPost, PublishedPost, EngagementEvent, AnalyticsSnapshot,
-    PlatformEnum, PostStatus, ApprovalStatus
+    AriaSocialAccount, AriaAccountGroup, AriaBrandProfile, AriaCampaign, 
+    AriaScheduledPost, AriaPublishedPost, AriaEngagementEvent, AriaAnalyticsSnapshot,
+    PlatformEnum, AriaPostStatus, ApprovalStatus
 )
 from ..database import get_db
 from core.ai import get_ai_service_manager, AIServiceManager
@@ -346,7 +346,7 @@ class AriaChatService:
                 tasks["completion_criteria"] = [
                     f"All {tasks['total_tasks']} campaign phases must be detailed",
                     "Each phase must include: content themes, posting schedule, engagement tactics, and KPIs",
-                    f"Campaign must cover: {', '.join(tasks['platforms'])}"
+                    f"AriaCampaign must cover: {', '.join(tasks['platforms'])}"
                 ]
         
         # Detect numbered list requests (post ideas, hashtag sets, etc.)
@@ -681,7 +681,7 @@ class AriaChatService:
                         service_result = {"success": False, "message": "I can help you connect social media platforms. Which platform would you like to connect?"}
                 
                 elif detected_intent == "approval":
-                    # Approval service - workflow guidance
+                    # AriaApproval service - workflow guidance
                     if any(word in message.lower() for word in ["request", "create", "new"]):
                         service_result = {"success": False, "message": "To request approval, provide: scheduled post ID and reviewer emails"}
                     elif any(word in message.lower() for word in ["approve", "reject", "decide"]):
@@ -952,7 +952,7 @@ Your full capabilities include:
 6. **Advertising**
    - Instagram ad campaigns (via Facebook Marketing API)
    - LinkedIn ad campaigns
-   - Campaign management and optimization
+   - AriaCampaign management and optimization
    - Budget tracking
 
 7. **Engagement**
@@ -985,10 +985,10 @@ Your full capabilities include:
    - Platform authorization management
    - Token management and refresh
 
-13. **Approval Workflows**
+13. **AriaApproval Workflows**
    - Post approval requests
    - Multi-reviewer approval system
-   - Approval status tracking
+   - AriaApproval status tracking
 
 14. **A/B Testing**
    - Content variant testing
@@ -1476,10 +1476,10 @@ Model: {service_result.get('model', 'unknown')}"""
                 return f"Analytics Summary: {service_result}"
             
             elif intent == "ads":
-                return f"Ad Campaign: {service_result}"
+                return f"Ad AriaCampaign: {service_result}"
             
             elif intent == "geo_campaigns":
-                return f"Geo-Campaign: {service_result}"
+                return f"Geo-AriaCampaign: {service_result}"
             
             elif intent == "engagement":
                 if "engagement_score" in service_result:
@@ -1527,13 +1527,13 @@ Model: {service_result.get('model', 'unknown')}"""
             
             elif intent == "approval":
                 if "approval_id" in service_result:
-                    return f"""Approval Request Created:
-- Approval ID: {service_result.get('approval_id')}
+                    return f"""AriaApproval Request Created:
+- AriaApproval ID: {service_result.get('approval_id')}
 - Status: {service_result.get('status', 'pending')}"""
                 elif "status" in service_result:
-                    return f"Approval Decision: {service_result.get('status', 'unknown')}"
+                    return f"AriaApproval Decision: {service_result.get('status', 'unknown')}"
                 else:
-                    return service_result.get("message", "Approval service result")
+                    return service_result.get("message", "AriaApproval service result")
             
             elif intent == "ab_testing":
                 if "winner" in service_result:
@@ -1687,7 +1687,7 @@ Your content will be automatically posted at optimal times each day."""
             "scheduling": ["Best posting times", "Create posting calendar", "Schedule posts", "Optimize frequency"],
             "analytics": ["Performance overview", "Engagement analysis", "Audience insights", "Growth trends"],
             "trends": ["Trending topics", "Popular hashtags", "Competitor analysis", "Content suggestions"],
-            "ads": ["Instagram ads", "LinkedIn ads", "Campaign creation", "Ad optimization"],
+            "ads": ["Instagram ads", "LinkedIn ads", "AriaCampaign creation", "Ad optimization"],
             "geo_campaigns": ["African markets", "Global regions", "Local targeting", "Cultural insights"]
         }
         

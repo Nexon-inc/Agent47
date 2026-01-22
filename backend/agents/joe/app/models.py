@@ -146,7 +146,7 @@ class ConsumerBehavior(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class IndustryReport(Base):
+class JoeIndustryReport(Base):
     __tablename__ = "industry_reports"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -162,7 +162,7 @@ class IndustryReport(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class SocialMediaListening(Base):
+class JoeSocialMediaListening(Base):
     __tablename__ = "social_media_listening"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -178,7 +178,7 @@ class SocialMediaListening(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class DataScraping(Base):
+class JoeDataScraping(Base):
     __tablename__ = "data_scraping"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -193,7 +193,7 @@ class DataScraping(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class TrendForecast(Base):
+class JoeTrendForecast(Base):
     __tablename__ = "trend_forecasts"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -209,7 +209,7 @@ class TrendForecast(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class NicheMarket(Base):
+class JoeNicheMarket(Base):
     __tablename__ = "niche_markets"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -226,7 +226,7 @@ class NicheMarket(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class CustomerPersona(Base):
+class JoeCustomerPersona(Base):
     __tablename__ = "customer_personas"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -244,7 +244,7 @@ class CustomerPersona(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class NewsMonitoring(Base):
+class JoeNewsMonitoring(Base):
     __tablename__ = "news_monitoring"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -260,7 +260,7 @@ class NewsMonitoring(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class PatentTracking(Base):
+class JoePatentTracking(Base):
     __tablename__ = "patent_tracking"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -274,7 +274,7 @@ class PatentTracking(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class CustomResearchQuery(Base):
+class JoeCustomResearchQuery(Base):
     __tablename__ = "custom_research_queries"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -289,7 +289,7 @@ class CustomResearchQuery(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class ResearchProject(Base):
+class JoeResearchProject(Base):
     __tablename__ = "research_projects"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -306,7 +306,7 @@ class ResearchProject(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class ResearchAlert(Base):
+class JoeResearchAlert(Base):
     __tablename__ = "research_alerts"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -322,7 +322,7 @@ class ResearchAlert(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class ResearchDashboard(Base):
+class JoeResearchDashboard(Base):
     __tablename__ = "research_dashboards"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -337,7 +337,7 @@ class ResearchDashboard(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class Survey(Base):
+class JoeSurvey(Base):
     __tablename__ = "surveys"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -353,7 +353,7 @@ class Survey(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class CompetitorBenchmark(Base):
+class JoeCompetitorBenchmark(Base):
     __tablename__ = "competitor_benchmarks"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -368,7 +368,7 @@ class CompetitorBenchmark(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class MarketOpportunity(Base):
+class JoeMarketOpportunity(Base):
     __tablename__ = "market_opportunities"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -386,7 +386,7 @@ class MarketOpportunity(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class ResearchAutomation(Base):
+class JoeResearchAutomation(Base):
     __tablename__ = "research_automations"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -413,7 +413,7 @@ class IntelligenceType(enum.Enum):
     TECHNOLOGY_ADOPTION = "technology_adoption"
 
 
-class MarketIntelligence(Base):
+class JoeMarketIntelligence(Base):
     __tablename__ = "market_intelligence"
     __table_args__ = {"extend_existing": True}
 
@@ -440,10 +440,10 @@ class JoeMarketInsight(Base):
     evidence = Column(JSON)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    intelligence = relationship("MarketIntelligence", foreign_keys=[intelligence_id])
+    intelligence = relationship("JoeMarketIntelligence", foreign_keys=[intelligence_id])
 
 
-class Language(Base):
+class JoeLanguage(Base):
     __tablename__ = "languages"
     __table_args__ = {"extend_existing": True}
 
@@ -453,10 +453,10 @@ class Language(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     def __repr__(self):
-        return f"<Language {self.code}:{self.name}>"
+        return f"<JoeLanguage {self.code}:{self.name}>"
 
 
-class ResearchContext(Base):
+class JoeResearchContext(Base):
     __tablename__ = "research_contexts"
     __table_args__ = {"extend_existing": True}
 
@@ -476,7 +476,7 @@ class ResearchContext(Base):
         }
 
 
-class MultiLanguageResearch(Base):
+class JoeMultiLanguageResearch(Base):
     __tablename__ = "multi_language_researches"
     __table_args__ = {"extend_existing": True}
 
@@ -492,9 +492,9 @@ class MultiLanguageResearch(Base):
 
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
-    research = relationship("ResearchProject", foreign_keys=[research_id])
-    language = relationship("Language", foreign_keys=[language_id])
-    context = relationship("ResearchContext", foreign_keys=[context_id])
+    research = relationship("JoeResearchProject", foreign_keys=[research_id])
+    language = relationship("JoeLanguage", foreign_keys=[language_id])
+    context = relationship("JoeResearchContext", foreign_keys=[context_id])
 
     def as_dict(self):
         return {
@@ -531,8 +531,8 @@ class JoeLocalMarket(Base):
     region = relationship("Region", foreign_keys=[region_id])
 
 
-class RegionalTrend(Base):
-    __tablename__ = "regional_trends"
+class JoeRegionalTrend(Base):
+    __tablename__ = "joe_regional_trends"
     __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)

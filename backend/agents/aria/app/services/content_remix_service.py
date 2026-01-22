@@ -1,7 +1,7 @@
 from typing import Dict, Any, List, Optional
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.database.connection import get_supabase
-from ..models import PostVariant, PlatformEnum
+from ..models import AriaPostVariant, PlatformEnum
 import json
 
 
@@ -265,13 +265,13 @@ class ContentRemixService:
         })
 
     async def create_remix_variants(self, user_id: int, scheduled_post_id: int, remixed_content: Dict[str, Any]) -> Dict[str, Any]:
-        """Create PostVariant records for remixed content"""
+        """Create AriaPostVariant records for remixed content"""
         db = await get_supabase()
         async with db.get_session() as session:
             variants_created = []
             
             for platform, content in remixed_content.items():
-                variant = PostVariant(
+                variant = AriaPostVariant(
                     scheduled_post_id=scheduled_post_id,
                     variant_key=f"remix_{platform}",
                     caption=content.get("caption"),

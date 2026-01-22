@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, ExitStrategy, BusinessModel
+from ..models import PurityBusinessIdea, PurityExitStrategy, PurityBusinessModel
 from ..services.exit_strategy_service import ExitStrategyService
 
 router = APIRouter(prefix="/exit-strategy", tags=["Exit Strategy"])

@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, BusinessModel, CustomerAvatar
+from ..models import PurityBusinessIdea, PurityBusinessModel, PurityCustomerAvatar
 from ..services.sales_funnel_service import SalesFunnelService
 
 router = APIRouter(prefix="/sales-funnel", tags=["Sales Funnel"])

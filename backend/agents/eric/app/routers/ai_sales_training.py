@@ -6,7 +6,7 @@ import json
 
 from ..services.ai_sales_training_service import AISalesTrainingService
 from ..database import get_eric_database
-from ..models import SalesRep
+from ..models import EricSalesRep
 from sqlalchemy import select
 
 router = APIRouter()
@@ -276,7 +276,7 @@ async def get_team_training_progress(
         db = await get_eric_database()
         async with db.get_session() as session:
             sales_reps = await session.execute(
-                select(SalesRep).where(SalesRep.brand_id == brand_id)
+                select(EricSalesRep).where(EricSalesRep.brand_id == brand_id)
             )
             sales_reps = sales_reps.scalars().all()
             

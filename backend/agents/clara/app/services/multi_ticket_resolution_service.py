@@ -11,8 +11,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
 from ..models import (
-    TicketGroup, BulkAction, ResolutionTemplate, TicketCluster,
-    ResolutionBatch, SupportTicket, SupportAgent, CustomerInteraction
+    ClaraTicketGroup, ClaraBulkAction, ResolutionTemplate, TicketCluster,
+    ResolutionBatch, ClaraSupportTicket, ClaraSupportAgent, ClaraCustomerInteraction
 )
 from ..schemas.multi_ticket_resolution import (
     CreateTicketGroupRequest, UpdateTicketGroupRequest,
@@ -57,11 +57,11 @@ class MultiTicketResolutionService:
         try:
             # Verify tickets exist
             for ticket_id in request.ticket_ids:
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == ticket_id).first()
                 if not ticket:
                     raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
             
-            group = TicketGroup(
+            group = ClaraTicketGroup(
                 name=request.name,
                 description=request.description,
                 ticket_ids=request.ticket_ids,
@@ -79,7 +79,7 @@ class MultiTicketResolutionService:
             
             # Update tickets to reference the group
             for ticket_id in request.ticket_ids:
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == ticket_id).first()
                 if ticket:
                     ticket.group_id = group.id
                     ticket.updated_at = datetime.utcnow()
@@ -109,7 +109,7 @@ class MultiTicketResolutionService:
         group_id: int
     ) -> TicketGroupResponse:
         """Get ticket group by ID"""
-        group = db.query(TicketGroup).filter(TicketGroup.id == group_id).first()
+        group = db.query(ClaraTicketGroup).filter(ClaraTicketGroup.id == group_id).first()
         if not group:
             raise HTTPException(status_code=404, detail="Ticket group not found")
         
@@ -135,12 +135,12 @@ class MultiTicketResolutionService:
         category: Optional[str] = None
     ) -> List[TicketGroupResponse]:
         """List ticket groups"""
-        query = db.query(TicketGroup)
+        query = db.query(ClaraTicketGroup)
         
         if status:
-            query = query.filter(TicketGroup.status == status)
+            query = query.filter(ClaraTicketGroup.status == status)
         if category:
-            query = query.filter(TicketGroup.category == category)
+            query = query.filter(ClaraTicketGroup.category == category)
         
         groups = query.offset(skip).limit(limit).all()
         
@@ -166,7 +166,7 @@ class MultiTicketResolutionService:
         request: UpdateTicketGroupRequest
     ) -> TicketGroupResponse:
         """Update ticket group"""
-        group = db.query(TicketGroup).filter(TicketGroup.id == group_id).first()
+        group = db.query(ClaraTicketGroup).filter(ClaraTicketGroup.id == group_id).first()
         if not group:
             raise HTTPException(status_code=404, detail="Ticket group not found")
         
@@ -212,14 +212,14 @@ class MultiTicketResolutionService:
         group_id: int
     ) -> Dict[str, str]:
         """Delete ticket group"""
-        group = db.query(TicketGroup).filter(TicketGroup.id == group_id).first()
+        group = db.query(ClaraTicketGroup).filter(ClaraTicketGroup.id == group_id).first()
         if not group:
             raise HTTPException(status_code=404, detail="Ticket group not found")
         
         try:
             # Remove group reference from tickets
             for ticket_id in group.ticket_ids:
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == ticket_id).first()
                 if ticket:
                     ticket.group_id = None
                     ticket.updated_at = datetime.utcnow()
@@ -399,13 +399,13 @@ class MultiTicketResolutionService:
             # Verify tickets exist
             tickets = []
             for ticket_id in request.ticket_ids:
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == ticket_id).first()
                 if not ticket:
                     raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
                 tickets.append(ticket)
             
             # Create bulk action record
-            bulk_action = BulkAction(
+            bulk_action = ClaraBulkAction(
                 action_type=request.action_type,
                 ticket_ids=request.ticket_ids,
                 parameters=request.parameters,
@@ -465,7 +465,7 @@ class MultiTicketResolutionService:
         action_id: int
     ) -> BulkActionResponse:
         """Get bulk action by ID"""
-        action = db.query(BulkAction).filter(BulkAction.id == action_id).first()
+        action = db.query(ClaraBulkAction).filter(ClaraBulkAction.id == action_id).first()
         if not action:
             raise HTTPException(status_code=404, detail="Bulk action not found")
         
@@ -490,14 +490,14 @@ class MultiTicketResolutionService:
         status: Optional[str] = None
     ) -> List[BulkActionResponse]:
         """List bulk actions"""
-        query = db.query(BulkAction)
+        query = db.query(ClaraBulkAction)
         
         if action_type:
-            query = query.filter(BulkAction.action_type == action_type)
+            query = query.filter(ClaraBulkAction.action_type == action_type)
         if status:
-            query = query.filter(BulkAction.status == status)
+            query = query.filter(ClaraBulkAction.status == status)
         
-        actions = query.order_by(desc(BulkAction.created_at)).offset(skip).limit(limit).all()
+        actions = query.order_by(desc(ClaraBulkAction.created_at)).offset(skip).limit(limit).all()
         
         return [
             BulkActionResponse(
@@ -524,7 +524,7 @@ class MultiTicketResolutionService:
             # Get tickets
             tickets = []
             for ticket_id in ticket_ids:
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == ticket_id).first()
                 if not ticket:
                     raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
                 tickets.append(ticket)
@@ -603,7 +603,7 @@ class MultiTicketResolutionService:
             # Verify tickets exist
             tickets = []
             for ticket_id in ticket_ids:
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == ticket_id).first()
                 if not ticket:
                     raise HTTPException(status_code=404, detail=f"Ticket {ticket_id} not found")
                 tickets.append(ticket)
@@ -723,19 +723,19 @@ class MultiTicketResolutionService:
         """Automatically group tickets based on smart criteria"""
         try:
             # Build query based on criteria
-            query = db.query(SupportTicket).filter(SupportTicket.group_id.is_(None))
+            query = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.group_id.is_(None))
             
             if criteria.get("category"):
-                query = query.filter(SupportTicket.category == criteria["category"])
+                query = query.filter(ClaraSupportTicket.category == criteria["category"])
             
             if criteria.get("priority"):
-                query = query.filter(SupportTicket.priority == criteria["priority"])
+                query = query.filter(ClaraSupportTicket.priority == criteria["priority"])
             
             if criteria.get("status"):
-                query = query.filter(SupportTicket.status == criteria["status"])
+                query = query.filter(ClaraSupportTicket.status == criteria["status"])
             
             if criteria.get("assigned_agent_id"):
-                query = query.filter(SupportTicket.assigned_agent_id == criteria["assigned_agent_id"])
+                query = query.filter(ClaraSupportTicket.assigned_agent_id == criteria["assigned_agent_id"])
             
             # Get tickets
             tickets = query.all()
@@ -753,7 +753,7 @@ class MultiTicketResolutionService:
                     continue
                 
                 # Create group
-                group = TicketGroup(
+                group = ClaraTicketGroup(
                     name=f"Auto Group - {group_tickets[0].category} - {datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
                     description=f"Automatically grouped {len(group_tickets)} similar tickets",
                     ticket_ids=[t.id for t in group_tickets],
@@ -796,16 +796,16 @@ class MultiTicketResolutionService:
             recommendations = []
             
             for ticket_id in ticket_ids:
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == ticket_id).first()
                 if not ticket:
                     continue
                 
                 # Find similar resolved tickets
-                similar_tickets = db.query(SupportTicket).filter(
+                similar_tickets = db.query(ClaraSupportTicket).filter(
                     and_(
-                        SupportTicket.category == ticket.category,
-                        SupportTicket.status == "resolved",
-                        SupportTicket.id != ticket_id
+                        ClaraSupportTicket.category == ticket.category,
+                        ClaraSupportTicket.status == "resolved",
+                        ClaraSupportTicket.id != ticket_id
                     )
                 ).limit(5).all()
                 
@@ -856,17 +856,17 @@ class MultiTicketResolutionService:
         """Get efficiency analytics for multi-ticket resolution"""
         try:
             # Get data in date range
-            groups = db.query(TicketGroup).filter(
+            groups = db.query(ClaraTicketGroup).filter(
                 and_(
-                    TicketGroup.created_at >= start_date,
-                    TicketGroup.created_at <= end_date
+                    ClaraTicketGroup.created_at >= start_date,
+                    ClaraTicketGroup.created_at <= end_date
                 )
             ).all()
             
-            bulk_actions = db.query(BulkAction).filter(
+            bulk_actions = db.query(ClaraBulkAction).filter(
                 and_(
-                    BulkAction.created_at >= start_date,
-                    BulkAction.created_at <= end_date
+                    ClaraBulkAction.created_at >= start_date,
+                    ClaraBulkAction.created_at <= end_date
                 )
             ).all()
             
@@ -918,9 +918,9 @@ class MultiTicketResolutionService:
         """Check the health of multi-ticket resolution system"""
         try:
             db = next(get_db())
-            group_count = db.query(TicketGroup).count()
+            group_count = db.query(ClaraTicketGroup).count()
             template_count = db.query(ResolutionTemplate).count()
-            action_count = db.query(BulkAction).count()
+            action_count = db.query(ClaraBulkAction).count()
             batch_count = db.query(ResolutionBatch).count()
             
             return {
@@ -944,7 +944,7 @@ class MultiTicketResolutionService:
     
     async def _execute_single_action(
         self, 
-        ticket: SupportTicket, 
+        ticket: ClaraSupportTicket, 
         action_type: str, 
         parameters: Dict[str, Any], 
         db: Session
@@ -965,7 +965,7 @@ class MultiTicketResolutionService:
                 response_content = parameters.get("response_content")
                 if response_content:
                     # Create interaction record
-                    interaction = CustomerInteraction(
+                    interaction = ClaraCustomerInteraction(
                         customer_id=ticket.customer_id,
                         agent_id=parameters.get("agent_id"),
                         interaction_type="response",
@@ -986,7 +986,7 @@ class MultiTicketResolutionService:
         self, 
         template_content: str, 
         variables: Dict[str, Any], 
-        ticket: SupportTicket
+        ticket: ClaraSupportTicket
     ) -> str:
         """Render template with variables and ticket data"""
         try:
@@ -1017,9 +1017,9 @@ class MultiTicketResolutionService:
     
     def _group_tickets_by_similarity(
         self, 
-        tickets: List[SupportTicket], 
+        tickets: List[ClaraSupportTicket], 
         similarity_threshold: float
-    ) -> List[List[SupportTicket]]:
+    ) -> List[List[ClaraSupportTicket]]:
         """Group tickets by similarity"""
         if len(tickets) < 2:
             return []

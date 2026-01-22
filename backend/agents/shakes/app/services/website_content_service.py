@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ class WebsiteContentService:
         try:
             db = await get_shakes_database()
             async with db.get_session() as session:
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Landing Page: {page_title}",
                     description=f"AI-generated {page_type} landing page for {business_type}",
@@ -112,7 +112,7 @@ class WebsiteContentService:
                 )
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=page_title,
                     content=complete_page,
@@ -178,7 +178,7 @@ class WebsiteContentService:
         try:
             db = await get_shakes_database()
             async with db.get_session() as session:
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Website Page: {page_title}",
                     description=f"AI-generated {page_type} page for {business_type}",
@@ -225,7 +225,7 @@ class WebsiteContentService:
                 )
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=page_title,
                     content=complete_page,
@@ -277,7 +277,7 @@ class WebsiteContentService:
         try:
             db = await get_shakes_database()
             async with db.get_session() as session:
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Website Structure: {business_name}",
                     description=f"AI-generated website structure for {business_type}",
@@ -315,7 +315,7 @@ class WebsiteContentService:
                 content_strategy = ai_response.text_content if ai_response.success else ""
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=f"Website Structure - {business_name}",
                     content=website_structure,

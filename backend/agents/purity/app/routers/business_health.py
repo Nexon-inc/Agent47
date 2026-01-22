@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, BusinessHealth, BusinessModel, FinancialForecast
+from ..models import PurityBusinessIdea, PurityBusinessHealth, PurityBusinessModel, PurityFinancialForecast
 from ..services.business_health_service import BusinessHealthService
 
 router = APIRouter(prefix="/business-health", tags=["Business Health"])

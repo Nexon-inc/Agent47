@@ -9,7 +9,7 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import InteractiveWidget, AdPoll, CallToAction, WidgetAnalytics
+from ..models import InteractiveWidget, AdPoll, CallToAction, JackieWidgetAnalytics
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import CollaborationProject, JackieTeamMember, Comment, Review, Version, JackieTask
+from ..models import JackieCollaborationProject, JackieTeamMember, JackieComment, JackieReview, JackieVersion, JackieTask
 
 class CampaignCollaborationService:
     def __init__(self, db: Session):
@@ -18,7 +18,7 @@ class CampaignCollaborationService:
                                    team_members: List[Dict[str, Any]], project_settings: Dict[str, Any]) -> Dict[str, Any]:
         project_id = str(uuid.uuid4())
         
-        project = CollaborationProject(
+        project = JackieCollaborationProject(
             id=project_id, project_name=project_name, project_type=project_type,
             team_members=json.dumps(team_members), project_settings=json.dumps(project_settings),
             status="active", created_at=datetime.utcnow()
@@ -33,7 +33,7 @@ class CampaignCollaborationService:
         }
     
     def add_team_member(self, project_id: str, member_data: Dict[str, Any]) -> Dict[str, Any]:
-        project = self.db.query(CollaborationProject).filter(CollaborationProject.id == project_id).first()
+        project = self.db.query(JackieCollaborationProject).filter(JackieCollaborationProject.id == project_id).first()
         if not project:
             raise Exception("Collaboration project not found")
         
@@ -72,7 +72,7 @@ class CampaignCollaborationService:
                    comment_type: str = "general", parent_comment_id: Optional[str] = None) -> Dict[str, Any]:
         comment_id = str(uuid.uuid4())
         
-        comment = Comment(
+        comment = JackieComment(
             id=comment_id, project_id=project_id, user_id=user_id, content=content,
             comment_type=comment_type, parent_comment_id=parent_comment_id,
             created_at=datetime.utcnow()
@@ -87,9 +87,9 @@ class CampaignCollaborationService:
         }
     
     def update_comment(self, comment_id: str, new_content: str) -> Dict[str, Any]:
-        comment = self.db.query(Comment).filter(Comment.id == comment_id).first()
+        comment = self.db.query(JackieComment).filter(JackieComment.id == comment_id).first()
         if not comment:
-            raise Exception("Comment not found")
+            raise Exception("JackieComment not found")
         
         comment.content = new_content
         comment.updated_at = datetime.utcnow()
@@ -101,9 +101,9 @@ class CampaignCollaborationService:
         }
     
     def delete_comment(self, comment_id: str) -> Dict[str, Any]:
-        comment = self.db.query(Comment).filter(Comment.id == comment_id).first()
+        comment = self.db.query(JackieComment).filter(JackieComment.id == comment_id).first()
         if not comment:
-            raise Exception("Comment not found")
+            raise Exception("JackieComment not found")
         
         self.db.delete(comment)
         self.db.commit()
@@ -116,7 +116,7 @@ class CampaignCollaborationService:
     def create_review(self, project_id: str, reviewer_id: str, review_data: Dict[str, Any]) -> Dict[str, Any]:
         review_id = str(uuid.uuid4())
         
-        review = Review(
+        review = JackieReview(
             id=review_id, project_id=project_id, reviewer_id=reviewer_id,
             review_type=review_data.get("review_type", "general"),
             review_content=json.dumps(review_data.get("review_content", {})),
@@ -132,9 +132,9 @@ class CampaignCollaborationService:
         }
     
     def manage_review(self, review_id: str, action: str, action_data: Dict[str, Any]) -> Dict[str, Any]:
-        review = self.db.query(Review).filter(Review.id == review_id).first()
+        review = self.db.query(JackieReview).filter(JackieReview.id == review_id).first()
         if not review:
-            raise Exception("Review not found")
+            raise Exception("JackieReview not found")
         
         if action == "approve":
             review.status = "approved"
@@ -157,7 +157,7 @@ class CampaignCollaborationService:
     def create_version(self, project_id: str, version_data: Dict[str, Any]) -> Dict[str, Any]:
         version_id = str(uuid.uuid4())
         
-        version = Version(
+        version = JackieVersion(
             id=version_id, project_id=project_id, version_number=version_data.get("version_number"),
             version_name=version_data.get("version_name", ""), changes=json.dumps(version_data.get("changes", [])),
             created_by=version_data.get("created_by"), created_at=datetime.utcnow()
@@ -173,12 +173,12 @@ class CampaignCollaborationService:
         }
     
     def revert_version(self, project_id: str, target_version_id: str) -> Dict[str, Any]:
-        target_version = self.db.query(Version).filter(Version.id == target_version_id).first()
+        target_version = self.db.query(JackieVersion).filter(JackieVersion.id == target_version_id).first()
         if not target_version:
             raise Exception("Target version not found")
         
         revert_id = str(uuid.uuid4())
-        revert_version = Version(
+        revert_version = JackieVersion(
             id=revert_id, project_id=project_id, version_number=f"revert_{target_version.version_number}",
             version_name=f"Revert to {target_version.version_name}", changes=json.dumps(["Reverted to previous version"]),
             created_by="system", created_at=datetime.utcnow()
@@ -267,14 +267,14 @@ class CampaignCollaborationService:
         
         team_members = self.db.query(JackieTeamMember).filter(JackieTeamMember.project_id == project_id).count()
         
-        comments = self.db.query(Comment).filter(
-            Comment.project_id == project_id,
-            Comment.created_at >= cutoff_date
+        comments = self.db.query(JackieComment).filter(
+            JackieComment.project_id == project_id,
+            JackieComment.created_at >= cutoff_date
         ).count()
         
-        reviews = self.db.query(Review).filter(
-            Review.project_id == project_id,
-            Review.created_at >= cutoff_date
+        reviews = self.db.query(JackieReview).filter(
+            JackieReview.project_id == project_id,
+            JackieReview.created_at >= cutoff_date
         ).count()
         
         tasks = self.db.query(Task).filter(
@@ -297,13 +297,13 @@ class CampaignCollaborationService:
         }
     
     def get_project_timeline(self, project_id: str) -> Dict[str, Any]:
-        project = self.db.query(CollaborationProject).filter(CollaborationProject.id == project_id).first()
+        project = self.db.query(JackieCollaborationProject).filter(JackieCollaborationProject.id == project_id).first()
         if not project:
             raise Exception("Collaboration project not found")
         
-        comments = self.db.query(Comment).filter(Comment.project_id == project_id).order_by(Comment.created_at.desc()).limit(10).all()
-        reviews = self.db.query(Review).filter(Review.project_id == project_id).order_by(Review.created_at.desc()).limit(5).all()
-        versions = self.db.query(Version).filter(Version.project_id == project_id).order_by(Version.created_at.desc()).limit(5).all()
+        comments = self.db.query(JackieComment).filter(JackieComment.project_id == project_id).order_by(JackieComment.created_at.desc()).limit(10).all()
+        reviews = self.db.query(JackieReview).filter(JackieReview.project_id == project_id).order_by(JackieReview.created_at.desc()).limit(5).all()
+        versions = self.db.query(JackieVersion).filter(JackieVersion.project_id == project_id).order_by(JackieVersion.created_at.desc()).limit(5).all()
         tasks = self.db.query(Task).filter(Task.project_id == project_id).order_by(Task.created_at.desc()).limit(10).all()
         
         timeline = []
@@ -340,14 +340,14 @@ class CampaignCollaborationService:
         }
     
     def export_project_data(self, project_id: str, export_format: str = "json") -> Dict[str, Any]:
-        project = self.db.query(CollaborationProject).filter(CollaborationProject.id == project_id).first()
+        project = self.db.query(JackieCollaborationProject).filter(JackieCollaborationProject.id == project_id).first()
         if not project:
             raise Exception("Collaboration project not found")
         
         team_members = self.db.query(JackieTeamMember).filter(JackieTeamMember.project_id == project_id).all()
-        comments = self.db.query(Comment).filter(Comment.project_id == project_id).all()
-        reviews = self.db.query(Review).filter(Review.project_id == project_id).all()
-        versions = self.db.query(Version).filter(Version.project_id == project_id).all()
+        comments = self.db.query(JackieComment).filter(JackieComment.project_id == project_id).all()
+        reviews = self.db.query(JackieReview).filter(JackieReview.project_id == project_id).all()
+        versions = self.db.query(JackieVersion).filter(JackieVersion.project_id == project_id).all()
         tasks = self.db.query(JackieTask).filter(JackieTask.project_id == project_id).all()
         
         export_data = {

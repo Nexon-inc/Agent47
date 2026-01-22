@@ -116,7 +116,7 @@ async def get_forecast_metrics(brand_id: int):
             },
             "insights": [
                 "Revenue forecast shows 15% growth potential",
-                "Lead generation is on track for targets",
+                "EricLead generation is on track for targets",
                 "Conversion rates improving month-over-month"
             ]
         }
@@ -156,8 +156,8 @@ async def compare_forecasts(
             },
             "accuracy_insights": [
                 "Revenue forecasts are highly accurate (95%)",
-                "Lead forecasts show consistent accuracy",
-                "Deal forecasts need refinement for better accuracy"
+                "EricLead forecasts show consistent accuracy",
+                "EricDeal forecasts need refinement for better accuracy"
             ]
         }
     except Exception as e:

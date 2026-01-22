@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, BusinessModel, CustomerAvatar
+from ..models import PurityBusinessIdea, PurityBusinessModel, PurityCustomerAvatar
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class BusinessMentorService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -91,7 +91,7 @@ class BusinessMentorService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -150,7 +150,7 @@ class BusinessMentorService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -206,7 +206,7 @@ class BusinessMentorService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -256,7 +256,7 @@ class BusinessMentorService:
     
     def _create_business_roadmap_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         entrepreneur_profile: Dict[str, Any],
         business_stage: str,
         goals: List[str],
@@ -322,7 +322,7 @@ class BusinessMentorService:
     
     def _create_step_guidance_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         current_step: str,
         challenges: List[str],
         progress_level: str
@@ -386,7 +386,7 @@ class BusinessMentorService:
     
     def _create_milestone_tracking_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         milestone_data: Dict[str, Any],
         completion_status: str,
         feedback: Optional[str]
@@ -435,7 +435,7 @@ class BusinessMentorService:
     
     def _create_personalized_advice_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         entrepreneur_questions: List[str],
         business_context: Dict[str, Any],
         advice_type: str

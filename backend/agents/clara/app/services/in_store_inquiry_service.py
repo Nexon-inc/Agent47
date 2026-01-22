@@ -8,8 +8,8 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    InStoreKiosk, InStoreInquiry, InStoreQRCode, InStoreLocation, InStoreDevice,
-    SupportTicket, CustomerInteraction, SupportAgent
+    InStoreKiosk, ClaraInStoreInquiry, ClaraInStoreQRCode, ClaraInStoreLocation, ClaraInStoreDevice,
+    ClaraSupportTicket, ClaraCustomerInteraction, ClaraSupportAgent
 )
 from ..schemas.in_store_inquiry import (
     CreateInStoreKioskRequest, UpdateInStoreKioskRequest,
@@ -230,7 +230,7 @@ class InStoreInquiryService:
     ) -> InStoreInquiryResponse:
         """Create a new in-store inquiry"""
         try:
-            inquiry = InStoreInquiry(
+            inquiry = ClaraInStoreInquiry(
                 kiosk_id=request.kiosk_id,
                 location_id=request.location_id,
                 inquiry_type=request.inquiry_type,
@@ -249,7 +249,7 @@ class InStoreInquiryService:
             db.refresh(inquiry)
             
             # Create corresponding support ticket
-            ticket = SupportTicket(
+            ticket = ClaraSupportTicket(
                 title=f"In-Store Inquiry: {request.inquiry_type}",
                 description=request.customer_question,
                 customer_id=request.customer_info.get("customer_id") if request.customer_info else None,
@@ -294,7 +294,7 @@ class InStoreInquiryService:
         inquiry_id: int
     ) -> InStoreInquiryResponse:
         """Get in-store inquiry by ID"""
-        inquiry = db.query(InStoreInquiry).filter(InStoreInquiry.id == inquiry_id).first()
+        inquiry = db.query(ClaraInStoreInquiry).filter(ClaraInStoreInquiry.id == inquiry_id).first()
         if not inquiry:
             raise HTTPException(status_code=404, detail="In-store inquiry not found")
         
@@ -325,18 +325,18 @@ class InStoreInquiryService:
         status: Optional[str] = None
     ) -> List[InStoreInquiryResponse]:
         """List in-store inquiries"""
-        query = db.query(InStoreInquiry)
+        query = db.query(ClaraInStoreInquiry)
         
         if kiosk_id:
-            query = query.filter(InStoreInquiry.kiosk_id == kiosk_id)
+            query = query.filter(ClaraInStoreInquiry.kiosk_id == kiosk_id)
         if location_id:
-            query = query.filter(InStoreInquiry.location_id == location_id)
+            query = query.filter(ClaraInStoreInquiry.location_id == location_id)
         if inquiry_type:
-            query = query.filter(InStoreInquiry.inquiry_type == inquiry_type)
+            query = query.filter(ClaraInStoreInquiry.inquiry_type == inquiry_type)
         if status:
-            query = query.filter(InStoreInquiry.status == status)
+            query = query.filter(ClaraInStoreInquiry.status == status)
         
-        inquiries = query.order_by(desc(InStoreInquiry.created_at)).offset(skip).limit(limit).all()
+        inquiries = query.order_by(desc(ClaraInStoreInquiry.created_at)).offset(skip).limit(limit).all()
         
         return [
             InStoreInquiryResponse(
@@ -363,7 +363,7 @@ class InStoreInquiryService:
         request: UpdateInStoreInquiryRequest
     ) -> InStoreInquiryResponse:
         """Update in-store inquiry"""
-        inquiry = db.query(InStoreInquiry).filter(InStoreInquiry.id == inquiry_id).first()
+        inquiry = db.query(ClaraInStoreInquiry).filter(ClaraInStoreInquiry.id == inquiry_id).first()
         if not inquiry:
             raise HTTPException(status_code=404, detail="In-store inquiry not found")
         
@@ -417,7 +417,7 @@ class InStoreInquiryService:
     ) -> InStoreQRCodeResponse:
         """Create a new in-store QR code"""
         try:
-            qr_code = InStoreQRCode(
+            qr_code = ClaraInStoreQRCode(
                 name=request.name,
                 description=request.description,
                 location_id=request.location_id,
@@ -456,7 +456,7 @@ class InStoreInquiryService:
         qr_code_id: int
     ) -> InStoreQRCodeResponse:
         """Get in-store QR code by ID"""
-        qr_code = db.query(InStoreQRCode).filter(InStoreQRCode.id == qr_code_id).first()
+        qr_code = db.query(ClaraInStoreQRCode).filter(ClaraInStoreQRCode.id == qr_code_id).first()
         if not qr_code:
             raise HTTPException(status_code=404, detail="In-store QR code not found")
         
@@ -483,14 +483,14 @@ class InStoreInquiryService:
         is_active: Optional[bool] = None
     ) -> List[InStoreQRCodeResponse]:
         """List in-store QR codes"""
-        query = db.query(InStoreQRCode)
+        query = db.query(ClaraInStoreQRCode)
         
         if location_id:
-            query = query.filter(InStoreQRCode.location_id == location_id)
+            query = query.filter(ClaraInStoreQRCode.location_id == location_id)
         if inquiry_type:
-            query = query.filter(InStoreQRCode.inquiry_type == inquiry_type)
+            query = query.filter(ClaraInStoreQRCode.inquiry_type == inquiry_type)
         if is_active is not None:
-            query = query.filter(InStoreQRCode.is_active == is_active)
+            query = query.filter(ClaraInStoreQRCode.is_active == is_active)
         
         qr_codes = query.offset(skip).limit(limit).all()
         
@@ -516,7 +516,7 @@ class InStoreInquiryService:
     ) -> InStoreLocationResponse:
         """Create a new in-store location"""
         try:
-            location = InStoreLocation(
+            location = ClaraInStoreLocation(
                 name=request.name,
                 description=request.description,
                 address=request.address,
@@ -553,7 +553,7 @@ class InStoreInquiryService:
         location_id: int
     ) -> InStoreLocationResponse:
         """Get in-store location by ID"""
-        location = db.query(InStoreLocation).filter(InStoreLocation.id == location_id).first()
+        location = db.query(ClaraInStoreLocation).filter(ClaraInStoreLocation.id == location_id).first()
         if not location:
             raise HTTPException(status_code=404, detail="In-store location not found")
         
@@ -578,12 +578,12 @@ class InStoreInquiryService:
         is_active: Optional[bool] = None
     ) -> List[InStoreLocationResponse]:
         """List in-store locations"""
-        query = db.query(InStoreLocation)
+        query = db.query(ClaraInStoreLocation)
         
         if store_type:
-            query = query.filter(InStoreLocation.store_type == store_type)
+            query = query.filter(ClaraInStoreLocation.store_type == store_type)
         if is_active is not None:
-            query = query.filter(InStoreLocation.is_active == is_active)
+            query = query.filter(ClaraInStoreLocation.is_active == is_active)
         
         locations = query.offset(skip).limit(limit).all()
         
@@ -611,15 +611,15 @@ class InStoreInquiryService:
         """Get in-store analytics"""
         try:
             # Build query
-            query = db.query(InStoreInquiry).filter(
+            query = db.query(ClaraInStoreInquiry).filter(
                 and_(
-                    InStoreInquiry.created_at >= start_date,
-                    InStoreInquiry.created_at <= end_date
+                    ClaraInStoreInquiry.created_at >= start_date,
+                    ClaraInStoreInquiry.created_at <= end_date
                 )
             )
             
             if location_id:
-                query = query.filter(InStoreInquiry.location_id == location_id)
+                query = query.filter(ClaraInStoreInquiry.location_id == location_id)
             
             inquiries = query.all()
             
@@ -674,9 +674,9 @@ class InStoreInquiryService:
         try:
             db = next(get_db())
             kiosk_count = db.query(InStoreKiosk).count()
-            inquiry_count = db.query(InStoreInquiry).count()
-            qr_code_count = db.query(InStoreQRCode).count()
-            location_count = db.query(InStoreLocation).count()
+            inquiry_count = db.query(ClaraInStoreInquiry).count()
+            qr_code_count = db.query(ClaraInStoreQRCode).count()
+            location_count = db.query(ClaraInStoreLocation).count()
             
             return {
                 "status": "healthy",

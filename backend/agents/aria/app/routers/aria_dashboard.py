@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.authentication.auth_manager import get_current_user
 from core.database.models import User
 from ..database import get_db
-from ..models import SocialAccount, AnalyticsSnapshot, ScheduledPost, PublishedPost
+from ..models import AriaSocialAccount, AriaAnalyticsSnapshot, AriaScheduledPost, AriaPublishedPost
 from ..services.analytics_service import AnalyticsService
 from ..services.content_service import ContentService
 

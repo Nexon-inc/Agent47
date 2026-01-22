@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime, timedelta
 
-from ..models import BusinessIdea, BrandIdentity, BusinessModel
+from ..models import PurityBusinessIdea, PurityBrandIdentity, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class SocialMediaKitService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -90,7 +90,7 @@ class SocialMediaKitService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -147,7 +147,7 @@ class SocialMediaKitService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -204,7 +204,7 @@ class SocialMediaKitService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -252,7 +252,7 @@ class SocialMediaKitService:
     
     def _create_content_calendar_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         platforms: List[str],
         content_themes: List[str],
         posting_frequency: str,
@@ -313,7 +313,7 @@ class SocialMediaKitService:
     
     def _create_hashtag_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_audience: str,
         platforms: List[str],
         hashtag_categories: List[str]
@@ -372,7 +372,7 @@ class SocialMediaKitService:
     
     def _create_social_media_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_audience: str,
         business_goals: List[str],
         budget_allocation: Dict[str, float]
@@ -426,7 +426,7 @@ class SocialMediaKitService:
     
     def _create_post_templates_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         post_types: List[str],
         tone: str,
         call_to_action_types: List[str]

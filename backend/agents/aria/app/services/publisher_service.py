@@ -3,7 +3,7 @@ from datetime import datetime
 from core.database.connection import get_supabase
 from core.platforms.platform_manager import get_platform_manager
 from ..integrations.buffer_client import BufferClient
-from ..models import ScheduledPost, PublishedPost, PlatformEnum, PostStatus
+from ..models import AriaScheduledPost, AriaPublishedPost, PlatformEnum, AriaPostStatus
 
 
 class PublisherService:
@@ -18,13 +18,13 @@ class PublisherService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            result = await session.execute(select(ScheduledPost).where(ScheduledPost.id == scheduled_post_id))
-            post: Optional[ScheduledPost] = result.scalar_one_or_none()
+            result = await session.execute(select(AriaScheduledPost).where(AriaScheduledPost.id == scheduled_post_id))
+            post: Optional[AriaScheduledPost] = result.scalar_one_or_none()
             if not post:
                 return {"success": False, "error": "scheduled_post_not_found"}
 
-            if post.status == PostStatus.scheduled:
-                post.status = PostStatus.publishing
+            if post.status == AriaPostStatus.scheduled:
+                post.status = AriaPostStatus.publishing
                 await session.flush()
 
             text = self._compose_text(post.caption, post.hashtags)
@@ -49,7 +49,7 @@ class PublisherService:
                     pe = PlatformEnum(platform_name)
                 except Exception:
                     pe = PlatformEnum.twitter
-                pub = PublishedPost(
+                pub = AriaPublishedPost(
                     scheduled_post_id=post.id,
                     platform=pe,
                     platform_post_id=res.get("post_id"),
@@ -61,7 +61,7 @@ class PublisherService:
                 session.add(pub)
                 results.append({"platform": platform_name, **res})
 
-            post.status = PostStatus.published if any(r.get("success") for r in results) else PostStatus.failed
+            post.status = AriaPostStatus.published if any(r.get("success") for r in results) else AriaPostStatus.failed
             await session.commit()
             return {"success": True, "results": results, "status": post.status.value}
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query, Body
 from typing import Dict, Any, Optional, List
 from pydantic import BaseModel
 from ..database import get_clara_database
-from ..models import KnowledgeBase
+from ..models import ClaraKnowledgeBase
 from sqlalchemy import select, and_, or_, func
 
 router = APIRouter()
@@ -47,7 +47,7 @@ async def create_knowledge_item(
         db = await get_clara_database()
         async with db.get_session() as session:
             # Create knowledge base item
-            kb_item = KnowledgeBase(
+            kb_item = ClaraKnowledgeBase(
                 category=request.category,
                 subcategory=request.subcategory,
                 title=request.title,
@@ -83,7 +83,7 @@ async def get_knowledge_item(item_id: int):
         db = await get_clara_database()
         async with db.get_session() as session:
             kb_item = await session.execute(
-                select(KnowledgeBase).where(KnowledgeBase.id == item_id)
+                select(ClaraKnowledgeBase).where(ClaraKnowledgeBase.id == item_id)
             )
             kb_item = kb_item.scalar_one_or_none()
             
@@ -125,7 +125,7 @@ async def update_knowledge_item(
         db = await get_clara_database()
         async with db.get_session() as session:
             kb_item = await session.execute(
-                select(KnowledgeBase).where(KnowledgeBase.id == item_id)
+                select(ClaraKnowledgeBase).where(ClaraKnowledgeBase.id == item_id)
             )
             kb_item = kb_item.scalar_one_or_none()
             
@@ -170,7 +170,7 @@ async def delete_knowledge_item(item_id: int):
         db = await get_clara_database()
         async with db.get_session() as session:
             kb_item = await session.execute(
-                select(KnowledgeBase).where(KnowledgeBase.id == item_id)
+                select(ClaraKnowledgeBase).where(ClaraKnowledgeBase.id == item_id)
             )
             kb_item = kb_item.scalar_one_or_none()
             
@@ -197,20 +197,20 @@ async def search_knowledge_base(request: SearchKnowledgeRequest):
         async with db.get_session() as session:
             
             # Build search query
-            query = select(KnowledgeBase).where(
+            query = select(ClaraKnowledgeBase).where(
                 and_(
-                    KnowledgeBase.is_public == True,
-                    KnowledgeBase.language == request.language
+                    ClaraKnowledgeBase.is_public == True,
+                    ClaraKnowledgeBase.language == request.language
                 )
             )
             
             # Add category filter
             if request.category:
-                query = query.where(KnowledgeBase.category == request.category)
+                query = query.where(ClaraKnowledgeBase.category == request.category)
             
             # Add tags filter
             if request.tags:
-                tag_conditions = [KnowledgeBase.tags.contains([tag]) for tag in request.tags]
+                tag_conditions = [ClaraKnowledgeBase.tags.contains([tag]) for tag in request.tags]
                 query = query.where(or_(*tag_conditions))
             
             # Add text search
@@ -219,16 +219,16 @@ async def search_knowledge_base(request: SearchKnowledgeRequest):
                 text_conditions = []
                 for term in search_terms:
                     text_conditions.extend([
-                        KnowledgeBase.title.ilike(f"%{term}%"),
-                        KnowledgeBase.question.ilike(f"%{term}%"),
-                        KnowledgeBase.answer.ilike(f"%{term}%")
+                        ClaraKnowledgeBase.title.ilike(f"%{term}%"),
+                        ClaraKnowledgeBase.question.ilike(f"%{term}%"),
+                        ClaraKnowledgeBase.answer.ilike(f"%{term}%")
                     ])
                 query = query.where(or_(*text_conditions))
             
             # Order by relevance and usage
             query = query.order_by(
-                KnowledgeBase.success_rate.desc(),
-                KnowledgeBase.usage_count.desc()
+                ClaraKnowledgeBase.success_rate.desc(),
+                ClaraKnowledgeBase.usage_count.desc()
             ).limit(request.limit)
             
             results = await session.execute(query)
@@ -266,10 +266,10 @@ async def get_knowledge_categories():
             
             # Get unique categories
             categories = await session.execute(
-                select(KnowledgeBase.category, func.count(KnowledgeBase.id).label("count"))
-                .where(KnowledgeBase.is_public == True)
-                .group_by(KnowledgeBase.category)
-                .order_by(KnowledgeBase.category)
+                select(ClaraKnowledgeBase.category, func.count(ClaraKnowledgeBase.id).label("count"))
+                .where(ClaraKnowledgeBase.is_public == True)
+                .group_by(ClaraKnowledgeBase.category)
+                .order_by(ClaraKnowledgeBase.category)
             )
             categories = categories.all()
             
@@ -296,7 +296,7 @@ async def get_knowledge_tags():
             
             # Get all tags and their counts
             all_tags = []
-            items = await session.execute(select(KnowledgeBase.tags))
+            items = await session.execute(select(ClaraKnowledgeBase.tags))
             items = items.scalars().all()
             
             tag_counts = {}
@@ -333,7 +333,7 @@ async def submit_knowledge_feedback(
         db = await get_clara_database()
         async with db.get_session() as session:
             kb_item = await session.execute(
-                select(KnowledgeBase).where(KnowledgeBase.id == item_id)
+                select(ClaraKnowledgeBase).where(ClaraKnowledgeBase.id == item_id)
             )
             kb_item = kb_item.scalar_one_or_none()
             
@@ -371,26 +371,26 @@ async def get_knowledge_stats():
         async with db.get_session() as session:
             
             # Get total items
-            total_items = await session.execute(select(func.count(KnowledgeBase.id)))
+            total_items = await session.execute(select(func.count(ClaraKnowledgeBase.id)))
             total_items = total_items.scalar()
             
             # Get public items
             public_items = await session.execute(
-                select(func.count(KnowledgeBase.id)).where(KnowledgeBase.is_public == True)
+                select(func.count(ClaraKnowledgeBase.id)).where(ClaraKnowledgeBase.is_public == True)
             )
             public_items = public_items.scalar()
             
             # Get average success rate
             avg_success_rate = await session.execute(
-                select(func.avg(KnowledgeBase.success_rate))
-                .where(KnowledgeBase.is_public == True)
+                select(func.avg(ClaraKnowledgeBase.success_rate))
+                .where(ClaraKnowledgeBase.is_public == True)
             )
             avg_success_rate = avg_success_rate.scalar() or 0
             
             # Get total usage
             total_usage = await session.execute(
-                select(func.sum(KnowledgeBase.usage_count))
-                .where(KnowledgeBase.is_public == True)
+                select(func.sum(ClaraKnowledgeBase.usage_count))
+                .where(ClaraKnowledgeBase.is_public == True)
             )
             total_usage = total_usage.scalar() or 0
             

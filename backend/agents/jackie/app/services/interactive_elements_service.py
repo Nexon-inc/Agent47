@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import InteractivePoll, CampaignQuiz, EmailSurvey, InteractiveContent
+from ..models import JackieInteractivePoll, CampaignQuiz, EmailSurvey, InteractiveContent
 
 class InteractiveElementsService:
     def __init__(self, db: Session):
@@ -18,7 +18,7 @@ class InteractiveElementsService:
         poll_id = str(uuid.uuid4())
         poll_result = self.nlp_processor.create_interactive_poll(f"Poll Data: {poll_data}")
         
-        poll = InteractivePoll(
+        poll = JackieInteractivePoll(
             id=poll_id, poll_data=json.dumps(poll_data), target_audience=json.dumps(target_audience),
             poll_content=json.dumps(poll_result), status="active", created_at=datetime.utcnow()
         )
@@ -69,7 +69,7 @@ class InteractiveElementsService:
     def get_interactive_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        polls_created = self.db.query(InteractivePoll).filter(InteractivePoll.created_at >= cutoff_date).count()
+        polls_created = self.db.query(JackieInteractivePoll).filter(JackieInteractivePoll.created_at >= cutoff_date).count()
         quizzes_created = self.db.query(CampaignQuiz).filter(CampaignQuiz.created_at >= cutoff_date).count()
         surveys_created = self.db.query(EmailSurvey).filter(EmailSurvey.created_at >= cutoff_date).count()
         interactive_content = self.db.query(InteractiveContent).filter(InteractiveContent.created_at >= cutoff_date).count()

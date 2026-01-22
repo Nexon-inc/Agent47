@@ -59,7 +59,7 @@ class InteractionType(enum.Enum):
     ESCALATION = "escalation"
     RESOLUTION = "resolution"
 
-class SupportTicket(Base):
+class ClaraSupportTicket(Base):
     __tablename__ = "support_tickets"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -92,13 +92,13 @@ class SupportTicket(Base):
     # Relationships
     customer = relationship("User", foreign_keys=[customer_id], backref="support_tickets")
     assigned_agent = relationship("User", foreign_keys=[assigned_agent_id], backref="assigned_tickets")
-    interactions = relationship("CustomerInteraction", back_populates="ticket", cascade="all, delete-orphan")
-    attachments = relationship("TicketAttachment", back_populates="ticket", cascade="all, delete-orphan")
-    escalations = relationship("TicketEscalation", back_populates="ticket", cascade="all, delete-orphan")
+    interactions = relationship("ClaraCustomerInteraction", back_populates="ticket", cascade="all, delete-orphan")
+    attachments = relationship("ClaraTicketAttachment", back_populates="ticket", cascade="all, delete-orphan")
+    escalations = relationship("ClaraTicketEscalation", back_populates="ticket", cascade="all, delete-orphan")
     # Use direct class reference via callable to avoid ambiguity with other CustomerFeedback models
-    feedback = relationship(lambda: CustomerFeedback, back_populates="ticket", uselist=False)
+    feedback = relationship(lambda: ClaraCustomerFeedback, back_populates="ticket", uselist=False)
 
-class CustomerInteraction(Base):
+class ClaraCustomerInteraction(Base):
     __tablename__ = "customer_interactions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -117,10 +117,10 @@ class CustomerInteraction(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    ticket = relationship("SupportTicket", back_populates="interactions")
+    ticket = relationship("ClaraSupportTicket", back_populates="interactions")
     agent = relationship("User", foreign_keys=[agent_id])
 
-class TicketAttachment(Base):
+class ClaraTicketAttachment(Base):
     __tablename__ = "ticket_attachments"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -134,10 +134,10 @@ class TicketAttachment(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    ticket = relationship("SupportTicket", back_populates="attachments")
+    ticket = relationship("ClaraSupportTicket", back_populates="attachments")
     user = relationship("User", foreign_keys=[uploaded_by])
 
-class TicketEscalation(Base):
+class ClaraTicketEscalation(Base):
     __tablename__ = "ticket_escalations"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -151,12 +151,12 @@ class TicketEscalation(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    ticket = relationship("SupportTicket", back_populates="escalations")
+    ticket = relationship("ClaraSupportTicket", back_populates="escalations")
     escalated_from_agent = relationship("User", foreign_keys=[escalated_from_agent_id])
     escalated_to_agent = relationship("User", foreign_keys=[escalated_to_agent_id])
 
-class CustomerFeedback(Base):
-    __tablename__ = "customer_feedback"
+class ClaraCustomerFeedback(Base):
+    __tablename__ = "clara_customer_feedback"
     __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
@@ -171,11 +171,11 @@ class CustomerFeedback(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    ticket = relationship("SupportTicket", back_populates="feedback")
+    ticket = relationship("ClaraSupportTicket", back_populates="feedback")
 
 
 # Chat session models
-class ChatSession(Base):
+class ClaraChatSession(Base):
     __tablename__ = "chat_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -190,7 +190,7 @@ class ChatSession(Base):
     customer = relationship("User", foreign_keys=[customer_id])
 
 
-class ChatMessage(Base):
+class ClaraChatMessage(Base):
     __tablename__ = "chat_messages"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -201,12 +201,12 @@ class ChatMessage(Base):
     content_type = Column(String(50), default="text")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    session = relationship("ChatSession", back_populates="messages")
+    session = relationship("ClaraChatSession", back_populates="messages")
 
 # Link back messages relationship
-ChatSession.messages = relationship("ChatMessage", back_populates="session", cascade="all, delete-orphan")
+ClaraChatSession.messages = relationship("ClaraChatMessage", back_populates="session", cascade="all, delete-orphan")
 
-class KnowledgeBase(Base):
+class ClaraKnowledgeBase(Base):
     __tablename__ = "knowledge_base"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -233,7 +233,7 @@ class KnowledgeBase(Base):
     # Relationships
     creator = relationship("User", foreign_keys=[created_by])
 
-class SupportAgent(Base):
+class ClaraSupportAgent(Base):
     __tablename__ = "support_agents"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -363,8 +363,8 @@ class VoiceSentimentScenarioType(enum.Enum):
     SALES_INQUIRY = "sales_inquiry"
     GENERAL_INQUIRY = "general_inquiry"
 
-# Multi-Brand Support Models
-class Brand(Base):
+# Multi-ClaraBrand Support Models
+class ClaraBrand(Base):
     __tablename__ = "brands"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -382,7 +382,7 @@ class Brand(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class BrandConfiguration(Base):
+class ClaraBrandConfiguration(Base):
     __tablename__ = "brand_configurations"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -395,9 +395,9 @@ class BrandConfiguration(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    brand = relationship("Brand")
+    brand = relationship("ClaraBrand")
 
-class BrandTemplate(Base):
+class ClaraBrandTemplate(Base):
     __tablename__ = "brand_templates"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -412,10 +412,10 @@ class BrandTemplate(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    brand = relationship("Brand")
+    brand = relationship("ClaraBrand")
 
 # Customer Journey Tracking Models
-class CustomerJourney(Base):
+class ClaraCustomerJourney(Base):
     __tablename__ = "customer_journeys"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -430,10 +430,10 @@ class CustomerJourney(Base):
     
     # Relationships
     customer = relationship("User", foreign_keys=[customer_id])
-    events = relationship("JourneyEvent", back_populates="journey", cascade="all, delete-orphan")
-    stages = relationship("JourneyStage", back_populates="journey", cascade="all, delete-orphan")
+    events = relationship("ClaraJourneyEvent", back_populates="journey", cascade="all, delete-orphan")
+    stages = relationship("ClaraJourneyStage", back_populates="journey", cascade="all, delete-orphan")
 
-class JourneyEvent(Base):
+class ClaraJourneyEvent(Base):
     __tablename__ = "journey_events"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -444,9 +444,9 @@ class JourneyEvent(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    journey = relationship("CustomerJourney", back_populates="events")
+    journey = relationship("ClaraCustomerJourney", back_populates="events")
 
-class JourneyStage(Base):
+class ClaraJourneyStage(Base):
     __tablename__ = "journey_stages"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -459,10 +459,10 @@ class JourneyStage(Base):
     extra_metadata = Column('metadata', JSON, default={})
     
     # Relationships
-    journey = relationship("CustomerJourney", back_populates="stages")
+    journey = relationship("ClaraCustomerJourney", back_populates="stages")
 
 # Proactive Support Notifications Models
-class ProactiveNotification(Base):
+class ClaraProactiveNotification(Base):
     __tablename__ = "proactive_notifications"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -482,7 +482,7 @@ class ProactiveNotification(Base):
     # Relationships
     customer = relationship("User", foreign_keys=[customer_id])
 
-class NotificationRule(Base):
+class ClaraNotificationRule(Base):
     __tablename__ = "notification_rules"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -496,9 +496,9 @@ class NotificationRule(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    template = relationship("NotificationTemplate")
+    template = relationship("ClaraNotificationTemplate")
 
-class NotificationTemplate(Base):
+class ClaraNotificationTemplate(Base):
     __tablename__ = "notification_templates"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -512,7 +512,7 @@ class NotificationTemplate(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 # Support workflow model for Clara (custom workflows engine)
-class SupportWorkflow(Base):
+class ClaraSupportWorkflow(Base):
     __tablename__ = "support_workflows"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -534,7 +534,7 @@ class SupportWorkflow(Base):
     agent = relationship("User", foreign_keys=[auto_assign_agent_id])
 
 # Agent Training Tools Models
-class AgentTraining(Base):
+class ClaraAgentTraining(Base):
     __tablename__ = "agent_training"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -552,7 +552,7 @@ class AgentTraining(Base):
     # Relationships
     agent = relationship("User", foreign_keys=[agent_id])
 
-class TrainingModule(Base):
+class ClaraTrainingModule(Base):
     __tablename__ = "training_modules"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -567,7 +567,7 @@ class TrainingModule(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class TrainingSession(Base):
+class ClaraTrainingSession(Base):
     __tablename__ = "training_sessions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -584,9 +584,9 @@ class TrainingSession(Base):
     
     # Relationships
     agent = relationship("User", foreign_keys=[agent_id])
-    module = relationship("TrainingModule")
+    module = relationship("ClaraTrainingModule")
 
-class AgentPerformance(Base):
+class ClaraAgentPerformance(Base):
     __tablename__ = "agent_performance"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -604,7 +604,7 @@ class AgentPerformance(Base):
     # Relationships
     agent = relationship("User", foreign_keys=[agent_id])
 
-class TrainingAssessment(Base):
+class ClaraTrainingAssessment(Base):
     __tablename__ = "training_assessments"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -620,10 +620,10 @@ class TrainingAssessment(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    session = relationship("TrainingSession")
+    session = relationship("ClaraTrainingSession")
 
-# AI-Driven FAQ Builder Models
-class FAQCategory(Base):
+# AI-Driven ClaraFAQ Builder Models
+class ClaraFAQCategory(Base):
     __tablename__ = "faq_categories"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -635,10 +635,10 @@ class FAQCategory(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    parent = relationship("FAQCategory", remote_side=[id])
-    entries = relationship("FAQEntry", back_populates="category")
+    parent = relationship("ClaraFAQCategory", remote_side=[id])
+    entries = relationship("ClaraFAQEntry", back_populates="category")
 
-class FAQEntry(Base):
+class ClaraFAQEntry(Base):
     __tablename__ = "faq_entries"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -656,9 +656,9 @@ class FAQEntry(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    category = relationship("FAQCategory", back_populates="entries")
+    category = relationship("ClaraFAQCategory", back_populates="entries")
 
-class FAQSource(Base):
+class ClaraFAQSource(Base):
     __tablename__ = "faq_sources"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -671,7 +671,7 @@ class FAQSource(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class FAQAnalytics(Base):
+class ClaraFAQAnalytics(Base):
     __tablename__ = "faq_analytics"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -684,10 +684,10 @@ class FAQAnalytics(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    entry = relationship("FAQEntry")
+    entry = relationship("ClaraFAQEntry")
 
 
-class SupportAnalytics(Base):
+class ClaraSupportAnalytics(Base):
     __tablename__ = "support_analytics"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -699,12 +699,12 @@ class SupportAnalytics(Base):
     ticket_id = Column(Integer, ForeignKey("support_tickets.id"), nullable=True)
     session_id = Column(Integer, ForeignKey("chat_sessions.id"), nullable=True)
 
-    ticket = relationship("SupportTicket", foreign_keys=[ticket_id])
-    session = relationship("ChatSession", foreign_keys=[session_id])
+    ticket = relationship("ClaraSupportTicket", foreign_keys=[ticket_id])
+    session = relationship("ClaraChatSession", foreign_keys=[session_id])
 
 # Predictive Issue Detection Models
-class PredictionModel(Base):
-    __tablename__ = "prediction_models"
+class ClaraPredictionModel(Base):
+    __tablename__ = "clara_prediction_models"
     __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
@@ -718,7 +718,7 @@ class PredictionModel(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class AlertRule(Base):
+class ClaraAlertRule(Base):
     __tablename__ = "alert_rules"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -731,7 +731,7 @@ class AlertRule(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class SystemMetric(Base):
+class ClaraSystemMetric(Base):
     __tablename__ = "system_metrics"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -741,7 +741,7 @@ class SystemMetric(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     extra_metadata = Column('metadata', JSON, default={})
 
-class IssuePrediction(Base):
+class ClaraIssuePrediction(Base):
     __tablename__ = "issue_predictions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -755,7 +755,7 @@ class IssuePrediction(Base):
     extra_metadata = Column('metadata', JSON, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class IssuePattern(Base):
+class ClaraIssuePattern(Base):
     __tablename__ = "issue_patterns"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -772,7 +772,7 @@ class IssuePattern(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 # Multi-Ticket Resolution Models
-class TicketGroup(Base):
+class ClaraTicketGroup(Base):
     __tablename__ = "ticket_groups"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -785,7 +785,7 @@ class TicketGroup(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class BulkAction(Base):
+class ClaraBulkAction(Base):
     __tablename__ = "bulk_actions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -801,7 +801,7 @@ class BulkAction(Base):
     # Relationships
     creator = relationship("User", foreign_keys=[created_by])
 
-class ResolutionTemplate(Base):
+class ClaraResolutionTemplate(Base):
     __tablename__ = "resolution_templates"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -814,7 +814,7 @@ class ResolutionTemplate(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class TicketCluster(Base):
+class ClaraTicketCluster(Base):
     __tablename__ = "ticket_clusters"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -826,7 +826,7 @@ class TicketCluster(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class ResolutionBatch(Base):
+class ClaraResolutionBatch(Base):
     __tablename__ = "resolution_batches"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -847,7 +847,7 @@ class ResolutionBatch(Base):
     creator = relationship("User", foreign_keys=[created_by])
 
 # Onboarding Assistance Models
-class OnboardingStep(Base):
+class ClaraOnboardingStep(Base):
     __tablename__ = "onboarding_steps"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -861,7 +861,7 @@ class OnboardingStep(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class OnboardingSession(Base):
+class ClaraOnboardingSession(Base):
     __tablename__ = "clara_onboarding_sessions"
     __table_args__ = {'extend_existing': True}
     
@@ -878,7 +878,7 @@ class OnboardingSession(Base):
     user = relationship("User", foreign_keys=[user_id])
     current_step = relationship("OnboardingStep")
 
-class OnboardingTutorial(Base):
+class ClaraOnboardingTutorial(Base):
     __tablename__ = "onboarding_tutorials"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -894,7 +894,7 @@ class OnboardingTutorial(Base):
     # Relationships
     step = relationship("OnboardingStep")
 
-class OnboardingProgress(Base):
+class ClaraOnboardingProgress(Base):
     __tablename__ = "onboarding_progress"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -907,11 +907,11 @@ class OnboardingProgress(Base):
     extra_metadata = Column('metadata', JSON, default={})
     
     # Relationships
-    session = relationship("OnboardingSession", foreign_keys=[session_id])
+    session = relationship("ClaraOnboardingSession", foreign_keys=[session_id])
     step = relationship("OnboardingStep", foreign_keys=[step_id])
 
 # Setup Wizard Models
-class SetupWizardStep(Base):
+class ClaraSetupWizardStep(Base):
     __tablename__ = "setup_wizard_steps"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -926,7 +926,7 @@ class SetupWizardStep(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class SetupWizardSession(Base):
+class ClaraSetupWizardSession(Base):
     __tablename__ = "setup_wizard_sessions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -942,7 +942,7 @@ class SetupWizardSession(Base):
     user = relationship("User", foreign_keys=[user_id])
     current_step = relationship("SetupWizardStep")
 
-class SetupWizardConfig(Base):
+class ClaraSetupWizardConfig(Base):
     __tablename__ = "setup_wizard_configs"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -952,9 +952,9 @@ class SetupWizardConfig(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    session = relationship("SetupWizardSession")
+    session = relationship("ClaraSetupWizardSession")
 
-class SetupWizardValidation(Base):
+class ClaraSetupWizardValidation(Base):
     __tablename__ = "setup_wizard_validations"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -966,10 +966,10 @@ class SetupWizardValidation(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    session = relationship("SetupWizardSession")
+    session = relationship("ClaraSetupWizardSession")
 
 # In-Store Inquiry Integration Models
-class InStoreKiosk(Base):
+class ClaraInStoreKiosk(Base):
     __tablename__ = "in_store_kiosks"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -983,7 +983,7 @@ class InStoreKiosk(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class InStoreInquiry(Base):
+class ClaraInStoreInquiry(Base):
     __tablename__ = "in_store_inquiries"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1001,7 +1001,7 @@ class InStoreInquiry(Base):
     # Relationships
     kiosk = relationship("InStoreKiosk")
 
-class InStoreQRCode(Base):
+class ClaraInStoreQRCode(Base):
     __tablename__ = "in_store_qr_codes"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1014,9 +1014,9 @@ class InStoreQRCode(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    location = relationship("InStoreLocation")
+    location = relationship("ClaraInStoreLocation")
 
-class InStoreLocation(Base):
+class ClaraInStoreLocation(Base):
     __tablename__ = "in_store_locations"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1028,7 +1028,7 @@ class InStoreLocation(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class InStoreDevice(Base):
+class ClaraInStoreDevice(Base):
     __tablename__ = "in_store_devices"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1043,10 +1043,10 @@ class InStoreDevice(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    location = relationship("InStoreLocation")
+    location = relationship("ClaraInStoreLocation")
 
 # Mobile App for Monitoring Models
-class MobileAppUser(Base):
+class ClaraMobileAppUser(Base):
     __tablename__ = "mobile_app_users"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1064,7 +1064,7 @@ class MobileAppUser(Base):
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
 
-class MobileAppSession(Base):
+class ClaraMobileAppSession(Base):
     __tablename__ = "mobile_app_sessions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1077,9 +1077,9 @@ class MobileAppSession(Base):
     extra_metadata = Column('metadata', JSON, default={})
     
     # Relationships
-    user = relationship("MobileAppUser")
+    user = relationship("ClaraMobileAppUser")
 
-class MobileAppOverride(Base):
+class ClaraMobileAppOverride(Base):
     __tablename__ = "mobile_app_overrides"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1093,10 +1093,10 @@ class MobileAppOverride(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    user = relationship("MobileAppUser")
+    user = relationship("ClaraMobileAppUser")
     approver = relationship("User", foreign_keys=[approved_by])
 
-class MobileAppNotification(Base):
+class ClaraMobileAppNotification(Base):
     __tablename__ = "mobile_app_notifications"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1111,9 +1111,9 @@ class MobileAppNotification(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    user = relationship("MobileAppUser")
+    user = relationship("ClaraMobileAppUser")
 
-class MobileAppDevice(Base):
+class ClaraMobileAppDevice(Base):
     __tablename__ = "mobile_app_devices"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1128,9 +1128,9 @@ class MobileAppDevice(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    user = relationship("MobileAppUser")
+    user = relationship("ClaraMobileAppUser")
 
-class MobileAppPermission(Base):
+class ClaraMobileAppPermission(Base):
     __tablename__ = "mobile_app_permissions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1142,11 +1142,11 @@ class MobileAppPermission(Base):
     expires_at = Column(DateTime(timezone=True))
     
     # Relationships
-    user = relationship("MobileAppUser")
+    user = relationship("ClaraMobileAppUser")
     granter = relationship("User", foreign_keys=[granted_by])
 
 # Voice Sentiment Coaching Models
-class VoiceSentimentSession(Base):
+class ClaraVoiceSentimentSession(Base):
     __tablename__ = "voice_sentiment_sessions"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1163,7 +1163,7 @@ class VoiceSentimentSession(Base):
     # Relationships
     agent = relationship("User", foreign_keys=[agent_id])
 
-class VoiceSentimentAnalysis(Base):
+class ClaraVoiceSentimentAnalysis(Base):
     __tablename__ = "voice_sentiment_analysis"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1174,9 +1174,9 @@ class VoiceSentimentAnalysis(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    session = relationship("VoiceSentimentSession")
+    session = relationship("ClaraVoiceSentimentSession")
 
-class VoiceSentimentFeedback(Base):
+class ClaraVoiceSentimentFeedback(Base):
     __tablename__ = "voice_sentiment_feedback"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1188,10 +1188,10 @@ class VoiceSentimentFeedback(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    session = relationship("VoiceSentimentSession")
+    session = relationship("ClaraVoiceSentimentSession")
     creator = relationship("User", foreign_keys=[created_by])
 
-class VoiceSentimentCoaching(Base):
+class ClaraVoiceSentimentCoaching(Base):
     __tablename__ = "voice_sentiment_coaching"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1203,9 +1203,9 @@ class VoiceSentimentCoaching(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    session = relationship("VoiceSentimentSession")
+    session = relationship("ClaraVoiceSentimentSession")
 
-class VoiceSentimentScenario(Base):
+class ClaraVoiceSentimentScenario(Base):
     __tablename__ = "voice_sentiment_scenarios"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1219,7 +1219,7 @@ class VoiceSentimentScenario(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class VoiceSentimentPractice(Base):
+class ClaraVoiceSentimentPractice(Base):
     __tablename__ = "voice_sentiment_practice"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -1233,23 +1233,23 @@ class VoiceSentimentPractice(Base):
     
     # Relationships
     agent = relationship("User", foreign_keys=[agent_id])
-    scenario = relationship("VoiceSentimentScenario")
-    session = relationship("VoiceSentimentSession")
+    scenario = relationship("ClaraVoiceSentimentScenario")
+    session = relationship("ClaraVoiceSentimentSession")
 
 # Additional indexes for new models
-Index("idx_brands_name", Brand.name)
-Index("idx_brand_configs_brand_type", BrandConfiguration.brand_id, BrandConfiguration.config_type)
-Index("idx_customer_journeys_customer_type", CustomerJourney.customer_id, CustomerJourney.journey_type)
-Index("idx_journey_events_journey_timestamp", JourneyEvent.journey_id, JourneyEvent.timestamp)
-Index("idx_proactive_notifications_customer_status", ProactiveNotification.customer_id, ProactiveNotification.status)
-Index("idx_agent_training_agent_status", AgentTraining.agent_id, AgentTraining.status)
-Index("idx_training_modules_difficulty", TrainingModule.difficulty_level, TrainingModule.is_active)
-Index("idx_faq_categories_name", FAQCategory.name)
-Index("idx_faq_entries_category", FAQEntry.category_id, FAQEntry.is_active)
-Index("idx_prediction_models_type", PredictionModel.model_type, PredictionModel.is_active)
-Index("idx_ticket_groups_type_status", TicketGroup.group_type, TicketGroup.status)
-Index("idx_onboarding_sessions_user_status", OnboardingSession.user_id, OnboardingSession.status)
-Index("idx_setup_wizard_sessions_user_status", SetupWizardSession.user_id, SetupWizardSession.status)
-Index("idx_in_store_inquiries_kiosk_status", InStoreInquiry.kiosk_id, InStoreInquiry.status)
-Index("idx_mobile_app_users_device", MobileAppUser.device_id, MobileAppUser.is_active)
-Index("idx_voice_sentiment_sessions_agent", VoiceSentimentSession.agent_id, VoiceSentimentSession.status)
+Index("idx_brands_name", ClaraBrand.name)
+Index("idx_brand_configs_brand_type", ClaraBrandConfiguration.brand_id, ClaraBrandConfiguration.config_type)
+Index("idx_customer_journeys_customer_type", ClaraCustomerJourney.customer_id, ClaraCustomerJourney.journey_type)
+Index("idx_journey_events_journey_timestamp", ClaraJourneyEvent.journey_id, ClaraJourneyEvent.timestamp)
+Index("idx_proactive_notifications_customer_status", ClaraProactiveNotification.customer_id, ClaraProactiveNotification.status)
+Index("idx_agent_training_agent_status", ClaraAgentTraining.agent_id, ClaraAgentTraining.status)
+Index("idx_training_modules_difficulty", ClaraTrainingModule.difficulty_level, ClaraTrainingModule.is_active)
+Index("idx_faq_categories_name", ClaraFAQCategory.name)
+Index("idx_faq_entries_category", ClaraFAQEntry.category_id, ClaraFAQEntry.is_active)
+Index("idx_prediction_models_type", ClaraPredictionModel.model_type, ClaraPredictionModel.is_active)
+Index("idx_ticket_groups_type_status", ClaraTicketGroup.group_type, ClaraTicketGroup.status)
+Index("idx_onboarding_sessions_user_status", ClaraOnboardingSession.user_id, ClaraOnboardingSession.status)
+Index("idx_setup_wizard_sessions_user_status", ClaraSetupWizardSession.user_id, ClaraSetupWizardSession.status)
+Index("idx_in_store_inquiries_kiosk_status", ClaraInStoreInquiry.kiosk_id, ClaraInStoreInquiry.status)
+Index("idx_mobile_app_users_device", ClaraMobileAppUser.device_id, ClaraMobileAppUser.is_active)
+Index("idx_voice_sentiment_sessions_agent", ClaraVoiceSentimentSession.agent_id, ClaraVoiceSentimentSession.status)

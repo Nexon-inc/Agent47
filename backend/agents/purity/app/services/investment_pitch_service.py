@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, InvestmentPitch, BusinessModel, FinancialForecast
+from ..models import PurityBusinessIdea, PurityInvestmentPitch, PurityBusinessModel, PurityFinancialForecast
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -24,10 +24,10 @@ class InvestmentPitchService:
         use_of_funds: List[str],
         investor_type: str,
         pitch_deck_format: str = "slides"
-    ) -> InvestmentPitch:
+    ) -> PurityInvestmentPitch:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -55,7 +55,7 @@ class InvestmentPitchService:
             ai_response = ai_response_obj.text_content if ai_response_obj.success else "{}"
             pitch_data = json.loads(ai_response)
             
-            investment_pitch = InvestmentPitch(
+            investment_pitch = PurityInvestmentPitch(
                 business_idea_id=business_idea_id,
                 funding_amount=funding_amount,
                 equity_offered=equity_offered,
@@ -99,7 +99,7 @@ class InvestmentPitchService:
     ) -> Dict[str, Any]:
         try:
             pitch_result = await db.execute(
-                select(InvestmentPitch).where(InvestmentPitch.id == investment_pitch_id)
+                select(PurityInvestmentPitch).where(PurityInvestmentPitch.id == investment_pitch_id)
             )
             investment_pitch = pitch_result.scalar_one_or_none()
             if not investment_pitch:
@@ -152,7 +152,7 @@ class InvestmentPitchService:
     ) -> Dict[str, Any]:
         try:
             pitch_result = await db.execute(
-                select(InvestmentPitch).where(InvestmentPitch.id == investment_pitch_id)
+                select(PurityInvestmentPitch).where(PurityInvestmentPitch.id == investment_pitch_id)
             )
             investment_pitch = pitch_result.scalar_one_or_none()
             if not investment_pitch:
@@ -206,7 +206,7 @@ class InvestmentPitchService:
     ) -> Dict[str, Any]:
         try:
             pitch_result = await db.execute(
-                select(InvestmentPitch).where(InvestmentPitch.id == investment_pitch_id)
+                select(PurityInvestmentPitch).where(PurityInvestmentPitch.id == investment_pitch_id)
             )
             investment_pitch = pitch_result.scalar_one_or_none()
             if not investment_pitch:
@@ -253,7 +253,7 @@ class InvestmentPitchService:
     
     def _create_investment_pitch_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         funding_amount: float,
         equity_offered: float,
         use_of_funds: List[str],
@@ -311,7 +311,7 @@ class InvestmentPitchService:
     
     def _create_pitch_deck_prompt(
         self,
-        investment_pitch: InvestmentPitch,
+        investment_pitch: PurityInvestmentPitch,
         slide_count: int,
         include_financials: bool,
         include_market_data: bool
@@ -356,7 +356,7 @@ class InvestmentPitchService:
     
     def _create_financial_projections_prompt(
         self,
-        investment_pitch: InvestmentPitch,
+        investment_pitch: PurityInvestmentPitch,
         projection_years: int,
         include_scenarios: bool
     ) -> str:
@@ -413,7 +413,7 @@ class InvestmentPitchService:
     
     def _create_investor_materials_prompt(
         self,
-        investment_pitch: InvestmentPitch,
+        investment_pitch: PurityInvestmentPitch,
         material_types: List[str]
     ) -> str:
         return f"""

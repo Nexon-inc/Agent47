@@ -3,7 +3,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 from ..services.account_analysis_service import AccountAnalysisService
-from ..models import BrandProfile
+from ..models import AriaBrandProfile
 from ..database import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 

@@ -347,11 +347,11 @@ class EmailSequencesService:
             async with get_eric_database() as session:
                 # Query lead's email activity history
                 email_activities = await session.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.lead_id == lead_id,
-                            SalesActivity.activity_type.in_(["email_sent", "email_opened", "email_clicked"]),
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=30)
+                            EricSalesActivity.lead_id == lead_id,
+                            EricSalesActivity.activity_type.in_(["email_sent", "email_opened", "email_clicked"]),
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=30)
                         )
                     )
                 )

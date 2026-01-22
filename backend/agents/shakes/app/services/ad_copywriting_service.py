@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class AdCopywritingService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create content project
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Ad Copy: {product_service}",
                     description=f"AI-generated {platform} {ad_type} ad for {product_service}",
@@ -94,7 +94,7 @@ class AdCopywritingService:
                 performance_prediction = ai_response.text_content if ai_response.success else ""
                 
                 # Create content piece
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=product_service,
                     content=ad_copy,
@@ -158,7 +158,7 @@ class AdCopywritingService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create content project for campaign
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Ad Campaign: {campaign_name}",
                     description=f"AI-generated {platform} campaign for {product_service}",
@@ -195,7 +195,7 @@ class AdCopywritingService:
                     ad_copy = ai_response.text_content if ai_response.success else ""
                     
                     # Create content piece for each ad
-                    content_piece = ContentPiece(
+                    content_piece = ShakesContentPiece(
                         project_id=project.id,
                         title=f"{campaign_name} - {ad_type}",
                         content=ad_copy,
@@ -248,7 +248,7 @@ class AdCopywritingService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 

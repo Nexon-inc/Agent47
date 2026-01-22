@@ -7,7 +7,7 @@ import json
 import asyncio
 from enum import Enum
 
-from ..models import CustomerJourney, JourneyEvent, JourneyStage, CustomerInteraction, SupportTicket
+from ..models import ClaraCustomerJourney, ClaraJourneyEvent, ClaraJourneyStage, ClaraCustomerInteraction, ClaraSupportTicket
 from ..database import get_clara_database
 from core.config import settings
 from core.integrations import IntegrationManager
@@ -30,7 +30,7 @@ class CustomerJourneyService:
     ) -> Dict[str, Any]:
         """Create a new customer journey"""
         try:
-            journey = CustomerJourney(
+            journey = ClaraCustomerJourney(
                 customer_id=customer_id,
                 journey_type=journey_type,
                 description=description,
@@ -66,7 +66,7 @@ class CustomerJourneyService:
     ) -> Dict[str, Any]:
         """Get customer journey by ID"""
         try:
-            journey = db.query(CustomerJourney).filter(CustomerJourney.id == journey_id).first()
+            journey = db.query(ClaraCustomerJourney).filter(ClaraCustomerJourney.id == journey_id).first()
             if not journey:
                 raise HTTPException(status_code=404, detail="Customer journey not found")
             
@@ -95,14 +95,14 @@ class CustomerJourneyService:
     ) -> List[Dict[str, Any]]:
         """List customer journeys"""
         try:
-            query = db.query(CustomerJourney)
+            query = db.query(ClaraCustomerJourney)
             
             if customer_id:
-                query = query.filter(CustomerJourney.customer_id == customer_id)
+                query = query.filter(ClaraCustomerJourney.customer_id == customer_id)
             if journey_type:
-                query = query.filter(CustomerJourney.journey_type == journey_type)
+                query = query.filter(ClaraCustomerJourney.journey_type == journey_type)
             if status:
-                query = query.filter(CustomerJourney.status == status)
+                query = query.filter(ClaraCustomerJourney.status == status)
             
             journeys = query.offset(skip).limit(limit).all()
             
@@ -132,7 +132,7 @@ class CustomerJourneyService:
     ) -> Dict[str, Any]:
         """Update customer journey"""
         try:
-            journey = db.query(CustomerJourney).filter(CustomerJourney.id == journey_id).first()
+            journey = db.query(ClaraCustomerJourney).filter(ClaraCustomerJourney.id == journey_id).first()
             if not journey:
                 raise HTTPException(status_code=404, detail="Customer journey not found")
             
@@ -173,7 +173,7 @@ class CustomerJourneyService:
     ) -> Dict[str, Any]:
         """Add an event to a customer journey"""
         try:
-            event = JourneyEvent(
+            event = ClaraJourneyEvent(
                 journey_id=journey_id,
                 event_type=event_type,
                 event_data=event_data,
@@ -207,9 +207,9 @@ class CustomerJourneyService:
     ) -> List[Dict[str, Any]]:
         """Get events for a customer journey"""
         try:
-            events = db.query(JourneyEvent).filter(
-                JourneyEvent.journey_id == journey_id
-            ).order_by(desc(JourneyEvent.created_at)).offset(skip).limit(limit).all()
+            events = db.query(ClaraJourneyEvent).filter(
+                ClaraJourneyEvent.journey_id == journey_id
+            ).order_by(desc(ClaraJourneyEvent.created_at)).offset(skip).limit(limit).all()
             
             return [
                 {
@@ -235,7 +235,7 @@ class CustomerJourneyService:
     ) -> Dict[str, Any]:
         """Create a new journey stage"""
         try:
-            stage = JourneyStage(
+            stage = ClaraJourneyStage(
                 stage_name=stage_name,
                 stage_type=stage_type,
                 description=description,
@@ -272,14 +272,14 @@ class CustomerJourneyService:
     ) -> List[Dict[str, Any]]:
         """Get journey stages"""
         try:
-            query = db.query(JourneyStage)
+            query = db.query(ClaraJourneyStage)
             
             if stage_type:
-                query = query.filter(JourneyStage.stage_type == stage_type)
+                query = query.filter(ClaraJourneyStage.stage_type == stage_type)
             if is_active is not None:
-                query = query.filter(JourneyStage.is_active == is_active)
+                query = query.filter(ClaraJourneyStage.is_active == is_active)
             
-            stages = query.order_by(JourneyStage.order_index).all()
+            stages = query.order_by(ClaraJourneyStage.order_index).all()
             
             return [
                 {
@@ -309,15 +309,15 @@ class CustomerJourneyService:
         """Track a customer interaction and update journey"""
         try:
             # Find or create customer journey
-            journey = db.query(CustomerJourney).filter(
+            journey = db.query(ClaraCustomerJourney).filter(
                 and_(
-                    CustomerJourney.customer_id == customer_id,
-                    CustomerJourney.status == "active"
+                    ClaraCustomerJourney.customer_id == customer_id,
+                    ClaraCustomerJourney.status == "active"
                 )
             ).first()
             
             if not journey:
-                journey = CustomerJourney(
+                journey = ClaraCustomerJourney(
                     customer_id=customer_id,
                     journey_type="support_interaction",
                     description="Customer support interaction journey",
@@ -338,7 +338,7 @@ class CustomerJourneyService:
                 "sentiment_score": sentiment_score
             }
             
-            event = JourneyEvent(
+            event = ClaraJourneyEvent(
                 journey_id=journey.id,
                 event_type="customer_interaction",
                 event_data=event_data,
@@ -369,22 +369,22 @@ class CustomerJourneyService:
         """Get customer journey analytics"""
         try:
             # Build queries
-            journeys_query = db.query(CustomerJourney).filter(
+            journeys_query = db.query(ClaraCustomerJourney).filter(
                 and_(
-                    CustomerJourney.created_at >= start_date,
-                    CustomerJourney.created_at <= end_date
+                    ClaraCustomerJourney.created_at >= start_date,
+                    ClaraCustomerJourney.created_at <= end_date
                 )
             )
             
-            events_query = db.query(JourneyEvent).filter(
+            events_query = db.query(ClaraJourneyEvent).filter(
                 and_(
-                    JourneyEvent.created_at >= start_date,
-                    JourneyEvent.created_at <= end_date
+                    ClaraJourneyEvent.created_at >= start_date,
+                    ClaraJourneyEvent.created_at <= end_date
                 )
             )
             
             if journey_type:
-                journeys_query = journeys_query.filter(CustomerJourney.journey_type == journey_type)
+                journeys_query = journeys_query.filter(ClaraCustomerJourney.journey_type == journey_type)
             
             journeys = journeys_query.all()
             events = events_query.all()
@@ -431,9 +431,9 @@ class CustomerJourneyService:
         """Check the health of customer journey system"""
         try:
             db = next(get_db())
-            journey_count = db.query(CustomerJourney).count()
-            event_count = db.query(JourneyEvent).count()
-            stage_count = db.query(JourneyStage).count()
+            journey_count = db.query(ClaraCustomerJourney).count()
+            event_count = db.query(ClaraJourneyEvent).count()
+            stage_count = db.query(ClaraJourneyStage).count()
             
             return {
                 "status": "healthy",

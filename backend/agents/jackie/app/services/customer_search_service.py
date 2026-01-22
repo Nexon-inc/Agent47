@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import CustomerSearch, SearchResult, SocialProfile, CustomerMatch
+from ..models import JackieCustomerSearch, JackieSearchResult, JackieSocialProfile, JackieCustomerMatch
 
 class CustomerSearchService:
     def __init__(self, db: Session):
@@ -28,7 +28,7 @@ class CustomerSearchService:
         
         search_result = self.nlp_processor.search_customers_by_product(prompt)
         
-        search = CustomerSearch(
+        search = JackieCustomerSearch(
             id=search_id, product_description=product_description, search_criteria=json.dumps(search_criteria),
             search_platforms=json.dumps(search_platforms), search_results=json.dumps(search_result),
             created_at=datetime.utcnow()
@@ -51,7 +51,7 @@ class CustomerSearchService:
         analysis_result = self.nlp_processor.analyze_social_profiles(prompt)
         
         for profile in profile_data:
-            social_profile = SocialProfile(
+            social_profile = JackieSocialProfile(
                 id=str(uuid.uuid4()), profile_data=json.dumps(profile),
                 analysis_focus=json.dumps(analysis_focus), analysis_results=json.dumps(analysis_result),
                 created_at=datetime.utcnow()
@@ -74,7 +74,7 @@ class CustomerSearchService:
         
         match_result = self.nlp_processor.find_customer_matches(prompt)
         
-        match = CustomerMatch(
+        match = JackieCustomerMatch(
             id=match_id, customer_criteria=json.dumps(customer_criteria), match_threshold=match_threshold,
             match_results=json.dumps(match_result), created_at=datetime.utcnow()
         )
@@ -116,16 +116,16 @@ class CustomerSearchService:
     def get_customer_search_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        searches_conducted = self.db.query(CustomerSearch).filter(
-            CustomerSearch.created_at >= cutoff_date
+        searches_conducted = self.db.query(JackieCustomerSearch).filter(
+            JackieCustomerSearch.created_at >= cutoff_date
         ).count()
         
-        profiles_analyzed = self.db.query(SocialProfile).filter(
-            SocialProfile.created_at >= cutoff_date
+        profiles_analyzed = self.db.query(JackieSocialProfile).filter(
+            JackieSocialProfile.created_at >= cutoff_date
         ).count()
         
-        matches_found = self.db.query(CustomerMatch).filter(
-            CustomerMatch.created_at >= cutoff_date
+        matches_found = self.db.query(JackieCustomerMatch).filter(
+            JackieCustomerMatch.created_at >= cutoff_date
         ).count()
         
         return {

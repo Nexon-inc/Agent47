@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import InfluencerROIPrediction, PredictionModel, HistoricalROI, InfluencerMetrics
+from ..models import JackieInfluencerROIPrediction, JackiePredictionModel, JackieHistoricalROI, JackieInfluencerMetrics
 
 class InfluencerROIPredictorService:
     def __init__(self, db: Session):
@@ -18,7 +18,7 @@ class InfluencerROIPredictorService:
         prediction_id = str(uuid.uuid4())
         
         prompt = f"""
-        Influencer ID: {influencer_id}
+        JackieInfluencer ID: {influencer_id}
         Campaign Budget: {campaign_budget}
         Campaign Type: {campaign_type}
         
@@ -27,7 +27,7 @@ class InfluencerROIPredictorService:
         
         prediction_result = self.nlp_processor.predict_influencer_roi(prompt)
         
-        prediction = InfluencerROIPrediction(
+        prediction = JackieInfluencerROIPrediction(
             id=prediction_id, influencer_id=influencer_id, campaign_budget=campaign_budget,
             campaign_type=campaign_type, prediction_data=json.dumps(prediction_result),
             created_at=datetime.utcnow()
@@ -62,7 +62,7 @@ class InfluencerROIPredictorService:
         analysis_id = str(uuid.uuid4())
         
         prompt = f"""
-        Influencer ID: {influencer_id}
+        JackieInfluencer ID: {influencer_id}
         Analysis Period: {analysis_period}
         
         Analyze historical ROI data for the influencer.
@@ -70,7 +70,7 @@ class InfluencerROIPredictorService:
         
         analysis_result = self.nlp_processor.analyze_historical_roi(prompt)
         
-        analysis = HistoricalROI(
+        analysis = JackieHistoricalROI(
             id=analysis_id, influencer_id=influencer_id, analysis_period=analysis_period,
             analysis_data=json.dumps(analysis_result), created_at=datetime.utcnow()
         )
@@ -82,9 +82,9 @@ class InfluencerROIPredictorService:
     def get_roi_predictor_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        predictions_made = self.db.query(InfluencerROIPrediction).filter(InfluencerROIPrediction.created_at >= cutoff_date).count()
+        predictions_made = self.db.query(JackieInfluencerROIPrediction).filter(JackieInfluencerROIPrediction.created_at >= cutoff_date).count()
         models_created = self.db.query(PredictionModel).filter(PredictionModel.created_at >= cutoff_date).count()
-        historical_analyses = self.db.query(HistoricalROI).filter(HistoricalROI.created_at >= cutoff_date).count()
+        historical_analyses = self.db.query(JackieHistoricalROI).filter(JackieHistoricalROI.created_at >= cutoff_date).count()
         
         return {
             "timeframe": timeframe, "predictions_made": predictions_made,

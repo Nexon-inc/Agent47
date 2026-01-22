@@ -7,7 +7,7 @@ import json
 import asyncio
 from enum import Enum
 
-from ..models import OnboardingStep, OnboardingSession, OnboardingTutorial, OnboardingProgress
+from ..models import OnboardingStep, ClaraOnboardingSession, OnboardingTutorial, OnboardingProgress
 from ..database import get_clara_database
 from core.config import settings
 from core.integrations import IntegrationManager
@@ -259,7 +259,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Create a new onboarding session"""
         try:
-            session = OnboardingSession(
+            session = ClaraOnboardingSession(
                 user_id=user_id,
                 step_id=step_id,
                 status=status,
@@ -295,7 +295,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Get onboarding session by ID"""
         try:
-            session = db.query(OnboardingSession).filter(OnboardingSession.id == session_id).first()
+            session = db.query(ClaraOnboardingSession).filter(ClaraOnboardingSession.id == session_id).first()
             if not session:
                 raise HTTPException(status_code=404, detail="Onboarding session not found")
             
@@ -324,14 +324,14 @@ class OnboardingAssistanceService:
     ) -> List[Dict[str, Any]]:
         """List onboarding sessions"""
         try:
-            query = db.query(OnboardingSession)
+            query = db.query(ClaraOnboardingSession)
             
             if user_id:
-                query = query.filter(OnboardingSession.user_id == user_id)
+                query = query.filter(ClaraOnboardingSession.user_id == user_id)
             if status:
-                query = query.filter(OnboardingSession.status == status)
+                query = query.filter(ClaraOnboardingSession.status == status)
             
-            sessions = query.order_by(desc(OnboardingSession.created_at)).offset(skip).limit(limit).all()
+            sessions = query.order_by(desc(ClaraOnboardingSession.created_at)).offset(skip).limit(limit).all()
             
             return [
                 {
@@ -360,7 +360,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Update onboarding session"""
         try:
-            session = db.query(OnboardingSession).filter(OnboardingSession.id == session_id).first()
+            session = db.query(ClaraOnboardingSession).filter(ClaraOnboardingSession.id == session_id).first()
             if not session:
                 raise HTTPException(status_code=404, detail="Onboarding session not found")
             
@@ -399,7 +399,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, str]:
         """Delete onboarding session"""
         try:
-            session = db.query(OnboardingSession).filter(OnboardingSession.id == session_id).first()
+            session = db.query(ClaraOnboardingSession).filter(ClaraOnboardingSession.id == session_id).first()
             if not session:
                 raise HTTPException(status_code=404, detail="Onboarding session not found")
             
@@ -618,7 +618,7 @@ class OnboardingAssistanceService:
         """Get user's onboarding progress"""
         try:
             # Get user's sessions
-            sessions = db.query(OnboardingSession).filter(OnboardingSession.user_id == user_id).all()
+            sessions = db.query(ClaraOnboardingSession).filter(ClaraOnboardingSession.user_id == user_id).all()
             
             # Get all active steps
             total_steps = db.query(OnboardingStep).filter(OnboardingStep.is_active == True).count()
@@ -631,10 +631,10 @@ class OnboardingAssistanceService:
             progress_percentage = (completed_steps / total_steps * 100) if total_steps > 0 else 0
             
             # Get current step
-            current_session = db.query(OnboardingSession).filter(
+            current_session = db.query(ClaraOnboardingSession).filter(
                 and_(
-                    OnboardingSession.user_id == user_id,
-                    OnboardingSession.status == "in_progress"
+                    ClaraOnboardingSession.user_id == user_id,
+                    ClaraOnboardingSession.status == "in_progress"
                 )
             ).first()
             
@@ -675,7 +675,7 @@ class OnboardingAssistanceService:
         """Calculate user's onboarding progress"""
         try:
             # Calculate comprehensive onboarding progress with weighted scoring
-            session = db.query(OnboardingSession).filter(OnboardingSession.user_id == user_id).first()
+            session = db.query(ClaraOnboardingSession).filter(ClaraOnboardingSession.user_id == user_id).first()
             if not session:
                 return {"progress_percentage": 0, "completed_steps": 0, "total_steps": 0, "current_step": None}
             
@@ -694,10 +694,10 @@ class OnboardingAssistanceService:
             completed_steps = 0
             
             for step in steps:
-                step_session = db.query(OnboardingSession).filter(
-                    OnboardingSession.user_id == user_id,
-                    OnboardingSession.step_id == step.id,
-                    OnboardingSession.status == "completed"
+                step_session = db.query(ClaraOnboardingSession).filter(
+                    ClaraOnboardingSession.user_id == user_id,
+                    ClaraOnboardingSession.step_id == step.id,
+                    ClaraOnboardingSession.status == "completed"
                 ).first()
                 
                 if step_session:
@@ -709,10 +709,10 @@ class OnboardingAssistanceService:
             # Find current step (next incomplete step)
             current_step = None
             for step in steps:
-                step_session = db.query(OnboardingSession).filter(
-                    OnboardingSession.user_id == user_id,
-                    OnboardingSession.step_id == step.id,
-                    OnboardingSession.status == "completed"
+                step_session = db.query(ClaraOnboardingSession).filter(
+                    ClaraOnboardingSession.user_id == user_id,
+                    ClaraOnboardingSession.step_id == step.id,
+                    ClaraOnboardingSession.status == "completed"
                 ).first()
                 
                 if not step_session:
@@ -745,10 +745,10 @@ class OnboardingAssistanceService:
         """Get onboarding analytics"""
         try:
             # Get sessions in date range
-            sessions = db.query(OnboardingSession).filter(
+            sessions = db.query(ClaraOnboardingSession).filter(
                 and_(
-                    OnboardingSession.created_at >= start_date,
-                    OnboardingSession.created_at <= end_date
+                    ClaraOnboardingSession.created_at >= start_date,
+                    ClaraOnboardingSession.created_at <= end_date
                 )
             ).all()
             
@@ -797,7 +797,7 @@ class OnboardingAssistanceService:
         try:
             db = next(get_db())
             step_count = db.query(OnboardingStep).count()
-            session_count = db.query(OnboardingSession).count()
+            session_count = db.query(ClaraOnboardingSession).count()
             tutorial_count = db.query(OnboardingTutorial).count()
             
             return {

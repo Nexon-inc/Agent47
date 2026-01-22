@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from core.ai import get_ai_service_manager, AIServiceManager
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, ChatSession, CustomerProfile,
+    ClaraSupportTicket, ClaraCustomerInteraction, ClaraChatSession, CustomerProfile,
     TicketCategory, SupportChannel, SentimentType
 )
 
@@ -48,7 +48,7 @@ class OfflineSupportService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Create offline interaction record
-                interaction = CustomerInteraction(
+                interaction = ClaraCustomerInteraction(
                     customer_id=customer_id,
                     interaction_type="offline_response",
                     channel=channel,
@@ -109,15 +109,15 @@ class OfflineSupportService:
             async with db.get_session() as session:
                 # Get queued offline responses
                 queued_responses = await session.execute(
-                    select(CustomerInteraction).where(
+                    select(ClaraCustomerInteraction).where(
                         and_(
-                            CustomerInteraction.customer_id == customer_id,
-                            CustomerInteraction.interaction_type == "offline_response",
-                            CustomerInteraction.metadata.contains({"status": "queued"})
+                            ClaraCustomerInteraction.customer_id == customer_id,
+                            ClaraCustomerInteraction.interaction_type == "offline_response",
+                            ClaraCustomerInteraction.metadata.contains({"status": "queued"})
                         )
                     ).order_by(
-                        CustomerInteraction.metadata["priority"].desc(),
-                        CustomerInteraction.created_at.asc()
+                        ClaraCustomerInteraction.metadata["priority"].desc(),
+                        ClaraCustomerInteraction.created_at.asc()
                     ).limit(limit)
                 )
                 queued_responses = queued_responses.scalars().all()
@@ -160,15 +160,15 @@ class OfflineSupportService:
             async with db.get_session() as session:
                 # Get all queued responses
                 queued_responses = await session.execute(
-                    select(CustomerInteraction).where(
+                    select(ClaraCustomerInteraction).where(
                         and_(
-                            CustomerInteraction.customer_id == customer_id,
-                            CustomerInteraction.interaction_type == "offline_response",
-                            CustomerInteraction.metadata.contains({"status": "queued"})
+                            ClaraCustomerInteraction.customer_id == customer_id,
+                            ClaraCustomerInteraction.interaction_type == "offline_response",
+                            ClaraCustomerInteraction.metadata.contains({"status": "queued"})
                         )
                     ).order_by(
-                        CustomerInteraction.metadata["priority"].desc(),
-                        CustomerInteraction.created_at.asc()
+                        ClaraCustomerInteraction.metadata["priority"].desc(),
+                        ClaraCustomerInteraction.created_at.asc()
                     )
                 )
                 queued_responses = queued_responses.scalars().all()
@@ -213,7 +213,7 @@ class OfflineSupportService:
     
     async def _deliver_single_response(
         self,
-        response: CustomerInteraction,
+        response: ClaraCustomerInteraction,
         delivery_channel: SupportChannel,
         session: AsyncSession
     ) -> Dict[str, Any]:
@@ -328,23 +328,23 @@ class OfflineSupportService:
             async with db.get_session() as session:
                 # Get offline interactions
                 offline_interactions = await session.execute(
-                    select(CustomerInteraction).where(
+                    select(ClaraCustomerInteraction).where(
                         and_(
-                            CustomerInteraction.customer_id == customer_id,
-                            CustomerInteraction.metadata.contains({"offline": True})
+                            ClaraCustomerInteraction.customer_id == customer_id,
+                            ClaraCustomerInteraction.metadata.contains({"offline": True})
                         )
-                    ).order_by(CustomerInteraction.created_at.desc())
+                    ).order_by(ClaraCustomerInteraction.created_at.desc())
                 )
                 offline_interactions = offline_interactions.scalars().all()
                 
                 # Get offline tickets
                 offline_tickets = await session.execute(
-                    select(SupportTicket).where(
+                    select(ClaraSupportTicket).where(
                         and_(
-                            SupportTicket.customer_id == customer_id,
-                            SupportTicket.metadata.contains({"offline_created": True})
+                            ClaraSupportTicket.customer_id == customer_id,
+                            ClaraSupportTicket.metadata.contains({"offline_created": True})
                         )
-                    ).order_by(SupportTicket.created_at.desc())
+                    ).order_by(ClaraSupportTicket.created_at.desc())
                 )
                 offline_tickets = offline_tickets.scalars().all()
                 

@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, OpportunityValidation, BusinessModel
+from ..models import PurityBusinessIdea, PurityOpportunityValidation, PurityBusinessModel
 from ..services.opportunity_validation_service import OpportunityValidationService
 
 router = APIRouter(prefix="/opportunity-validation", tags=["Opportunity Validation"])

@@ -6,7 +6,7 @@ from sqlalchemy import select, update
 from core.utils.nlp_utils import NLPUtils
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
-from ..models import AdCampaign, PlatformType
+from ..models import JackieAdCampaign, PlatformType
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class AdsService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                ad_campaign = AdCampaign(
+                ad_campaign = JackieAdCampaign(
                     campaign_id=None,
                     platform=platform,
                     ad_account_id="ad_account_123",
@@ -98,7 +98,7 @@ class AdsService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(AdCampaign).where(AdCampaign.id == ad_id)
+                query = select(JackieAdCampaign).where(JackieAdCampaign.id == ad_id)
                 result = await session.execute(query)
                 ad = result.scalar_one_or_none()
                 
@@ -111,7 +111,7 @@ class AdsService:
                     target_metrics=target_metrics
                 )
                 
-                stmt = update(AdCampaign).where(AdCampaign.id == ad_id).values(
+                stmt = update(JackieAdCampaign).where(JackieAdCampaign.id == ad_id).values(
                     optimization_settings=optimization_result["settings"],
                     performance_metrics=optimization_result["metrics"]
                 )
@@ -130,7 +130,7 @@ class AdsService:
     async def get_ad_performance(self, ad_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(AdCampaign).where(AdCampaign.id == ad_id)
+                query = select(JackieAdCampaign).where(JackieAdCampaign.id == ad_id)
                 result = await session.execute(query)
                 ad = result.scalar_one_or_none()
                 
@@ -163,7 +163,7 @@ class AdsService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(AdCampaign).where(AdCampaign.campaign_id == campaign_id)
+                query = select(JackieAdCampaign).where(JackieAdCampaign.campaign_id == campaign_id)
                 result = await session.execute(query)
                 ads = result.scalars().all()
                 
@@ -173,7 +173,7 @@ class AdsService:
                 budget_per_ad = allocated_budget / len(ads)
                 
                 for ad in ads:
-                    stmt = update(AdCampaign).where(AdCampaign.id == ad.id).values(
+                    stmt = update(JackieAdCampaign).where(JackieAdCampaign.id == ad.id).values(
                         budget=budget_per_ad
                     )
                     await session.execute(stmt)
@@ -197,7 +197,7 @@ class AdsService:
     
     async def _perform_ad_optimization(
         self,
-        ad: AdCampaign,
+        ad: JackieAdCampaign,
         optimization_type: str,
         target_metrics: Dict[str, Any]
     ) -> Dict[str, Any]:

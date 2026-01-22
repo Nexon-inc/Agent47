@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class InteractiveWidgetsService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -120,7 +120,7 @@ class InteractiveWidgetsService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -179,7 +179,7 @@ class InteractiveWidgetsService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -238,7 +238,7 @@ class InteractiveWidgetsService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -297,7 +297,7 @@ class InteractiveWidgetsService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -342,7 +342,7 @@ class InteractiveWidgetsService:
             return {"success": False, "error": str(e)}
     
     async def _generate_widget_content(
-        self, content_piece: ContentPiece, widget_type: str, widget_config: Dict[str, Any], target_audience: str
+        self, content_piece: ShakesContentPiece, widget_type: str, widget_config: Dict[str, Any], target_audience: str
     ) -> Dict[str, Any]:
         """Generate widget content"""
         content_prompt = self._create_widget_content_prompt(
@@ -430,7 +430,7 @@ class InteractiveWidgetsService:
         }
     
     async def _generate_quiz_questions(
-        self, content_piece: ContentPiece, quiz_config: Dict[str, Any], question_count: int
+        self, content_piece: ShakesContentPiece, quiz_config: Dict[str, Any], question_count: int
     ) -> List[Dict[str, Any]]:
         """Generate quiz questions"""
         questions = []
@@ -563,7 +563,7 @@ class InteractiveWidgetsService:
         }
     
     async def _generate_poll_content(
-        self, content_piece: ContentPiece, poll_config: Dict[str, Any], poll_options: List[str]
+        self, content_piece: ShakesContentPiece, poll_config: Dict[str, Any], poll_options: List[str]
     ) -> Dict[str, Any]:
         """Generate poll content"""
         content_prompt = self._create_poll_content_prompt(
@@ -618,7 +618,7 @@ class InteractiveWidgetsService:
         }
     
     async def _generate_survey_content(
-        self, content_piece: ContentPiece, survey_config: Dict[str, Any], survey_questions: List[Dict[str, Any]]
+        self, content_piece: ShakesContentPiece, survey_config: Dict[str, Any], survey_questions: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Generate survey content"""
         content_prompt = self._create_survey_content_prompt(
@@ -722,7 +722,7 @@ class InteractiveWidgetsService:
         }
     
     def _create_widget_content_prompt(
-        self, content_piece: ContentPiece, widget_type: str, widget_config: Dict[str, Any], target_audience: str
+        self, content_piece: ShakesContentPiece, widget_type: str, widget_config: Dict[str, Any], target_audience: str
     ) -> str:
         """Create prompt for widget content"""
         return f"""
@@ -752,7 +752,7 @@ class InteractiveWidgetsService:
         """
     
     def _create_quiz_question_prompt(
-        self, content_piece: ContentPiece, quiz_config: Dict[str, Any], question_number: int
+        self, content_piece: ShakesContentPiece, quiz_config: Dict[str, Any], question_number: int
     ) -> str:
         """Create prompt for quiz question"""
         return f"""
@@ -766,7 +766,7 @@ class InteractiveWidgetsService:
         """
     
     def _create_poll_content_prompt(
-        self, content_piece: ContentPiece, poll_config: Dict[str, Any], poll_options: List[str]
+        self, content_piece: ShakesContentPiece, poll_config: Dict[str, Any], poll_options: List[str]
     ) -> str:
         """Create prompt for poll content"""
         return f"""
@@ -781,7 +781,7 @@ class InteractiveWidgetsService:
         """
     
     def _create_survey_content_prompt(
-        self, content_piece: ContentPiece, survey_config: Dict[str, Any], survey_questions: List[Dict[str, Any]]
+        self, content_piece: ShakesContentPiece, survey_config: Dict[str, Any], survey_questions: List[Dict[str, Any]]
     ) -> str:
         """Create prompt for survey content"""
         return f"""

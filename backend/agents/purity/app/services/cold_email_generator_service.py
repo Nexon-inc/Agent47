@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, BusinessModel, CustomerAvatar
+from ..models import PurityBusinessIdea, PurityBusinessModel, PurityCustomerAvatar
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -27,7 +27,7 @@ class ColdEmailGeneratorService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -95,7 +95,7 @@ class ColdEmailGeneratorService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -153,7 +153,7 @@ class ColdEmailGeneratorService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -210,7 +210,7 @@ class ColdEmailGeneratorService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -259,7 +259,7 @@ class ColdEmailGeneratorService:
     
     def _create_cold_email_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_audience: str,
         email_purpose: str,
         value_proposition: str,
@@ -307,7 +307,7 @@ class ColdEmailGeneratorService:
     
     def _create_outreach_sequence_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         sequence_length: int,
         target_audience: str,
         sequence_goals: List[str],
@@ -359,7 +359,7 @@ class ColdEmailGeneratorService:
     
     def _create_follow_up_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         response_type: str,
         follow_up_count: int,
         escalation_strategy: str
@@ -409,7 +409,7 @@ class ColdEmailGeneratorService:
     
     def _create_personalization_templates_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_industries: List[str],
         personalization_level: str,
         research_sources: List[str]

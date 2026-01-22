@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, CrowdfundingCampaign, BusinessModel
+from ..models import PurityBusinessIdea, PurityCrowdfundingCampaign, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class CrowdfundingService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -91,7 +91,7 @@ class CrowdfundingService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -148,7 +148,7 @@ class CrowdfundingService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -206,7 +206,7 @@ class CrowdfundingService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -255,7 +255,7 @@ class CrowdfundingService:
     
     def _create_crowdfunding_campaign_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         platform_choice: str,
         funding_goal: float,
         campaign_duration: int,
@@ -318,7 +318,7 @@ class CrowdfundingService:
     
     def _create_funding_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_audience: str,
         funding_sources: List[str],
         risk_assessment: Dict[str, Any]
@@ -372,7 +372,7 @@ class CrowdfundingService:
     
     def _create_campaign_marketing_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         marketing_channels: List[str],
         target_backers: str,
         campaign_messaging: str
@@ -441,7 +441,7 @@ class CrowdfundingService:
     
     def _create_campaign_performance_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         campaign_metrics: Dict[str, Any],
         performance_goals: List[str],
         optimization_needs: List[str]

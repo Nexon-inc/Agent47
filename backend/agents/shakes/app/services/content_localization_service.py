@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class ContentLocalizationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -119,7 +119,7 @@ class ContentLocalizationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -179,7 +179,7 @@ class ContentLocalizationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -272,7 +272,7 @@ class ContentLocalizationService:
             return {"success": False, "error": str(e)}
     
     async def _generate_localized_content(
-        self, content_piece: ContentPiece, language: str, region: str, localization_goals: List[str]
+        self, content_piece: ShakesContentPiece, language: str, region: str, localization_goals: List[str]
     ) -> Dict[str, Any]:
         """Generate localized content for specific language and region"""
         localization_prompt = self._create_localization_prompt(
@@ -295,7 +295,7 @@ class ContentLocalizationService:
         }
     
     async def _generate_cultural_adaptations(
-        self, content_piece: ContentPiece, target_languages: List[str], target_regions: List[str]
+        self, content_piece: ShakesContentPiece, target_languages: List[str], target_regions: List[str]
     ) -> Dict[str, Any]:
         """Generate cultural adaptations"""
         adaptations = {}
@@ -323,7 +323,7 @@ class ContentLocalizationService:
         return adaptations
     
     async def _generate_localization_guidelines(
-        self, content_piece: ContentPiece, target_languages: List[str], target_regions: List[str], localization_goals: List[str]
+        self, content_piece: ShakesContentPiece, target_languages: List[str], target_regions: List[str], localization_goals: List[str]
     ) -> str:
         """Generate localization guidelines"""
         guidelines_prompt = self._create_localization_guidelines_prompt(
@@ -368,7 +368,7 @@ class ContentLocalizationService:
         ]
     
     async def _analyze_cultural_context(
-        self, content_piece: ContentPiece, target_culture: str, cultural_context: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, target_culture: str, cultural_context: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Analyze cultural context for content"""
         analysis_prompt = self._create_cultural_analysis_prompt(
@@ -390,7 +390,7 @@ class ContentLocalizationService:
         }
     
     async def _generate_cultural_adaptations(
-        self, content_piece: ContentPiece, target_culture: str, cultural_context: Dict[str, Any], adaptation_level: str
+        self, content_piece: ShakesContentPiece, target_culture: str, cultural_context: Dict[str, Any], adaptation_level: str
     ) -> Dict[str, Any]:
         """Generate cultural adaptations for content"""
         adaptation_prompt = self._create_cultural_adaptation_prompt(
@@ -411,7 +411,7 @@ class ContentLocalizationService:
         }
     
     async def _generate_adapted_content(
-        self, content_piece: ContentPiece, cultural_adaptations: Dict[str, Any], target_culture: str
+        self, content_piece: ShakesContentPiece, cultural_adaptations: Dict[str, Any], target_culture: str
     ) -> str:
         """Generate culturally adapted content"""
         adaptation_prompt = self._create_content_adaptation_prompt(
@@ -439,7 +439,7 @@ class ContentLocalizationService:
         return guidelines_result
     
     async def _generate_localized_seo(
-        self, content_piece: ContentPiece, language: str, region: str, seo_goals: List[str]
+        self, content_piece: ShakesContentPiece, language: str, region: str, seo_goals: List[str]
     ) -> Dict[str, Any]:
         """Generate localized SEO content"""
         seo_prompt = self._create_localized_seo_prompt(
@@ -477,7 +477,7 @@ class ContentLocalizationService:
         return hreflang_tags
     
     async def _generate_multilingual_sitemap(
-        self, content_piece: ContentPiece, target_languages: List[str], target_regions: List[str]
+        self, content_piece: ShakesContentPiece, target_languages: List[str], target_regions: List[str]
     ) -> Dict[str, Any]:
         """Generate multilingual sitemap"""
         sitemap_entries = []
@@ -577,7 +577,7 @@ class ContentLocalizationService:
         ]
     
     def _create_localization_prompt(
-        self, content_piece: ContentPiece, language: str, region: str, localization_goals: List[str]
+        self, content_piece: ShakesContentPiece, language: str, region: str, localization_goals: List[str]
     ) -> str:
         """Create prompt for content localization"""
         return f"""
@@ -600,7 +600,7 @@ class ContentLocalizationService:
         """
     
     def _create_cultural_adaptation_prompt(
-        self, content_piece: ContentPiece, language: str, region: str
+        self, content_piece: ShakesContentPiece, language: str, region: str
     ) -> str:
         """Create prompt for cultural adaptation"""
         return f"""
@@ -622,7 +622,7 @@ class ContentLocalizationService:
         """
     
     def _create_localization_guidelines_prompt(
-        self, content_piece: ContentPiece, target_languages: List[str], target_regions: List[str], localization_goals: List[str]
+        self, content_piece: ShakesContentPiece, target_languages: List[str], target_regions: List[str], localization_goals: List[str]
     ) -> str:
         """Create prompt for localization guidelines"""
         return f"""
@@ -644,7 +644,7 @@ class ContentLocalizationService:
         """
     
     def _create_cultural_analysis_prompt(
-        self, content_piece: ContentPiece, target_culture: str, cultural_context: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, target_culture: str, cultural_context: Dict[str, Any]
     ) -> str:
         """Create prompt for cultural analysis"""
         return f"""
@@ -666,7 +666,7 @@ class ContentLocalizationService:
         """
     
     def _create_cultural_adaptation_prompt(
-        self, content_piece: ContentPiece, target_culture: str, cultural_context: Dict[str, Any], adaptation_level: str
+        self, content_piece: ShakesContentPiece, target_culture: str, cultural_context: Dict[str, Any], adaptation_level: str
     ) -> str:
         """Create prompt for cultural adaptation"""
         return f"""
@@ -689,7 +689,7 @@ class ContentLocalizationService:
         """
     
     def _create_content_adaptation_prompt(
-        self, content_piece: ContentPiece, cultural_adaptations: Dict[str, Any], target_culture: str
+        self, content_piece: ShakesContentPiece, cultural_adaptations: Dict[str, Any], target_culture: str
     ) -> str:
         """Create prompt for content adaptation"""
         return f"""
@@ -731,7 +731,7 @@ class ContentLocalizationService:
         """
     
     def _create_localized_seo_prompt(
-        self, content_piece: ContentPiece, language: str, region: str, seo_goals: List[str]
+        self, content_piece: ShakesContentPiece, language: str, region: str, seo_goals: List[str]
     ) -> str:
         """Create prompt for localized SEO"""
         return f"""

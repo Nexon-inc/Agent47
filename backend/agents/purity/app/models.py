@@ -48,7 +48,7 @@ class ValidationStatus(enum.Enum):
     INVALID = "invalid"
     NEEDS_MORE_DATA = "needs_more_data"
 
-class BusinessIdea(Base):
+class PurityBusinessIdea(Base):
     __tablename__ = "business_ideas"
     __table_args__ = {"extend_existing": True}
     
@@ -73,11 +73,11 @@ class BusinessIdea(Base):
     
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
-    business_models = relationship("BusinessModel", back_populates="idea")
+    business_models = relationship("PurityBusinessModel", back_populates="idea")
     market_research = relationship("PurityMarketResearch", back_populates="idea")
-    customer_avatars = relationship("CustomerAvatar", back_populates="idea")
+    customer_avatars = relationship("PurityCustomerAvatar", back_populates="idea")
 
-class BusinessModel(Base):
+class PurityBusinessModel(Base):
     __tablename__ = "business_models"
     __table_args__ = {"extend_existing": True}
     
@@ -101,7 +101,7 @@ class BusinessModel(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea", back_populates="business_models")
+    idea = relationship("PurityBusinessIdea", back_populates="business_models")
 
 class PurityMarketResearch(Base):
     __tablename__ = "purity_market_research"
@@ -126,9 +126,9 @@ class PurityMarketResearch(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea", back_populates="market_research")
+    idea = relationship("PurityBusinessIdea", back_populates="market_research")
 
-class CustomerAvatar(Base):
+class PurityCustomerAvatar(Base):
     __tablename__ = "customer_avatars"
     __table_args__ = {"extend_existing": True}
     
@@ -152,9 +152,9 @@ class CustomerAvatar(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea", back_populates="customer_avatars")
+    idea = relationship("PurityBusinessIdea", back_populates="customer_avatars")
 
-class FinancialForecast(Base):
+class PurityFinancialForecast(Base):
     __tablename__ = "financial_forecasts"
     __table_args__ = {"extend_existing": True}
     
@@ -174,9 +174,9 @@ class FinancialForecast(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class LegalRequirement(Base):
+class PurityLegalRequirement(Base):
     __tablename__ = "legal_requirements"
     __table_args__ = {"extend_existing": True}
     
@@ -198,9 +198,9 @@ class LegalRequirement(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class BrandIdentity(Base):
+class PurityBrandIdentity(Base):
     __tablename__ = "brand_identities"
     __table_args__ = {"extend_existing": True}
     
@@ -223,9 +223,9 @@ class BrandIdentity(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class LaunchStrategy(Base):
+class PurityLaunchStrategy(Base):
     __tablename__ = "launch_strategies"
     __table_args__ = {"extend_existing": True}
     
@@ -246,9 +246,9 @@ class LaunchStrategy(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class InvestmentPitch(Base):
+class PurityInvestmentPitch(Base):
     __tablename__ = "investment_pitches"
     __table_args__ = {"extend_existing": True}
     
@@ -272,9 +272,9 @@ class InvestmentPitch(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class ExitStrategy(Base):
+class PurityExitStrategy(Base):
     __tablename__ = "exit_strategies"
     __table_args__ = {"extend_existing": True}
     
@@ -292,9 +292,9 @@ class ExitStrategy(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class BusinessHealth(Base):
+class PurityBusinessHealth(Base):
     __tablename__ = "business_health"
     __table_args__ = {"extend_existing": True}
     
@@ -314,7 +314,7 @@ class BusinessHealth(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
 class PurityCompetitorAnalysis(Base):
     __tablename__ = "purity_competitor_analyses"
@@ -338,9 +338,9 @@ class PurityCompetitorAnalysis(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class OpportunityValidation(Base):
+class PurityOpportunityValidation(Base):
     __tablename__ = "opportunity_validations"
     __table_args__ = {"extend_existing": True}
 
@@ -356,9 +356,9 @@ class OpportunityValidation(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class NicheOpportunity(Base):
+class PurityNicheOpportunity(Base):
     __tablename__ = "niche_opportunities"
     __table_args__ = {"extend_existing": True}
     
@@ -378,9 +378,9 @@ class NicheOpportunity(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class MonetizationStrategy(Base):
+class PurityMonetizationStrategy(Base):
     __tablename__ = "monetization_strategies"
     __table_args__ = {"extend_existing": True}
     
@@ -399,9 +399,9 @@ class MonetizationStrategy(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class PartnershipOpportunity(Base):
+class PurityPartnershipOpportunity(Base):
     __tablename__ = "partnership_opportunities"
     __table_args__ = {"extend_existing": True}
     
@@ -420,9 +420,9 @@ class PartnershipOpportunity(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class FranchiseOpportunity(Base):
+class PurityFranchiseOpportunity(Base):
     __tablename__ = "franchise_opportunities"
     __table_args__ = {"extend_existing": True}
     
@@ -441,9 +441,9 @@ class FranchiseOpportunity(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class MVPBlueprint(Base):
+class PurityMVPBlueprint(Base):
     __tablename__ = "mvp_blueprints"
     __table_args__ = {"extend_existing": True}
 
@@ -459,9 +459,9 @@ class MVPBlueprint(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class BusinessModelCanvas(Base):
+class PurityBusinessModelCanvas(Base):
     __tablename__ = "business_model_canvases"
     __table_args__ = {"extend_existing": True}
 
@@ -479,9 +479,9 @@ class BusinessModelCanvas(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class SustainabilityPlan(Base):
+class PuritySustainabilityPlan(Base):
     __tablename__ = "sustainability_plans"
     __table_args__ = {"extend_existing": True}
     
@@ -498,9 +498,9 @@ class SustainabilityPlan(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class TaskAutomation(Base):
+class PurityTaskAutomation(Base):
     __tablename__ = "task_automations"
     __table_args__ = {"extend_existing": True}
     
@@ -518,9 +518,9 @@ class TaskAutomation(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class BusinessMentor(Base):
+class PurityBusinessMentor(Base):
     __tablename__ = "business_mentors"
     __table_args__ = {"extend_existing": True}
     
@@ -537,9 +537,9 @@ class BusinessMentor(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class CrowdfundingCampaign(Base):
+class PurityCrowdfundingCampaign(Base):
     __tablename__ = "crowdfunding_campaigns"
     __table_args__ = {"extend_existing": True}
     
@@ -558,9 +558,9 @@ class CrowdfundingCampaign(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class EcommerceSetup(Base):
+class PurityEcommerceSetup(Base):
     __tablename__ = "ecommerce_setups"
     __table_args__ = {"extend_existing": True}
     
@@ -579,11 +579,11 @@ class EcommerceSetup(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
 
 
-class TaxStrategy(Base):
+class PurityTaxStrategy(Base):
     __tablename__ = "tax_strategies"
     __table_args__ = {"extend_existing": True}
 
@@ -602,9 +602,9 @@ class TaxStrategy(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")
 
-class ExitValuation(Base):
+class PurityExitValuation(Base):
     __tablename__ = "exit_valuations"
     __table_args__ = {"extend_existing": True}
 
@@ -626,4 +626,4 @@ class ExitValuation(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    idea = relationship("BusinessIdea")
+    idea = relationship("PurityBusinessIdea")

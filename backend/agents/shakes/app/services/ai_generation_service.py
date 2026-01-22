@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ class AIContentGenerationService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create content project
-                project = ContentProject(
+                project = ShakesContentProject(
                     user_id=user_id,
                     title=f"AI Generated: {topic}",
                     description=f"AI-generated {content_type} about {topic}",
@@ -94,7 +94,7 @@ class AIContentGenerationService:
                 await session.flush()
                 
                 # Create content piece with generated content
-                content_piece = ContentPiece(
+                content_piece = ShakesContentPiece(
                     project_id=project.id,
                     title=f"{content_type.title()}: {topic}",
                     content=response.text_content,
@@ -180,7 +180,7 @@ Make the content compelling, informative, and actionable."""
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create batch project
-                batch_project = ContentProject(
+                batch_project = ShakesContentProject(
                     user_id=user_id,
                     title="AI Generated Content Batch",
                     description="Batch of AI-generated content pieces",
@@ -214,7 +214,7 @@ Make the content compelling, informative, and actionable."""
                         content = await self._generate_generic_content(topic, target_audience, tone, word_count_target, content_type, keywords, content_goals)
                     
                     # Create content piece
-                    content_piece = ContentPiece(
+                    content_piece = ShakesContentPiece(
                         project_id=batch_project.id,
                         title=f"{topic} - {content_type}",
                         content=content,
@@ -267,7 +267,7 @@ Make the content compelling, informative, and actionable."""
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 

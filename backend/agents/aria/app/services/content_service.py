@@ -3,7 +3,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.storage.chroma_manager import get_chroma, ChromaDBManager
 from core.integrations.integration_manager import get_integration_manager
 from core.database.connection import get_supabase
-from ..models import BrandProfile
+from ..models import AriaBrandProfile
 
 
 class ContentService:
@@ -132,8 +132,8 @@ Example format: ["#hashtag1", "#hashtag2", "#hashtag3"]"""
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            res = await session.execute(select(BrandProfile).where(BrandProfile.user_id == user_id))
-            brand: Optional[BrandProfile] = res.scalar_one_or_none()
+            res = await session.execute(select(AriaBrandProfile).where(AriaBrandProfile.user_id == user_id))
+            brand: Optional[AriaBrandProfile] = res.scalar_one_or_none()
             return {
                 "voice": (brand.voice if brand and brand.voice else {}),
                 "constraints": (brand.compliance_rules if brand and brand.compliance_rules else {}),

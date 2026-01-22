@@ -20,8 +20,8 @@ from core.config import settings
 
 from ..database import get_eric_database
 from ..models import (
-    Lead, Deal, SalesActivity, SalesCampaign, SalesAnalytics,
-    SalesForecast, SalesTeam, SalesRep, CustomerProfile
+    EricLead, EricDeal, EricSalesActivity, EricSalesCampaign, EricSalesAnalytics,
+    EricSalesForecast, EricSalesTeam, EricSalesRep, CustomerProfile
 )
 
 logger = logging.getLogger(__name__)
@@ -116,15 +116,15 @@ class PredictiveAnalyticsService:
                 
                 revenue_data = await session.execute(
                     select(
-                        func.date_trunc(period, Deal.closed_at).label('period'),
-                        func.sum(Deal.value).label('revenue'),
-                        func.count(Deal.id).label('deals_count')
+                        func.date_trunc(period, EricDeal.closed_at).label('period'),
+                        func.sum(EricDeal.value).label('revenue'),
+                        func.count(EricDeal.id).label('deals_count')
                     ).where(
                         and_(
-                            Deal.status == "closed",
-                            Deal.closed_at >= start_date,
-                            Deal.closed_at <= end_date,
-                            Deal.value.isnot(None)
+                            EricDeal.status == "closed",
+                            EricDeal.closed_at >= start_date,
+                            EricDeal.closed_at <= end_date,
+                            EricDeal.value.isnot(None)
                         )
                     ).group_by(text('period')).order_by(text('period'))
                 )
@@ -227,19 +227,19 @@ class PredictiveAnalyticsService:
             try:
                 # Get lead data
                 lead = await session.execute(
-                    select(Lead).where(Lead.id == lead_id)
+                    select(EricLead).where(EricLead.id == lead_id)
                 )
                 lead = lead.scalar_one_or_none()
                 
                 if not lead:
-                    raise ValueError(f"Lead with ID {lead_id} not found")
+                    raise ValueError(f"EricLead with ID {lead_id} not found")
                 
                 # Get lead activities
                 activities = await session.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.lead_id == lead_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
+                            EricSalesActivity.lead_id == lead_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
                         )
                     )
                 )
@@ -249,7 +249,7 @@ class PredictiveAnalyticsService:
                 conversion_score = 0.0
                 factors = []
                 
-                # Factor 1: Lead source quality
+                # Factor 1: EricLead source quality
                 source_scores = {
                     "website": 0.8,
                     "referral": 0.9,
@@ -261,7 +261,7 @@ class PredictiveAnalyticsService:
                 source_score = source_scores.get(lead.source, 0.5)
                 conversion_score += source_score * 0.2
                 factors.append({
-                    "factor": "Lead Source Quality",
+                    "factor": "EricLead Source Quality",
                     "value": source_score,
                     "weight": 0.2
                 })
@@ -296,10 +296,10 @@ class PredictiveAnalyticsService:
                 if lead.industry:
                     # Calculate industry fit based on historical conversion rates
                     industry_conversions = await session.execute(
-                        select(Deal).where(
+                        select(EricDeal).where(
                             and_(
-                                Deal.status == "closed_won",
-                                Deal.customer_id.in_(
+                                EricDeal.status == "closed_won",
+                                EricDeal.customer_id.in_(
                                     select(CustomerProfile.id).where(CustomerProfile.industry == lead.industry)
                                 )
                             )
@@ -332,12 +332,12 @@ class PredictiveAnalyticsService:
                     "weight": 0.2
                 })
                 
-                # Factor 6: Lead score (if available)
+                # Factor 6: EricLead score (if available)
                 if lead.score:
                     score_normalized = min(lead.score / 100.0, 1.0)
                     conversion_score += score_normalized * 0.1
                     factors.append({
-                        "factor": "Lead Score",
+                        "factor": "EricLead Score",
                         "value": score_normalized,
                         "weight": 0.1
                     })
@@ -347,10 +347,10 @@ class PredictiveAnalyticsService:
                 
                 # Calculate time to convert based on historical data
                 historical_conversions = await session.execute(
-                    select(Deal).where(
+                    select(EricDeal).where(
                         and_(
-                            Deal.status == "closed_won",
-                            Deal.created_at >= datetime.utcnow() - timedelta(days=365)
+                            EricDeal.status == "closed_won",
+                            EricDeal.created_at >= datetime.utcnow() - timedelta(days=365)
                         )
                     )
                 )
@@ -362,7 +362,7 @@ class PredictiveAnalyticsService:
                     for deal in historical_deals:
                         if deal.lead_id:
                             lead = await session.execute(
-                                select(Lead).where(Lead.id == deal.lead_id)
+                                select(EricLead).where(EricLead.id == deal.lead_id)
                             )
                             lead = lead.scalar_one_or_none()
                             if lead:
@@ -444,10 +444,10 @@ class PredictiveAnalyticsService:
             try:
                 # Get customer's deals and activities
                 deals = await session.execute(
-                    select(Deal).where(
+                    select(EricDeal).where(
                         and_(
-                            Deal.customer_id == customer_id,
-                            Deal.status == "closed"
+                            EricDeal.customer_id == customer_id,
+                            EricDeal.status == "closed"
                         )
                     )
                 )
@@ -458,10 +458,10 @@ class PredictiveAnalyticsService:
                 
                 # Get recent activities
                 activities = await session.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.customer_id == customer_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
+                            EricSalesActivity.customer_id == customer_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
                         )
                     )
                 )
@@ -504,7 +504,7 @@ class PredictiveAnalyticsService:
                     "weight": 0.25
                 })
                 
-                # Factor 4: Deal value trend
+                # Factor 4: EricDeal value trend
                 if len(deals) > 1:
                     deal_values = [deal.value for deal in deals if deal.value]
                     if deal_values:
@@ -524,11 +524,11 @@ class PredictiveAnalyticsService:
                 # Factor 5: Support interactions
                 # Query support activities or customer satisfaction data
                 support_activities = await session.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.customer_id == customer_id,
-                            SalesActivity.activity_type.in_(["support_call", "support_email", "support_chat"]),
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
+                            EricSalesActivity.customer_id == customer_id,
+                            EricSalesActivity.activity_type.in_(["support_call", "support_email", "support_chat"]),
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
                         )
                     )
                 )
@@ -642,11 +642,11 @@ class PredictiveAnalyticsService:
                     
                     demand_data = await session.execute(
                         select(
-                            func.date_trunc('month', Lead.created_at).label('month'),
-                            func.count(Lead.id).label('lead_count'),
-                            func.avg(Lead.score).label('avg_score')
+                            func.date_trunc('month', EricLead.created_at).label('month'),
+                            func.count(EricLead.id).label('lead_count'),
+                            func.avg(EricLead.score).label('avg_score')
                         ).where(
-                            Lead.created_at >= start_date
+                            EricLead.created_at >= start_date
                         ).group_by(text('month')).order_by(text('month'))
                     )
                     demand_data = demand_data.all()
@@ -656,7 +656,7 @@ class PredictiveAnalyticsService:
                         lead_counts = [row.lead_count for row in demand_data]
                         avg_scores = [float(row.avg_score) if row.avg_score else 0 for row in demand_data]
                         
-                        # Lead volume trend
+                        # EricLead volume trend
                         volume_trend = (lead_counts[-1] - lead_counts[0]) / lead_counts[0] if lead_counts[0] > 0 else 0
                         volume_direction = "increasing" if volume_trend > 0.1 else "decreasing" if volume_trend < -0.1 else "stable"
                         
@@ -672,7 +672,7 @@ class PredictiveAnalyticsService:
                             }
                         ))
                         
-                        # Lead quality trend
+                        # EricLead quality trend
                         quality_trend = (avg_scores[-1] - avg_scores[0]) / avg_scores[0] if avg_scores[0] > 0 else 0
                         quality_direction = "increasing" if quality_trend > 0.05 else "decreasing" if quality_trend < -0.05 else "stable"
                         
@@ -711,13 +711,13 @@ class PredictiveAnalyticsService:
                     
                     pricing_data = await session.execute(
                         select(
-                            func.avg(Deal.value).label('avg_deal_value'),
-                            func.date_trunc('week', Deal.closed_at).label('week')
+                            func.avg(EricDeal.value).label('avg_deal_value'),
+                            func.date_trunc('week', EricDeal.closed_at).label('week')
                         ).where(
                             and_(
-                                Deal.status == "closed",
-                                Deal.closed_at >= start_date,
-                                Deal.value.isnot(None)
+                                EricDeal.status == "closed",
+                                EricDeal.closed_at >= start_date,
+                                EricDeal.value.isnot(None)
                             )
                         ).group_by(text('week')).order_by(text('week'))
                     )

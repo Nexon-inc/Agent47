@@ -47,7 +47,7 @@ class ContentType(enum.Enum):
     BLOG = "blog"
     AD_COPY = "ad_copy"
 
-class MarketingCampaign(Base):
+class JackieMarketingCampaign(Base):
     __tablename__ = "marketing_campaigns"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -71,12 +71,12 @@ class MarketingCampaign(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
-    contents = relationship("CampaignContent", back_populates="campaign", cascade="all, delete-orphan")
-    ads = relationship("AdCampaign", back_populates="campaign", cascade="all, delete-orphan")
-    analytics = relationship("CampaignAnalytics", back_populates="campaign", cascade="all, delete-orphan")
-    ab_tests = relationship("ABTest", back_populates="campaign", cascade="all, delete-orphan")
+    contents = relationship("JackieCampaignContent", back_populates="campaign", cascade="all, delete-orphan")
+    ads = relationship("JackieAdCampaign", back_populates="campaign", cascade="all, delete-orphan")
+    analytics = relationship("JackieCampaignAnalytics", back_populates="campaign", cascade="all, delete-orphan")
+    ab_tests = relationship("JackieABTest", back_populates="campaign", cascade="all, delete-orphan")
 
-class CampaignContent(Base):
+class JackieCampaignContent(Base):
     __tablename__ = "campaign_contents"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -94,9 +94,9 @@ class CampaignContent(Base):
     brand_voice_applied = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    campaign = relationship("MarketingCampaign", back_populates="contents")
+    campaign = relationship("JackieMarketingCampaign", back_populates="contents")
 
-class AdCampaign(Base):
+class JackieAdCampaign(Base):
     __tablename__ = "ad_campaigns"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -112,9 +112,9 @@ class AdCampaign(Base):
     performance_metrics = Column(JSON, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    campaign = relationship("MarketingCampaign", back_populates="ads")
+    campaign = relationship("JackieMarketingCampaign", back_populates="ads")
 
-class CampaignAnalytics(Base):
+class JackieCampaignAnalytics(Base):
     __tablename__ = "campaign_analytics"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -134,9 +134,9 @@ class CampaignAnalytics(Base):
     frequency = Column(Float, default=0.0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    campaign = relationship("MarketingCampaign", back_populates="analytics")
+    campaign = relationship("JackieMarketingCampaign", back_populates="analytics")
 
-class ABTest(Base):
+class JackieABTest(Base):
     __tablename__ = "ab_tests"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -154,9 +154,9 @@ class ABTest(Base):
     confidence_level = Column(Float, default=0.0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
-    campaign = relationship("MarketingCampaign", back_populates="ab_tests")
+    campaign = relationship("JackieMarketingCampaign", back_populates="ab_tests")
 
-class InfluencerCampaign(Base):
+class JackieInfluencerCampaign(Base):
     __tablename__ = "influencer_campaigns"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -174,7 +174,7 @@ class InfluencerCampaign(Base):
     performance_metrics = Column(JSON, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class CustomerSegment(Base):
+class JackieCustomerSegment(Base):
     __tablename__ = "customer_segments"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -189,7 +189,7 @@ class CustomerSegment(Base):
     lifetime_value = Column(Float, default=0.0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class SEOProject(Base):
+class JackieSEOProject(Base):
     __tablename__ = "seo_projects"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -203,7 +203,7 @@ class SEOProject(Base):
     performance_metrics = Column(JSON, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class EmailCampaign(Base):
+class JackieEmailCampaign(Base):
     __tablename__ = "email_campaigns"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -221,7 +221,7 @@ class EmailCampaign(Base):
     performance_metrics = Column(JSON, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class BrandVoice(Base):
+class JackieLegacyBrandVoice(Base):
     __tablename__ = "brand_voices"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -236,7 +236,7 @@ class BrandVoice(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ContentGeneration(Base):
+class JackieContentGeneration(Base):
     __tablename__ = "content_generation"
 
     id = Column(String(36), primary_key=True)
@@ -247,7 +247,7 @@ class ContentGeneration(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ToneAnalysis(Base):
+class JackieToneAnalysis(Base):
     __tablename__ = "tone_analyses"
 
     id = Column(String(36), primary_key=True)
@@ -257,7 +257,7 @@ class ToneAnalysis(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class StyleGuide(Base):
+class JackieStyleGuide(Base):
     __tablename__ = "style_guides"
 
     id = Column(String(36), primary_key=True)
@@ -281,6 +281,26 @@ class JackieMarketResearch(Base):
     threats = Column(JSON, default=[])
     insights = Column(JSON, default=[])
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class JackieBrandVoice(Base):
+    __tablename__ = "jackie_brand_voices"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    tone = Column(Enum(ToneType), nullable=False)
+    personality_traits = Column(JSON, default=[])
+    do_words = Column(JSON, default=[])
+    dont_words = Column(JSON, default=[])
+    sample_content = Column(JSON, default=[])
+    industry = Column(String(100))
+    target_audience = Column(String(200))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    # Relationships
+    user = relationship("User", backref="jackie_brand_voices")
 
 class PredictiveAnalytics(Base):
     __tablename__ = "predictive_analytics"
@@ -316,7 +336,7 @@ class VideoMarketing(Base):
     ai_generated = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class VoiceMarketing(Base):
+class JackieVoiceMarketing(Base):
     __tablename__ = "voice_marketing"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -402,7 +422,7 @@ class AudioContent(Base):
 
 
 # Accessibility models
-class AccessibilityContent(Base):
+class JackieAccessibilityContent(Base):
     __tablename__ = "jackie_accessibility_contents"
 
     id = Column(String(36), primary_key=True)
@@ -437,7 +457,7 @@ class AccessibilityReport(Base):
 
 
 # E-commerce integration models
-class EcommerceConnection(Base):
+class JackieEcommerceConnection(Base):
     __tablename__ = "jackie_ecommerce_connections"
 
     id = Column(String(36), primary_key=True)
@@ -446,7 +466,7 @@ class EcommerceConnection(Base):
     connected_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ProductSync(Base):
+class JackieProductSync(Base):
     __tablename__ = "jackie_product_syncs"
 
     id = Column(String(36), primary_key=True)
@@ -502,7 +522,7 @@ class VoiceScript(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class AdPlatform(Base):
+class JackieAdPlatform(Base):
     __tablename__ = "ad_platforms"
 
     id = Column(String(36), primary_key=True)
@@ -536,7 +556,7 @@ class CalendarView(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class TimelineEvent(Base):
+class JackieTimelineEvent(Base):
     __tablename__ = "timeline_events"
 
     id = Column(String(36), primary_key=True)
@@ -569,8 +589,8 @@ class OrganicStrategy(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ContentPiece(Base):
-    __tablename__ = "content_pieces"
+class JackieContentPiece(Base):
+    __tablename__ = "jackie_content_pieces"
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
@@ -581,7 +601,7 @@ class ContentPiece(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class SocialPost(Base):
+class JackieSocialPost(Base):
     __tablename__ = "social_posts"
     __table_args__ = {'extend_existing': True}
 
@@ -595,7 +615,6 @@ class SocialPost(Base):
 
 
 class CommunityEngagement(Base):
-    __tablename__ = "community_engagements"
 
     id = Column(String(36), primary_key=True)
     post_id = Column(String(36), nullable=False)
@@ -605,7 +624,7 @@ class CommunityEngagement(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class MobileCampaign(Base):
+class JackieMobileCampaign(Base):
     __tablename__ = "mobile_campaigns"
 
     id = Column(String(36), primary_key=True)
@@ -616,7 +635,7 @@ class MobileCampaign(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class PushNotification(Base):
+class JackiePushNotification(Base):
     __tablename__ = "push_notifications"
 
     id = Column(String(36), primary_key=True)
@@ -649,7 +668,7 @@ class AppEngagement(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class DeepAnalytics(Base):
+class JackieDeepAnalytics(Base):
     __tablename__ = "deep_analytics"
 
     id = Column(String(36), primary_key=True)
@@ -678,7 +697,7 @@ class BenchmarkData(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ActionableInsight(Base):
+class JackieActionableInsight(Base):
     __tablename__ = "actionable_insights"
 
     id = Column(String(36), primary_key=True)
@@ -688,8 +707,8 @@ class ActionableInsight(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class OnboardingSession(Base):
-    __tablename__ = "onboarding_sessions"
+class JackieOnboardingSession(Base):
+    __tablename__ = "jackie_onboarding_sessions"
     __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
@@ -719,7 +738,7 @@ class SetupWizard(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class UserProgress(Base):
+class JackieUserProgress(Base):
     __tablename__ = "user_progress"
 
     id = Column(String(36), primary_key=True)
@@ -729,7 +748,7 @@ class UserProgress(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class InteractivePoll(Base):
+class JackieInteractivePoll(Base):
     __tablename__ = "interactive_polls"
 
     id = Column(String(36), primary_key=True)
@@ -778,7 +797,7 @@ class PlatformOptimization(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class EmergingChannel(Base):
+class JackieEmergingChannel(Base):
     __tablename__ = "emerging_channels"
 
     id = Column(String(36), primary_key=True)
@@ -788,7 +807,7 @@ class EmergingChannel(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class PlatformContent(Base):
+class JackiePlatformContent(Base):
     __tablename__ = "platform_contents"
 
     id = Column(String(36), primary_key=True)
@@ -797,7 +816,7 @@ class PlatformContent(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ChannelStrategy(Base):
+class JackieChannelStrategy(Base):
     __tablename__ = "channel_strategies"
 
     id = Column(String(36), primary_key=True)
@@ -806,7 +825,7 @@ class ChannelStrategy(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class LaunchProject(Base):
+class JackieLaunchProject(Base):
     __tablename__ = "launch_projects"
 
     id = Column(String(36), primary_key=True)
@@ -818,7 +837,7 @@ class LaunchProject(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class MarketingFunnel(Base):
+class JackieMarketingFunnel(Base):
     __tablename__ = "marketing_funnels"
 
     id = Column(String(36), primary_key=True)
@@ -828,7 +847,7 @@ class MarketingFunnel(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class LandingPage(Base):
+class JackieLandingPage(Base):
     __tablename__ = "landing_pages"
 
     id = Column(String(36), primary_key=True)
@@ -838,7 +857,7 @@ class LandingPage(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class EmailFlow(Base):
+class JackieEmailFlow(Base):
     __tablename__ = "email_flows"
 
     id = Column(String(36), primary_key=True)
@@ -848,7 +867,7 @@ class EmailFlow(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class CustomerSearch(Base):
+class JackieCustomerSearch(Base):
     __tablename__ = "customer_searches"
 
     id = Column(String(36), primary_key=True)
@@ -857,7 +876,7 @@ class CustomerSearch(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class SearchResult(Base):
+class JackieSearchResult(Base):
     __tablename__ = "search_results"
 
     id = Column(String(36), primary_key=True)
@@ -867,7 +886,7 @@ class SearchResult(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class SocialProfile(Base):
+class JackieSocialProfile(Base):
     __tablename__ = "social_profiles"
 
     id = Column(String(36), primary_key=True)
@@ -877,7 +896,7 @@ class SocialProfile(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class CustomerMatch(Base):
+class JackieCustomerMatch(Base):
     __tablename__ = "customer_matches"
 
     id = Column(String(36), primary_key=True)
@@ -887,7 +906,7 @@ class CustomerMatch(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ChatbotConversation(Base):
+class JackieChatbotConversation(Base):
     __tablename__ = "chatbot_conversations"
 
     id = Column(String(36), primary_key=True)
@@ -898,7 +917,7 @@ class ChatbotConversation(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class EmpathyResponse(Base):
+class JackieEmpathyResponse(Base):
     __tablename__ = "empathy_responses"
 
     id = Column(String(36), primary_key=True)
@@ -908,7 +927,7 @@ class EmpathyResponse(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ContextSession(Base):
+class JackieContextSession(Base):
     __tablename__ = "context_sessions"
 
     id = Column(String(36), primary_key=True)
@@ -917,7 +936,7 @@ class ContextSession(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class ConversationFlow(Base):
+class JackieConversationFlow(Base):
     __tablename__ = "conversation_flows"
 
     id = Column(String(36), primary_key=True)
@@ -925,7 +944,7 @@ class ConversationFlow(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class PersonalizationRule(Base):
+class JackiePersonalizationRule(Base):
     __tablename__ = "personalization_rules"
 
     id = Column(String(36), primary_key=True)
@@ -935,7 +954,7 @@ class PersonalizationRule(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class DynamicContent(Base):
+class JackieDynamicContent(Base):
     __tablename__ = "dynamic_contents"
 
     id = Column(String(36), primary_key=True)
@@ -944,7 +963,7 @@ class DynamicContent(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class BudgetAllocation(Base):
+class JackieBudgetAllocation(Base):
     __tablename__ = "budget_allocations"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -961,7 +980,7 @@ class BudgetAllocation(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-class CRMINtegration(Base):
+class JackieCRMINtegration(Base):
     __tablename__ = "crm_integrations"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -979,9 +998,9 @@ class CRMINtegration(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 # Alias for legacy import name
-CRMIntegration = CRMINtegration
+CRMIntegration = JackieCRMINtegration
 
-class CustomerFeedback(Base):
+class JackieCustomerFeedback(Base):
     __tablename__ = "jackie_customer_feedback"
     __table_args__ = {'extend_existing': True}
     
@@ -1013,7 +1032,7 @@ class ForecastModel(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class PredictionResult(Base):
+class JackiePredictionResult(Base):
     __tablename__ = "prediction_results"
 
     id = Column(String(36), primary_key=True)
@@ -1032,7 +1051,7 @@ class HistoricalData(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class BudgetRule(Base):
+class JackieBudgetRule(Base):
     __tablename__ = "budget_rules"
 
     id = Column(String(36), primary_key=True)
@@ -1082,7 +1101,7 @@ class CampaignStoryboard(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class StoryboardScene(Base):
+class JackieStoryboardScene(Base):
     __tablename__ = "storyboard_scenes"
 
     id = Column(String(36), primary_key=True)
@@ -1092,7 +1111,7 @@ class StoryboardScene(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class FlowVisualization(Base):
+class JackieFlowVisualization(Base):
     __tablename__ = "flow_visualizations"
 
     id = Column(String(36), primary_key=True)
@@ -1156,7 +1175,7 @@ class AllocationRule(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class PerformanceThreshold(Base):
+class JackiePerformanceThreshold(Base):
     __tablename__ = "performance_thresholds"
 
     id = Column(String(36), primary_key=True)
@@ -1165,7 +1184,7 @@ class PerformanceThreshold(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class BudgetAdjustment(Base):
+class JackieBudgetAdjustment(Base):
     __tablename__ = "budget_adjustments"
 
     id = Column(String(36), primary_key=True)
@@ -1175,7 +1194,7 @@ class BudgetAdjustment(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class InfluencerROIPrediction(Base):
+class JackieInfluencerROIPrediction(Base):
     __tablename__ = "influencer_roi_predictions"
 
     id = Column(String(36), primary_key=True)
@@ -1185,8 +1204,8 @@ class InfluencerROIPrediction(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class PredictionModel(Base):
-    __tablename__ = "prediction_models"
+class JackiePredictionModel(Base):
+    __tablename__ = "jackie_prediction_models"
     __table_args__ = {'extend_existing': True}
 
     id = Column(String(36), primary_key=True)
@@ -1195,7 +1214,7 @@ class PredictionModel(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class HistoricalROI(Base):
+class JackieHistoricalROI(Base):
     __tablename__ = "historical_roi"
 
     id = Column(String(36), primary_key=True)
@@ -1204,7 +1223,7 @@ class HistoricalROI(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class InfluencerMetrics(Base):
+class JackieInfluencerMetrics(Base):
     __tablename__ = "influencer_metrics"
 
     id = Column(String(36), primary_key=True)
@@ -1213,7 +1232,7 @@ class InfluencerMetrics(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class GeoTargetedAd(Base):
+class JackieGeoTargetedAd(Base):
     __tablename__ = "geo_targeted_ads"
 
     id = Column(String(36), primary_key=True)
@@ -1259,7 +1278,7 @@ class VersionChange(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class CampaignRollback(Base):
+class JackieCampaignRollback(Base):
     __tablename__ = "campaign_rollbacks"
 
     id = Column(String(36), primary_key=True)
@@ -1269,7 +1288,7 @@ class CampaignRollback(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class TranslationData(Base):
+class JackieTranslationData(Base):
     __tablename__ = "translation_data"
 
     id = Column(String(36), primary_key=True)
@@ -1288,7 +1307,7 @@ class LanguageAnalytics(Base):
     metrics = Column(JSON, default={})
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class SurveyData(Base):
+class JackieSurveyData(Base):
     __tablename__ = "survey_data"
     
     id = Column(String(36), primary_key=True)
@@ -1297,7 +1316,7 @@ class SurveyData(Base):
     analysis_result = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class FeedbackAnalysis(Base):
+class JackieFeedbackAnalysis(Base):
     __tablename__ = "feedback_analysis"
     
     id = Column(String(36), primary_key=True)
@@ -1340,7 +1359,7 @@ class CampaignIdea(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class TrendAnalysis(Base):
+class JackieTrendAnalysis(Base):
     __tablename__ = "jackie_trend_analyses"
 
     id = Column(String(36), primary_key=True)
@@ -1411,7 +1430,7 @@ class EthicalGuideline(Base):
     guideline_type = Column(String(50), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class CrossChannelAnalytics(Base):
+class JackieCrossChannelAnalytics(Base):
     __tablename__ = "cross_channel_analytics"
     
     id = Column(String(36), primary_key=True)
@@ -1478,7 +1497,7 @@ class CallToAction(Base):
     cta_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class WidgetAnalytics(Base):
+class JackieWidgetAnalytics(Base):
     __tablename__ = "widget_analytics"
     
     id = Column(String(36), primary_key=True)
@@ -1486,7 +1505,7 @@ class WidgetAnalytics(Base):
     analytics_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class CampaignVersion(Base):
+class JackieCampaignVersion(Base):
     __tablename__ = "campaign_versions"
     
     id = Column(String(36), primary_key=True)
@@ -1496,7 +1515,7 @@ class CampaignVersion(Base):
     version_result = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class VersionHistory(Base):
+class JackieVersionHistory(Base):
     __tablename__ = "version_histories"
     
     id = Column(String(36), primary_key=True)
@@ -1504,7 +1523,7 @@ class VersionHistory(Base):
     version_history = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class ChangeTracking(Base):
+class JackieChangeTracking(Base):
     __tablename__ = "change_trackings"
     
     id = Column(String(36), primary_key=True)
@@ -1514,7 +1533,7 @@ class ChangeTracking(Base):
     change_result = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class RollbackAction(Base):
+class JackieRollbackAction(Base):
     __tablename__ = "rollback_actions"
     
     id = Column(String(36), primary_key=True)
@@ -1523,7 +1542,7 @@ class RollbackAction(Base):
     rollback_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class MultiLanguageCampaign(Base):
+class JackieMultiLanguageCampaign(Base):
     __tablename__ = "multi_language_campaigns"
     
     id = Column(String(36), primary_key=True)
@@ -1532,7 +1551,7 @@ class MultiLanguageCampaign(Base):
     campaign_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class LanguageTranslation(Base):
+class JackieLanguageTranslation(Base):
     __tablename__ = "language_translations"
     
     id = Column(String(36), primary_key=True)
@@ -1542,7 +1561,7 @@ class LanguageTranslation(Base):
     translation_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class CulturalAdaptation(Base):
+class JackieCulturalAdaptation(Base):
     __tablename__ = "cultural_adaptations"
     
     id = Column(String(36), primary_key=True)
@@ -1551,7 +1570,7 @@ class CulturalAdaptation(Base):
     adaptation_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class LocalizedContent(Base):
+class JackieLocalizedContent(Base):
     __tablename__ = "localized_contents"
     
     id = Column(String(36), primary_key=True)
@@ -1561,8 +1580,8 @@ class LocalizedContent(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class RegionalTrend(Base):
-    __tablename__ = "regional_trends"
+class JackieRegionalTrend(Base):
+    __tablename__ = "jackie_regional_trends"
 
     id = Column(String(36), primary_key=True)
     region = Column(String(200))
@@ -1570,7 +1589,7 @@ class RegionalTrend(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class CulturalAnalysis(Base):
+class JackieCulturalAnalysis(Base):
     __tablename__ = "cultural_analyses"
 
     id = Column(String(36), primary_key=True)
@@ -1580,7 +1599,7 @@ class CulturalAnalysis(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class TranslationProject(Base):
+class JackieTranslationProject(Base):
     __tablename__ = "translation_projects"
 
     id = Column(String(36), primary_key=True)
@@ -1590,7 +1609,7 @@ class TranslationProject(Base):
     status = Column(String(50), default="pending")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class VideoTemplate(Base):
+class JackieVideoTemplate(Base):
     __tablename__ = "video_templates"
     
     id = Column(String(36), primary_key=True)
@@ -1600,7 +1619,7 @@ class VideoTemplate(Base):
     template_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class VoiceTemplate(Base):
+class JackieVoiceTemplate(Base):
     __tablename__ = "voice_templates"
     
     id = Column(String(36), primary_key=True)
@@ -1610,7 +1629,7 @@ class VoiceTemplate(Base):
     voice_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class AnimationAsset(Base):
+class JackieAnimationAsset(Base):
     __tablename__ = "animation_assets"
     
     id = Column(String(36), primary_key=True)
@@ -1620,7 +1639,7 @@ class AnimationAsset(Base):
     animation_data = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-class DesignElement(Base):
+class JackieDesignElement(Base):
     __tablename__ = "design_elements"
     
     id = Column(String(36), primary_key=True)
@@ -1631,7 +1650,7 @@ class DesignElement(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class CollaborationProject(Base):
+class JackieCollaborationProject(Base):
     __tablename__ = "jackie_collaboration_projects"
 
     id = Column(String(36), primary_key=True)
@@ -1652,7 +1671,7 @@ class JackieTeamMember(Base):
     joined_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class Comment(Base):
+class JackieComment(Base):
     __tablename__ = "jackie_comments"
 
     id = Column(String(36), primary_key=True)
@@ -1662,7 +1681,7 @@ class Comment(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class Review(Base):
+class JackieReview(Base):
     __tablename__ = "jackie_reviews"
 
     id = Column(String(36), primary_key=True)
@@ -1673,7 +1692,7 @@ class Review(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class Version(Base):
+class JackieVersion(Base):
     __tablename__ = "jackie_versions"
 
     id = Column(String(36), primary_key=True)
@@ -1696,7 +1715,7 @@ class JackieTask(Base):
 
 
 # Agent integration models used by agent integration service and routers
-class AgentConnection(Base):
+class JackieAgentConnection(Base):
     __tablename__ = "agent_connections"
 
     id = Column(String(36), primary_key=True)
@@ -1712,7 +1731,7 @@ class AgentConnection(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 
-class AgentEvent(Base):
+class JackieAgentEvent(Base):
     __tablename__ = "agent_events"
 
     id = Column(String(36), primary_key=True)
@@ -1726,7 +1745,7 @@ class AgentEvent(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 
-class AgentSyncData(Base):
+class JackieAgentSyncData(Base):
     __tablename__ = "agent_sync_data"
 
     id = Column(String(36), primary_key=True)

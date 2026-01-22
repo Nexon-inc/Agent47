@@ -56,13 +56,13 @@ def build_app() -> FastAPI:
     app.include_router(custom_response_templates.router, prefix="/clara/templates", tags=["Custom Response Templates"])
     app.include_router(real_time_notifications.router, prefix="/clara/notifications", tags=["Real-Time Notifications"])
     app.include_router(custom_workflows.router, prefix="/clara/workflows", tags=["Custom Workflows"])
-    app.include_router(multi_brand.router, prefix="/clara/multi-brand", tags=["Multi-Brand Support"])
+    app.include_router(multi_brand.router, prefix="/clara/multi-brand", tags=["Multi-ClaraBrand Support"])
     app.include_router(customer_journey.router, prefix="/clara/journey", tags=["Customer Journey Tracking"])
 
     # Include medium-priority feature routers
     app.include_router(proactive_notifications.router, prefix="/clara/proactive-notifications", tags=["Proactive Support Notifications"])
     app.include_router(agent_training.router, prefix="/clara/agent-training", tags=["Agent Training Tools"])
-    app.include_router(ai_faq_builder.router, prefix="/clara/ai-faq-builder", tags=["AI-Driven FAQ Builder"])
+    app.include_router(ai_faq_builder.router, prefix="/clara/ai-faq-builder", tags=["AI-Driven ClaraFAQ Builder"])
     app.include_router(predictive_issue_detection.router, prefix="/clara/predictive-issues", tags=["Predictive Issue Detection"])
     app.include_router(multi_ticket_resolution.router, prefix="/clara/multi-ticket-resolution", tags=["Multi-Ticket Resolution"])
 
@@ -162,7 +162,7 @@ def build_app() -> FastAPI:
                     "CRM Integration (Zendesk, Freshdesk, HubSpot, Salesforce)",
                     "Social Media Integration (Instagram, TikTok, Twitter, Facebook)",
                     "Customer Loyalty Program & Trust Scoring",
-                    "Brand Collaboration Inquiry Tracking",
+                    "ClaraBrand Collaboration Inquiry Tracking",
                     "Social Engagement Analytics & Prioritization"
                 ]
             }

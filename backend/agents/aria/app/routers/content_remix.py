@@ -32,7 +32,7 @@ async def create_remix_variants(
     current_user: User = Depends(get_current_user),
     content_remix_service: ContentRemixService = Depends()
 ):
-    """Create PostVariant records for remixed content"""
+    """Create AriaPostVariant records for remixed content"""
     try:
         await content_remix_service.initialize()
         result = await content_remix_service.create_remix_variants(

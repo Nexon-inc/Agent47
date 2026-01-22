@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, MonetizationStrategy, BusinessModel, CustomerAvatar
+from ..models import PurityBusinessIdea, PurityMonetizationStrategy, PurityBusinessModel, PurityCustomerAvatar
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class MonetizationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -91,7 +91,7 @@ class MonetizationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -148,7 +148,7 @@ class MonetizationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -207,7 +207,7 @@ class MonetizationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -258,7 +258,7 @@ class MonetizationService:
     
     def _create_monetization_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_audience: str,
         business_model: str,
         revenue_goals: List[str],
@@ -328,7 +328,7 @@ class MonetizationService:
     
     def _create_pricing_optimization_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         current_pricing: Dict[str, Any],
         market_analysis: Dict[str, Any],
         customer_feedback: List[str]
@@ -383,7 +383,7 @@ class MonetizationService:
     
     def _create_revenue_model_analysis_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         business_type: str,
         target_market: str,
         scalability_requirements: List[str]
@@ -438,7 +438,7 @@ class MonetizationService:
     
     def _create_subscription_model_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         subscription_type: str,
         pricing_tiers: List[str],
         billing_cycle: str,

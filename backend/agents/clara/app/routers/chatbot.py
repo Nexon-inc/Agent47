@@ -86,11 +86,11 @@ async def add_message(
         # Get chat session ID from session_id
         db = await get_clara_database()
         async with db.get_session() as db_session:
-            from ..models import ChatSession
+            from ..models import ClaraChatSession
             from sqlalchemy import select
             
             chat_session = await db_session.execute(
-                select(ChatSession).where(ChatSession.session_id == session_id)
+                select(ClaraChatSession).where(ClaraChatSession.session_id == session_id)
             )
             chat_session = chat_session.scalar_one_or_none()
             
@@ -177,12 +177,12 @@ async def get_chat_session(
     try:
         db = await get_clara_database()
         async with db.get_session() as db_session:
-            from ..models import ChatSession, ChatMessage
+            from ..models import ClaraChatSession, ClaraChatMessage
             from sqlalchemy import select
             
             # Get chat session
             chat_session = await db_session.execute(
-                select(ChatSession).where(ChatSession.session_id == session_id)
+                select(ClaraChatSession).where(ClaraChatSession.session_id == session_id)
             )
             chat_session = chat_session.scalar_one_or_none()
             
@@ -191,8 +191,8 @@ async def get_chat_session(
             
             # Get messages for this session
             messages = await db_session.execute(
-                select(ChatMessage).where(ChatMessage.session_id == chat_session.id)
-                .order_by(ChatMessage.timestamp.asc())
+                select(ClaraChatMessage).where(ClaraChatMessage.session_id == chat_session.id)
+                .order_by(ClaraChatMessage.timestamp.asc())
             )
             messages = messages.scalars().all()
             
@@ -264,12 +264,12 @@ async def transfer_to_human(
     try:
         db = await get_clara_database()
         async with db.get_session() as db_session:
-            from ..models import ChatSession
+            from ..models import ClaraChatSession
             from sqlalchemy import select
             
             # Get chat session
             chat_session = await db_session.execute(
-                select(ChatSession).where(ChatSession.session_id == session_id)
+                select(ClaraChatSession).where(ClaraChatSession.session_id == session_id)
             )
             chat_session = chat_session.scalar_one_or_none()
             
@@ -336,12 +336,12 @@ async def submit_chat_feedback(
     try:
         db = await get_clara_database()
         async with db.get_session() as db_session:
-            from ..models import ChatSession
+            from ..models import ClaraChatSession
             from sqlalchemy import select
             
             # Get chat session
             chat_session = await db_session.execute(
-                select(ChatSession).where(ChatSession.session_id == session_id)
+                select(ClaraChatSession).where(ClaraChatSession.session_id == session_id)
             )
             chat_session = chat_session.scalar_one_or_none()
             
@@ -407,20 +407,20 @@ async def get_active_chat_sessions(
     try:
         db = await get_clara_database()
         async with db.get_session() as db_session:
-            from ..models import ChatSession
+            from ..models import ClaraChatSession
             from sqlalchemy import select, func
             
             # Get active sessions
             active_sessions = await db_session.execute(
-                select(ChatSession).where(ChatSession.status == "active")
-                .order_by(ChatSession.start_time.desc())
+                select(ClaraChatSession).where(ClaraChatSession.status == "active")
+                .order_by(ClaraChatSession.start_time.desc())
                 .limit(limit).offset(offset)
             )
             active_sessions = active_sessions.scalars().all()
             
             # Get total count
             total_count = await db_session.execute(
-                select(func.count(ChatSession.id)).where(ChatSession.status == "active")
+                select(func.count(ClaraChatSession.id)).where(ClaraChatSession.status == "active")
             )
             total_count = total_count.scalar()
             

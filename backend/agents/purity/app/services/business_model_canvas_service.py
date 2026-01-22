@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, BusinessModel, BusinessModelCanvas
+from ..models import PurityBusinessIdea, PurityBusinessModel, PurityBusinessModelCanvas
 from core.utils.nlp_utils import NLPUtils
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -31,7 +31,7 @@ class BusinessModelCanvasService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -99,7 +99,7 @@ class BusinessModelCanvasService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -147,7 +147,7 @@ class BusinessModelCanvasService:
     
     def _create_canvas_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         industry: str,
         target_market: str,
         value_proposition: str,
@@ -249,7 +249,7 @@ class BusinessModelCanvasService:
     
     def _create_coherence_validation_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         canvas_components: Dict[str, Any],
         validation_criteria: List[str]
     ) -> str:

@@ -13,7 +13,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.analytics.analytics_manager import AnalyticsManager
 from core.event_bus.kafka_manager import EventBus as KafkaManager
 from core.cache.redis_manager import RedisManager
-from ..models import Lead, LeadInteraction, Deal, SalesActivity, SalesRep, CustomerProfile
+from ..models import EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ class DynamicFollowUpSchedulerService:
                 # Get lead information
                 lead = await self._get_lead_with_context(session, lead_id)
                 if not lead:
-                    return {"success": False, "error": "Lead not found"}
+                    return {"success": False, "error": "EricLead not found"}
                 
                 # Determine engagement level if not provided
                 if not engagement_level:
@@ -194,19 +194,19 @@ class DynamicFollowUpSchedulerService:
                 # Build query filters
                 filters = []
                 if lead_id:
-                    filters.append(SalesActivity.lead_id == lead_id)
+                    filters.append(EricSalesActivity.lead_id == lead_id)
                 if rep_id:
-                    filters.append(SalesActivity.rep_id == rep_id)
+                    filters.append(EricSalesActivity.rep_id == rep_id)
                 if status:
-                    filters.append(SalesActivity.metadata.contains({"status": status}))
+                    filters.append(EricSalesActivity.metadata.contains({"status": status}))
                 
                 # Query follow-up activities
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.activity_type == "follow_up_schedule",
+                        EricSalesActivity.activity_type == "follow_up_schedule",
                         *filters
                     )
-                ).order_by(SalesActivity.created_at.desc())
+                ).order_by(EricSalesActivity.created_at.desc())
                 
                 activities = await session.execute(query)
                 activities = activities.scalars().all()
@@ -247,10 +247,10 @@ class DynamicFollowUpSchedulerService:
             db = await get_eric_database()
             async with db.get_session() as session:
                 # Get the schedule
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.id == schedule_id,
-                        SalesActivity.activity_type == "follow_up_schedule"
+                        EricSalesActivity.id == schedule_id,
+                        EricSalesActivity.activity_type == "follow_up_schedule"
                     )
                 )
                 
@@ -298,10 +298,10 @@ class DynamicFollowUpSchedulerService:
             db = await get_eric_database()
             async with db.get_session() as session:
                 # Get the schedule
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.id == schedule_id,
-                        SalesActivity.activity_type == "follow_up_schedule"
+                        EricSalesActivity.id == schedule_id,
+                        EricSalesActivity.activity_type == "follow_up_schedule"
                     )
                 )
                 
@@ -354,17 +354,17 @@ class DynamicFollowUpSchedulerService:
                 start_date = datetime.utcnow() - timedelta(days=days)
                 
                 # Get follow-up activities
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.activity_type == "follow_up_schedule",
-                        SalesActivity.created_at >= start_date
+                        EricSalesActivity.activity_type == "follow_up_schedule",
+                        EricSalesActivity.created_at >= start_date
                     )
                 )
                 
                 if lead_id:
-                    query = query.where(SalesActivity.lead_id == lead_id)
+                    query = query.where(EricSalesActivity.lead_id == lead_id)
                 if rep_id:
-                    query = query.where(SalesActivity.rep_id == rep_id)
+                    query = query.where(EricSalesActivity.rep_id == rep_id)
                 
                 activities = await session.execute(query)
                 activities = activities.scalars().all()
@@ -432,9 +432,9 @@ class DynamicFollowUpSchedulerService:
         self,
         session: AsyncSession,
         lead_id: int
-    ) -> Optional[Lead]:
+    ) -> Optional[EricLead]:
         """Get lead with full context"""
-        query = select(Lead).where(Lead.id == lead_id)
+        query = select(EricLead).where(EricLead.id == lead_id)
         result = await session.execute(query)
         return result.scalar_one_or_none()
     
@@ -447,10 +447,10 @@ class DynamicFollowUpSchedulerService:
         try:
             # Get recent interactions (last 30 days)
             start_date = datetime.utcnow() - timedelta(days=30)
-            query = select(LeadInteraction).where(
+            query = select(EricLeadInteraction).where(
                 and_(
-                    LeadInteraction.lead_id == lead_id,
-                    LeadInteraction.timestamp >= start_date
+                    EricLeadInteraction.lead_id == lead_id,
+                    EricLeadInteraction.timestamp >= start_date
                 )
             )
             
@@ -487,7 +487,7 @@ class DynamicFollowUpSchedulerService:
     
     async def _calculate_optimal_timing(
         self,
-        lead: Lead,
+        lead: EricLead,
         rules: Dict[str, Any],
         custom_timing: Optional[Dict[str, Any]]
     ) -> datetime:
@@ -564,10 +564,10 @@ class DynamicFollowUpSchedulerService:
     ) -> int:
         """Get current follow-up count for a lead"""
         try:
-            query = select(func.count(SalesActivity.id)).where(
+            query = select(func.count(EricSalesActivity.id)).where(
                 and_(
-                    SalesActivity.lead_id == lead_id,
-                    SalesActivity.activity_type == "follow_up_schedule"
+                    EricSalesActivity.lead_id == lead_id,
+                    EricSalesActivity.activity_type == "follow_up_schedule"
                 )
             )
             
@@ -612,7 +612,7 @@ class DynamicFollowUpSchedulerService:
     ) -> None:
         """Store follow-up schedule in database"""
         try:
-            activity = SalesActivity(
+            activity = EricSalesActivity(
                 activity_type="follow_up_schedule",
                 lead_id=schedule_data["lead_id"],
                 metadata=schedule_data
@@ -626,7 +626,7 @@ class DynamicFollowUpSchedulerService:
     
     async def _analyze_timing_patterns(
         self,
-        activities: List[SalesActivity]
+        activities: List[EricSalesActivity]
     ) -> Dict[str, Any]:
         """Analyze timing patterns from follow-up activities"""
         try:
@@ -671,7 +671,7 @@ class DynamicFollowUpSchedulerService:
     async def _analyze_response_by_timing(
         self,
         session: AsyncSession,
-        activities: List[SalesActivity]
+        activities: List[EricSalesActivity]
     ) -> Dict[str, Any]:
         """Analyze response rates by timing"""
         try:
@@ -742,12 +742,12 @@ class DynamicFollowUpSchedulerService:
             # Look for interactions within 48 hours after follow-up
             end_time = follow_up_time + timedelta(hours=48)
             
-            query = select(LeadInteraction).where(
+            query = select(EricLeadInteraction).where(
                 and_(
-                    LeadInteraction.lead_id == lead_id,
-                    LeadInteraction.timestamp >= follow_up_time,
-                    LeadInteraction.timestamp <= end_time,
-                    LeadInteraction.interaction_type.in_([
+                    EricLeadInteraction.lead_id == lead_id,
+                    EricLeadInteraction.timestamp >= follow_up_time,
+                    EricLeadInteraction.timestamp <= end_time,
+                    EricLeadInteraction.interaction_type.in_([
                         "email_reply", "phone_call", "linkedin_message", "form_submission"
                     ])
                 )

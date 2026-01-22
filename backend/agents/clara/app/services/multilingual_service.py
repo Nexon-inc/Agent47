@@ -13,7 +13,7 @@ from core.integrations import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, CustomerProfile,
+    ClaraSupportTicket, ClaraCustomerInteraction, CustomerProfile,
     TicketPriority, TicketStatus, TicketCategory, SupportChannel
 )
 

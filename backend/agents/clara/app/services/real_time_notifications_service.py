@@ -12,7 +12,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, CustomerProfile,
+    ClaraSupportTicket, ClaraCustomerInteraction, CustomerProfile,
     TicketPriority, TicketStatus, TicketCategory, SupportChannel
 )
 
@@ -157,7 +157,7 @@ class RealTimeNotificationsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket details
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -227,7 +227,7 @@ class RealTimeNotificationsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket details
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -304,7 +304,7 @@ class RealTimeNotificationsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket and agent details
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -312,7 +312,7 @@ class RealTimeNotificationsService:
                     raise ValueError(f"Ticket {ticket_id} not found")
                 
                 # Get escalated to agent
-                agent_query = select(SupportAgent).where(SupportAgent.user_id == escalated_to_agent_id)
+                agent_query = select(ClaraSupportAgent).where(ClaraSupportAgent.user_id == escalated_to_agent_id)
                 agent_result = await session.execute(agent_query)
                 agent = agent_result.scalar_one_or_none()
                 
@@ -454,7 +454,7 @@ class RealTimeNotificationsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get agent details
-                agent_query = select(SupportAgent).where(SupportAgent.user_id == agent_id)
+                agent_query = select(ClaraSupportAgent).where(ClaraSupportAgent.user_id == agent_id)
                 agent_result = await session.execute(agent_query)
                 agent = agent_result.scalar_one_or_none()
                 
@@ -462,10 +462,10 @@ class RealTimeNotificationsService:
                     raise ValueError(f"Agent {agent_id} not found")
                 
                 # Get unassigned tickets count
-                unassigned_query = select(func.count(SupportTicket.id)).where(
+                unassigned_query = select(func.count(ClaraSupportTicket.id)).where(
                     and_(
-                        SupportTicket.assigned_agent_id.is_(None),
-                        SupportTicket.status.in_([TicketStatus.OPEN, TicketStatus.IN_PROGRESS])
+                        ClaraSupportTicket.assigned_agent_id.is_(None),
+                        ClaraSupportTicket.status.in_([TicketStatus.OPEN, TicketStatus.IN_PROGRESS])
                     )
                 )
                 unassigned_result = await session.execute(unassigned_query)
@@ -535,7 +535,7 @@ class RealTimeNotificationsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket details
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -962,7 +962,7 @@ class RealTimeNotificationsService:
         except Exception as e:
             logger.error(f"Failed to record notification: {e}")
     
-    async def _calculate_sla_breach_details(self, ticket: SupportTicket) -> Dict[str, Any]:
+    async def _calculate_sla_breach_details(self, ticket: ClaraSupportTicket) -> Dict[str, Any]:
         """Calculate SLA breach details"""
         try:
             # Define SLA targets by priority
@@ -1007,32 +1007,32 @@ class RealTimeNotificationsService:
                 time_window = self._notification_rules["high_volume_alert"]["conditions"]["time_window_minutes"]
                 cutoff_time = datetime.utcnow() - timedelta(minutes=time_window)
                 
-                recent_query = select(func.count(SupportTicket.id)).where(
-                    SupportTicket.created_at >= cutoff_time
+                recent_query = select(func.count(ClaraSupportTicket.id)).where(
+                    ClaraSupportTicket.created_at >= cutoff_time
                 )
                 recent_result = await session.execute(recent_query)
                 recent_tickets = recent_result.scalar()
                 
                 # Get total open tickets
-                open_query = select(func.count(SupportTicket.id)).where(
-                    SupportTicket.status.in_([TicketStatus.OPEN, TicketStatus.IN_PROGRESS])
+                open_query = select(func.count(ClaraSupportTicket.id)).where(
+                    ClaraSupportTicket.status.in_([TicketStatus.OPEN, TicketStatus.IN_PROGRESS])
                 )
                 open_result = await session.execute(open_query)
                 total_open_tickets = open_result.scalar()
                 
                 # Get unassigned tickets
-                unassigned_query = select(func.count(SupportTicket.id)).where(
+                unassigned_query = select(func.count(ClaraSupportTicket.id)).where(
                     and_(
-                        SupportTicket.assigned_agent_id.is_(None),
-                        SupportTicket.status.in_([TicketStatus.OPEN, TicketStatus.IN_PROGRESS])
+                        ClaraSupportTicket.assigned_agent_id.is_(None),
+                        ClaraSupportTicket.status.in_([TicketStatus.OPEN, TicketStatus.IN_PROGRESS])
                     )
                 )
                 unassigned_result = await session.execute(unassigned_query)
                 unassigned_tickets = unassigned_result.scalar()
                 
                 # Calculate average response time
-                response_query = select(func.avg(SupportTicket.first_response_time)).where(
-                    SupportTicket.first_response_time.is_not(None)
+                response_query = select(func.avg(ClaraSupportTicket.first_response_time)).where(
+                    ClaraSupportTicket.first_response_time.is_not(None)
                 )
                 response_result = await session.execute(response_query)
                 avg_response_time = response_result.scalar() or 0

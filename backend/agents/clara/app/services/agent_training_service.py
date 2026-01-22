@@ -8,8 +8,8 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    AgentTraining, TrainingModule, TrainingSession, AgentPerformance,
-    TrainingAssessment, SupportAgent, CustomerInteraction, SupportTicket
+    ClaraAgentTraining, ClaraTrainingModule, ClaraTrainingSession, ClaraAgentPerformance,
+    ClaraTrainingAssessment, ClaraSupportAgent, ClaraCustomerInteraction, ClaraSupportTicket
 )
 from ..schemas.agent_training import (
     CreateTrainingModuleRequest, UpdateTrainingModuleRequest,
@@ -52,7 +52,7 @@ class AgentTrainingService:
     ) -> TrainingModuleResponse:
         """Create a new training module"""
         try:
-            module = TrainingModule(
+            module = ClaraTrainingModule(
                 title=request.title,
                 description=request.description,
                 content=request.content,
@@ -100,7 +100,7 @@ class AgentTrainingService:
         module_id: int
     ) -> TrainingModuleResponse:
         """Get a training module by ID"""
-        module = db.query(TrainingModule).filter(TrainingModule.id == module_id).first()
+        module = db.query(ClaraTrainingModule).filter(ClaraTrainingModule.id == module_id).first()
         if not module:
             raise HTTPException(status_code=404, detail="Training module not found")
         
@@ -127,12 +127,12 @@ class AgentTrainingService:
         is_active: Optional[bool] = None
     ) -> List[TrainingModuleResponse]:
         """List training modules with optional filtering"""
-        query = db.query(TrainingModule)
+        query = db.query(ClaraTrainingModule)
         
         if difficulty_level:
-            query = query.filter(TrainingModule.difficulty_level == difficulty_level)
+            query = query.filter(ClaraTrainingModule.difficulty_level == difficulty_level)
         if is_active is not None:
-            query = query.filter(TrainingModule.is_active == is_active)
+            query = query.filter(ClaraTrainingModule.is_active == is_active)
         
         modules = query.offset(skip).limit(limit).all()
         
@@ -159,7 +159,7 @@ class AgentTrainingService:
         request: UpdateTrainingModuleRequest
     ) -> TrainingModuleResponse:
         """Update a training module"""
-        module = db.query(TrainingModule).filter(TrainingModule.id == module_id).first()
+        module = db.query(ClaraTrainingModule).filter(ClaraTrainingModule.id == module_id).first()
         if not module:
             raise HTTPException(status_code=404, detail="Training module not found")
         
@@ -210,7 +210,7 @@ class AgentTrainingService:
         module_id: int
     ) -> Dict[str, str]:
         """Delete a training module"""
-        module = db.query(TrainingModule).filter(TrainingModule.id == module_id).first()
+        module = db.query(ClaraTrainingModule).filter(ClaraTrainingModule.id == module_id).first()
         if not module:
             raise HTTPException(status_code=404, detail="Training module not found")
         
@@ -231,16 +231,16 @@ class AgentTrainingService:
         """Create a new training session"""
         try:
             # Verify agent exists
-            agent = db.query(SupportAgent).filter(SupportAgent.id == request.agent_id).first()
+            agent = db.query(ClaraSupportAgent).filter(ClaraSupportAgent.id == request.agent_id).first()
             if not agent:
                 raise HTTPException(status_code=404, detail="Agent not found")
             
             # Verify module exists
-            module = db.query(TrainingModule).filter(TrainingModule.id == request.module_id).first()
+            module = db.query(ClaraTrainingModule).filter(ClaraTrainingModule.id == request.module_id).first()
             if not module:
                 raise HTTPException(status_code=404, detail="Training module not found")
             
-            session = TrainingSession(
+            session = ClaraTrainingSession(
                 agent_id=request.agent_id,
                 module_id=request.module_id,
                 status=TrainingStatus.NOT_STARTED,
@@ -282,7 +282,7 @@ class AgentTrainingService:
         request: StartTrainingSessionRequest
     ) -> TrainingSessionResponse:
         """Start a training session"""
-        session = db.query(TrainingSession).filter(TrainingSession.id == session_id).first()
+        session = db.query(ClaraTrainingSession).filter(ClaraTrainingSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Training session not found")
         
@@ -329,7 +329,7 @@ class AgentTrainingService:
         request: CompleteTrainingSessionRequest
     ) -> TrainingSessionResponse:
         """Complete a training session"""
-        session = db.query(TrainingSession).filter(TrainingSession.id == session_id).first()
+        session = db.query(ClaraTrainingSession).filter(ClaraTrainingSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Training session not found")
         
@@ -382,7 +382,7 @@ class AgentTrainingService:
         session_id: int
     ) -> TrainingSessionResponse:
         """Get a training session by ID"""
-        session = db.query(TrainingSession).filter(TrainingSession.id == session_id).first()
+        session = db.query(ClaraTrainingSession).filter(ClaraTrainingSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Training session not found")
         
@@ -408,8 +408,8 @@ class AgentTrainingService:
         limit: int = 100
     ) -> List[TrainingSessionResponse]:
         """List training sessions for an agent"""
-        sessions = db.query(TrainingSession).filter(
-            TrainingSession.agent_id == agent_id
+        sessions = db.query(ClaraTrainingSession).filter(
+            ClaraTrainingSession.agent_id == agent_id
         ).offset(skip).limit(limit).all()
         
         return [
@@ -435,7 +435,7 @@ class AgentTrainingService:
     ) -> TrainingAssessmentResponse:
         """Create a new training assessment"""
         try:
-            assessment = TrainingAssessment(
+            assessment = ClaraTrainingAssessment(
                 title=request.title,
                 description=request.description,
                 assessment_type=request.assessment_type,
@@ -474,7 +474,7 @@ class AgentTrainingService:
         assessment_id: int
     ) -> TrainingAssessmentResponse:
         """Get a training assessment by ID"""
-        assessment = db.query(TrainingAssessment).filter(TrainingAssessment.id == assessment_id).first()
+        assessment = db.query(ClaraTrainingAssessment).filter(ClaraTrainingAssessment.id == assessment_id).first()
         if not assessment:
             raise HTTPException(status_code=404, detail="Training assessment not found")
         
@@ -500,12 +500,12 @@ class AgentTrainingService:
         is_active: Optional[bool] = None
     ) -> List[TrainingAssessmentResponse]:
         """List training assessments with optional filtering"""
-        query = db.query(TrainingAssessment)
+        query = db.query(ClaraTrainingAssessment)
         
         if assessment_type:
-            query = query.filter(TrainingAssessment.assessment_type == assessment_type)
+            query = query.filter(ClaraTrainingAssessment.assessment_type == assessment_type)
         if is_active is not None:
-            query = query.filter(TrainingAssessment.is_active == is_active)
+            query = query.filter(ClaraTrainingAssessment.is_active == is_active)
         
         assessments = query.offset(skip).limit(limit).all()
         
@@ -532,18 +532,18 @@ class AgentTrainingService:
         """Get agent performance metrics"""
         try:
             # Get agent
-            agent = db.query(SupportAgent).filter(SupportAgent.id == agent_id).first()
+            agent = db.query(ClaraSupportAgent).filter(ClaraSupportAgent.id == agent_id).first()
             if not agent:
                 raise HTTPException(status_code=404, detail="Agent not found")
             
             # Get performance record
-            performance = db.query(AgentPerformance).filter(
-                AgentPerformance.agent_id == agent_id
+            performance = db.query(ClaraAgentPerformance).filter(
+                ClaraAgentPerformance.agent_id == agent_id
             ).first()
             
             if not performance:
                 # Create new performance record
-                performance = AgentPerformance(
+                performance = ClaraAgentPerformance(
                     agent_id=agent_id,
                     total_training_hours=0,
                     completed_modules=0,
@@ -559,10 +559,10 @@ class AgentTrainingService:
                 db.refresh(performance)
             
             # Calculate recent metrics
-            recent_sessions = db.query(TrainingSession).filter(
+            recent_sessions = db.query(ClaraTrainingSession).filter(
                 and_(
-                    TrainingSession.agent_id == agent_id,
-                    TrainingSession.created_at >= datetime.utcnow() - timedelta(days=30)
+                    ClaraTrainingSession.agent_id == agent_id,
+                    ClaraTrainingSession.created_at >= datetime.utcnow() - timedelta(days=30)
                 )
             ).all()
             
@@ -597,10 +597,10 @@ class AgentTrainingService:
             performance = await self.get_agent_performance(db, agent_id)
             
             # Get recent interactions
-            recent_interactions = db.query(CustomerInteraction).filter(
+            recent_interactions = db.query(ClaraCustomerInteraction).filter(
                 and_(
-                    CustomerInteraction.agent_id == agent_id,
-                    CustomerInteraction.created_at >= datetime.utcnow() - timedelta(days=7)
+                    ClaraCustomerInteraction.agent_id == agent_id,
+                    ClaraCustomerInteraction.created_at >= datetime.utcnow() - timedelta(days=7)
                 )
             ).all()
             
@@ -693,10 +693,10 @@ class AgentTrainingService:
             performance = await self.get_agent_performance(db, agent_id)
             
             # Get recent tickets handled by agent
-            recent_tickets = db.query(SupportTicket).filter(
+            recent_tickets = db.query(ClaraSupportTicket).filter(
                 and_(
-                    SupportTicket.assigned_agent_id == agent_id,
-                    SupportTicket.created_at >= datetime.utcnow() - timedelta(days=30)
+                    ClaraSupportTicket.assigned_agent_id == agent_id,
+                    ClaraSupportTicket.created_at >= datetime.utcnow() - timedelta(days=30)
                 )
             ).all()
             
@@ -838,11 +838,11 @@ class AgentTrainingService:
             performance = await self.get_agent_performance(db, agent_id)
             
             # Get recent training sessions
-            recent_sessions = db.query(TrainingSession).filter(
+            recent_sessions = db.query(ClaraTrainingSession).filter(
                 and_(
-                    TrainingSession.agent_id == agent_id,
-                    TrainingSession.status == TrainingStatus.COMPLETED,
-                    TrainingSession.created_at >= datetime.utcnow() - timedelta(days=30)
+                    ClaraTrainingSession.agent_id == agent_id,
+                    ClaraTrainingSession.status == TrainingStatus.COMPLETED,
+                    ClaraTrainingSession.created_at >= datetime.utcnow() - timedelta(days=30)
                 )
             ).all()
             
@@ -898,7 +898,7 @@ class AgentTrainingService:
             level = (total_points // 1000) + 1
             
             # Get leaderboard position
-            all_agents = db.query(AgentPerformance).order_by(desc(AgentPerformance.average_score)).all()
+            all_agents = db.query(ClaraAgentPerformance).order_by(desc(ClaraAgentPerformance.average_score)).all()
             leaderboard_position = next((i + 1 for i, p in enumerate(all_agents) if p.agent_id == agent_id), None)
             
             return {
@@ -928,10 +928,10 @@ class AgentTrainingService:
         """Get comprehensive training analytics"""
         try:
             # Get training sessions in date range
-            sessions = db.query(TrainingSession).filter(
+            sessions = db.query(ClaraTrainingSession).filter(
                 and_(
-                    TrainingSession.created_at >= start_date,
-                    TrainingSession.created_at <= end_date
+                    ClaraTrainingSession.created_at >= start_date,
+                    ClaraTrainingSession.created_at <= end_date
                 )
             ).all()
             
@@ -1000,11 +1000,11 @@ class AgentTrainingService:
         try:
             # Check database connectivity
             db = next(get_db())
-            module_count = db.query(TrainingModule).count()
-            session_count = db.query(TrainingSession).count()
-            assessment_count = db.query(TrainingAssessment).count()
-            active_sessions = db.query(TrainingSession).filter(
-                TrainingSession.status == TrainingStatus.IN_PROGRESS
+            module_count = db.query(ClaraTrainingModule).count()
+            session_count = db.query(ClaraTrainingSession).count()
+            assessment_count = db.query(ClaraTrainingAssessment).count()
+            active_sessions = db.query(ClaraTrainingSession).filter(
+                ClaraTrainingSession.status == TrainingStatus.IN_PROGRESS
             ).count()
             
             return {
@@ -1035,12 +1035,12 @@ class AgentTrainingService:
     ):
         """Update agent performance after training completion"""
         try:
-            performance = db.query(AgentPerformance).filter(
-                AgentPerformance.agent_id == agent_id
+            performance = db.query(ClaraAgentPerformance).filter(
+                ClaraAgentPerformance.agent_id == agent_id
             ).first()
             
             if not performance:
-                performance = AgentPerformance(
+                performance = ClaraAgentPerformance(
                     agent_id=agent_id,
                     total_training_hours=0,
                     completed_modules=0,
@@ -1063,7 +1063,7 @@ class AgentTrainingService:
             performance.updated_at = datetime.utcnow()
             
             # Get module to update training hours
-            module = db.query(TrainingModule).filter(TrainingModule.id == module_id).first()
+            module = db.query(ClaraTrainingModule).filter(ClaraTrainingModule.id == module_id).first()
             if module:
                 performance.total_training_hours += module.duration_minutes / 60
             

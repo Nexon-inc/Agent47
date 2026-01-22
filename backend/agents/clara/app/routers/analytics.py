@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Dict, Any, Optional
 from pydantic import BaseModel
 from ..database import get_clara_database
-from ..models import SupportAnalytics, SupportTicket, CustomerInteraction, ChatSession
+from ..models import ClaraSupportAnalytics, ClaraSupportTicket, ClaraCustomerInteraction, ClaraChatSession
 from sqlalchemy import select, func, cast, Date, and_
 from datetime import datetime, timedelta
 
@@ -31,23 +31,23 @@ async def get_support_overview():
             thirty_days_ago = now - timedelta(days=30)
             
             # Total tickets
-            total_tickets = await db_session.execute(select(func.count(SupportTicket.id)))
+            total_tickets = await db_session.execute(select(func.count(ClaraSupportTicket.id)))
             total_tickets = total_tickets.scalar()
             
             # Open tickets
             open_tickets = await db_session.execute(
-                select(func.count(SupportTicket.id))
-                .where(SupportTicket.status.in_(["open", "in_progress", "waiting_customer", "waiting_agent"]))
+                select(func.count(ClaraSupportTicket.id))
+                .where(ClaraSupportTicket.status.in_(["open", "in_progress", "waiting_customer", "waiting_agent"]))
             )
             open_tickets = open_tickets.scalar()
             
             # Resolved tickets in last 30 days
             resolved_tickets = await db_session.execute(
-                select(func.count(SupportTicket.id))
+                select(func.count(ClaraSupportTicket.id))
                 .where(
                     and_(
-                        SupportTicket.status == "resolved",
-                        SupportTicket.resolved_at >= thirty_days_ago
+                        ClaraSupportTicket.status == "resolved",
+                        ClaraSupportTicket.resolved_at >= thirty_days_ago
                     )
                 )
             )
@@ -55,8 +55,8 @@ async def get_support_overview():
             
             # Active chat sessions
             active_chats = await db_session.execute(
-                select(func.count(ChatSession.id))
-                .where(ChatSession.status == "active")
+                select(func.count(ClaraChatSession.id))
+                .where(ClaraChatSession.status == "active")
             )
             active_chats = active_chats.scalar()
             
@@ -90,29 +90,29 @@ async def get_ticket_trends(
             # Get daily ticket counts
             daily_tickets = await db_session.execute(
                 select(
-                    cast(SupportTicket.created_at, Date).label("date"),
-                    func.count(SupportTicket.id).label("count")
+                    cast(ClaraSupportTicket.created_at, Date).label("date"),
+                    func.count(ClaraSupportTicket.id).label("count")
                 )
-                .where(SupportTicket.created_at >= start_date)
-                .group_by(cast(SupportTicket.created_at, Date))
-                .order_by(cast(SupportTicket.created_at, Date))
+                .where(ClaraSupportTicket.created_at >= start_date)
+                .group_by(cast(ClaraSupportTicket.created_at, Date))
+                .order_by(cast(ClaraSupportTicket.created_at, Date))
             )
             daily_tickets = daily_tickets.all()
             
             # Get daily resolved tickets
             daily_resolved = await db_session.execute(
                 select(
-                    cast(SupportTicket.resolved_at, Date).label("date"),
-                    func.count(SupportTicket.id).label("count")
+                    cast(ClaraSupportTicket.resolved_at, Date).label("date"),
+                    func.count(ClaraSupportTicket.id).label("count")
                 )
                 .where(
                     and_(
-                        SupportTicket.resolved_at >= start_date,
-                        SupportTicket.status == "resolved"
+                        ClaraSupportTicket.resolved_at >= start_date,
+                        ClaraSupportTicket.status == "resolved"
                     )
                 )
-                .group_by(cast(SupportTicket.resolved_at, Date))
-                .order_by(cast(SupportTicket.resolved_at, Date))
+                .group_by(cast(ClaraSupportTicket.resolved_at, Date))
+                .order_by(cast(ClaraSupportTicket.resolved_at, Date))
             )
             daily_resolved = daily_resolved.all()
             
@@ -152,11 +152,11 @@ async def get_ticket_category_distribution():
             # Get tickets by category
             category_distribution = await db_session.execute(
                 select(
-                    SupportTicket.category,
-                    func.count(SupportTicket.id).label("count")
+                    ClaraSupportTicket.category,
+                    func.count(ClaraSupportTicket.id).label("count")
                 )
-                .group_by(SupportTicket.category)
-                .order_by(func.count(SupportTicket.id).desc())
+                .group_by(ClaraSupportTicket.category)
+                .order_by(func.count(ClaraSupportTicket.id).desc())
             )
             category_distribution = category_distribution.all()
             
@@ -185,11 +185,11 @@ async def get_ticket_priority_distribution():
             # Get tickets by priority
             priority_distribution = await db_session.execute(
                 select(
-                    SupportTicket.priority,
-                    func.count(SupportTicket.id).label("count")
+                    ClaraSupportTicket.priority,
+                    func.count(ClaraSupportTicket.id).label("count")
                 )
-                .group_by(SupportTicket.priority)
-                .order_by(func.count(SupportTicket.id).desc())
+                .group_by(ClaraSupportTicket.priority)
+                .order_by(func.count(ClaraSupportTicket.id).desc())
             )
             priority_distribution = priority_distribution.all()
             
@@ -218,11 +218,11 @@ async def get_ticket_channel_distribution():
             # Get tickets by channel
             channel_distribution = await db_session.execute(
                 select(
-                    SupportTicket.channel,
-                    func.count(SupportTicket.id).label("count")
+                    ClaraSupportTicket.channel,
+                    func.count(ClaraSupportTicket.id).label("count")
                 )
-                .group_by(SupportTicket.channel)
-                .order_by(func.count(SupportTicket.id).desc())
+                .group_by(ClaraSupportTicket.channel)
+                .order_by(func.count(ClaraSupportTicket.id).desc())
             )
             channel_distribution = channel_distribution.all()
             
@@ -250,28 +250,28 @@ async def get_response_time_analytics():
             
             # Get average first response time
             avg_first_response = await db_session.execute(
-                select(func.avg(SupportTicket.first_response_time))
-                .where(SupportTicket.first_response_time.isnot(None))
+                select(func.avg(ClaraSupportTicket.first_response_time))
+                .where(ClaraSupportTicket.first_response_time.isnot(None))
             )
             avg_first_response = avg_first_response.scalar() or 0
             
             # Get average resolution time
             avg_resolution = await db_session.execute(
-                select(func.avg(SupportTicket.actual_resolution_time))
-                .where(SupportTicket.actual_resolution_time.isnot(None))
+                select(func.avg(ClaraSupportTicket.actual_resolution_time))
+                .where(ClaraSupportTicket.actual_resolution_time.isnot(None))
             )
             avg_resolution = avg_resolution.scalar() or 0
             
             # Get SLA compliance rate
             total_with_sla = await db_session.execute(
-                select(func.count(SupportTicket.id))
-                .where(SupportTicket.sla_breach.isnot(None))
+                select(func.count(ClaraSupportTicket.id))
+                .where(ClaraSupportTicket.sla_breach.isnot(None))
             )
             total_with_sla = total_with_sla.scalar()
             
             sla_breaches = await db_session.execute(
-                select(func.count(SupportTicket.id))
-                .where(SupportTicket.sla_breach == True)
+                select(func.count(ClaraSupportTicket.id))
+                .where(ClaraSupportTicket.sla_breach == True)
             )
             sla_breaches = sla_breaches.scalar()
             
@@ -302,27 +302,27 @@ async def get_customer_satisfaction_analytics():
             
             # Get average satisfaction score
             avg_satisfaction = await db_session.execute(
-                select(func.avg(SupportTicket.satisfaction_score))
-                .where(SupportTicket.satisfaction_score.isnot(None))
+                select(func.avg(ClaraSupportTicket.satisfaction_score))
+                .where(ClaraSupportTicket.satisfaction_score.isnot(None))
             )
             avg_satisfaction = avg_satisfaction.scalar() or 0
             
             # Get satisfaction distribution
             satisfaction_distribution = await db_session.execute(
                 select(
-                    SupportTicket.satisfaction_score,
-                    func.count(SupportTicket.id).label("count")
+                    ClaraSupportTicket.satisfaction_score,
+                    func.count(ClaraSupportTicket.id).label("count")
                 )
-                .where(SupportTicket.satisfaction_score.isnot(None))
-                .group_by(SupportTicket.satisfaction_score)
-                .order_by(SupportTicket.satisfaction_score)
+                .where(ClaraSupportTicket.satisfaction_score.isnot(None))
+                .group_by(ClaraSupportTicket.satisfaction_score)
+                .order_by(ClaraSupportTicket.satisfaction_score)
             )
             satisfaction_distribution = satisfaction_distribution.all()
             
             # Get total rated tickets
             total_rated = await db_session.execute(
-                select(func.count(SupportTicket.id))
-                .where(SupportTicket.satisfaction_score.isnot(None))
+                select(func.count(ClaraSupportTicket.id))
+                .where(ClaraSupportTicket.satisfaction_score.isnot(None))
             )
             total_rated = total_rated.scalar()
             
@@ -357,34 +357,34 @@ async def get_chat_analytics():
             thirty_days_ago = now - timedelta(days=30)
             
             # Total chat sessions
-            total_sessions = await db_session.execute(select(func.count(ChatSession.id)))
+            total_sessions = await db_session.execute(select(func.count(ClaraChatSession.id)))
             total_sessions = total_sessions.scalar()
             
             # Active sessions
             active_sessions = await db_session.execute(
-                select(func.count(ChatSession.id))
-                .where(ChatSession.status == "active")
+                select(func.count(ClaraChatSession.id))
+                .where(ClaraChatSession.status == "active")
             )
             active_sessions = active_sessions.scalar()
             
             # Sessions in last 30 days
             recent_sessions = await db_session.execute(
-                select(func.count(ChatSession.id))
-                .where(ChatSession.start_time >= thirty_days_ago)
+                select(func.count(ClaraChatSession.id))
+                .where(ClaraChatSession.start_time >= thirty_days_ago)
             )
             recent_sessions = recent_sessions.scalar()
             
             # Average session duration
             avg_duration = await db_session.execute(
-                select(func.avg(ChatSession.duration))
-                .where(ChatSession.duration.isnot(None))
+                select(func.avg(ClaraChatSession.duration))
+                .where(ClaraChatSession.duration.isnot(None))
             )
             avg_duration = avg_duration.scalar() or 0
             
             # Average messages per session
             avg_messages = await db_session.execute(
-                select(func.avg(ChatSession.messages_count))
-                .where(ChatSession.messages_count > 0)
+                select(func.avg(ClaraChatSession.messages_count))
+                .where(ClaraChatSession.messages_count > 0)
             )
             avg_messages = avg_messages.scalar() or 0
             
@@ -409,20 +409,20 @@ async def get_agent_performance_analytics():
         db = await get_clara_database()
         async with db.get_session() as db_session:
             from sqlalchemy import select, func
-            from ..models import SupportAgent
+            from ..models import ClaraSupportAgent
             
             # Get agent performance data
             agent_performance = await db_session.execute(
                 select(
-                    SupportAgent.user_id,
-                    SupportAgent.agent_code,
-                    SupportAgent.total_tickets_resolved,
-                    SupportAgent.total_tickets_escalated,
-                    SupportAgent.performance_score,
-                    SupportAgent.customer_satisfaction_avg,
-                    SupportAgent.response_time_avg
+                    ClaraSupportAgent.user_id,
+                    ClaraSupportAgent.agent_code,
+                    ClaraSupportAgent.total_tickets_resolved,
+                    ClaraSupportAgent.total_tickets_escalated,
+                    ClaraSupportAgent.performance_score,
+                    ClaraSupportAgent.customer_satisfaction_avg,
+                    ClaraSupportAgent.response_time_avg
                 )
-                .order_by(SupportAgent.performance_score.desc())
+                .order_by(ClaraSupportAgent.performance_score.desc())
             )
             agent_performance = agent_performance.all()
             
@@ -462,18 +462,18 @@ async def get_daily_report(
             
             # Get tickets created on this date
             tickets_created = await db_session.execute(
-                select(func.count(SupportTicket.id))
-                .where(cast(SupportTicket.created_at, Date) == report_date)
+                select(func.count(ClaraSupportTicket.id))
+                .where(cast(ClaraSupportTicket.created_at, Date) == report_date)
             )
             tickets_created = tickets_created.scalar()
             
             # Get tickets resolved on this date
             tickets_resolved = await db_session.execute(
-                select(func.count(SupportTicket.id))
+                select(func.count(ClaraSupportTicket.id))
                 .where(
                     and_(
-                        cast(SupportTicket.resolved_at, Date) == report_date,
-                        SupportTicket.status == "resolved"
+                        cast(ClaraSupportTicket.resolved_at, Date) == report_date,
+                        ClaraSupportTicket.status == "resolved"
                     )
                 )
             )
@@ -481,8 +481,8 @@ async def get_daily_report(
             
             # Get chat sessions started on this date
             chats_started = await db_session.execute(
-                select(func.count(ChatSession.id))
-                .where(cast(ChatSession.start_time, Date) == report_date)
+                select(func.count(ClaraChatSession.id))
+                .where(cast(ClaraChatSession.start_time, Date) == report_date)
             )
             chats_started = chats_started.scalar()
             

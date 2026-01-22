@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import CampaignIdea, TrendAnalysis, JackieCompetitorAnalysis, BrainstormingSession
+from ..models import CampaignIdea, JackieTrendAnalysis, JackieCompetitorAnalysis, BrainstormingSession
 
 class CampaignIdeationService:
     def __init__(self, db: Session):
@@ -196,7 +196,7 @@ class CampaignIdeationService:
         
         trend_analysis = self.nlp_processor.analyze_trends(prompt)
         
-        trend_record = TrendAnalysis(
+        trend_record = JackieTrendAnalysis(
             id=trend_id, industry=industry, timeframe=timeframe,
             trend_sources=json.dumps(trend_sources or []), analysis_data=json.dumps(trend_analysis),
             created_at=datetime.utcnow()
@@ -211,10 +211,10 @@ class CampaignIdeationService:
     
     def get_industry_trends(self, industry: str, trend_category: Optional[str] = None,
                            limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
-        query = self.db.query(TrendAnalysis).filter(TrendAnalysis.industry == industry)
+        query = self.db.query(JackieTrendAnalysis).filter(JackieTrendAnalysis.industry == industry)
         
         if trend_category:
-            query = query.filter(TrendAnalysis.trend_category == trend_category)
+            query = query.filter(JackieTrendAnalysis.trend_category == trend_category)
         
         trends = query.offset(offset).limit(limit).all()
         

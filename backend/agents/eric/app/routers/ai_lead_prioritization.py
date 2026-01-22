@@ -242,22 +242,22 @@ async def get_performance_metrics(
         service = AILeadPrioritizationService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity, Lead
+            from ..models import EricSalesActivity, EricLead
             from sqlalchemy import select, func, and_
             from datetime import datetime, timedelta
             
             start_date = datetime.utcnow() - timedelta(days=days)
             
             # Get prioritization activities
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.activity_type == "lead_prioritization",
-                    SalesActivity.created_at >= start_date
+                    EricSalesActivity.activity_type == "lead_prioritization",
+                    EricSalesActivity.created_at >= start_date
                 )
             )
             
             if rep_id:
-                query = query.where(SalesActivity.rep_id == rep_id)
+                query = query.where(EricSalesActivity.rep_id == rep_id)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -285,15 +285,15 @@ async def get_performance_metrics(
             avg_score = sum(average_scores) / len(average_scores) if average_scores else 0
             
             # Calculate conversion rate
-            conversion_query = select(func.count(Lead.id)).where(
+            conversion_query = select(func.count(EricLead.id)).where(
                 and_(
-                    Lead.status == "converted",
-                    Lead.updated_at >= start_date
+                    EricLead.status == "converted",
+                    EricLead.updated_at >= start_date
                 )
             )
             
             if rep_id:
-                conversion_query = conversion_query.where(Lead.assigned_rep_id == rep_id)
+                conversion_query = conversion_query.where(EricLead.assigned_rep_id == rep_id)
             
             conversion_result = await session.execute(conversion_query)
             converted_leads = conversion_result.scalar()
@@ -324,7 +324,7 @@ async def get_prioritization_trends(
         service = AILeadPrioritizationService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity
+            from ..models import EricSalesActivity
             from sqlalchemy import select, func, and_
             from datetime import datetime, timedelta
             
@@ -332,22 +332,22 @@ async def get_prioritization_trends(
             
             # Get daily prioritization counts
             query = select(
-                func.date(SalesActivity.created_at).label("date"),
-                func.count(SalesActivity.id).label("count"),
-                func.avg(SalesActivity.metadata["total_score"].astext.cast(func.float)).label("avg_score")
+                func.date(EricSalesActivity.created_at).label("date"),
+                func.count(EricSalesActivity.id).label("count"),
+                func.avg(EricSalesActivity.metadata["total_score"].astext.cast(func.float)).label("avg_score")
             ).where(
                 and_(
-                    SalesActivity.activity_type == "lead_prioritization",
-                    SalesActivity.created_at >= start_date
+                    EricSalesActivity.activity_type == "lead_prioritization",
+                    EricSalesActivity.created_at >= start_date
                 )
             ).group_by(
-                func.date(SalesActivity.created_at)
+                func.date(EricSalesActivity.created_at)
             ).order_by(
-                func.date(SalesActivity.created_at)
+                func.date(EricSalesActivity.created_at)
             )
             
             if rep_id:
-                query = query.where(SalesActivity.rep_id == rep_id)
+                query = query.where(EricSalesActivity.rep_id == rep_id)
             
             result = await session.execute(query)
             trends = result.all()

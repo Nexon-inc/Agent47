@@ -13,7 +13,7 @@ from core.event_bus.kafka_manager import EventBus
 from core.cache.redis_manager import init_redis
 from ..database import get_purity_database
 from ..models import (
-    BusinessIdea, BusinessModel, PurityMarketResearch, CustomerAvatar,
+    PurityBusinessIdea, PurityBusinessModel, PurityMarketResearch, PurityCustomerAvatar,
     IndustryType, ValidationStatus, RevenueModel
 )
 
@@ -104,7 +104,7 @@ class BusinessIntelligenceService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea details
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -158,7 +158,7 @@ class BusinessIntelligenceService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea details
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -169,7 +169,7 @@ class BusinessIntelligenceService:
                 canvas = await self._generate_business_model_canvas(idea, canvas_data)
                 
                 # Save business model
-                business_model = BusinessModel(
+                business_model = PurityBusinessModel(
                     idea_id=idea_id,
                     key_partners=canvas["key_partners"],
                     key_activities=canvas["key_activities"],
@@ -213,7 +213,7 @@ class BusinessIntelligenceService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea details
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -226,7 +226,7 @@ class BusinessIntelligenceService:
                 # Save customer avatars
                 saved_avatars = []
                 for avatar_data in avatars:
-                    avatar = CustomerAvatar(
+                    avatar = PurityCustomerAvatar(
                         idea_id=idea_id,
                         name=avatar_data["name"],
                         age_range=avatar_data.get("age_range"),
@@ -315,11 +315,11 @@ class BusinessIntelligenceService:
             logger.error(f"Failed to generate ideas with AI: {e}")
             return []
     
-    async def _save_business_idea(self, user_id: int, idea_data: Dict[str, Any]) -> BusinessIdea:
+    async def _save_business_idea(self, user_id: int, idea_data: Dict[str, Any]) -> PurityBusinessIdea:
         """Save business idea to database"""
         db = await get_purity_database()
         async with db.get_session() as session:
-            idea = BusinessIdea(
+            idea = PurityBusinessIdea(
                 user_id=user_id,
                 title=idea_data["business_name"],
                 description=idea_data["description"],
@@ -341,7 +341,7 @@ class BusinessIntelligenceService:
     
     async def _perform_validation_analysis(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         validation_criteria: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Perform comprehensive validation analysis"""
@@ -417,7 +417,7 @@ class BusinessIntelligenceService:
     
     async def _generate_business_model_canvas(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         canvas_data: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Generate business model canvas using AI"""
@@ -471,7 +471,7 @@ class BusinessIntelligenceService:
     
     async def _generate_customer_avatars(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         avatar_data: Optional[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """Generate customer avatars using AI"""

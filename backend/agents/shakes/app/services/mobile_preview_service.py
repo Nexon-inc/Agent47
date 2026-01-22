@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class MobilePreviewService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -121,7 +121,7 @@ class MobilePreviewService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -189,7 +189,7 @@ class MobilePreviewService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -247,7 +247,7 @@ class MobilePreviewService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -291,7 +291,7 @@ class MobilePreviewService:
             return {"success": False, "error": str(e)}
     
     async def _generate_device_preview(
-        self, content_piece: ContentPiece, device_type: str, preview_options: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, device_type: str, preview_options: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate preview for specific device type"""
         try:
@@ -383,7 +383,7 @@ class MobilePreviewService:
                 "error": str(e)
             }
     
-    async def _calculate_preview_metrics(self, content_piece: ContentPiece, device_type: str) -> Dict[str, Any]:
+    async def _calculate_preview_metrics(self, content_piece: ShakesContentPiece, device_type: str) -> Dict[str, Any]:
         """Calculate preview performance metrics"""
         try:
             # Calculate readability score based on content characteristics
@@ -426,7 +426,7 @@ class MobilePreviewService:
             }
     
     async def _calculate_mobile_metrics(
-        self, content_piece: ContentPiece, device_types: List[str], mobile_previews: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, device_types: List[str], mobile_previews: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Calculate mobile performance metrics"""
         return {
@@ -449,7 +449,7 @@ class MobilePreviewService:
         }
     
     async def _analyze_mobile_performance(
-        self, content_piece: ContentPiece, performance_metrics: List[str]
+        self, content_piece: ShakesContentPiece, performance_metrics: List[str]
     ) -> Dict[str, Any]:
         """Analyze mobile performance"""
         analysis_prompt = self._create_performance_analysis_prompt(
@@ -469,7 +469,7 @@ class MobilePreviewService:
         }
     
     async def _calculate_performance_scores(
-        self, content_piece: ContentPiece, performance_metrics: List[str]
+        self, content_piece: ShakesContentPiece, performance_metrics: List[str]
     ) -> Dict[str, float]:
         """Calculate performance scores based on content analysis"""
         scores = {}
@@ -566,7 +566,7 @@ class MobilePreviewService:
         return reading_time
     
     def _create_mobile_optimization_prompt(
-        self, content_piece: ContentPiece, device_types: List[str], mobile_previews: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, device_types: List[str], mobile_previews: Dict[str, Any]
     ) -> str:
         """Create prompt for mobile optimization"""
         return f"""
@@ -591,7 +591,7 @@ class MobilePreviewService:
         """
     
     def _create_content_optimization_prompt(
-        self, content_piece: ContentPiece, optimization_goals: List[str]
+        self, content_piece: ShakesContentPiece, optimization_goals: List[str]
     ) -> str:
         """Create prompt for content optimization"""
         return f"""
@@ -615,7 +615,7 @@ class MobilePreviewService:
         """
     
     def _create_mobile_formatting_prompt(
-        self, content_piece: ContentPiece, optimized_content: str, optimization_goals: List[str]
+        self, content_piece: ShakesContentPiece, optimized_content: str, optimization_goals: List[str]
     ) -> str:
         """Create prompt for mobile formatting"""
         return f"""
@@ -637,7 +637,7 @@ class MobilePreviewService:
         """
     
     def _create_performance_analysis_prompt(
-        self, content_piece: ContentPiece, performance_metrics: List[str]
+        self, content_piece: ShakesContentPiece, performance_metrics: List[str]
     ) -> str:
         """Create prompt for performance analysis"""
         return f"""
@@ -660,7 +660,7 @@ class MobilePreviewService:
         """
     
     def _create_performance_recommendations_prompt(
-        self, content_piece: ContentPiece, performance_analysis: Dict[str, Any], performance_metrics: List[str]
+        self, content_piece: ShakesContentPiece, performance_analysis: Dict[str, Any], performance_metrics: List[str]
     ) -> str:
         """Create prompt for performance recommendations"""
         return f"""
@@ -682,7 +682,7 @@ class MobilePreviewService:
         """
     
     def _create_metadata_prompt(
-        self, content_piece: ContentPiece, metadata_type: str
+        self, content_piece: ShakesContentPiece, metadata_type: str
     ) -> str:
         """Create prompt for metadata generation"""
         return f"""
@@ -706,7 +706,7 @@ class MobilePreviewService:
         """
     
     def _create_mobile_seo_prompt(
-        self, content_piece: ContentPiece, mobile_metadata: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, mobile_metadata: Dict[str, Any]
     ) -> str:
         """Create prompt for mobile SEO"""
         return f"""

@@ -10,7 +10,7 @@ from core.cache.redis_manager import init_redis
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
-from ..models import Lead, Deal, SalesActivity, LeadStatus, SalesStage
+from ..models import EricLead, EricDeal, EricSalesActivity, LeadStatus, SalesStage
 from ..database import get_eric_database
 
 logger = logging.getLogger(__name__)
@@ -54,12 +54,12 @@ class CRMAutomationService:
             await self.initialize()
             
             db = next(get_db())
-            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
             
             if not lead:
                 return {
                     "success": False,
-                    "error": "Lead not found"
+                    "error": "EricLead not found"
                 }
             
             # Prepare lead data for CRM
@@ -131,16 +131,16 @@ class CRMAutomationService:
             await self.initialize()
             
             db = next(get_db())
-            deal = db.query(Deal).filter(Deal.id == deal_id).first()
+            deal = db.query(EricDeal).filter(EricDeal.id == deal_id).first()
             
             if not deal:
                 return {
                     "success": False,
-                    "error": "Deal not found"
+                    "error": "EricDeal not found"
                 }
             
             # Get associated lead
-            lead = db.query(Lead).filter(Lead.id == deal.lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == deal.lead_id).first()
             
             # Prepare deal data for CRM
             deal_data = {
@@ -204,8 +204,8 @@ class CRMAutomationService:
             db = next(get_db())
             
             # Get leads and deals for the brand
-            leads = db.query(Lead).filter(Lead.brand_id == brand_id).all()
-            deals = db.query(Deal).filter(Deal.brand_id == brand_id).all()
+            leads = db.query(EricLead).filter(EricLead.brand_id == brand_id).all()
+            deals = db.query(EricDeal).filter(EricDeal.brand_id == brand_id).all()
             
             updated_records = []
             failed_records = []
@@ -295,20 +295,20 @@ class CRMAutomationService:
             db = next(get_db())
             
             # Get leads created in date range
-            leads = db.query(Lead).filter(
+            leads = db.query(EricLead).filter(
                 and_(
-                    Lead.brand_id == brand_id,
-                    Lead.created_at >= start_date,
-                    Lead.created_at <= end_date
+                    EricLead.brand_id == brand_id,
+                    EricLead.created_at >= start_date,
+                    EricLead.created_at <= end_date
                 )
             ).all()
             
             # Get deals created in date range
-            deals = db.query(Deal).filter(
+            deals = db.query(EricDeal).filter(
                 and_(
-                    Deal.brand_id == brand_id,
-                    Deal.created_at >= start_date,
-                    Deal.created_at <= end_date
+                    EricDeal.brand_id == brand_id,
+                    EricDeal.created_at >= start_date,
+                    EricDeal.created_at <= end_date
                 )
             ).all()
             

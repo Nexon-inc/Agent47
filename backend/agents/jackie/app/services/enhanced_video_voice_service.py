@@ -9,7 +9,7 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import VideoTemplate, VoiceTemplate, AnimationAsset, DesignElement
+from ..models import JackieVideoTemplate, JackieVoiceTemplate, JackieAnimationAsset, JackieDesignElement
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class EnhancedVideoVoiceService:
                 
                 template_result = await self.nlp_processor.create_video_template(prompt)
                 
-                template = VideoTemplate(
+                template = JackieVideoTemplate(
                     id=template_id, template_type=template_type, template_config=json.dumps(template_config),
                     brand_guidelines=json.dumps(brand_guidelines), template_data=json.dumps(template_result),
                     created_at=datetime.utcnow()
@@ -87,7 +87,7 @@ class EnhancedVideoVoiceService:
                 
                 voice_result = await self.nlp_processor.create_voice_template(prompt)
                 
-                voice = VoiceTemplate(
+                voice = JackieVoiceTemplate(
                     id=voice_id, voice_type=voice_type, voice_config=json.dumps(voice_config),
                     audio_requirements=json.dumps(audio_requirements), voice_data=json.dumps(voice_result),
                     created_at=datetime.utcnow()
@@ -119,7 +119,7 @@ class EnhancedVideoVoiceService:
                 
                 animation_result = await self.nlp_processor.create_animation_asset(prompt)
                 
-                animation = AnimationAsset(
+                animation = JackieAnimationAsset(
                     id=animation_id, animation_type=animation_type, animation_config=json.dumps(animation_config),
                     visual_style=json.dumps(visual_style), animation_data=json.dumps(animation_result),
                     created_at=datetime.utcnow()
@@ -151,7 +151,7 @@ class EnhancedVideoVoiceService:
                 
                 element_result = await self.nlp_processor.create_design_element(prompt)
                 
-                element = DesignElement(
+                element = JackieDesignElement(
                     id=element_id, element_type=element_type, element_config=json.dumps(element_config),
                     design_guidelines=json.dumps(design_guidelines), element_data=json.dumps(element_result),
                     created_at=datetime.utcnow()
@@ -173,10 +173,10 @@ class EnhancedVideoVoiceService:
             async with self.db.get_session() as session:
                 cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
                 
-                video_templates_created_query = select(func.count(VideoTemplate.id)).where(VideoTemplate.created_at >= cutoff_date)
-                voice_templates_created_query = select(func.count(VoiceTemplate.id)).where(VoiceTemplate.created_at >= cutoff_date)
-                animation_assets_created_query = select(func.count(AnimationAsset.id)).where(AnimationAsset.created_at >= cutoff_date)
-                design_elements_created_query = select(func.count(DesignElement.id)).where(DesignElement.created_at >= cutoff_date)
+                video_templates_created_query = select(func.count(JackieVideoTemplate.id)).where(JackieVideoTemplate.created_at >= cutoff_date)
+                voice_templates_created_query = select(func.count(JackieVoiceTemplate.id)).where(JackieVoiceTemplate.created_at >= cutoff_date)
+                animation_assets_created_query = select(func.count(JackieAnimationAsset.id)).where(JackieAnimationAsset.created_at >= cutoff_date)
+                design_elements_created_query = select(func.count(JackieDesignElement.id)).where(JackieDesignElement.created_at >= cutoff_date)
                 
                 video_templates_created = await session.scalar(video_templates_created_query)
                 voice_templates_created = await session.scalar(voice_templates_created_query)

@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, ContentAnalytics
+from ..models import ShakesContentProject, ShakesContentPiece, ContentAnalytics
 
 logger = logging.getLogger(__name__)
 
@@ -55,11 +55,11 @@ class ContentDNAService:
                 end_date = datetime.utcnow()
                 start_date = end_date - timedelta(days=time_period_days)
                 
-                content_query = select(ContentPiece).join(ContentProject).where(
+                content_query = select(ShakesContentPiece).join(ShakesContentProject).where(
                     and_(
-                        ContentProject.user_id == user_id,
-                        ContentPiece.created_at >= start_date,
-                        ContentPiece.created_at <= end_date
+                        ShakesContentProject.user_id == user_id,
+                        ShakesContentPiece.created_at >= start_date,
+                        ShakesContentPiece.created_at <= end_date
                     )
                 )
                 content_result = await session.execute(content_query)
@@ -131,11 +131,11 @@ class ContentDNAService:
                 end_date = datetime.utcnow()
                 start_date = end_date - timedelta(days=time_period_days)
                 
-                content_query = select(ContentPiece).join(ContentProject).where(
+                content_query = select(ShakesContentPiece).join(ShakesContentProject).where(
                     and_(
-                        ContentProject.user_id == user_id,
-                        ContentPiece.created_at >= start_date,
-                        ContentPiece.created_at <= end_date
+                        ShakesContentProject.user_id == user_id,
+                        ShakesContentPiece.created_at >= start_date,
+                        ShakesContentPiece.created_at <= end_date
                     )
                 )
                 content_result = await session.execute(content_query)
@@ -192,8 +192,8 @@ class ContentDNAService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Get user's content
-                content_query = select(ContentPiece).join(ContentProject).where(
-                    ContentProject.user_id == user_id
+                content_query = select(ShakesContentPiece).join(ShakesContentProject).where(
+                    ShakesContentProject.user_id == user_id
                 )
                 content_result = await session.execute(content_query)
                 content_pieces = content_result.scalars().all()
@@ -254,8 +254,8 @@ class ContentDNAService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Get user's content and analytics
-                content_query = select(ContentPiece).join(ContentProject).where(
-                    ContentProject.user_id == user_id
+                content_query = select(ShakesContentPiece).join(ShakesContentProject).where(
+                    ShakesContentProject.user_id == user_id
                 )
                 content_result = await session.execute(content_query)
                 content_pieces = content_result.scalars().all()
@@ -305,7 +305,7 @@ class ContentDNAService:
             return {"success": False, "error": str(e)}
     
     async def _analyze_content_patterns(
-        self, content_pieces: List[ContentPiece], analytics_records: List[ContentAnalytics]
+        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ContentAnalytics]
     ) -> Dict[str, Any]:
         """Analyze patterns in content pieces and analytics"""
         # Analyze content themes
@@ -350,7 +350,7 @@ class ContentDNAService:
         }
     
     async def _generate_heatmap_data(
-        self, content_pieces: List[ContentPiece], analytics_records: List[ContentAnalytics], heatmap_type: str
+        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ContentAnalytics], heatmap_type: str
     ) -> Dict[str, Any]:
         """Generate heatmap data based on type"""
         heatmap_data = {}
@@ -387,7 +387,7 @@ class ContentDNAService:
         return heatmap_data
     
     async def _identify_specific_patterns(
-        self, content_pieces: List[ContentPiece], analytics_records: List[ContentAnalytics], pattern_type: str
+        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ContentAnalytics], pattern_type: str
     ) -> Dict[str, Any]:
         """Identify specific patterns based on type"""
         if pattern_type == "themes":
@@ -444,7 +444,7 @@ class ContentDNAService:
         return {}
     
     def _create_dna_insights_prompt(
-        self, user_id: int, content_pieces: List[ContentPiece], analytics_records: List[ContentAnalytics], dna_analysis: Dict[str, Any]
+        self, user_id: int, content_pieces: List[ShakesContentPiece], analytics_records: List[ContentAnalytics], dna_analysis: Dict[str, Any]
     ) -> str:
         """Create prompt for DNA insights"""
         return f"""

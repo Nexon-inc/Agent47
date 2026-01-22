@@ -272,22 +272,22 @@ async def get_follow_up_performance_metrics(
         service = DynamicFollowUpSchedulerService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity, Lead
+            from ..models import EricSalesActivity, EricLead
             from sqlalchemy import select, func, and_
             from datetime import datetime, timedelta
             
             start_date = datetime.utcnow() - timedelta(days=days)
             
             # Get follow-up activities
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.activity_type == "follow_up_schedule",
-                    SalesActivity.created_at >= start_date
+                    EricSalesActivity.activity_type == "follow_up_schedule",
+                    EricSalesActivity.created_at >= start_date
                 )
             )
             
             if rep_id:
-                query = query.where(SalesActivity.rep_id == rep_id)
+                query = query.where(EricSalesActivity.rep_id == rep_id)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -345,22 +345,22 @@ async def get_upcoming_follow_ups(
         service = DynamicFollowUpSchedulerService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity
+            from ..models import EricSalesActivity
             from sqlalchemy import select, and_
             from datetime import datetime, timedelta
             
             end_time = datetime.utcnow() + timedelta(hours=hours)
             
             # Get upcoming schedules
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.activity_type == "follow_up_schedule",
-                    SalesActivity.metadata["status"].astext == "pending"
+                    EricSalesActivity.activity_type == "follow_up_schedule",
+                    EricSalesActivity.metadata["status"].astext == "pending"
                 )
             )
             
             if rep_id:
-                query = query.where(SalesActivity.rep_id == rep_id)
+                query = query.where(EricSalesActivity.rep_id == rep_id)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()
@@ -406,22 +406,22 @@ async def get_overdue_follow_ups(
         service = DynamicFollowUpSchedulerService()
         db = await get_eric_database()
         async with db.get_session() as session:
-            from ..models import SalesActivity
+            from ..models import EricSalesActivity
             from sqlalchemy import select, and_
             from datetime import datetime
             
             now = datetime.utcnow()
             
             # Get overdue schedules
-            query = select(SalesActivity).where(
+            query = select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.activity_type == "follow_up_schedule",
-                    SalesActivity.metadata["status"].astext == "pending"
+                    EricSalesActivity.activity_type == "follow_up_schedule",
+                    EricSalesActivity.metadata["status"].astext == "pending"
                 )
             )
             
             if rep_id:
-                query = query.where(SalesActivity.rep_id == rep_id)
+                query = query.where(EricSalesActivity.rep_id == rep_id)
             
             activities = await session.execute(query)
             activities = activities.scalars().all()

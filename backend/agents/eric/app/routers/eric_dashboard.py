@@ -9,7 +9,7 @@ from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from core.database.models import User
 from ..database import get_db
-from ..models import Lead, Deal, LeadInteraction, LeadStatus, DealStatus, CommunicationChannel
+from ..models import EricLead, EricDeal, EricLeadInteraction, LeadStatus, DealStatus, CommunicationChannel
 from ..services.lead_generation_service import LeadGenerationService
 from ..services.sales_forecasting_service import SalesForecastingService
 from ..services.performance_analytics_service import PerformanceAnalyticsService

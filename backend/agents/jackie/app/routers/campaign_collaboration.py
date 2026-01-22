@@ -210,7 +210,7 @@ async def add_project_comment(
             request.mentions
         )
         return {
-            "message": "Comment added successfully",
+            "message": "JackieComment added successfully",
             "comment_id": result["comment_id"]
         }
     except Exception as e:
@@ -241,8 +241,8 @@ async def update_project_comment(
     try:
         result = service.update_project_comment(comment_id, content)
         if not result:
-            raise HTTPException(status_code=404, detail="Comment not found")
-        return {"message": "Comment updated successfully"}
+            raise HTTPException(status_code=404, detail="JackieComment not found")
+        return {"message": "JackieComment updated successfully"}
     except HTTPException:
         raise
     except Exception as e:
@@ -254,8 +254,8 @@ async def delete_project_comment(comment_id: str, db: Session = Depends(get_db))
     try:
         result = service.delete_project_comment(comment_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Comment not found")
-        return {"message": "Comment deleted successfully"}
+            raise HTTPException(status_code=404, detail="JackieComment not found")
+        return {"message": "JackieComment deleted successfully"}
     except HTTPException:
         raise
     except Exception as e:
@@ -277,7 +277,7 @@ async def create_project_review(
             request.status
         )
         return {
-            "message": "Review created successfully",
+            "message": "JackieReview created successfully",
             "review_id": result["review_id"]
         }
     except Exception as e:
@@ -310,8 +310,8 @@ async def update_review_status(
     try:
         result = service.update_review_status(review_id, status, feedback)
         if not result:
-            raise HTTPException(status_code=404, detail="Review not found")
-        return {"message": "Review status updated successfully"}
+            raise HTTPException(status_code=404, detail="JackieReview not found")
+        return {"message": "JackieReview status updated successfully"}
     except HTTPException:
         raise
     except Exception as e:
@@ -329,7 +329,7 @@ async def create_project_version(
     try:
         result = service.create_project_version(project_id, version_name, version_description, changes)
         return {
-            "message": "Version created successfully",
+            "message": "JackieVersion created successfully",
             "version_id": result["version_id"]
         }
     except Exception as e:
@@ -355,7 +355,7 @@ async def get_version_details(version_id: str, db: Session = Depends(get_db)):
     try:
         version = service.get_version_details(version_id)
         if not version:
-            raise HTTPException(status_code=404, detail="Version not found")
+            raise HTTPException(status_code=404, detail="JackieVersion not found")
         return version
     except HTTPException:
         raise
@@ -368,7 +368,7 @@ async def revert_to_version(version_id: str, db: Session = Depends(get_db)):
     try:
         result = service.revert_to_version(version_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Version not found")
+            raise HTTPException(status_code=404, detail="JackieVersion not found")
         return {"message": "Project reverted to version successfully"}
     except HTTPException:
         raise

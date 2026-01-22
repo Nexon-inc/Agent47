@@ -6,7 +6,7 @@ from statistics import mean, median
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.database.connection import get_supabase
 from core.integrations.integration_manager import get_integration_manager
-from ..models import AnalyticsSnapshot, EngagementEvent, TrendSignal
+from ..models import AriaAnalyticsSnapshot, AriaEngagementEvent, AriaTrendSignal
 from core.config import settings
 
 
@@ -68,14 +68,14 @@ class AdvancedAnalyticsService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select, and_
-            from ..models import EngagementEvent
+            from ..models import AriaEngagementEvent
             
-            query = select(EngagementEvent).where(
+            query = select(AriaEngagementEvent).where(
                 and_(
-                    EngagementEvent.user_id == user_id,
-                    EngagementEvent.platform == platform,
-                    EngagementEvent.occurred_at >= start_date,
-                    EngagementEvent.occurred_at <= end_date
+                    AriaEngagementEvent.user_id == user_id,
+                    AriaEngagementEvent.platform == platform,
+                    AriaEngagementEvent.occurred_at >= start_date,
+                    AriaEngagementEvent.occurred_at <= end_date
                 )
             )
             
@@ -453,11 +453,11 @@ class AdvancedAnalyticsService:
         """Create a cross-platform story campaign"""
         db = await get_supabase()
         async with db.get_session() as session:
-            from ..models import Campaign
+            from ..models import AriaCampaign
             
-            campaign = Campaign(
+            campaign = AriaCampaign(
                 user_id=user_id,
-                name=f"Cross-Platform Story Campaign {datetime.utcnow().strftime('%Y-%m-%d')}",
+                name=f"Cross-Platform Story AriaCampaign {datetime.utcnow().strftime('%Y-%m-%d')}",
                 objective="engagement",
                 budget_cents=0,  # Stories are typically free
                 status="active",
@@ -502,20 +502,20 @@ class AdvancedAnalyticsService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select, or_
-            from ..models import TrendSignal
+            from ..models import AriaTrendSignal
             
             if not topics:
                 # Get all recent trends
-                query = select(TrendSignal).where(
-                    TrendSignal.user_id == user_id
-                ).order_by(TrendSignal.captured_at.desc()).limit(50)
+                query = select(AriaTrendSignal).where(
+                    AriaTrendSignal.user_id == user_id
+                ).order_by(AriaTrendSignal.captured_at.desc()).limit(50)
             else:
                 # Get trends matching specific topics
-                conditions = [TrendSignal.topic.ilike(f"%{topic}%") for topic in topics]
-                query = select(TrendSignal).where(
-                    TrendSignal.user_id == user_id,
+                conditions = [AriaTrendSignal.topic.ilike(f"%{topic}%") for topic in topics]
+                query = select(AriaTrendSignal).where(
+                    AriaTrendSignal.user_id == user_id,
                     or_(*conditions)
-                ).order_by(TrendSignal.captured_at.desc()).limit(50)
+                ).order_by(AriaTrendSignal.captured_at.desc()).limit(50)
             
             result = await session.execute(query)
             signals = result.scalars().all()

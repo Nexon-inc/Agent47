@@ -8,7 +8,7 @@ from sqlalchemy import select, update, delete
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
-from ..models import CampaignContent, ContentType, PlatformType
+from ..models import JackieCampaignContent, ContentType, PlatformType
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class ContentService:
                     call_to_action=call_to_action
                 )
                 
-                content = CampaignContent(
+                content = JackieCampaignContent(
                     campaign_id=None,
                     content_type=content_type,
                     platform=platform,
@@ -128,7 +128,7 @@ class ContentService:
                     keywords=keywords
                 )
                 
-                content = CampaignContent(
+                content = JackieCampaignContent(
                     campaign_id=None,
                     content_type=ContentType.AD_COPY,
                     platform=platform,
@@ -185,7 +185,7 @@ class ContentService:
                     call_to_action=call_to_action
                 )
                 
-                content = CampaignContent(
+                content = JackieCampaignContent(
                     campaign_id=None,
                     content_type=content_type,
                     platform=platform,
@@ -241,7 +241,7 @@ class ContentService:
                     call_to_action=call_to_action
                 )
                 
-                content = CampaignContent(
+                content = JackieCampaignContent(
                     campaign_id=None,
                     content_type=ContentType.EMAIL,
                     platform=PlatformType.EMAIL,
@@ -280,7 +280,7 @@ class ContentService:
     async def get_content_details(self, content_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(CampaignContent).where(CampaignContent.id == content_id)
+                query = select(JackieCampaignContent).where(JackieCampaignContent.id == content_id)
                 result = await session.execute(query)
                 content = result.scalar_one_or_none()
                 
@@ -325,7 +325,7 @@ class ContentService:
                 if hashtags is not None:
                     update_data["hashtags"] = hashtags
                 
-                stmt = update(CampaignContent).where(CampaignContent.id == content_id).values(**update_data)
+                stmt = update(JackieCampaignContent).where(JackieCampaignContent.id == content_id).values(**update_data)
                 await session.execute(stmt)
                 await session.commit()
                 
@@ -338,7 +338,7 @@ class ContentService:
     async def delete_content(self, content_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                stmt = delete(CampaignContent).where(CampaignContent.id == content_id)
+                stmt = delete(JackieCampaignContent).where(JackieCampaignContent.id == content_id)
                 await session.execute(stmt)
                 await session.commit()
                 
@@ -358,12 +358,12 @@ class ContentService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(CampaignContent)
+                query = select(JackieCampaignContent)
                 
                 if content_type:
-                    query = query.where(CampaignContent.content_type == content_type)
+                    query = query.where(JackieCampaignContent.content_type == content_type)
                 if platform:
-                    query = query.where(CampaignContent.platform == platform)
+                    query = query.where(JackieCampaignContent.platform == platform)
                 
                 query = query.offset(offset).limit(limit)
                 result = await session.execute(query)
@@ -397,7 +397,7 @@ class ContentService:
     async def optimize_content(self, content_id: int, optimization_type: str) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(CampaignContent).where(CampaignContent.id == content_id)
+                query = select(JackieCampaignContent).where(JackieCampaignContent.id == content_id)
                 result = await session.execute(query)
                 content = result.scalar_one_or_none()
                 
@@ -411,7 +411,7 @@ class ContentService:
                     content_type=content.content_type
                 )
                 
-                stmt = update(CampaignContent).where(CampaignContent.id == content_id).values(
+                stmt = update(JackieCampaignContent).where(JackieCampaignContent.id == content_id).values(
                     content=optimized_content["content"],
                     title=optimized_content.get("title", content.title)
                 )
@@ -430,7 +430,7 @@ class ContentService:
     async def translate_content(self, content_id: int, target_language: str) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(CampaignContent).where(CampaignContent.id == content_id)
+                query = select(JackieCampaignContent).where(JackieCampaignContent.id == content_id)
                 result = await session.execute(query)
                 content = result.scalar_one_or_none()
                 
@@ -442,7 +442,7 @@ class ContentService:
                     target_language=target_language
                 )
                 
-                stmt = update(CampaignContent).where(CampaignContent.id == content_id).values(
+                stmt = update(JackieCampaignContent).where(JackieCampaignContent.id == content_id).values(
                     content=translated_content["content"]
                 )
                 await session.execute(stmt)
@@ -467,7 +467,7 @@ class ContentService:
             scheduled_dt = datetime.fromisoformat(scheduled_time)
             
             async with self.db.get_session() as session:
-                stmt = update(CampaignContent).where(CampaignContent.id == content_id).values(
+                stmt = update(JackieCampaignContent).where(JackieCampaignContent.id == content_id).values(
                     scheduled_time=scheduled_dt,
                     platform=platform
                 )

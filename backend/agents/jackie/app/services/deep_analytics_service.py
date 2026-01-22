@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import DeepAnalytics, JackieSentimentAnalysis, BenchmarkData, ActionableInsight
+from ..models import JackieDeepAnalytics, JackieSentimentAnalysis, BenchmarkData, JackieActionableInsight
 
 class DeepAnalyticsService:
     def __init__(self, db: Session):
@@ -28,7 +28,7 @@ class DeepAnalyticsService:
         
         analysis_result = self.nlp_processor.analyze_campaign_performance(prompt)
         
-        analysis = DeepAnalytics(
+        analysis = JackieDeepAnalytics(
             id=analysis_id, campaign_id=campaign_id, analysis_depth=analysis_depth,
             include_sentiment=include_sentiment, analysis_data=json.dumps(analysis_result),
             created_at=datetime.utcnow()
@@ -97,7 +97,7 @@ class DeepAnalyticsService:
         
         insight_result = self.nlp_processor.generate_actionable_insights(prompt)
         
-        insight = ActionableInsight(
+        insight = JackieActionableInsight(
             id=insight_id, campaign_data=json.dumps(campaign_data), insight_focus=json.dumps(insight_focus),
             insights=json.dumps(insight_result), created_at=datetime.utcnow()
         )
@@ -158,8 +158,8 @@ class DeepAnalyticsService:
     def get_deep_analytics_summary(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        analyses_count = self.db.query(DeepAnalytics).filter(
-            DeepAnalytics.created_at >= cutoff_date
+        analyses_count = self.db.query(JackieDeepAnalytics).filter(
+            JackieDeepAnalytics.created_at >= cutoff_date
         ).count()
         
         sentiment_analyses = self.db.query(SentimentAnalysis).filter(
@@ -170,8 +170,8 @@ class DeepAnalyticsService:
             BenchmarkData.created_at >= cutoff_date
         ).count()
         
-        insights_count = self.db.query(ActionableInsight).filter(
-            ActionableInsight.created_at >= cutoff_date
+        insights_count = self.db.query(JackieActionableInsight).filter(
+            JackieActionableInsight.created_at >= cutoff_date
         ).count()
         
         return {

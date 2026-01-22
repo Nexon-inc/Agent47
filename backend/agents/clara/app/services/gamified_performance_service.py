@@ -7,7 +7,7 @@ from sqlalchemy import select, and_, func, desc, asc
 from sqlalchemy.orm import selectinload
 from ..database import get_clara_database
 from ..models import (
-    SupportAgent, SupportTicket, CustomerInteraction, CustomerFeedback,
+    ClaraSupportAgent, ClaraSupportTicket, ClaraCustomerInteraction, CustomerFeedback,
     TicketStatus, TicketPriority, SupportChannel
 )
 
@@ -57,16 +57,16 @@ class GamifiedPerformanceService:
                 
                 # Build base query for agent performance
                 query = select(
-                    SupportAgent.id,
-                    SupportAgent.user_id,
-                    SupportAgent.agent_code,
-                    SupportAgent.performance_score,
-                    SupportAgent.response_time_avg,
-                    SupportAgent.resolution_rate,
-                    SupportAgent.customer_satisfaction_avg,
-                    SupportAgent.total_tickets_resolved,
-                    SupportAgent.total_tickets_escalated
-                ).where(SupportAgent.availability_status != "offline")
+                    ClaraSupportAgent.id,
+                    ClaraSupportAgent.user_id,
+                    ClaraSupportAgent.agent_code,
+                    ClaraSupportAgent.performance_score,
+                    ClaraSupportAgent.response_time_avg,
+                    ClaraSupportAgent.resolution_rate,
+                    ClaraSupportAgent.customer_satisfaction_avg,
+                    ClaraSupportAgent.total_tickets_resolved,
+                    ClaraSupportAgent.total_tickets_escalated
+                ).where(ClaraSupportAgent.availability_status != "offline")
                 
                 agents = await session.execute(query)
                 agents = agents.all()
@@ -76,11 +76,11 @@ class GamifiedPerformanceService:
                 for agent in agents:
                     # Get tickets resolved in period
                     resolved_tickets = await session.execute(
-                        select(func.count(SupportTicket.id)).where(
+                        select(func.count(ClaraSupportTicket.id)).where(
                             and_(
-                                SupportTicket.assigned_agent_id == agent.id,
-                                SupportTicket.status == TicketStatus.RESOLVED,
-                                SupportTicket.resolved_at >= start_date
+                                ClaraSupportTicket.assigned_agent_id == agent.id,
+                                ClaraSupportTicket.status == TicketStatus.RESOLVED,
+                                ClaraSupportTicket.resolved_at >= start_date
                             )
                         )
                     )
@@ -88,11 +88,11 @@ class GamifiedPerformanceService:
                     
                     # Get average satisfaction for period
                     satisfaction_scores = await session.execute(
-                        select(SupportTicket.satisfaction_score).where(
+                        select(ClaraSupportTicket.satisfaction_score).where(
                             and_(
-                                SupportTicket.assigned_agent_id == agent.id,
-                                SupportTicket.satisfaction_score.isnot(None),
-                                SupportTicket.updated_at >= start_date
+                                ClaraSupportTicket.assigned_agent_id == agent.id,
+                                ClaraSupportTicket.satisfaction_score.isnot(None),
+                                ClaraSupportTicket.updated_at >= start_date
                             )
                         )
                     )
@@ -101,11 +101,11 @@ class GamifiedPerformanceService:
                     
                     # Get response time for period
                     response_times = await session.execute(
-                        select(SupportTicket.first_response_time).where(
+                        select(ClaraSupportTicket.first_response_time).where(
                             and_(
-                                SupportTicket.assigned_agent_id == agent.id,
-                                SupportTicket.first_response_time.isnot(None),
-                                SupportTicket.created_at >= start_date
+                                ClaraSupportTicket.assigned_agent_id == agent.id,
+                                ClaraSupportTicket.first_response_time.isnot(None),
+                                ClaraSupportTicket.created_at >= start_date
                             )
                         )
                     )
@@ -170,7 +170,7 @@ class GamifiedPerformanceService:
             async with db.get_session() as session:
                 # Get agent
                 agent = await session.execute(
-                    select(SupportAgent).where(SupportAgent.id == agent_id)
+                    select(ClaraSupportAgent).where(ClaraSupportAgent.id == agent_id)
                 )
                 agent = agent.scalar_one_or_none()
                 
@@ -191,9 +191,9 @@ class GamifiedPerformanceService:
                     start_date = None
                 
                 # Get tickets for period
-                ticket_query = select(SupportTicket).where(SupportTicket.assigned_agent_id == agent_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.assigned_agent_id == agent_id)
                 if start_date:
-                    ticket_query = ticket_query.where(SupportTicket.created_at >= start_date)
+                    ticket_query = ticket_query.where(ClaraSupportTicket.created_at >= start_date)
                 
                 tickets = await session.execute(ticket_query)
                 tickets = tickets.scalars().all()
@@ -346,7 +346,7 @@ class GamifiedPerformanceService:
                     start_date = now - timedelta(days=30)
                 
                 # Get all agents (or team agents if team_id specified)
-                agent_query = select(SupportAgent).where(SupportAgent.availability_status != "offline")
+                agent_query = select(ClaraSupportAgent).where(ClaraSupportAgent.availability_status != "offline")
                 if team_id:
                     # This would need team relationship in models
                     pass
@@ -405,11 +405,11 @@ class GamifiedPerformanceService:
                         count = 0
                         for agent in agents:
                             agent_tickets = await session.execute(
-                                select(SupportTicket.actual_resolution_time).where(
+                                select(ClaraSupportTicket.actual_resolution_time).where(
                                     and_(
-                                        SupportTicket.assigned_agent_id == agent.id,
-                                        SupportTicket.actual_resolution_time.isnot(None),
-                                        SupportTicket.resolved_at >= start_date
+                                        ClaraSupportTicket.assigned_agent_id == agent.id,
+                                        ClaraSupportTicket.actual_resolution_time.isnot(None),
+                                        ClaraSupportTicket.resolved_at >= start_date
                                     )
                                 )
                             )
@@ -427,11 +427,11 @@ class GamifiedPerformanceService:
                         count = 0
                         for agent in agents:
                             agent_satisfaction = await session.execute(
-                                select(SupportTicket.satisfaction_score).where(
+                                select(ClaraSupportTicket.satisfaction_score).where(
                                     and_(
-                                        SupportTicket.assigned_agent_id == agent.id,
-                                        SupportTicket.satisfaction_score.isnot(None),
-                                        SupportTicket.updated_at >= start_date
+                                        ClaraSupportTicket.assigned_agent_id == agent.id,
+                                        ClaraSupportTicket.satisfaction_score.isnot(None),
+                                        ClaraSupportTicket.updated_at >= start_date
                                     )
                                 )
                             )
@@ -449,10 +449,10 @@ class GamifiedPerformanceService:
                         fcr_tickets = 0
                         for agent in agents:
                             agent_tickets = await session.execute(
-                                select(func.count(SupportTicket.id)).where(
+                                select(func.count(ClaraSupportTicket.id)).where(
                                     and_(
-                                        SupportTicket.assigned_agent_id == agent.id,
-                                        SupportTicket.created_at >= start_date
+                                        ClaraSupportTicket.assigned_agent_id == agent.id,
+                                        ClaraSupportTicket.created_at >= start_date
                                     )
                                 )
                             )
@@ -460,11 +460,11 @@ class GamifiedPerformanceService:
                             total_tickets += agent_total
                             
                             agent_fcr = await session.execute(
-                                select(func.count(SupportTicket.id)).where(
+                                select(func.count(ClaraSupportTicket.id)).where(
                                     and_(
-                                        SupportTicket.assigned_agent_id == agent.id,
-                                        SupportTicket.created_at >= start_date,
-                                        SupportTicket.interactions.any(CustomerInteraction.interaction_type == "resolution")
+                                        ClaraSupportTicket.assigned_agent_id == agent.id,
+                                        ClaraSupportTicket.created_at >= start_date,
+                                        ClaraSupportTicket.interactions.any(ClaraCustomerInteraction.interaction_type == "resolution")
                                     )
                                 )
                             )
@@ -480,11 +480,11 @@ class GamifiedPerformanceService:
                         count = 0
                         for agent in agents:
                             agent_tickets = await session.execute(
-                                select(SupportTicket.first_response_time).where(
+                                select(ClaraSupportTicket.first_response_time).where(
                                     and_(
-                                        SupportTicket.assigned_agent_id == agent.id,
-                                        SupportTicket.first_response_time.isnot(None),
-                                        SupportTicket.created_at >= start_date
+                                        ClaraSupportTicket.assigned_agent_id == agent.id,
+                                        ClaraSupportTicket.first_response_time.isnot(None),
+                                        ClaraSupportTicket.created_at >= start_date
                                     )
                                 )
                             )
@@ -580,9 +580,9 @@ class GamifiedPerformanceService:
         try:
             # Get all tickets for agent
             tickets = await session.execute(
-                select(SupportTicket.created_at).where(
-                    SupportTicket.assigned_agent_id == agent_id
-                ).order_by(SupportTicket.created_at.desc())
+                select(ClaraSupportTicket.created_at).where(
+                    ClaraSupportTicket.assigned_agent_id == agent_id
+                ).order_by(ClaraSupportTicket.created_at.desc())
             )
             ticket_dates = tickets.scalars().all()
             

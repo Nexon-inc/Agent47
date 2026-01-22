@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import PerformanceForecast, ForecastModel, PredictionResult, HistoricalData
+from ..models import PerformanceForecast, ForecastModel, JackiePredictionResult, HistoricalData
 
 class PerformanceForecastingService:
     def __init__(self, db: Session):

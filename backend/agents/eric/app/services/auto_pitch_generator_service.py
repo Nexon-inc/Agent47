@@ -13,7 +13,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.analytics.analytics_manager import AnalyticsManager
 from core.event_bus.kafka_manager import EventBus as KafkaManager
 from core.cache.redis_manager import RedisManager
-from ..models import Lead, Deal, SalesActivity, SalesRep, CustomerProfile
+from ..models import EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +95,7 @@ class AutoPitchGeneratorService:
                 # Get lead information
                 lead = await self._get_lead_with_context(session, lead_id)
                 if not lead:
-                    return {"success": False, "error": "Lead not found"}
+                    return {"success": False, "error": "EricLead not found"}
                 
                 # Validate style
                 if style not in self.pitch_styles:
@@ -254,19 +254,19 @@ class AutoPitchGeneratorService:
                 # Build query filters
                 filters = []
                 if lead_id:
-                    filters.append(SalesActivity.lead_id == lead_id)
+                    filters.append(EricSalesActivity.lead_id == lead_id)
                 if rep_id:
-                    filters.append(SalesActivity.rep_id == rep_id)
+                    filters.append(EricSalesActivity.rep_id == rep_id)
                 if style:
-                    filters.append(SalesActivity.metadata.contains({"style": style}))
+                    filters.append(EricSalesActivity.metadata.contains({"style": style}))
                 
                 # Query pitch activities
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.activity_type == "pitch_generation",
+                        EricSalesActivity.activity_type == "pitch_generation",
                         *filters
                     )
-                ).order_by(SalesActivity.created_at.desc()).limit(limit)
+                ).order_by(EricSalesActivity.created_at.desc()).limit(limit)
                 
                 activities = await session.execute(query)
                 activities = activities.scalars().all()
@@ -298,9 +298,9 @@ class AutoPitchGeneratorService:
         self,
         session: AsyncSession,
         lead_id: int
-    ) -> Optional[Lead]:
+    ) -> Optional[EricLead]:
         """Get lead with full context for pitch generation"""
-        query = select(Lead).where(Lead.id == lead_id)
+        query = select(EricLead).where(EricLead.id == lead_id)
         result = await session.execute(query)
         return result.scalar_one_or_none()
     
@@ -316,7 +316,7 @@ class AutoPitchGeneratorService:
     
     async def _generate_pitch_content(
         self,
-        lead: Lead,
+        lead: EricLead,
         customer_profile: Optional[CustomerProfile],
         style: str,
         format_type: str,
@@ -425,7 +425,7 @@ class AutoPitchGeneratorService:
         - Structure: {style_config['structure']}
         - Call to Action: {style_config['call_to_action']}
         
-        Lead Context:
+        EricLead Context:
         - Name: {context.get('lead_name', 'Prospect')}
         - Company: {context.get('company', 'Unknown')}
         - Industry: {context.get('industry', 'General')}
@@ -486,7 +486,7 @@ class AutoPitchGeneratorService:
         pitch_content: Dict[str, Any]
     ) -> None:
         """Store pitch generation activity"""
-        activity = SalesActivity(
+        activity = EricSalesActivity(
             activity_type="pitch_generation",
             lead_id=lead_id,
             metadata={
@@ -509,7 +509,7 @@ class AutoPitchGeneratorService:
     ) -> None:
         """Store engagement data for pitch performance analysis"""
         # Update the sales activity with engagement metrics
-        query = select(SalesActivity).where(SalesActivity.id == pitch_id)
+        query = select(EricSalesActivity).where(EricSalesActivity.id == pitch_id)
         activity = await session.execute(query)
         activity = activity.scalar_one_or_none()
         

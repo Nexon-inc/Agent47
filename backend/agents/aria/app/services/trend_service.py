@@ -3,7 +3,7 @@ import httpx
 from core.config import settings
 from core.integrations.integration_manager import get_integration_manager
 from core.database.connection import get_supabase
-from ..models import TrendSignal
+from ..models import AriaTrendSignal
 
 
 class TrendService:
@@ -31,7 +31,7 @@ class TrendService:
     async def _save_signal(self, topic: str, region: str, keywords: List[str], source: str, score: float):
         db = await get_supabase()
         async with db.get_session() as session:
-            ts = TrendSignal(topic=topic, region=region, keywords=keywords, source=source, score=score)
+            ts = AriaTrendSignal(topic=topic, region=region, keywords=keywords, source=source, score=score)
             session.add(ts)
             await session.commit()
 

@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class EthicalGuidelinesService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -171,7 +171,7 @@ class EthicalGuidelinesService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -228,7 +228,7 @@ class EthicalGuidelinesService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -285,7 +285,7 @@ class EthicalGuidelinesService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -326,7 +326,7 @@ class EthicalGuidelinesService:
             return {"success": False, "error": str(e)}
     
     async def _analyze_content_ethics(
-        self, content_piece: ContentPiece, ethical_categories: List[str]
+        self, content_piece: ShakesContentPiece, ethical_categories: List[str]
     ) -> Dict[str, Any]:
         """Analyze content for ethical compliance"""
         analysis_prompt = self._create_ethics_analysis_prompt(
@@ -346,7 +346,7 @@ class EthicalGuidelinesService:
         }
     
     async def _analyze_content_bias(
-        self, content_piece: ContentPiece, bias_categories: List[str]
+        self, content_piece: ShakesContentPiece, bias_categories: List[str]
     ) -> Dict[str, Any]:
         """Analyze content for bias"""
         bias_prompt = self._create_bias_analysis_prompt(
@@ -366,7 +366,7 @@ class EthicalGuidelinesService:
         }
     
     async def _analyze_accessibility(
-        self, content_piece: ContentPiece, accessibility_standards: List[str]
+        self, content_piece: ShakesContentPiece, accessibility_standards: List[str]
     ) -> Dict[str, Any]:
         """Analyze content for accessibility"""
         accessibility_prompt = self._create_accessibility_analysis_prompt(
@@ -386,7 +386,7 @@ class EthicalGuidelinesService:
         }
     
     async def _analyze_content_accuracy(
-        self, content_piece: ContentPiece, accuracy_categories: List[str]
+        self, content_piece: ShakesContentPiece, accuracy_categories: List[str]
     ) -> Dict[str, Any]:
         """Analyze content for accuracy"""
         accuracy_prompt = self._create_accuracy_analysis_prompt(
@@ -558,7 +558,7 @@ class EthicalGuidelinesService:
             return "low"
     
     def _create_ethics_analysis_prompt(
-        self, content_piece: ContentPiece, ethical_categories: List[str]
+        self, content_piece: ShakesContentPiece, ethical_categories: List[str]
     ) -> str:
         """Create prompt for ethics analysis"""
         return f"""
@@ -584,7 +584,7 @@ class EthicalGuidelinesService:
         """
     
     def _create_bias_analysis_prompt(
-        self, content_piece: ContentPiece, bias_categories: List[str]
+        self, content_piece: ShakesContentPiece, bias_categories: List[str]
     ) -> str:
         """Create prompt for bias analysis"""
         return f"""
@@ -607,7 +607,7 @@ class EthicalGuidelinesService:
         """
     
     def _create_accessibility_analysis_prompt(
-        self, content_piece: ContentPiece, accessibility_standards: List[str]
+        self, content_piece: ShakesContentPiece, accessibility_standards: List[str]
     ) -> str:
         """Create prompt for accessibility analysis"""
         return f"""
@@ -630,7 +630,7 @@ class EthicalGuidelinesService:
         """
     
     def _create_accuracy_analysis_prompt(
-        self, content_piece: ContentPiece, accuracy_categories: List[str]
+        self, content_piece: ShakesContentPiece, accuracy_categories: List[str]
     ) -> str:
         """Create prompt for accuracy analysis"""
         return f"""
@@ -723,7 +723,7 @@ class EthicalGuidelinesService:
         """
     
     def _create_ethical_recommendations_prompt(
-        self, content_piece: ContentPiece, ethical_analysis: Dict[str, Any], ethical_categories: List[str]
+        self, content_piece: ShakesContentPiece, ethical_analysis: Dict[str, Any], ethical_categories: List[str]
     ) -> str:
         """Create prompt for ethical recommendations"""
         return f"""
@@ -745,7 +745,7 @@ class EthicalGuidelinesService:
         """
     
     def _create_bias_mitigation_prompt(
-        self, content_piece: ContentPiece, bias_analysis: Dict[str, Any], bias_categories: List[str]
+        self, content_piece: ShakesContentPiece, bias_analysis: Dict[str, Any], bias_categories: List[str]
     ) -> str:
         """Create prompt for bias mitigation"""
         return f"""
@@ -767,7 +767,7 @@ class EthicalGuidelinesService:
         """
     
     def _create_accessibility_improvements_prompt(
-        self, content_piece: ContentPiece, accessibility_analysis: Dict[str, Any], accessibility_standards: List[str]
+        self, content_piece: ShakesContentPiece, accessibility_analysis: Dict[str, Any], accessibility_standards: List[str]
     ) -> str:
         """Create prompt for accessibility improvements"""
         return f"""
@@ -789,7 +789,7 @@ class EthicalGuidelinesService:
         """
     
     def _create_accuracy_recommendations_prompt(
-        self, content_piece: ContentPiece, accuracy_analysis: Dict[str, Any], accuracy_categories: List[str]
+        self, content_piece: ShakesContentPiece, accuracy_analysis: Dict[str, Any], accuracy_categories: List[str]
     ) -> str:
         """Create prompt for accuracy recommendations"""
         return f"""

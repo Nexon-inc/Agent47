@@ -13,8 +13,8 @@ from core.platforms.platform_manager import PlatformManager
 from core.ai import get_ai_service_manager
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep
 )
 
 logger = logging.getLogger(__name__)
@@ -297,9 +297,9 @@ class AdvancedConversationalAIService:
         try:
             async with get_eric_database() as db:
                 # Get conversation interactions
-                interactions_query = select(LeadInteraction).where(
-                    LeadInteraction.conversation_id == conversation_id
-                ).order_by(LeadInteraction.created_at)
+                interactions_query = select(EricLeadInteraction).where(
+                    EricLeadInteraction.conversation_id == conversation_id
+                ).order_by(EricLeadInteraction.created_at)
                 
                 interactions_result = await db.execute(interactions_query)
                 interactions = interactions_result.scalars().all()

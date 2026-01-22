@@ -6,7 +6,7 @@ import json
 
 from ..database import get_db
 from ..services.customer_segmentation_service import CustomerSegmentationService
-from ..models import CustomerSegment
+from ..models import JackieCustomerSegment
 from pydantic import BaseModel
 from typing import Dict, Any
 

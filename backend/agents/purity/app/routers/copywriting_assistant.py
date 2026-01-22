@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, BrandIdentity, BusinessModel
+from ..models import PurityBusinessIdea, PurityBrandIdentity, PurityBusinessModel
 from ..services.copywriting_assistant_service import CopywritingAssistantService
 
 router = APIRouter(prefix="/copywriting", tags=["Copywriting Assistant"])

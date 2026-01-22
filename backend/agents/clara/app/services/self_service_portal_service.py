@@ -8,7 +8,7 @@ from sqlalchemy.orm import selectinload
 from core.ai import get_ai_service_manager, AIServiceManager
 from ..database import get_clara_database
 from ..models import (
-    KnowledgeBase, SupportTicket, CustomerProfile, SupportTicket,
+    ClaraKnowledgeBase, ClaraSupportTicket, CustomerProfile, ClaraSupportTicket,
     TicketCategory, TicketPriority, SupportChannel
 )
 
@@ -71,9 +71,9 @@ class SelfServicePortalService:
                 # Get customer tickets
                 if include_tickets:
                     tickets = await session.execute(
-                        select(SupportTicket).where(
-                            SupportTicket.customer_id == customer_id
-                        ).order_by(SupportTicket.created_at.desc()).limit(10)
+                        select(ClaraSupportTicket).where(
+                            ClaraSupportTicket.customer_id == customer_id
+                        ).order_by(ClaraSupportTicket.created_at.desc()).limit(10)
                     )
                     tickets = tickets.scalars().all()
                     
@@ -93,27 +93,27 @@ class SelfServicePortalService:
                     
                     # Get ticket statistics
                     total_tickets = await session.execute(
-                        select(func.count(SupportTicket.id)).where(
-                            SupportTicket.customer_id == customer_id
+                        select(func.count(ClaraSupportTicket.id)).where(
+                            ClaraSupportTicket.customer_id == customer_id
                         )
                     )
                     total_tickets = total_tickets.scalar() or 0
                     
                     open_tickets = await session.execute(
-                        select(func.count(SupportTicket.id)).where(
+                        select(func.count(ClaraSupportTicket.id)).where(
                             and_(
-                                SupportTicket.customer_id == customer_id,
-                                SupportTicket.status.in_(["open", "in_progress", "waiting_customer"])
+                                ClaraSupportTicket.customer_id == customer_id,
+                                ClaraSupportTicket.status.in_(["open", "in_progress", "waiting_customer"])
                             )
                         )
                     )
                     open_tickets = open_tickets.scalar() or 0
                     
                     resolved_tickets = await session.execute(
-                        select(func.count(SupportTicket.id)).where(
+                        select(func.count(ClaraSupportTicket.id)).where(
                             and_(
-                                SupportTicket.customer_id == customer_id,
-                                SupportTicket.status == "resolved"
+                                ClaraSupportTicket.customer_id == customer_id,
+                                ClaraSupportTicket.status == "resolved"
                             )
                         )
                     )
@@ -130,8 +130,8 @@ class SelfServicePortalService:
                 if include_knowledge:
                     # Get knowledge items based on customer's ticket history
                     customer_categories = await session.execute(
-                        select(SupportTicket.category).where(
-                            SupportTicket.customer_id == customer_id
+                        select(ClaraSupportTicket.category).where(
+                            ClaraSupportTicket.customer_id == customer_id
                         ).distinct()
                     )
                     customer_categories = customer_categories.scalars().all()
@@ -139,15 +139,15 @@ class SelfServicePortalService:
                     if customer_categories:
                         category_values = [cat.value for cat in customer_categories]
                         knowledge_items = await session.execute(
-                            select(KnowledgeBase).where(
+                            select(ClaraKnowledgeBase).where(
                                 and_(
-                                    KnowledgeBase.is_public == True,
+                                    ClaraKnowledgeBase.is_public == True,
                                     or_(
-                                        KnowledgeBase.category.in_(category_values),
-                                        KnowledgeBase.tags.overlap(category_values)
+                                        ClaraKnowledgeBase.category.in_(category_values),
+                                        ClaraKnowledgeBase.tags.overlap(category_values)
                                     )
                                 )
-                            ).order_by(KnowledgeBase.success_rate.desc(), KnowledgeBase.usage_count.desc()).limit(15)
+                            ).order_by(ClaraKnowledgeBase.success_rate.desc(), ClaraKnowledgeBase.usage_count.desc()).limit(15)
                         )
                         knowledge_items = knowledge_items.scalars().all()
                         
@@ -165,9 +165,9 @@ class SelfServicePortalService:
                     
                     # Get popular knowledge items
                     popular_items = await session.execute(
-                        select(KnowledgeBase).where(
-                            KnowledgeBase.is_public == True
-                        ).order_by(KnowledgeBase.usage_count.desc(), KnowledgeBase.success_rate.desc()).limit(10)
+                        select(ClaraKnowledgeBase).where(
+                            ClaraKnowledgeBase.is_public == True
+                        ).order_by(ClaraKnowledgeBase.usage_count.desc(), ClaraKnowledgeBase.success_rate.desc()).limit(10)
                     )
                     popular_items = popular_items.scalars().all()
                     
@@ -210,18 +210,18 @@ class SelfServicePortalService:
             async with db.get_session() as session:
                 # Get customer's ticket history for context
                 customer_tickets = await session.execute(
-                    select(SupportTicket.category, SupportTicket.tags).where(
-                        SupportTicket.customer_id == customer_id
+                    select(ClaraSupportTicket.category, ClaraSupportTicket.tags).where(
+                        ClaraSupportTicket.customer_id == customer_id
                     )
                 )
                 customer_tickets = customer_tickets.all()
                 
                 # Build search query
-                search_query = select(KnowledgeBase).where(KnowledgeBase.is_public == True)
+                search_query = select(ClaraKnowledgeBase).where(ClaraKnowledgeBase.is_public == True)
                 
                 # Add category filter if specified
                 if category:
-                    search_query = search_query.where(KnowledgeBase.category == category)
+                    search_query = search_query.where(ClaraKnowledgeBase.category == category)
                 
                 # Add text search
                 search_terms = query.lower().split()
@@ -229,10 +229,10 @@ class SelfServicePortalService:
                 for term in search_terms:
                     search_conditions.append(
                         or_(
-                            KnowledgeBase.title.ilike(f"%{term}%"),
-                            KnowledgeBase.question.ilike(f"%{term}%"),
-                            KnowledgeBase.answer.ilike(f"%{term}%"),
-                            KnowledgeBase.tags.contains([term])
+                            ClaraKnowledgeBase.title.ilike(f"%{term}%"),
+                            ClaraKnowledgeBase.question.ilike(f"%{term}%"),
+                            ClaraKnowledgeBase.answer.ilike(f"%{term}%"),
+                            ClaraKnowledgeBase.tags.contains([term])
                         )
                     )
                 
@@ -241,8 +241,8 @@ class SelfServicePortalService:
                 
                 # Order by relevance (customer context + general popularity)
                 search_query = search_query.order_by(
-                    KnowledgeBase.success_rate.desc(),
-                    KnowledgeBase.usage_count.desc()
+                    ClaraKnowledgeBase.success_rate.desc(),
+                    ClaraKnowledgeBase.usage_count.desc()
                 ).limit(limit)
                 
                 results = await session.execute(search_query)
@@ -376,7 +376,7 @@ class SelfServicePortalService:
             return {"success": False, "error": str(e)}
     
     async def get_faq_categories(self) -> Dict[str, Any]:
-        """Get FAQ categories and popular questions"""
+        """Get ClaraFAQ categories and popular questions"""
         if not self._initialized:
             await self.initialize()
         
@@ -385,9 +385,9 @@ class SelfServicePortalService:
             async with db.get_session() as session:
                 # Get all categories with knowledge items
                 categories = await session.execute(
-                    select(KnowledgeBase.category, func.count(KnowledgeBase.id).label("count"))
-                    .where(KnowledgeBase.is_public == True)
-                    .group_by(KnowledgeBase.category)
+                    select(ClaraKnowledgeBase.category, func.count(ClaraKnowledgeBase.id).label("count"))
+                    .where(ClaraKnowledgeBase.is_public == True)
+                    .group_by(ClaraKnowledgeBase.category)
                     .order_by(desc("count"))
                 )
                 categories = categories.all()
@@ -400,12 +400,12 @@ class SelfServicePortalService:
                     
                     # Get top questions for this category
                     questions = await session.execute(
-                        select(KnowledgeBase).where(
+                        select(ClaraKnowledgeBase).where(
                             and_(
-                                KnowledgeBase.category == category,
-                                KnowledgeBase.is_public == True
+                                ClaraKnowledgeBase.category == category,
+                                ClaraKnowledgeBase.is_public == True
                             )
-                        ).order_by(KnowledgeBase.usage_count.desc(), KnowledgeBase.success_rate.desc()).limit(5)
+                        ).order_by(ClaraKnowledgeBase.usage_count.desc(), ClaraKnowledgeBase.success_rate.desc()).limit(5)
                     )
                     questions = questions.scalars().all()
                     
@@ -434,7 +434,7 @@ class SelfServicePortalService:
                 }
                 
         except Exception as e:
-            logger.error(f"Failed to get FAQ categories: {e}")
+            logger.error(f"Failed to get ClaraFAQ categories: {e}")
             return {"success": False, "error": str(e)}
     
     async def get_customer_support_resources(
@@ -539,9 +539,9 @@ class SelfServicePortalService:
                 
                 # Add resources based on customer's ticket history
                 recent_tickets = await session.execute(
-                    select(SupportTicket.category).where(
-                        SupportTicket.customer_id == customer_id
-                    ).order_by(SupportTicket.created_at.desc()).limit(5)
+                    select(ClaraSupportTicket.category).where(
+                        ClaraSupportTicket.customer_id == customer_id
+                    ).order_by(ClaraSupportTicket.created_at.desc()).limit(5)
                 )
                 recent_tickets = recent_tickets.scalars().all()
                 

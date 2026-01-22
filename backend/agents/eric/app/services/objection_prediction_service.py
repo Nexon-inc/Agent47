@@ -11,8 +11,8 @@ from kafka import KafkaProducer
 from pydantic import BaseModel
 
 from ..models import (
-    Lead, Deal, SalesActivity, SalesRep, CustomerProfile, 
-    SalesCampaign, SalesAnalytics, SalesForecast
+    EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile, 
+    EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
 )
 # NLPUtils removed - not used (duplicate import removed)
 from core.integrations.integration_manager import IntegrationManager
@@ -80,7 +80,7 @@ class ObjectionPredictionService:
             await self.analytics_manager.initialize()
             # redis_client is already initialized
             self._initialized = True
-            logger.info("Objection prediction service initialized successfully")
+            logger.info("EricObjection prediction service initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize objection prediction service: {e}")
             raise
@@ -100,9 +100,9 @@ class ObjectionPredictionService:
             return [PredictedObjection(**item) for item in json.loads(cached_data)]
         
         # Get lead information
-        lead = db.query(Lead).filter(Lead.id == lead_id).first()
+        lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
         if not lead:
-            raise HTTPException(status_code=404, detail="Lead not found")
+            raise HTTPException(status_code=404, detail="EricLead not found")
         
         # Get customer profile
         customer = db.query(CustomerProfile).filter(
@@ -275,7 +275,7 @@ class ObjectionPredictionService:
         accurate_predictions = len([p for p in predictions if p.get("was_accurate", False)])
         accuracy_rate = (accurate_predictions / total_predictions * 100) if total_predictions > 0 else 0
         
-        # Objection type distribution
+        # EricObjection type distribution
         objection_distribution = {}
         for prediction in predictions:
             objection_type = prediction.get("objection_type", "unknown")
@@ -416,22 +416,22 @@ class ObjectionPredictionService:
                 "ml_model": model_status
             }
         }
-    async def _get_similar_leads_data(self, db: Session, lead: Lead, customer: CustomerProfile) -> Dict[str, Any]:
+    async def _get_similar_leads_data(self, db: Session, lead: EricLead, customer: CustomerProfile) -> Dict[str, Any]:
         """Get data from similar leads for prediction"""
         # Find similar leads based on industry, company size, and region
-        similar_leads = db.query(Lead).filter(
+        similar_leads = db.query(EricLead).filter(
             and_(
-                Lead.industry == lead.industry,
-                Lead.company_size == lead.company_size,
-                Lead.region == lead.region,
-                Lead.id != lead.id
+                EricLead.industry == lead.industry,
+                EricLead.company_size == lead.company_size,
+                EricLead.region == lead.region,
+                EricLead.id != lead.id
             )
         ).limit(100).all()
         
         # Get sales activities for similar leads
         lead_ids = [l.id for l in similar_leads]
-        activities = db.query(SalesActivity).filter(
-            SalesActivity.lead_id.in_(lead_ids)
+        activities = db.query(EricSalesActivity).filter(
+            EricSalesActivity.lead_id.in_(lead_ids)
         ).all()
         
         # Analyze objection patterns
@@ -453,9 +453,9 @@ class ObjectionPredictionService:
     async def _analyze_customer_behavior(self, db: Session, customer: CustomerProfile) -> Dict[str, Any]:
         """Analyze customer behavior patterns for prediction"""
         # Get customer's interaction history
-        interactions = db.query(SalesActivity).filter(
-            SalesActivity.customer_id == customer.id
-        ).order_by(SalesActivity.created_at.desc()).limit(50).all()
+        interactions = db.query(EricSalesActivity).filter(
+            EricSalesActivity.customer_id == customer.id
+        ).order_by(EricSalesActivity.created_at.desc()).limit(50).all()
         
         # Analyze response patterns
         response_times = []
@@ -465,11 +465,11 @@ class ObjectionPredictionService:
         for interaction in interactions:
             if interaction.activity_type == "email_sent":
                 # Calculate response time
-                next_interaction = db.query(SalesActivity).filter(
+                next_interaction = db.query(EricSalesActivity).filter(
                     and_(
-                        SalesActivity.customer_id == customer.id,
-                        SalesActivity.created_at > interaction.created_at,
-                        SalesActivity.activity_type.in_(["email_opened", "email_clicked", "email_replied"])
+                        EricSalesActivity.customer_id == customer.id,
+                        EricSalesActivity.created_at > interaction.created_at,
+                        EricSalesActivity.activity_type.in_(["email_opened", "email_clicked", "email_replied"])
                     )
                 ).first()
                 
@@ -499,13 +499,13 @@ class ObjectionPredictionService:
     async def _get_market_context(self, db: Session, industry: str, region: str) -> Dict[str, Any]:
         """Get market context for prediction"""
         # Get industry-specific data
-        industry_deals = db.query(Deal).filter(
-            Deal.industry == industry
+        industry_deals = db.query(EricDeal).filter(
+            EricDeal.industry == industry
         ).all()
         
         # Get regional data
-        regional_deals = db.query(Deal).filter(
-            Deal.region == region
+        regional_deals = db.query(EricDeal).filter(
+            EricDeal.region == region
         ).all()
         
         # Calculate market metrics
@@ -513,10 +513,10 @@ class ObjectionPredictionService:
         regional_conversion_rate = len([d for d in regional_deals if d.status == "closed_won"]) / len(regional_deals) if regional_deals else 0
         
         # Get common objections in this market
-        market_activities = db.query(SalesActivity).filter(
+        market_activities = db.query(EricSalesActivity).filter(
             and_(
-                SalesActivity.industry == industry,
-                SalesActivity.region == region
+                EricSalesActivity.industry == industry,
+                EricSalesActivity.region == region
             )
         ).all()
         
@@ -536,7 +536,7 @@ class ObjectionPredictionService:
 
     async def _run_prediction_model(
         self, 
-        lead: Lead, 
+        lead: EricLead, 
         customer: CustomerProfile, 
         similar_leads_data: Dict[str, Any],
         behavior_patterns: Dict[str, Any],
@@ -587,7 +587,7 @@ class ObjectionPredictionService:
         self, 
         objection_type: ObjectionType, 
         customer: CustomerProfile, 
-        lead: Lead
+        lead: EricLead
     ) -> List[str]:
         """Generate personalized suggested responses"""
         base_responses = await self.get_objection_responses(
@@ -691,15 +691,15 @@ class ObjectionPredictionService:
     async def _get_training_data(self, db: Session) -> List[Dict[str, Any]]:
         """Get training data for model training"""
         # Get historical deals with outcomes
-        deals = db.query(Deal).filter(
-            Deal.status.in_(["closed_won", "closed_lost"])
+        deals = db.query(EricDeal).filter(
+            EricDeal.status.in_(["closed_won", "closed_lost"])
         ).limit(1000).all()
         
         training_data = []
         for deal in deals:
             # Get associated activities
-            activities = db.query(SalesActivity).filter(
-                SalesActivity.deal_id == deal.id
+            activities = db.query(EricSalesActivity).filter(
+                EricSalesActivity.deal_id == deal.id
             ).all()
             
             # Extract features
@@ -841,17 +841,17 @@ class ObjectionPredictionService:
         """Get prediction history for analytics"""
         try:
             # Query actual prediction history from database
-            from ..models import SalesActivity, Lead, Deal
+            from ..models import EricSalesActivity, EricLead, EricDeal
             
             # Get predictions from sales activities
-            predictions = db.query(SalesActivity).filter(
+            predictions = db.query(EricSalesActivity).filter(
                 and_(
-                    SalesActivity.sales_rep_id == sales_rep_id,
-                    SalesActivity.activity_type == "objection_prediction",
-                    SalesActivity.created_at >= start_date,
-                    SalesActivity.created_at <= end_date
+                    EricSalesActivity.sales_rep_id == sales_rep_id,
+                    EricSalesActivity.activity_type == "objection_prediction",
+                    EricSalesActivity.created_at >= start_date,
+                    EricSalesActivity.created_at <= end_date
                 )
-            ).order_by(SalesActivity.created_at.desc()).all()
+            ).order_by(EricSalesActivity.created_at.desc()).all()
             
             prediction_history = []
             for activity in predictions:
@@ -865,11 +865,11 @@ class ObjectionPredictionService:
                         prediction_data = {"objection_type": "unknown", "probability": 0.5}
                 
                 # Check if prediction was accurate by looking at subsequent activities
-                subsequent_activities = db.query(SalesActivity).filter(
+                subsequent_activities = db.query(EricSalesActivity).filter(
                     and_(
-                        SalesActivity.lead_id == activity.lead_id,
-                        SalesActivity.created_at > activity.created_at,
-                        SalesActivity.activity_type.in_(["objection_encountered", "deal_closed", "deal_lost"])
+                        EricSalesActivity.lead_id == activity.lead_id,
+                        EricSalesActivity.created_at > activity.created_at,
+                        EricSalesActivity.activity_type.in_(["objection_encountered", "deal_closed", "deal_lost"])
                     )
                 ).first()
                 
@@ -879,7 +879,7 @@ class ObjectionPredictionService:
                         was_accurate = True
                 
                 # Check if deal was converted
-                deal = db.query(Deal).filter(Deal.lead_id == activity.lead_id).first()
+                deal = db.query(EricDeal).filter(EricDeal.lead_id == activity.lead_id).first()
                 converted = deal.status == "closed_won" if deal else False
                 
                 prediction_history.append({
@@ -997,7 +997,7 @@ class ObjectionPredictionService:
         
         return base_responses
 
-    def _calculate_market_volatility(self, deals: List[Deal]) -> float:
+    def _calculate_market_volatility(self, deals: List[EricDeal]) -> float:
         """Calculate market volatility based on deal outcomes"""
         if not deals:
             return 0.5

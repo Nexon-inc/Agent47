@@ -11,8 +11,8 @@ import json
 
 from ..database import get_eric_database
 from ..models import (
-    Lead, Deal, SalesActivity, SalesRep, CustomerProfile, 
-    SalesCampaign, SalesAnalytics, SalesForecast
+    EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile, 
+    EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
 )
 # NLPUtils removed - not used
 from core.integrations.integration_manager import IntegrationManager
@@ -120,10 +120,10 @@ class SustainabilityEthicalSellingService:
             async with get_eric_database() as db:
                 # Get sales activities for the period
                 start_date = datetime.utcnow() - timedelta(days=period_days)
-                activities = db.query(SalesActivity).filter(
+                activities = db.query(EricSalesActivity).filter(
                     and_(
-                        SalesActivity.rep_id == rep_id,
-                        SalesActivity.created_at >= start_date
+                        EricSalesActivity.rep_id == rep_id,
+                        EricSalesActivity.created_at >= start_date
                     )
                 ).all()
             
@@ -211,9 +211,9 @@ class SustainabilityEthicalSellingService:
             db = next(get_db())
             
             # Get rep's recent activities and performance
-            rep_activities = db.query(SalesActivity).filter(
-                SalesActivity.rep_id == rep_id
-            ).order_by(desc(SalesActivity.created_at)).limit(50).all()
+            rep_activities = db.query(EricSalesActivity).filter(
+                EricSalesActivity.rep_id == rep_id
+            ).order_by(desc(EricSalesActivity.created_at)).limit(50).all()
             
             # Analyze ethical patterns
             ethical_patterns = await self._analyze_ethical_patterns(rep_activities)
@@ -247,9 +247,9 @@ class SustainabilityEthicalSellingService:
             
             # Get team or all reps
             if team_id:
-                reps = db.query(SalesRep).filter(SalesRep.team_id == team_id).all()
+                reps = db.query(EricSalesRep).filter(EricSalesRep.team_id == team_id).all()
             else:
-                reps = db.query(SalesRep).all()
+                reps = db.query(EricSalesRep).all()
             
             rep_ids = [rep.id for rep in reps]
             
@@ -315,8 +315,8 @@ class SustainabilityEthicalSellingService:
         
     async def _analyze_current_practices(self, db: Session, industry: str, company_size: str) -> Dict[str, Any]:
         """Analyze current sales practices"""
-        recent_activities = db.query(SalesActivity).filter(
-            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
+        recent_activities = db.query(EricSalesActivity).filter(
+            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
         ).all()
         
         practices = {
@@ -374,7 +374,7 @@ class SustainabilityEthicalSellingService:
         
         return guidelines
         
-    async def _calculate_environmental_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_environmental_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate environmental sustainability score"""
         if not activities:
             return 0.0
@@ -398,7 +398,7 @@ class SustainabilityEthicalSellingService:
             
         return (score / total_weight) if total_weight > 0 else 0.0
         
-    async def _calculate_social_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_social_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate social sustainability score"""
         if not activities:
             return 0.0
@@ -422,7 +422,7 @@ class SustainabilityEthicalSellingService:
             
         return (score / total_weight) if total_weight > 0 else 0.0
         
-    async def _calculate_governance_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_governance_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate governance sustainability score"""
         if not activities:
             return 0.0
@@ -446,7 +446,7 @@ class SustainabilityEthicalSellingService:
             
         return (score / total_weight) if total_weight > 0 else 0.0
         
-    async def _generate_sustainability_insights(self, activities: List[SalesActivity], score: float) -> List[str]:
+    async def _generate_sustainability_insights(self, activities: List[EricSalesActivity], score: float) -> List[str]:
         """Generate sustainability insights"""
         insights = []
         
@@ -509,7 +509,7 @@ class SustainabilityEthicalSellingService:
                 
         return recommendations
         
-    async def _analyze_ethical_patterns(self, activities: List[SalesActivity]) -> Dict[str, Any]:
+    async def _analyze_ethical_patterns(self, activities: List[EricSalesActivity]) -> Dict[str, Any]:
         """Analyze ethical patterns in sales activities"""
         patterns = {
             "transparency_score": 0.0,
@@ -603,10 +603,10 @@ class SustainabilityEthicalSellingService:
         """Calculate team sustainability metrics"""
         start_date = datetime.utcnow() - timedelta(days=period_days)
         
-        activities = db.query(SalesActivity).filter(
+        activities = db.query(EricSalesActivity).filter(
             and_(
-                SalesActivity.rep_id.in_(rep_ids),
-                SalesActivity.created_at >= start_date
+                EricSalesActivity.rep_id.in_(rep_ids),
+                EricSalesActivity.created_at >= start_date
             )
         ).all()
         
@@ -711,28 +711,28 @@ class SustainabilityEthicalSellingService:
         
         return improvement_areas
         
-    async def _calculate_transparency_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_transparency_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate transparency score from activities"""
         if not activities:
             return 0.0
         transparent_activities = sum(1 for a in activities if hasattr(a, 'is_transparent') and a.is_transparent)
         return (transparent_activities / len(activities)) * 100
         
-    async def _calculate_pressure_tactics_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_pressure_tactics_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate pressure tactics score from activities"""
         if not activities:
             return 0.0
         non_pressure_activities = sum(1 for a in activities if hasattr(a, 'uses_pressure_tactics') and not a.uses_pressure_tactics)
         return (non_pressure_activities / len(activities)) * 100
         
-    async def _calculate_honesty_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_honesty_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate honesty score from activities"""
         if not activities:
             return 0.0
         honest_activities = sum(1 for a in activities if hasattr(a, 'is_honest') and a.is_honest)
         return (honest_activities / len(activities)) * 100
         
-    async def _calculate_customer_focus_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_customer_focus_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate customer focus score from activities"""
         if not activities:
             return 0.0

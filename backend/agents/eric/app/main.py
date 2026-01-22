@@ -118,18 +118,18 @@ async def root():
         "version": "1.0.0",
         "status": "operational",
         "services": [
-            "Lead Generation",
+            "EricLead Generation",
             "CRM Automation", 
             "Sales Outreach",
             "Conversational AI",
             "Sales Forecasting",
             "Customer Insights",
-            "Deal Closing Assistance",
+            "EricDeal Closing Assistance",
             "Cross-Selling & Upselling",
             "Performance Analytics",
             "Email Sequences",
             "Live Chat & AI Assistant",
-            "Lead Scoring",
+            "EricLead Scoring",
             "Sales Funnel Management",
             "Predictive Analytics",
             "Personalized Sales Recommendations",
@@ -138,7 +138,7 @@ async def root():
             "Competitor Benchmarking",
             "Market Trend Alerts",
             "Onboarding Wizard",
-            "Objection Handling",
+            "EricObjection Handling",
             "Multi-Language Support",
             "Social Selling Optimization",
             "Dynamic Pricing",
@@ -149,14 +149,14 @@ async def root():
             "Emerging Channels",
             "Sustainability & Ethical Selling",
             "Auto-Pitch Generator",
-            "AI Lead Prioritization",
+            "AI EricLead Prioritization",
             "Dynamic Follow-Up Scheduler",
             "Social Proof Generator",
             "Voice Pitch Simulator",
-            "Cross-Channel Lead Tracking",
+            "Cross-Channel EricLead Tracking",
             "Automated Proposal Builder",
             "Local Market Insights",
-            "Objection Prediction",
+            "EricObjection Prediction",
             "Team Sales Dashboard",
             "Ethical Sales Scoring"
         ],
@@ -236,7 +236,7 @@ async def status():
                 "features": [
                     "Website lead identification",
                     "Social media lead generation", 
-                    "Lead qualification and scoring",
+                    "EricLead qualification and scoring",
                     "Intent signal analysis"
                 ]
             },
@@ -280,7 +280,7 @@ async def status():
                 "description": "Customer behavior analysis and insights",
                 "features": [
                     "Behavior pattern analysis",
-                    "Lead journey mapping",
+                    "EricLead journey mapping",
                     "Customer preference identification",
                     "Churn prediction"
                 ]
@@ -288,12 +288,12 @@ async def status():
             "deal_closing_assistance": {
                 "description": "Intelligent deal closing and finalization",
                 "features": [
-                    "Deal analysis and strategy",
+                    "EricDeal analysis and strategy",
                     "Proposal generation",
-                    "Objection handling",
+                    "EricObjection handling",
                     "Closing sequence automation",
                     "Progress tracking",
-                    "Deal finalization"
+                    "EricDeal finalization"
                 ]
             },
             "performance_analytics": {
@@ -310,7 +310,7 @@ async def status():
             "advanced_features": {
                 "description": "Advanced AI-powered sales features",
                 "features": [
-                    "Objection prediction and handling",
+                    "EricObjection prediction and handling",
                     "Automated proposal building",
                     "Local market insights",
                     "Team sales dashboard",
@@ -358,7 +358,7 @@ async def status():
             "Intent detection",
             "Personalization",
             "Predictive analytics",
-            "Objection prediction",
+            "EricObjection prediction",
             "Market trend analysis",
             "Competitor analysis",
             "Voice recognition",

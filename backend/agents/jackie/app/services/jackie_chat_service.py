@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 
-from ..models import MarketingCampaign, CampaignContent, AdCampaign, CampaignStatus
+from ..models import JackieMarketingCampaign, JackieCampaignContent, JackieAdCampaign, CampaignStatus
 from ..database import get_db
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.utils.platform_integration_loader import (

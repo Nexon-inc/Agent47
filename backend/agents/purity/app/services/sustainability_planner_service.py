@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, SustainabilityPlan, BusinessModel
+from ..models import PurityBusinessIdea, PuritySustainabilityPlan, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class SustainabilityPlannerService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -91,7 +91,7 @@ class SustainabilityPlannerService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -149,7 +149,7 @@ class SustainabilityPlannerService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -199,7 +199,7 @@ class SustainabilityPlannerService:
     
     def _create_sustainability_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         industry_type: str,
         sustainability_goals: List[str],
         budget_allocation: float,
@@ -278,7 +278,7 @@ class SustainabilityPlannerService:
     
     def _create_eco_friendly_practices_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         business_operations: List[str],
         environmental_impact_areas: List[str],
         implementation_budget: float
@@ -344,7 +344,7 @@ class SustainabilityPlannerService:
     
     def _create_sustainability_report_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         reporting_period: str,
         sustainability_metrics: Dict[str, Any],
         stakeholder_requirements: List[str]

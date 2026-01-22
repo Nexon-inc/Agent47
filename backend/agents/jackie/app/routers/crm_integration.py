@@ -6,7 +6,7 @@ import json
 
 from ..database import get_db
 from ..services.crm_integration_service import CRMIntegrationService
-from ..models import CRMINtegration
+from ..models import JackieCRMINtegration
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 

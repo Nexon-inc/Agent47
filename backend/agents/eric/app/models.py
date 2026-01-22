@@ -60,7 +60,7 @@ class ObjectionType(enum.Enum):
     BUDGET = "budget"
     FEATURE = "feature"
 
-class Lead(Base):
+class EricLead(Base):
     __tablename__ = "leads"
     __table_args__ = {'extend_existing': True}
     
@@ -89,11 +89,11 @@ class Lead(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     
-    interactions = relationship("LeadInteraction", back_populates="lead")
-    deals = relationship("Deal", back_populates="lead")
-    objections = relationship("Objection", back_populates="lead")
+    interactions = relationship("EricLeadInteraction", back_populates="lead")
+    deals = relationship("EricDeal", back_populates="lead")
+    objections = relationship("EricObjection", back_populates="lead")
 
-class LeadInteraction(Base):
+class EricLeadInteraction(Base):
     __tablename__ = "lead_interactions"
     __table_args__ = {'extend_existing': True}
     
@@ -109,9 +109,9 @@ class LeadInteraction(Base):
     extra_metadata = Column('metadata', JSON, default={})
     created_at = Column(DateTime, default=func.now())
     
-    lead = relationship("Lead", back_populates="interactions")
+    lead = relationship("EricLead", back_populates="interactions")
 
-class Deal(Base):
+class EricDeal(Base):
     __tablename__ = "deals"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -134,10 +134,10 @@ class Deal(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     
-    lead = relationship("Lead", back_populates="deals")
-    activities = relationship("SalesActivity", back_populates="deal")
+    lead = relationship("EricLead", back_populates="deals")
+    activities = relationship("EricSalesActivity", back_populates="deal")
 
-class SalesActivity(Base):
+class EricSalesActivity(Base):
     __tablename__ = "sales_activities"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -153,9 +153,9 @@ class SalesActivity(Base):
     completed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
     
-    deal = relationship("Deal", back_populates="activities")
+    deal = relationship("EricDeal", back_populates="activities")
 
-class Objection(Base):
+class EricObjection(Base):
     __tablename__ = "objections"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -167,9 +167,9 @@ class Objection(Base):
     resolution_notes = Column(Text)
     created_at = Column(DateTime, default=func.now())
     
-    lead = relationship("Lead", back_populates="objections")
+    lead = relationship("EricLead", back_populates="objections")
 
-class SalesCampaign(Base):
+class EricSalesCampaign(Base):
     __tablename__ = "sales_campaigns"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -186,9 +186,9 @@ class SalesCampaign(Base):
     metrics = Column(JSON)
     created_at = Column(DateTime, default=func.now())
     
-    sequences = relationship("EmailSequence", back_populates="campaign")
+    sequences = relationship("EricEmailSequence", back_populates="campaign")
 
-class EmailSequence(Base):
+class EricEmailSequence(Base):
     __tablename__ = "email_sequences"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -201,9 +201,9 @@ class EmailSequence(Base):
     active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=func.now())
     
-    campaign = relationship("SalesCampaign", back_populates="sequences")
+    campaign = relationship("EricSalesCampaign", back_populates="sequences")
 
-class SalesTeam(Base):
+class EricSalesTeam(Base):
     __tablename__ = "sales_teams"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -215,7 +215,7 @@ class SalesTeam(Base):
     performance_metrics = Column(JSON)
     created_at = Column(DateTime, default=func.now())
 
-class SalesRep(Base):
+class EricSalesRep(Base):
     __tablename__ = "sales_reps"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -231,9 +231,9 @@ class SalesRep(Base):
     skills = Column(JSON)
     created_at = Column(DateTime, default=func.now())
     
-    team = relationship("SalesTeam")
+    team = relationship("EricSalesTeam")
 
-class SalesAnalytics(Base):
+class EricSalesAnalytics(Base):
     __tablename__ = "sales_analytics"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -245,7 +245,7 @@ class SalesAnalytics(Base):
     breakdown = Column(JSON)
     created_at = Column(DateTime, default=func.now())
 
-class SalesForecast(Base):
+class EricSalesForecast(Base):
     __tablename__ = "sales_forecasts"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -381,7 +381,7 @@ class CustomerReview(Base):
     anonymous = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
     
-    deal = relationship("Deal")
+    deal = relationship("EricDeal")
 
 
 class TeamPerformanceMetric(Base):
@@ -432,7 +432,7 @@ class ObjectionPredictionModel(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
-class PredictionModel(Base):
+class EricPredictionModel(Base):
     # Namespaced table name to avoid collisions with other agent model definitions
     __tablename__ = "eric_prediction_models"
     

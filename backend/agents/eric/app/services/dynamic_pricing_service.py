@@ -13,8 +13,8 @@ from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep, SalesAnalytics
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep, EricSalesAnalytics
 )
 
 logger = logging.getLogger(__name__)
@@ -274,7 +274,7 @@ class DynamicPricingService:
         """Get analytics for pricing performance"""
         try:
             # Query actual pricing data from database
-            from ..models import Deal, SalesActivity, CustomerProfile
+            from ..models import EricDeal, EricSalesActivity, CustomerProfile
             
             # Calculate date range
             end_date = datetime.now()
@@ -288,24 +288,24 @@ class DynamicPricingService:
                 start_date = end_date - timedelta(days=30)
             
             # Get deals in the date range
-            deals_query = db.query(Deal).filter(
+            deals_query = db.query(EricDeal).filter(
                 and_(
-                    Deal.created_at >= start_date,
-                    Deal.created_at <= end_date
+                    EricDeal.created_at >= start_date,
+                    EricDeal.created_at <= end_date
                 )
             )
             
             if product_id:
-                deals_query = deals_query.filter(Deal.product_id == product_id)
+                deals_query = deals_query.filter(EricDeal.product_id == product_id)
             
             deals = deals_query.all()
             
             # Get pricing activities
-            pricing_activities = db.query(SalesActivity).filter(
+            pricing_activities = db.query(EricSalesActivity).filter(
                 and_(
-                    SalesActivity.activity_type == "pricing_recommendation",
-                    SalesActivity.created_at >= start_date,
-                    SalesActivity.created_at <= end_date
+                    EricSalesActivity.activity_type == "pricing_recommendation",
+                    EricSalesActivity.created_at >= start_date,
+                    EricSalesActivity.created_at <= end_date
                 )
             ).all()
             
@@ -450,21 +450,21 @@ class DynamicPricingService:
         """Forecast demand for the product"""
         try:
             # Query historical demand data from database
-            from ..models import Deal, SalesActivity, CustomerProfile
+            from ..models import EricDeal, EricSalesActivity, CustomerProfile
             
             # Get historical deals for demand analysis
             end_date = datetime.now()
             start_date = end_date - timedelta(days=365)  # 1 year of data
             
-            deals_query = db.query(Deal).filter(
+            deals_query = db.query(EricDeal).filter(
                 and_(
-                    Deal.created_at >= start_date,
-                    Deal.created_at <= end_date
+                    EricDeal.created_at >= start_date,
+                    EricDeal.created_at <= end_date
                 )
             )
             
             if product_id:
-                deals_query = deals_query.filter(Deal.product_id == product_id)
+                deals_query = deals_query.filter(EricDeal.product_id == product_id)
             
             deals = deals_query.all()
             

@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class ContentRepurposingService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 source_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == source_content_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == source_content_id)
                 )
                 source_content = source_result.scalar_one_or_none()
                 
@@ -64,14 +64,14 @@ class ContentRepurposingService:
                     return {"success": False, "error": "Source content not found"}
                 
                 project_result = await session.execute(
-                    select(ContentProject).where(ContentProject.id == source_content.project_id)
+                    select(ShakesContentProject).where(ShakesContentProject.id == source_content.project_id)
                 )
                 source_project = project_result.scalar_one_or_none()
                 
                 if not source_project:
                     return {"success": False, "error": "Source project not found"}
                 
-                repurpose_project = ContentProject(
+                repurpose_project = ShakesContentProject(
                     user_id=user_id,
                     title=f"Repurposed: {source_content.title}",
                     description=f"Repurposed from {source_content.content_type} to {target_format} for {target_platform}",
@@ -100,7 +100,7 @@ class ContentRepurposingService:
                 ai_response = await ai_manager.generate_text(messages=messages, max_tokens=1000, temperature=0.7)
                 platform_optimizations = ai_response.text_content if ai_response.success else ""
                 
-                repurposed_piece = ContentPiece(
+                repurposed_piece = ShakesContentPiece(
                     project_id=repurpose_project.id,
                     title=f"{source_content.title} - {target_format}",
                     content=repurposed_content,

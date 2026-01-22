@@ -10,7 +10,7 @@ import redis.asyncio as redis
 from kafka import KafkaProducer
 
 from ..database import get_eric_database
-from ..models import Lead, Deal, SalesActivity, SalesRep, CustomerProfile, SalesCampaign, SalesAnalytics, SalesForecast
+from ..models import EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile, EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
 from core.utils.nlp_utils import NLPUtils
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
@@ -29,8 +29,8 @@ from fastapi import HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
 from ..models import (
-    SalesRep, Deal, SalesActivity, Lead, CustomerProfile,
-    EricMarketInsight, SalesAnalytics, SalesForecast
+    EricSalesRep, EricDeal, EricSalesActivity, EricLead, CustomerProfile,
+    EricMarketInsight, EricSalesAnalytics, EricSalesForecast
 )
 from ..database import get_eric_database
 from core.event_bus.kafka_manager import EventBus as KafkaProducer
@@ -187,7 +187,7 @@ class LocalMarketInsightsService:
     ) -> Dict[str, Any]:
         """Get personalized sales strategy recommendations based on local market insights"""
         # Get sales rep information
-        sales_rep = db.query(SalesRep).filter(SalesRep.id == sales_rep_id).first()
+        sales_rep = db.query(EricSalesRep).filter(EricSalesRep.id == sales_rep_id).first()
         if not sales_rep:
             raise HTTPException(status_code=404, detail="Sales rep not found")
         
@@ -224,8 +224,8 @@ class LocalMarketInsightsService:
     ) -> Dict[str, Any]:
         """Get performance benchmarks for a specific region"""
         # Get all sales reps in the region
-        sales_reps = db.query(SalesRep).filter(
-            SalesRep.region == region
+        sales_reps = db.query(EricSalesRep).filter(
+            EricSalesRep.region == region
         ).all()
         
         if not sales_reps:
@@ -348,7 +348,7 @@ class LocalMarketInsightsService:
     ) -> Dict[str, Any]:
         """Get local sales data for the region"""
         # Get sales reps in the region
-        sales_reps = db.query(SalesRep).filter(SalesRep.region == region).all()
+        sales_reps = db.query(EricSalesRep).filter(EricSalesRep.region == region).all()
         rep_ids = [rep.id for rep in sales_reps]
         
         if not rep_ids:
@@ -365,11 +365,11 @@ class LocalMarketInsightsService:
         start_date = end_date - timedelta(days=90)
         
         # Total deals and revenue
-        deals = db.query(Deal).filter(
+        deals = db.query(EricDeal).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.created_at >= start_date,
-                Deal.created_at <= end_date
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.created_at >= start_date,
+                EricDeal.created_at <= end_date
             )
         ).all()
         
@@ -622,18 +622,18 @@ class LocalMarketInsightsService:
         start_date = end_date - timedelta(days=180)
         
         # Get sales reps in the region
-        sales_reps = db.query(SalesRep).filter(SalesRep.region == region).all()
+        sales_reps = db.query(EricSalesRep).filter(EricSalesRep.region == region).all()
         rep_ids = [rep.id for rep in sales_reps]
         
         if not rep_ids:
             return trends
         
         # Analyze deal trends
-        deals = db.query(Deal).filter(
+        deals = db.query(EricDeal).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.created_at >= start_date,
-                Deal.created_at <= end_date
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.created_at >= start_date,
+                EricDeal.created_at <= end_date
             )
         ).all()
         
@@ -670,7 +670,7 @@ class LocalMarketInsightsService:
     ) -> Dict[str, Any]:
         """Get sales rep performance in the specific region"""
         # Get sales rep
-        sales_rep = db.query(SalesRep).filter(SalesRep.id == sales_rep_id).first()
+        sales_rep = db.query(EricSalesRep).filter(EricSalesRep.id == sales_rep_id).first()
         if not sales_rep:
             return {}
         
@@ -678,11 +678,11 @@ class LocalMarketInsightsService:
         end_date = datetime.now()
         start_date = end_date - timedelta(days=90)
         
-        deals = db.query(Deal).filter(
+        deals = db.query(EricDeal).filter(
             and_(
-                Deal.sales_rep_id == sales_rep_id,
-                Deal.created_at >= start_date,
-                Deal.created_at <= end_date
+                EricDeal.sales_rep_id == sales_rep_id,
+                EricDeal.created_at >= start_date,
+                EricDeal.created_at <= end_date
             )
         ).all()
         
@@ -708,10 +708,10 @@ class LocalMarketInsightsService:
         """Analyze competitors in the region"""
         try:
             # Query actual competitor data from deals and activities
-            from ..models import Deal, SalesActivity, CustomerProfile
+            from ..models import EricDeal, EricSalesActivity, CustomerProfile
             
             # Get deals in the region/industry
-            deals_query = db.query(Deal).join(CustomerProfile).filter(
+            deals_query = db.query(EricDeal).join(CustomerProfile).filter(
                 CustomerProfile.region == region
             )
             if industry:
@@ -720,10 +720,10 @@ class LocalMarketInsightsService:
             deals = deals_query.all()
             
             # Analyze competitor mentions in sales activities
-            competitor_mentions = db.query(SalesActivity).filter(
+            competitor_mentions = db.query(EricSalesActivity).filter(
                 and_(
-                    SalesActivity.notes.contains("competitor"),
-                    SalesActivity.created_at >= datetime.now() - timedelta(days=365)
+                    EricSalesActivity.notes.contains("competitor"),
+                    EricSalesActivity.created_at >= datetime.now() - timedelta(days=365)
                 )
             ).all()
             
@@ -754,7 +754,7 @@ class LocalMarketInsightsService:
                                 competitors[competitor_name]["mentions"] += 1
                                 
                                 # Check if deal was won or lost
-                                deal = db.query(Deal).filter(Deal.id == activity.deal_id).first()
+                                deal = db.query(EricDeal).filter(EricDeal.id == activity.deal_id).first()
                                 if deal:
                                     if deal.status == "closed_won":
                                         competitors[competitor_name]["deals_won"] += 1
@@ -811,7 +811,7 @@ class LocalMarketInsightsService:
         market_insights: RegionalInsight, 
         performance_data: Dict[str, Any], 
         competitor_analysis: Dict[str, Any], 
-        sales_rep: SalesRep
+        sales_rep: EricSalesRep
     ) -> Dict[str, Any]:
         """Generate personalized recommendations for the sales rep"""
         recommendations = {
@@ -848,7 +848,7 @@ class LocalMarketInsightsService:
     async def _calculate_regional_metrics(
         self, 
         db: Session, 
-        sales_reps: List[SalesRep], 
+        sales_reps: List[EricSalesRep], 
         industry: Optional[str]
     ) -> Dict[str, Any]:
         """Calculate regional performance metrics"""
@@ -858,11 +858,11 @@ class LocalMarketInsightsService:
         end_date = datetime.now()
         start_date = end_date - timedelta(days=90)
         
-        deals = db.query(Deal).filter(
+        deals = db.query(EricDeal).filter(
             and_(
-                Deal.sales_rep_id.in_(rep_ids),
-                Deal.created_at >= start_date,
-                Deal.created_at <= end_date
+                EricDeal.sales_rep_id.in_(rep_ids),
+                EricDeal.created_at >= start_date,
+                EricDeal.created_at <= end_date
             )
         ).all()
         
@@ -891,15 +891,15 @@ class LocalMarketInsightsService:
         }
         try:
             # Query actual industry benchmarks from historical data
-            from ..models import Deal, SalesActivity, CustomerProfile
+            from ..models import EricDeal, EricSalesActivity, CustomerProfile
 
             # Get historical deals for the industry
-            deals_query = db.query(Deal).join(CustomerProfile)
+            deals_query = db.query(EricDeal).join(CustomerProfile)
             if industry:
                 deals_query = deals_query.filter(CustomerProfile.industry == industry)
 
             deals = deals_query.filter(
-                Deal.created_at >= datetime.now() - timedelta(days=365)
+                EricDeal.created_at >= datetime.now() - timedelta(days=365)
             ).all()
 
             if deals:

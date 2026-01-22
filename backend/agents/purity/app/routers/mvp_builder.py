@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import MVPBlueprint, BusinessIdea
+from ..models import PurityMVPBlueprint, PurityBusinessIdea
 from ..services.mvp_builder_service import MVPBuilderService
 
 router = APIRouter(prefix="/mvp-builder", tags=["MVP Builder"])

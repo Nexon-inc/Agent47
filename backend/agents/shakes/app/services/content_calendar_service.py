@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, ContentCalendar, ScheduledContent
+from ..models import ShakesContentProject, ShakesContentPiece, ContentCalendar, ScheduledContent
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +165,7 @@ class ContentCalendarService:
                 
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 

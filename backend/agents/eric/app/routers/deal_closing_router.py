@@ -11,7 +11,7 @@ from ..services.deal_closing_assistance_service import (
     DealClosingActivityRequest
 )
 
-router = APIRouter(prefix="/deal-closing", tags=["Deal Closing Assistance"])
+router = APIRouter(prefix="/deal-closing", tags=["EricDeal Closing Assistance"])
 deal_closing_service = DealClosingAssistanceService()
 
 # Request models

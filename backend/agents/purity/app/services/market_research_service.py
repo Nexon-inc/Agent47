@@ -14,7 +14,7 @@ from core.event_bus.kafka_manager import EventBus
 from core.cache.redis_manager import init_redis
 from ..database import get_purity_database
 from ..models import (
-    BusinessIdea, PurityMarketResearch, PurityCompetitorAnalysis, NicheOpportunity,
+    PurityBusinessIdea, PurityMarketResearch, PurityCompetitorAnalysis, PurityNicheOpportunity,
     IndustryType
 )
 
@@ -61,7 +61,7 @@ class MarketResearchService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea details
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -142,7 +142,7 @@ class MarketResearchService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea details
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -207,7 +207,7 @@ class MarketResearchService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea details
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -220,7 +220,7 @@ class MarketResearchService:
                 # Save niche opportunities
                 saved_niches = []
                 for niche_data in niches:
-                    niche = NicheOpportunity(
+                    niche = PurityNicheOpportunity(
                         idea_id=idea_id,
                         niche_name=niche_data["name"],
                         niche_description=niche_data["description"],
@@ -280,7 +280,7 @@ class MarketResearchService:
     
     async def _collect_market_data(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         research_scope: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Collect market data from multiple sources"""
@@ -321,7 +321,7 @@ class MarketResearchService:
     
     async def _analyze_market_trends(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         market_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Analyze market trends using AI"""
@@ -365,7 +365,7 @@ class MarketResearchService:
     
     async def _analyze_competitors(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         market_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Analyze competitors using AI"""
@@ -409,7 +409,7 @@ class MarketResearchService:
     
     async def _calculate_market_metrics(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         market_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Calculate market size and growth metrics"""
@@ -443,7 +443,7 @@ class MarketResearchService:
     
     async def _generate_research_report(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         market_data: Dict[str, Any],
         trend_analysis: Dict[str, Any],
         competitor_analysis: Dict[str, Any],
@@ -500,7 +500,7 @@ class MarketResearchService:
                 "confidence_score": 0
             }
     
-    async def _identify_competitors(self, idea: BusinessIdea) -> List[str]:
+    async def _identify_competitors(self, idea: PurityBusinessIdea) -> List[str]:
         """Identify competitors for the business idea"""
         try:
             prompt = f"""
@@ -533,7 +533,7 @@ class MarketResearchService:
     
     async def _analyze_single_competitor(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         competitor_name: str
     ) -> Optional[Dict[str, Any]]:
         """Analyze a single competitor in detail"""
@@ -582,7 +582,7 @@ class MarketResearchService:
     
     async def _identify_niche_opportunities(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         niche_criteria: Optional[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """Identify niche opportunities"""
@@ -643,7 +643,7 @@ class MarketResearchService:
             logger.error(f"Failed to collect industry data: {e}")
             return {"sources": []}
     
-    async def _collect_competitor_data(self, idea: BusinessIdea) -> Dict[str, Any]:
+    async def _collect_competitor_data(self, idea: PurityBusinessIdea) -> Dict[str, Any]:
         """Collect competitor data"""
         try:
             # This would integrate with competitor analysis tools
@@ -676,7 +676,7 @@ class MarketResearchService:
             logger.error(f"Failed to collect trend data: {e}")
             return {"sources": []}
     
-    async def _collect_customer_data(self, idea: BusinessIdea) -> Dict[str, Any]:
+    async def _collect_customer_data(self, idea: PurityBusinessIdea) -> Dict[str, Any]:
         """Collect customer data"""
         try:
             # This would integrate with customer research tools

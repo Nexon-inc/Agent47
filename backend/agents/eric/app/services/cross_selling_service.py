@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from ..database import get_eric_database
 from ..models import (
-    Lead, Deal, SalesActivity, LeadStatus, SalesStage
+    EricLead, EricDeal, EricSalesActivity, LeadStatus, SalesStage
 )
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
@@ -347,10 +347,10 @@ class CrossSellingService:
                 
                 # Get customer's deal history for lifetime value calculation
                 deals = await db.execute(
-                    select(Deal).where(
+                    select(EricDeal).where(
                         and_(
-                            Deal.customer_id == customer_id,
-                            Deal.status == "closed_won"
+                            EricDeal.customer_id == customer_id,
+                            EricDeal.status == "closed_won"
                         )
                     )
                 )
@@ -396,13 +396,13 @@ class CrossSellingService:
         try:
             async with get_eric_database() as db:
                 # Get customer's deal history
-                deals_query = select(Deal).where(
+                deals_query = select(EricDeal).where(
                     and_(
-                        Deal.customer_id == customer_id,
-                        Deal.brand_id == brand_id,
-                        Deal.sales_stage == SalesStage.CLOSED
+                        EricDeal.customer_id == customer_id,
+                        EricDeal.brand_id == brand_id,
+                        EricDeal.sales_stage == SalesStage.CLOSED
                     )
-                ).order_by(Deal.actual_close_date.desc())
+                ).order_by(EricDeal.actual_close_date.desc())
                 
                 deals_result = await db.execute(deals_query)
                 deal_list = deals_result.scalars().all()
@@ -410,8 +410,8 @@ class CrossSellingService:
                 purchase_history = []
                 for deal in deal_list:
                     # Get deal activities for additional context
-                    activities_query = select(SalesActivity).where(
-                        SalesActivity.deal_id == deal.id
+                    activities_query = select(EricSalesActivity).where(
+                        EricSalesActivity.deal_id == deal.id
                     )
                     activities_result = await db.execute(activities_query)
                     activities = activities_result.scalars().all()
@@ -451,13 +451,13 @@ class CrossSellingService:
             async with get_eric_database() as db:
                 # Get customer's interaction history
                 interactions = await db.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.customer_id == customer_id,
-                            SalesActivity.brand_id == brand_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
+                            EricSalesActivity.customer_id == customer_id,
+                            EricSalesActivity.brand_id == brand_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
                         )
-                    ).order_by(SalesActivity.created_at.desc())
+                    ).order_by(EricSalesActivity.created_at.desc())
                 )
                 activity_list = interactions.scalars().all()
                 
@@ -491,11 +491,11 @@ class CrossSellingService:
                 
                 # Determine price sensitivity based on deal history
                 deals = await db.execute(
-                    select(Deal).where(
+                    select(EricDeal).where(
                         and_(
-                            Deal.customer_id == customer_id,
-                            Deal.brand_id == brand_id,
-                            Deal.status == "closed_won"
+                            EricDeal.customer_id == customer_id,
+                            EricDeal.brand_id == brand_id,
+                            EricDeal.status == "closed_won"
                         )
                     )
                 )

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import json
 import uuid
 
-from ..models import CRMINtegration
+from ..models import JackieCRMINtegration
 from core.utils.nlp_utils import NLPUtils
 
 class CRMIntegrationService:
@@ -16,7 +16,7 @@ class CRMIntegrationService:
     def connect_crm(self, crm_platform: str, api_key: str, api_secret: Optional[str] = None, base_url: Optional[str] = None) -> Dict[str, Any]:
         connection_id = str(uuid.uuid4())
         
-        integration = CRMINtegration(
+        integration = JackieCRMINtegration(
             crm_platform=crm_platform,
             api_key=api_key,
             api_secret=api_secret,
@@ -37,7 +37,7 @@ class CRMIntegrationService:
         }
 
     def list_connections(self) -> List[Dict[str, Any]]:
-        connections = self.db.query(CRMINtegration).all()
+        connections = self.db.query(JackieCRMINtegration).all()
         
         return [
             {
@@ -51,7 +51,7 @@ class CRMIntegrationService:
         ]
 
     def get_connection(self, connection_id: int) -> Optional[Dict[str, Any]]:
-        connection = self.db.query(CRMINtegration).filter(CRMINtegration.id == connection_id).first()
+        connection = self.db.query(JackieCRMINtegration).filter(JackieCRMINtegration.id == connection_id).first()
         if not connection:
             return None
         
@@ -64,7 +64,7 @@ class CRMIntegrationService:
         }
 
     def disconnect_crm(self, connection_id: int) -> bool:
-        connection = self.db.query(CRMINtegration).filter(CRMINtegration.id == connection_id).first()
+        connection = self.db.query(JackieCRMINtegration).filter(JackieCRMINtegration.id == connection_id).first()
         if not connection:
             return False
         

@@ -2,7 +2,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.database.connection import get_supabase
-from ..models import ScheduledPost, EngagementEvent
+from ..models import AriaScheduledPost, AriaEngagementEvent
 import json
 
 
@@ -326,10 +326,10 @@ class EngagementBoosterService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            from ..models import ScheduledPost
+            from ..models import AriaScheduledPost
             
             # Get the post
-            query = select(ScheduledPost).where(ScheduledPost.id == post_id, ScheduledPost.user_id == user_id)
+            query = select(AriaScheduledPost).where(AriaScheduledPost.id == post_id, AriaScheduledPost.user_id == user_id)
             result = await session.execute(query)
             post = result.scalar_one_or_none()
             
@@ -420,12 +420,12 @@ class EngagementBoosterService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select, func
-            from ..models import EngagementEvent
+            from ..models import AriaEngagementEvent
             
             # Get engagement events for the post
-            query = select(EngagementEvent).where(
-                EngagementEvent.user_id == user_id,
-                EngagementEvent.post_ref == str(post_id)
+            query = select(AriaEngagementEvent).where(
+                AriaEngagementEvent.user_id == user_id,
+                AriaEngagementEvent.post_ref == str(post_id)
             )
             
             result = await session.execute(query)
@@ -460,15 +460,15 @@ class EngagementBoosterService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select, func, desc
-            from ..models import EngagementEvent
+            from ..models import AriaEngagementEvent
             
             # Get engagement events for the last N days
             cutoff_date = datetime.utcnow() - timedelta(days=days)
             
-            query = select(EngagementEvent).where(
-                EngagementEvent.user_id == user_id,
-                EngagementEvent.occurred_at >= cutoff_date
-            ).order_by(desc(EngagementEvent.occurred_at))
+            query = select(AriaEngagementEvent).where(
+                AriaEngagementEvent.user_id == user_id,
+                AriaEngagementEvent.occurred_at >= cutoff_date
+            ).order_by(desc(AriaEngagementEvent.occurred_at))
             
             result = await session.execute(query)
             events = result.scalars().all()

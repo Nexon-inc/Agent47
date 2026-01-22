@@ -1,7 +1,7 @@
 from typing import Dict, Any, List
 from statistics import mean
 from core.database.connection import get_supabase
-from ..models import AnalyticsSnapshot
+from ..models import AriaAnalyticsSnapshot
 
 
 class AnalyticsService:
@@ -10,11 +10,11 @@ class AnalyticsService:
         async with db.get_session() as session:
             from sqlalchemy import select
             result = await session.execute(
-                select(AnalyticsSnapshot).where(
-                    (AnalyticsSnapshot.user_id == user_id) & (AnalyticsSnapshot.post_ref == post_ref)
+                select(AriaAnalyticsSnapshot).where(
+                    (AriaAnalyticsSnapshot.user_id == user_id) & (AriaAnalyticsSnapshot.post_ref == post_ref)
                 )
             )
-            snaps: List[AnalyticsSnapshot] = result.scalars().all()
+            snaps: List[AriaAnalyticsSnapshot] = result.scalars().all()
             if not snaps:
                 return {"post_ref": post_ref, "metrics": {}}
             impressions = sum(s.impressions for s in snaps)

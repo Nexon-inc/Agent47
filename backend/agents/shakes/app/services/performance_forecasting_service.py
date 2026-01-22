@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, ContentAnalytics
+from ..models import ShakesContentProject, ShakesContentPiece, ContentAnalytics
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ class PerformanceForecastingService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -285,16 +285,16 @@ class PerformanceForecastingService:
             return {"success": False, "error": str(e)}
     
     async def _get_similar_content_performance(
-        self, content_piece: ContentPiece, session: AsyncSession
+        self, content_piece: ShakesContentPiece, session: AsyncSession
     ) -> List[Dict[str, Any]]:
         """Get performance data for similar content"""
         # Get content with similar characteristics
         similar_result = await session.execute(
-            select(ContentPiece).where(
+            select(ShakesContentPiece).where(
                 and_(
-                    ContentPiece.content_type == content_piece.content_type,
-                    ContentPiece.platform == content_piece.platform,
-                    ContentPiece.id != content_piece.id
+                    ShakesContentPiece.content_type == content_piece.content_type,
+                    ShakesContentPiece.platform == content_piece.platform,
+                    ShakesContentPiece.id != content_piece.id
                 )
             ).limit(10)
         )
@@ -331,7 +331,7 @@ class PerformanceForecastingService:
         """Get user's historical performance data"""
         # Get user's content pieces
         content_result = await session.execute(
-            select(ContentPiece).join(ContentProject).where(ContentProject.user_id == user_id)
+            select(ShakesContentPiece).join(ShakesContentProject).where(ShakesContentProject.user_id == user_id)
         )
         content_pieces = content_result.scalars().all()
         
@@ -633,7 +633,7 @@ class PerformanceForecastingService:
             ]
     
     def _create_forecast_prompt(
-        self, content_piece: ContentPiece, analytics_records: List[ContentAnalytics],
+        self, content_piece: ShakesContentPiece, analytics_records: List[ContentAnalytics],
         similar_content: List[Dict[str, Any]], forecast_period_days: int, forecast_metrics: List[str]
     ) -> str:
         """Create prompt for performance forecast"""
@@ -661,7 +661,7 @@ class PerformanceForecastingService:
         """
     
     def _create_confidence_prompt(
-        self, content_piece: ContentPiece, analytics_records: List[ContentAnalytics],
+        self, content_piece: ShakesContentPiece, analytics_records: List[ContentAnalytics],
         similar_content: List[Dict[str, Any]], forecast_period_days: int
     ) -> str:
         """Create prompt for forecast confidence"""

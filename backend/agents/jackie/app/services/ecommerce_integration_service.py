@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import EcommerceConnection, ProductSync, OrderSync, CustomerSync, InventorySync
+from ..models import JackieEcommerceConnection, JackieProductSync, OrderSync, CustomerSync, InventorySync
 
 class EcommerceIntegrationService:
     def __init__(self, db: Session):
@@ -17,7 +17,7 @@ class EcommerceIntegrationService:
     def connect_ecommerce_platform(self, platform: str, credentials: Dict[str, Any], 
                                  connection_name: str, settings: Dict[str, Any]) -> Dict[str, Any]:
         connection_id = str(uuid.uuid4())
-        connection = EcommerceConnection(
+        connection = JackieEcommerceConnection(
             id=connection_id, platform=platform, credentials=json.dumps(credentials),
             connection_name=connection_name, settings=json.dumps(settings),
             status="connected", created_at=datetime.utcnow()
@@ -27,14 +27,14 @@ class EcommerceIntegrationService:
         return {"connection_id": connection_id, "platform": platform, "status": "connected"}
     
     def sync_products(self, connection_id: str, sync_options: Dict[str, Any]) -> Dict[str, Any]:
-        connection = self.db.query(EcommerceConnection).filter(EcommerceConnection.id == connection_id).first()
+        connection = self.db.query(JackieEcommerceConnection).filter(JackieEcommerceConnection.id == connection_id).first()
         if not connection:
             raise Exception("Ecommerce connection not found")
         
         sync_id = str(uuid.uuid4())
         sync_result = self.nlp_processor.sync_ecommerce_products(f"Platform: {connection.platform}, Options: {sync_options}")
         
-        sync_record = ProductSync(
+        sync_record = JackieProductSync(
             id=sync_id, connection_id=connection_id, sync_type="products",
             sync_options=json.dumps(sync_options), sync_result=json.dumps(sync_result),
             status="completed", created_at=datetime.utcnow()
@@ -45,7 +45,7 @@ class EcommerceIntegrationService:
     
     def sync_orders(self, connection_id: str, date_range: Dict[str, str], 
                    order_statuses: Optional[List[str]] = None) -> Dict[str, Any]:
-        connection = self.db.query(EcommerceConnection).filter(EcommerceConnection.id == connection_id).first()
+        connection = self.db.query(JackieEcommerceConnection).filter(JackieEcommerceConnection.id == connection_id).first()
         if not connection:
             raise Exception("Ecommerce connection not found")
         
@@ -63,7 +63,7 @@ class EcommerceIntegrationService:
     
     def sync_customers(self, connection_id: str, customer_segments: Optional[List[str]] = None,
                       include_orders: bool = True) -> Dict[str, Any]:
-        connection = self.db.query(EcommerceConnection).filter(EcommerceConnection.id == connection_id).first()
+        connection = self.db.query(JackieEcommerceConnection).filter(JackieEcommerceConnection.id == connection_id).first()
         if not connection:
             raise Exception("Ecommerce connection not found")
         
@@ -81,7 +81,7 @@ class EcommerceIntegrationService:
     
     def sync_inventory(self, connection_id: str, product_ids: Optional[List[str]] = None,
                       include_variants: bool = True) -> Dict[str, Any]:
-        connection = self.db.query(EcommerceConnection).filter(EcommerceConnection.id == connection_id).first()
+        connection = self.db.query(JackieEcommerceConnection).filter(JackieEcommerceConnection.id == connection_id).first()
         if not connection:
             raise Exception("Ecommerce connection not found")
         
@@ -99,7 +99,7 @@ class EcommerceIntegrationService:
     
     def get_ecommerce_analytics(self, connection_id: str, analytics_type: str,
                                date_range: Dict[str, str], metrics: List[str]) -> Dict[str, Any]:
-        connection = self.db.query(EcommerceConnection).filter(EcommerceConnection.id == connection_id).first()
+        connection = self.db.query(JackieEcommerceConnection).filter(JackieEcommerceConnection.id == connection_id).first()
         if not connection:
             raise Exception("Ecommerce connection not found")
         
@@ -107,7 +107,7 @@ class EcommerceIntegrationService:
         return {"connection_id": connection_id, "analytics_type": analytics_type, "analytics_data": analytics_result}
     
     def setup_webhooks(self, connection_id: str, webhook_config: Dict[str, Any]) -> Dict[str, Any]:
-        connection = self.db.query(EcommerceConnection).filter(EcommerceConnection.id == connection_id).first()
+        connection = self.db.query(JackieEcommerceConnection).filter(JackieEcommerceConnection.id == connection_id).first()
         if not connection:
             raise Exception("Ecommerce connection not found")
         
@@ -115,7 +115,7 @@ class EcommerceIntegrationService:
         return {"connection_id": connection_id, "webhook_result": webhook_result}
     
     def check_connection_health(self, connection_id: str) -> Dict[str, Any]:
-        connection = self.db.query(EcommerceConnection).filter(EcommerceConnection.id == connection_id).first()
+        connection = self.db.query(JackieEcommerceConnection).filter(JackieEcommerceConnection.id == connection_id).first()
         if not connection:
             raise Exception("Ecommerce connection not found")
         

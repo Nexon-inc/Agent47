@@ -10,7 +10,7 @@ from core.cache.redis_manager import init_redis
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
-from ..models import Lead, LeadInteraction, CommunicationChannel, EmailSequence
+from ..models import EricLead, EricLeadInteraction, CommunicationChannel, EricEmailSequence
 from ..database import get_eric_database
 
 logger = logging.getLogger(__name__)
@@ -55,12 +55,12 @@ class SalesOutreachService:
             await self.initialize()
             
             db = next(get_db())
-            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
             
             if not lead:
                 return {
                     "success": False,
-                    "error": "Lead not found"
+                    "error": "EricLead not found"
                 }
             
             # Generate personalized content
@@ -93,7 +93,7 @@ class SalesOutreachService:
             
             if result.get("success"):
                 # Record interaction
-                interaction = LeadInteraction(
+                interaction = EricLeadInteraction(
                     lead_id=lead_id,
                     interaction_type="email_sent",
                     channel=CommunicationChannel.EMAIL,
@@ -129,12 +129,12 @@ class SalesOutreachService:
             await self.initialize()
             
             db = next(get_db())
-            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
             
             if not lead or not lead.phone:
                 return {
                     "success": False,
-                    "error": "Lead not found or no phone number"
+                    "error": "EricLead not found or no phone number"
                 }
             
             # Generate personalized SMS content
@@ -163,7 +163,7 @@ class SalesOutreachService:
             
             if result.get("success"):
                 # Record interaction
-                interaction = LeadInteraction(
+                interaction = EricLeadInteraction(
                     lead_id=lead_id,
                     interaction_type="sms_sent",
                     channel=CommunicationChannel.SMS,
@@ -198,12 +198,12 @@ class SalesOutreachService:
             await self.initialize()
             
             db = next(get_db())
-            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
             
             if not lead:
                 return {
                     "success": False,
-                    "error": "Lead not found"
+                    "error": "EricLead not found"
                 }
             
             # Get LinkedIn profile from social profiles
@@ -240,7 +240,7 @@ class SalesOutreachService:
             
             if result.get("success"):
                 # Record interaction
-                interaction = LeadInteraction(
+                interaction = EricLeadInteraction(
                     lead_id=lead_id,
                     interaction_type="linkedin_message_sent",
                     channel=CommunicationChannel.LINKEDIN,
@@ -273,16 +273,16 @@ class SalesOutreachService:
             await self.initialize()
             
             db = next(get_db())
-            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
             
             if not lead:
                 return {
                     "success": False,
-                    "error": "Lead not found"
+                    "error": "EricLead not found"
                 }
             
             # Create email sequence
-            sequence = EmailSequence(
+            sequence = EricEmailSequence(
                 campaign_id=sequence_config.get("campaign_id"),
                 sequence_name=sequence_config.get("sequence_name", "Follow-up Sequence"),
                 subject_line=sequence_config.get("subject_line"),
@@ -356,11 +356,11 @@ class SalesOutreachService:
             db = next(get_db())
             
             # Get interactions in date range
-            interactions = db.query(LeadInteraction).join(Lead).filter(
+            interactions = db.query(EricLeadInteraction).join(EricLead).filter(
                 and_(
-                    Lead.brand_id == brand_id,
-                    LeadInteraction.created_at >= start_date,
-                    LeadInteraction.created_at <= end_date
+                    EricLead.brand_id == brand_id,
+                    EricLeadInteraction.created_at >= start_date,
+                    EricLeadInteraction.created_at <= end_date
                 )
             ).all()
             
@@ -421,7 +421,7 @@ class SalesOutreachService:
     async def _generate_personalized_content(
         self,
         template: str,
-        lead: Lead,
+        lead: EricLead,
         personalization_data: Dict[str, Any]
     ) -> Dict[str, str]:
         """Generate personalized content using NLP"""
@@ -443,7 +443,7 @@ class SalesOutreachService:
             
             Template: {template}
             
-            Lead Information:
+            EricLead Information:
             - Name: {lead.first_name} {lead.last_name}
             - Company: {lead.company}
             - Job Title: {lead.job_title}

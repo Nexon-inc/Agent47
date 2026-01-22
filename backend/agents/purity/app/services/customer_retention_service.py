@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, BusinessModel, CustomerAvatar
+from ..models import PurityBusinessIdea, PurityBusinessModel, PurityCustomerAvatar
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -25,7 +25,7 @@ class CustomerRetentionService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -90,7 +90,7 @@ class CustomerRetentionService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -150,7 +150,7 @@ class CustomerRetentionService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -209,7 +209,7 @@ class CustomerRetentionService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -259,7 +259,7 @@ class CustomerRetentionService:
     
     def _create_churn_analysis_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         customer_data: Dict[str, Any],
         churn_indicators: List[str],
         retention_period: str
@@ -308,7 +308,7 @@ class CustomerRetentionService:
     
     def _create_loyalty_program_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         program_type: str,
         target_customers: str,
         reward_structure: Dict[str, Any],
@@ -364,7 +364,7 @@ class CustomerRetentionService:
     
     def _create_retention_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         current_retention_rate: float,
         target_retention_rate: float,
         customer_segments: List[str],
@@ -418,7 +418,7 @@ class CustomerRetentionService:
     
     def _create_engagement_plan_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         engagement_channels: List[str],
         engagement_frequency: str,
         content_types: List[str],

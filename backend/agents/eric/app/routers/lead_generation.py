@@ -6,7 +6,7 @@ from datetime import datetime
 from ..services.lead_generation_service import LeadGenerationService
 from ..database import get_db
 
-router = APIRouter(prefix="/lead-generation", tags=["Lead Generation"])
+router = APIRouter(prefix="/lead-generation", tags=["EricLead Generation"])
 lead_generation_service = LeadGenerationService()
 
 class WebsiteDataRequest(BaseModel):

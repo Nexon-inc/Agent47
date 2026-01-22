@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class PlagiarismDetectionService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -115,7 +115,7 @@ class PlagiarismDetectionService:
                 for content_piece_id in content_piece_ids:
                     # Get content piece
                     content_result = await session.execute(
-                        select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                        select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                     )
                     content_piece = content_result.scalar_one_or_none()
                     
@@ -176,7 +176,7 @@ class PlagiarismDetectionService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -282,9 +282,9 @@ class PlagiarismDetectionService:
         """Check similarity against internal content database"""
         # Get other content pieces from the same user
         other_content_result = await session.execute(
-            select(ContentPiece).where(
-                ContentPiece.id != content_piece_id,
-                ContentPiece.ai_generated == True
+            select(ShakesContentPiece).where(
+                ShakesContentPiece.id != content_piece_id,
+                ShakesContentPiece.ai_generated == True
             ).limit(100)
         )
         other_content_pieces = other_content_result.scalars().all()

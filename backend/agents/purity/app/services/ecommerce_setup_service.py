@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, EcommerceSetup, BusinessModel
+from ..models import PurityBusinessIdea, PurityEcommerceSetup, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -25,7 +25,7 @@ class EcommerceSetupService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -88,7 +88,7 @@ class EcommerceSetupService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -144,7 +144,7 @@ class EcommerceSetupService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -201,7 +201,7 @@ class EcommerceSetupService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -249,7 +249,7 @@ class EcommerceSetupService:
     
     def _create_ecommerce_setup_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         platform_choice: str,
         store_configuration: Dict[str, Any],
         product_catalog: List[Dict[str, Any]]
@@ -310,7 +310,7 @@ class EcommerceSetupService:
     
     def _create_product_catalog_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         products: List[Dict[str, Any]],
         inventory_management: Dict[str, Any],
         pricing_strategy: Dict[str, Any]
@@ -362,7 +362,7 @@ class EcommerceSetupService:
     
     def _create_store_optimization_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         performance_metrics: Dict[str, Any],
         optimization_goals: List[str],
         conversion_funnel: Dict[str, Any]
@@ -421,7 +421,7 @@ class EcommerceSetupService:
     
     def _create_integrations_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         integration_requirements: List[str],
         third_party_services: List[str],
         automation_needs: List[str]

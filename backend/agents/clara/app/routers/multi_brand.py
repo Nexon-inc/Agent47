@@ -7,7 +7,7 @@ import json
 
 from ..database import get_db
 from ..services.multi_brand_service import MultiBrandService
-from ..models import Brand, BrandConfiguration, BrandTemplate
+from ..models import ClaraBrand, ClaraBrandConfiguration, ClaraBrandTemplate
 from ..core.integration_manager import IntegrationManager
 from ..core.event_bus import EventBus
 
@@ -15,32 +15,32 @@ router = APIRouter()
 
 # Pydantic models for request/response
 class CreateBrandRequest(BaseModel):
-    name: str = Field(..., description="Brand name")
-    description: Optional[str] = Field(None, description="Brand description")
-    logo_url: Optional[str] = Field(None, description="Brand logo URL")
+    name: str = Field(..., description="ClaraBrand name")
+    description: Optional[str] = Field(None, description="ClaraBrand description")
+    logo_url: Optional[str] = Field(None, description="ClaraBrand logo URL")
     primary_color: Optional[str] = Field(None, description="Primary brand color")
     secondary_color: Optional[str] = Field(None, description="Secondary brand color")
-    tone_of_voice: str = Field(..., description="Brand tone of voice (formal, casual, friendly, professional)")
+    tone_of_voice: str = Field(..., description="ClaraBrand tone of voice (formal, casual, friendly, professional)")
     industry: Optional[str] = Field(None, description="Industry vertical")
     target_audience: Optional[str] = Field(None, description="Target audience description")
     contact_info: Optional[Dict[str, str]] = Field(None, description="Contact information")
     social_media_handles: Optional[Dict[str, str]] = Field(None, description="Social media handles")
 
 class UpdateBrandRequest(BaseModel):
-    name: Optional[str] = Field(None, description="Brand name")
-    description: Optional[str] = Field(None, description="Brand description")
-    logo_url: Optional[str] = Field(None, description="Brand logo URL")
+    name: Optional[str] = Field(None, description="ClaraBrand name")
+    description: Optional[str] = Field(None, description="ClaraBrand description")
+    logo_url: Optional[str] = Field(None, description="ClaraBrand logo URL")
     primary_color: Optional[str] = Field(None, description="Primary brand color")
     secondary_color: Optional[str] = Field(None, description="Secondary brand color")
-    tone_of_voice: Optional[str] = Field(None, description="Brand tone of voice")
+    tone_of_voice: Optional[str] = Field(None, description="ClaraBrand tone of voice")
     industry: Optional[str] = Field(None, description="Industry vertical")
     target_audience: Optional[str] = Field(None, description="Target audience description")
     contact_info: Optional[Dict[str, str]] = Field(None, description="Contact information")
     social_media_handles: Optional[Dict[str, str]] = Field(None, description="Social media handles")
-    is_active: Optional[bool] = Field(None, description="Brand active status")
+    is_active: Optional[bool] = Field(None, description="ClaraBrand active status")
 
 class CreateConfigurationRequest(BaseModel):
-    brand_id: int = Field(..., description="Brand ID")
+    brand_id: int = Field(..., description="ClaraBrand ID")
     config_type: str = Field(..., description="Configuration type (response_templates, workflows, integrations, etc.)")
     config_data: Dict[str, Any] = Field(..., description="Configuration data")
     is_default: bool = Field(False, description="Whether this is the default configuration")
@@ -53,7 +53,7 @@ class UpdateConfigurationRequest(BaseModel):
     priority: Optional[int] = Field(None, description="Configuration priority")
 
 class CreateTemplateRequest(BaseModel):
-    brand_id: int = Field(..., description="Brand ID")
+    brand_id: int = Field(..., description="ClaraBrand ID")
     template_name: str = Field(..., description="Template name")
     template_type: str = Field(..., description="Template type (welcome, support, escalation, etc.)")
     content: str = Field(..., description="Template content")
@@ -114,7 +114,7 @@ class TemplateResponse(BaseModel):
         from_attributes = True
 
 class BrandContextRequest(BaseModel):
-    brand_id: int = Field(..., description="Brand ID to switch to")
+    brand_id: int = Field(..., description="ClaraBrand ID to switch to")
     customer_id: Optional[str] = Field(None, description="Customer ID for context")
     session_id: Optional[str] = Field(None, description="Session ID")
 
@@ -142,7 +142,7 @@ async def get_multi_brand_service(db: AsyncSession = Depends(get_db)) -> MultiBr
     event_bus = EventBus()
     return MultiBrandService(db, integration_manager, event_bus)
 
-# Brand Management Endpoints
+# ClaraBrand Management Endpoints
 @router.post("/brands", response_model=BrandResponse, status_code=status.HTTP_201_CREATED)
 async def create_brand(
     request: CreateBrandRequest,
@@ -187,7 +187,7 @@ async def get_brand(
     try:
         brand = await service.get_brand(brand_id)
         if not brand:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Brand not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraBrand not found")
         return BrandResponse.from_orm(brand)
     except HTTPException:
         raise
@@ -217,7 +217,7 @@ async def update_brand(
             is_active=request.is_active
         )
         if not brand:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Brand not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraBrand not found")
         return BrandResponse.from_orm(brand)
     except HTTPException:
         raise
@@ -233,7 +233,7 @@ async def delete_brand(
     try:
         success = await service.delete_brand(brand_id)
         if not success:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Brand not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ClaraBrand not found")
     except HTTPException:
         raise
     except Exception as e:
@@ -418,7 +418,7 @@ async def delete_template(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-# Brand Context Management
+# ClaraBrand Context Management
 @router.post("/context/switch", response_model=BrandContextResponse)
 async def switch_brand_context(
     request: BrandContextRequest,
@@ -457,7 +457,7 @@ async def get_current_brand_context(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-# Brand-Specific Response Generation
+# ClaraBrand-Specific Response Generation
 @router.post("/brands/{brand_id}/generate-response")
 async def generate_brand_response(
     brand_id: int,
@@ -515,7 +515,7 @@ async def compare_brands_analytics(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-# Brand Import/Export
+# ClaraBrand Import/Export
 @router.post("/brands/{brand_id}/export")
 async def export_brand_configuration(
     brand_id: int,
@@ -549,10 +549,10 @@ async def import_brand_configuration(
 # Health Check
 @router.get("/health")
 async def health_check():
-    """Health check endpoint for Multi-Brand Support"""
+    """Health check endpoint for Multi-ClaraBrand Support"""
     return {
         "status": "healthy",
-        "service": "Multi-Brand Support",
+        "service": "Multi-ClaraBrand Support",
         "features": [
             "brand_management",
             "configuration_management", 
@@ -562,5 +562,5 @@ async def health_check():
             "analytics_and_reporting",
             "import_export"
         ],
-        "message": "Multi-Brand Support service is running and ready!"
+        "message": "Multi-ClaraBrand Support service is running and ready!"
     }

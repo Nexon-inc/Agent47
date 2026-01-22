@@ -9,14 +9,14 @@ from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/cross-channel-tracking", tags=["Cross-Channel Lead Tracking"])
+router = APIRouter(prefix="/cross-channel-tracking", tags=["Cross-Channel EricLead Tracking"])
 
 # Initialize service
 tracking_service = CrossChannelLeadTrackingService()
 
 @router.post("/track")
 async def track_lead_across_channels(
-    lead_id: int = Query(..., description="Lead ID to track"),
+    lead_id: int = Query(..., description="EricLead ID to track"),
     channel_data: Dict[str, Any] = Body(..., description="Channel activity data")
 ):
     """Track a lead's activity across multiple channels"""
@@ -28,7 +28,7 @@ async def track_lead_across_channels(
             
         return {
             "status": "success",
-            "message": "Lead activity tracked successfully",
+            "message": "EricLead activity tracked successfully",
             "data": result
         }
         
@@ -50,7 +50,7 @@ async def get_lead_channel_journey(
             
         return {
             "status": "success",
-            "message": "Lead journey retrieved successfully",
+            "message": "EricLead journey retrieved successfully",
             "data": result
         }
         

@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class StoryboardGeneratorService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -117,7 +117,7 @@ class StoryboardGeneratorService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -260,7 +260,7 @@ class StoryboardGeneratorService:
             return {"success": False, "error": str(e)}
     
     async def _generate_storyboard_structure(
-        self, content_piece: ContentPiece, storyboard_type: str, duration_minutes: int, scene_count: int
+        self, content_piece: ShakesContentPiece, storyboard_type: str, duration_minutes: int, scene_count: int
     ) -> List[Dict[str, Any]]:
         """Generate storyboard structure"""
         structure_prompt = self._create_structure_prompt(
@@ -287,7 +287,7 @@ class StoryboardGeneratorService:
         return scenes
     
     async def _generate_visual_descriptions(
-        self, content_piece: ContentPiece, storyboard_structure: List[Dict[str, Any]], visual_style: str
+        self, content_piece: ShakesContentPiece, storyboard_structure: List[Dict[str, Any]], visual_style: str
     ) -> List[Dict[str, Any]]:
         """Generate visual descriptions for each scene"""
         visual_descriptions = []
@@ -343,7 +343,7 @@ class StoryboardGeneratorService:
         return transitions
     
     async def _generate_storyboard_script(
-        self, content_piece: ContentPiece, storyboard_structure: List[Dict[str, Any]], 
+        self, content_piece: ShakesContentPiece, storyboard_structure: List[Dict[str, Any]], 
         visual_descriptions: List[Dict[str, Any]], scene_transitions: List[Dict[str, Any]]
     ) -> str:
         """Generate complete storyboard script"""
@@ -372,7 +372,7 @@ class StoryboardGeneratorService:
         return notes_result
     
     async def _generate_video_storyboard(
-        self, content_piece: ContentPiece, video_format: str, target_audience: str, video_goals: List[str]
+        self, content_piece: ShakesContentPiece, video_format: str, target_audience: str, video_goals: List[str]
     ) -> List[Dict[str, Any]]:
         """Generate video-specific storyboard"""
         video_prompt = self._create_video_prompt(
@@ -594,7 +594,7 @@ class StoryboardGeneratorService:
         return report_result
     
     def _create_structure_prompt(
-        self, content_piece: ContentPiece, storyboard_type: str, duration_minutes: int, scene_count: int
+        self, content_piece: ShakesContentPiece, storyboard_type: str, duration_minutes: int, scene_count: int
     ) -> str:
         """Create prompt for storyboard structure"""
         return f"""
@@ -611,7 +611,7 @@ class StoryboardGeneratorService:
         """
     
     def _create_visual_prompt(
-        self, content_piece: ContentPiece, scene: Dict[str, Any], visual_style: str
+        self, content_piece: ShakesContentPiece, scene: Dict[str, Any], visual_style: str
     ) -> str:
         """Create prompt for visual descriptions"""
         return f"""
@@ -641,7 +641,7 @@ class StoryboardGeneratorService:
         """
     
     def _create_script_prompt(
-        self, content_piece: ContentPiece, storyboard_structure: List[Dict[str, Any]], 
+        self, content_piece: ShakesContentPiece, storyboard_structure: List[Dict[str, Any]], 
         visual_descriptions: List[Dict[str, Any]], scene_transitions: List[Dict[str, Any]]
     ) -> str:
         """Create prompt for storyboard script"""
@@ -671,7 +671,7 @@ class StoryboardGeneratorService:
         """
     
     def _create_video_prompt(
-        self, content_piece: ContentPiece, video_format: str, target_audience: str, video_goals: List[str]
+        self, content_piece: ShakesContentPiece, video_format: str, target_audience: str, video_goals: List[str]
     ) -> str:
         """Create prompt for video storyboard"""
         return f"""

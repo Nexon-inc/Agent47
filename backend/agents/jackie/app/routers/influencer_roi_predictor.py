@@ -5,7 +5,7 @@ from typing import Dict, List, Any
 from ..database import get_db
 from ..services.influencer_roi_predictor_service import InfluencerROIPredictorService
 
-router = APIRouter(prefix="/influencer-roi-predictor", tags=["Influencer ROI Predictor"])
+router = APIRouter(prefix="/influencer-roi-predictor", tags=["JackieInfluencer ROI Predictor"])
 
 @router.post("/predict-roi")
 def predict_influencer_roi(influencer_id: str, campaign_budget: float, campaign_type: str, 

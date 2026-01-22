@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import json
 import uuid
 
-from ..models import CustomerSegment
+from ..models import JackieCustomerSegment
 from core.utils.nlp_utils import NLPUtils
 
 class CustomerSegmentationService:
@@ -14,7 +14,7 @@ class CustomerSegmentationService:
         self.nlp_utils = NLPUtils()
 
     def create_segment(self, name: str, description: str, criteria: Dict[str, Any], segment_type: str = "behavioral") -> Dict[str, Any]:
-        segment = CustomerSegment(
+        segment = JackieCustomerSegment(
             name=name,
             description=description,
             criteria=json.dumps(criteria),
@@ -40,7 +40,7 @@ class CustomerSegmentationService:
         }
 
     def get_segment(self, segment_id: int) -> Optional[Dict[str, Any]]:
-        segment = self.db.query(CustomerSegment).filter(CustomerSegment.id == segment_id).first()
+        segment = self.db.query(JackieCustomerSegment).filter(JackieCustomerSegment.id == segment_id).first()
         if not segment:
             return None
         
@@ -56,12 +56,12 @@ class CustomerSegmentationService:
         }
 
     def list_segments(self, segment_type: Optional[str] = None, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
-        query = self.db.query(CustomerSegment)
+        query = self.db.query(JackieCustomerSegment)
         
         if segment_type:
-            query = query.filter(CustomerSegment.segment_type == segment_type)
+            query = query.filter(JackieCustomerSegment.segment_type == segment_type)
         
-        segments = query.order_by(desc(CustomerSegment.created_at)).offset(offset).limit(limit).all()
+        segments = query.order_by(desc(JackieCustomerSegment.created_at)).offset(offset).limit(limit).all()
         
         return [
             {
@@ -78,7 +78,7 @@ class CustomerSegmentationService:
         ]
 
     def update_segment(self, segment_id: int, name: Optional[str] = None, description: Optional[str] = None, criteria: Optional[Dict[str, Any]] = None, segment_type: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        segment = self.db.query(CustomerSegment).filter(CustomerSegment.id == segment_id).first()
+        segment = self.db.query(JackieCustomerSegment).filter(JackieCustomerSegment.id == segment_id).first()
         if not segment:
             return None
         
@@ -108,7 +108,7 @@ class CustomerSegmentationService:
         }
 
     def delete_segment(self, segment_id: int) -> bool:
-        segment = self.db.query(CustomerSegment).filter(CustomerSegment.id == segment_id).first()
+        segment = self.db.query(JackieCustomerSegment).filter(JackieCustomerSegment.id == segment_id).first()
         if not segment:
             return False
         
@@ -152,7 +152,7 @@ class CustomerSegmentationService:
         return strategy_data
 
     def get_segment_customers(self, segment_id: int, limit: int = 100, offset: int = 0) -> Optional[Dict[str, Any]]:
-        segment = self.db.query(CustomerSegment).filter(CustomerSegment.id == segment_id).first()
+        segment = self.db.query(JackieCustomerSegment).filter(JackieCustomerSegment.id == segment_id).first()
         if not segment:
             return None
         
@@ -167,7 +167,7 @@ class CustomerSegmentationService:
         }
 
     def add_customers_to_segment(self, segment_id: int, customer_ids: List[str]) -> bool:
-        segment = self.db.query(CustomerSegment).filter(CustomerSegment.id == segment_id).first()
+        segment = self.db.query(JackieCustomerSegment).filter(JackieCustomerSegment.id == segment_id).first()
         if not segment:
             return False
         
@@ -182,7 +182,7 @@ class CustomerSegmentationService:
         return True
 
     def remove_customers_from_segment(self, segment_id: int, customer_ids: List[str]) -> bool:
-        segment = self.db.query(CustomerSegment).filter(CustomerSegment.id == segment_id).first()
+        segment = self.db.query(JackieCustomerSegment).filter(JackieCustomerSegment.id == segment_id).first()
         if not segment:
             return False
         
@@ -197,7 +197,7 @@ class CustomerSegmentationService:
         return True
 
     def get_segment_analytics(self, segment_id: int) -> Optional[Dict[str, Any]]:
-        segment = self.db.query(CustomerSegment).filter(CustomerSegment.id == segment_id).first()
+        segment = self.db.query(JackieCustomerSegment).filter(JackieCustomerSegment.id == segment_id).first()
         if not segment:
             return None
         

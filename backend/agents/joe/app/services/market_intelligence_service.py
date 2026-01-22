@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import EventBus
 from core.cache.redis_manager import RedisManager
-from ..models import MarketIntelligence, IntelligenceType, JoeMarketInsight # Assuming these models exist
+from ..models import JoeMarketIntelligence, IntelligenceType, JoeMarketInsight # Assuming these models exist
 
 logger = logging.getLogger(__name__)
 

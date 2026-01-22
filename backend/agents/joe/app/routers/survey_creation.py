@@ -6,12 +6,12 @@ from pydantic import BaseModel, Field
 from ..database import get_joe_database
 from ..services.survey_creation_service import SurveyCreationService
 
-router = APIRouter(prefix="/survey-creation", tags=["Survey Creation"])
+router = APIRouter(prefix="/survey-creation", tags=["JoeSurvey Creation"])
 
 class SurveyRequest(BaseModel):
     survey_type: str = Field(..., description="Type of survey to create")
     target_audience: str = Field(..., description="Target audience for survey")
-    questions: List[Dict[str, Any]] = Field(default=[], description="Survey questions")
+    questions: List[Dict[str, Any]] = Field(default=[], description="JoeSurvey questions")
 
 # Dependency
 async def get_survey_creation_service() -> SurveyCreationService:
@@ -37,12 +37,12 @@ async def create_survey(
             return {
                 "status": "success",
                 "data": result["survey_data"],
-                "message": f"Survey created for {request.target_audience}"
+                "message": f"JoeSurvey created for {request.target_audience}"
             }
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Survey creation failed: {result.get('error', 'Unknown error')}"
+                detail=f"JoeSurvey creation failed: {result.get('error', 'Unknown error')}"
             )
             
     except Exception as e:
@@ -87,28 +87,28 @@ async def get_survey_templates(service: SurveyCreationService = Depends(get_surv
     templates = [
         {
             "id": "customer_satisfaction",
-            "name": "Customer Satisfaction Survey",
+            "name": "Customer Satisfaction JoeSurvey",
             "description": "Measure customer satisfaction and loyalty",
             "question_count": 10,
             "estimated_time": "5 minutes"
         },
         {
             "id": "market_research",
-            "name": "Market Research Survey",
+            "name": "Market Research JoeSurvey",
             "description": "Gather market insights and preferences",
             "question_count": 15,
             "estimated_time": "8 minutes"
         },
         {
             "id": "product_feedback",
-            "name": "Product Feedback Survey",
+            "name": "Product Feedback JoeSurvey",
             "description": "Collect product improvement suggestions",
             "question_count": 12,
             "estimated_time": "6 minutes"
         },
         {
             "id": "employee_engagement",
-            "name": "Employee Engagement Survey",
+            "name": "Employee Engagement JoeSurvey",
             "description": "Measure employee satisfaction and engagement",
             "question_count": 20,
             "estimated_time": "10 minutes"

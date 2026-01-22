@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Any
 from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
-from ..models import AccessibilityContent, AccessibilityAnalysis, AccessibilityReport
+from ..models import JackieAccessibilityContent, AccessibilityAnalysis, AccessibilityReport
 
 class AccessibilityService:
     def __init__(self, db: Session):
@@ -32,7 +32,7 @@ class AccessibilityService:
         
         accessibility_score = self._calculate_accessibility_score(optimization_result)
         
-        content_record = AccessibilityContent(
+        content_record = JackieAccessibilityContent(
             id=optimization_id, content_type=content_type, original_content=content,
             optimized_content=optimization_result.get("optimized_content", content),
             alt_text=optimization_result.get("alt_text"), accessibility_score=accessibility_score,
@@ -429,13 +429,13 @@ class AccessibilityService:
     def get_accessibility_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        total_optimizations = self.db.query(AccessibilityContent).filter(
-            AccessibilityContent.created_at >= cutoff_date
+        total_optimizations = self.db.query(JackieAccessibilityContent).filter(
+            JackieAccessibilityContent.created_at >= cutoff_date
         ).count()
         
-        avg_score = self.db.query(AccessibilityContent).filter(
-            AccessibilityContent.created_at >= cutoff_date
-        ).with_entities(AccessibilityContent.accessibility_score).all()
+        avg_score = self.db.query(JackieAccessibilityContent).filter(
+            JackieAccessibilityContent.created_at >= cutoff_date
+        ).with_entities(JackieAccessibilityContent.accessibility_score).all()
         
         avg_score_value = sum(score[0] for score in avg_score) / len(avg_score) if avg_score else 0.0
         

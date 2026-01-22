@@ -5,7 +5,7 @@ from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 import logging
 
-from ..models import Lead, Deal, LeadInteraction, CommunicationChannel
+from ..models import EricLead, EricDeal, EricLeadInteraction, CommunicationChannel
 from ..database import get_db
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.utils.platform_integration_loader import (
@@ -400,8 +400,8 @@ class EricChatService:
         
         Domain-specific for Eric (Sales):
         - CRM Platforms: Salesforce, HubSpot, Pipedrive, Zoho, Freshsales
-        - Sales Tools: Email sequences, LinkedIn outreach, Lead generation, Deal closing
-        - Task types: Sales workflows, CRM pipelines, Email sequences, Lead qualification steps
+        - Sales Tools: Email sequences, LinkedIn outreach, EricLead generation, EricDeal closing
+        - Task types: Sales workflows, CRM pipelines, Email sequences, EricLead qualification steps
         """
         import re
         
@@ -469,8 +469,8 @@ class EricChatService:
         sales_keywords = {
             "email": "Email Sequences",
             "linkedin": "LinkedIn Outreach",
-            "lead": "Lead Generation",
-            "deal": "Deal Closing",
+            "lead": "EricLead Generation",
+            "deal": "EricDeal Closing",
             "pipeline": "Pipeline Management",
             "forecast": "Sales Forecasting",
             "outreach": "Sales Outreach"
@@ -527,7 +527,7 @@ class EricChatService:
                 tasks["task_type"] = "lead_qualification"
                 tasks["crm_platforms"] = detected_crms if detected_crms else ["All CRMs"]
                 tasks["requirements"] = [
-                    f"Step {i+1}: Lead qualification step with criteria, scoring, automation rules, and CRM field mappings" 
+                    f"Step {i+1}: EricLead qualification step with criteria, scoring, automation rules, and CRM field mappings" 
                     for i in range(tasks["total_tasks"])
                 ]
                 tasks["completion_criteria"] = [
@@ -564,7 +564,7 @@ class EricChatService:
                 tasks["total_tasks"] = int(strategy_matches[0])
                 tasks["task_type"] = "deal_closing"
                 tasks["requirements"] = [
-                    f"Strategy {i+1}: Deal closing strategy with approach, objection handling, CRM tracking, and success metrics" 
+                    f"Strategy {i+1}: EricDeal closing strategy with approach, objection handling, CRM tracking, and success metrics" 
                     for i in range(tasks["total_tasks"])
                 ]
                 tasks["completion_criteria"] = [
@@ -855,15 +855,15 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
 {custom_instructions_text}
 Your full capabilities include:
 
-1. **Lead Generation & Qualification**
-   - Lead generation from multiple sources
-   - Lead scoring and prioritization using AI
-   - Lead qualification and segmentation
+1. **EricLead Generation & Qualification**
+   - EricLead generation from multiple sources
+   - EricLead scoring and prioritization using AI
+   - EricLead qualification and segmentation
    - Persona creation and targeting
 
-2. **Deal Closing & Management**
-   - Deal closing strategies and techniques
-   - Deal closing assistance with real-time guidance
+2. **EricDeal Closing & Management**
+   - EricDeal closing strategies and techniques
+   - EricDeal closing assistance with real-time guidance
    - Pipeline management and optimization
    - Sales funnel creation and analysis
 
@@ -889,11 +889,11 @@ Your full capabilities include:
    - Drip campaign creation
    - Follow-up automation
    - Demo booking sequences
-   - Lead nurturing workflows
+   - EricLead nurturing workflows
 
-7. **Objection Handling**
-   - Objection response strategies
-   - Objection prediction using AI
+7. **EricObjection Handling**
+   - EricObjection response strategies
+   - EricObjection prediction using AI
    - Handling price, timing, and authority objections
    - Sales conversation optimization
 
@@ -1025,19 +1025,19 @@ Current intent detected: {detected_intent}
         """Format service results into readable text for LLM context"""
         try:
             if intent == "lead_generation" and "total_leads" in service_result:
-                return f"""Lead Generation Results:
+                return f"""EricLead Generation Results:
 - Total leads found: {service_result.get('total_leads', 0)}
 - Qualified leads: {service_result.get('qualified_leads', 0)}
 - Sources: {', '.join(service_result.get('sources', []))}"""
             
             elif intent == "lead_scoring" and "high_priority" in service_result:
-                return f"""Lead Scoring Results:
+                return f"""EricLead Scoring Results:
 - High-priority leads: {service_result.get('high_priority', 0)}
 - Medium-priority leads: {service_result.get('medium_priority', 0)}
 - Low-priority leads: {service_result.get('low_priority', 0)}"""
             
             elif intent == "deal_closing" and "active_deals" in service_result:
-                return f"""Deal Analysis Results:
+                return f"""EricDeal Analysis Results:
 - Active deals: {service_result.get('active_deals', 0)}
 - Deals ready to close: {service_result.get('ready_to_close', 0)}
 - Deals at risk: {service_result.get('at_risk', 0)}"""
@@ -1050,7 +1050,7 @@ Current intent detected: {detected_intent}
 - Time period: {forecast.get('period', 'N/A')}"""
             
             elif intent == "objection_handling" and "response" in service_result:
-                return f"""Objection Handling Response:
+                return f"""EricObjection Handling Response:
 {service_result.get('response', '')}
 Technique: {service_result.get('technique', 'N/A')}"""
             
@@ -1172,10 +1172,10 @@ Technique: {service_result.get('technique', 'N/A')}"""
                     if lead_result.get("success"):
                         return f"""I've generated new leads for you! Here's what I found:
 
-🎯 **Lead Generation Results:**
+🎯 **EricLead Generation Results:**
 • New leads found: {lead_result.get('total_leads', 0)}
 • High-quality prospects: {lead_result.get('qualified_leads', 0)}
-• Lead sources: {', '.join(lead_result.get('sources', []))}
+• EricLead sources: {', '.join(lead_result.get('sources', []))}
 
 📊 **Next Steps:**
 • Review the lead details in your dashboard
@@ -1200,7 +1200,7 @@ Would you like me to help you score these leads or create outreach campaigns?"""
                     if scoring_result.get("success"):
                         return f"""I've scored your leads! Here's the analysis:
 
-⭐ **Lead Scoring Results:**
+⭐ **EricLead Scoring Results:**
 • High-priority leads: {scoring_result.get('high_priority', 0)}
 • Medium-priority leads: {scoring_result.get('medium_priority', 0)}
 • Low-priority leads: {scoring_result.get('low_priority', 0)}
@@ -1243,7 +1243,7 @@ Would you like me to help you prioritize follow-up actions or create targeted ou
                     if closing_result.get("success"):
                         return f"""I've analyzed your deals and here's how to close more! 
 
-🎯 **Deal Analysis Results:**
+🎯 **EricDeal Analysis Results:**
 • Active deals: {closing_result.get('active_deals', 0)}
 • Deals ready to close: {closing_result.get('ready_to_close', 0)}
 • Deals at risk: {closing_result.get('at_risk', 0)}
@@ -1280,7 +1280,7 @@ What specific deal would you like help closing?"""
                     if objection_result.get("success"):
                         return f"""I'll help you handle that objection! Here's my approach:
 
-🛡️ **Objection Response:**
+🛡️ **EricObjection Response:**
 {objection_result.get('response', 'Let me help you address this concern professionally.')}
 
 💬 **Key Points:**
@@ -1317,7 +1317,7 @@ Would you like me to help you practice this response or address other objections
 📊 **Forecasting Methods:**
 • Historical data analysis
 • Pipeline stage analysis
-• Lead conversion rates
+• EricLead conversion rates
 • Seasonal trend adjustments
 • Market condition factors
 
@@ -1325,7 +1325,7 @@ Would you like me to help you practice this response or address other objections
 • Average deal size
 • Sales cycle length
 • Win/loss rates
-• Lead velocity
+• EricLead velocity
 • Activity metrics
 
 📈 **Forecast Benefits:**
@@ -1356,7 +1356,7 @@ What's your current pipeline looking like? I'll help you create a detailed forec
                 return """I'll help you automate your CRM processes! Here's what I can set up:
 
 🤖 **CRM Automation Features:**
-• Lead scoring and routing
+• EricLead scoring and routing
 • Follow-up sequences
 • Task and reminder automation
 • Email and call logging
@@ -1372,7 +1372,7 @@ What's your current pipeline looking like? I'll help you create a detailed forec
 🛠️ **Common Automations:**
 • New lead notifications
 • Follow-up reminders
-• Deal stage updates
+• EricDeal stage updates
 • Email sequences
 • Report generation
 
@@ -1402,7 +1402,7 @@ What CRM system are you using? I'll help you set up the perfect automation!"""
 • **Explore** - Ask questions to understand
 • **Respond** - Address with solutions
 
-💪 **Top Objection Responses:**
+💪 **Top EricObjection Responses:**
 • "Price too high" → "I understand budget is important. Let me show you the ROI..."
 • "Need to think" → "What specific concerns do you have about moving forward?"
 • "Not ready" → "What would need to happen for you to be ready?"
@@ -1503,7 +1503,7 @@ What's your current budget situation? I'll help you optimize it for maximum resu
         """Get suggested actions based on the detected intent"""
         suggestions = {
             "greeting": ["Generate leads", "Close deals", "Check forecast", "Automate CRM"],
-            "help": ["Lead generation", "Deal closing", "Sales forecasting", "CRM automation"],
+            "help": ["EricLead generation", "EricDeal closing", "Sales forecasting", "CRM automation"],
             "lead_generation": ["Find prospects", "Qualify leads", "Create outreach", "Score leads"],
             "deal_closing": ["Close techniques", "Handle objections", "Create urgency", "Follow up"],
             "sales_forecasting": ["Create forecast", "Analyze pipeline", "Track metrics", "Predict revenue"],

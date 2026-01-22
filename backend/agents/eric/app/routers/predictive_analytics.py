@@ -88,7 +88,7 @@ async def get_revenue_predictions(
         logger.error(f"Failed to get revenue predictions: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/conversion/{lead_id}", response_model=ConversionPrediction, summary="Predict Lead Conversion")
+@router.get("/conversion/{lead_id}", response_model=ConversionPrediction, summary="Predict EricLead Conversion")
 async def predict_lead_conversion(lead_id: int):
     """Predict the probability of a lead converting to a customer"""
     try:
@@ -266,11 +266,11 @@ async def get_high_conversion_leads(
     """Get leads with high conversion probability"""
     try:
         async with get_eric_database() as session:
-            from ..models import Lead
+            from ..models import EricLead
             
             # Get leads with recent activity
-            leads_query = select(Lead).where(
-                Lead.created_at >= datetime.utcnow() - timedelta(days=30)
+            leads_query = select(EricLead).where(
+                EricLead.created_at >= datetime.utcnow() - timedelta(days=30)
             ).limit(limit)
             
             result = await session.execute(leads_query)
@@ -312,13 +312,13 @@ async def get_high_churn_risk_customers(
     """Get customers with high churn risk"""
     try:
         async with get_eric_database() as session:
-            from ..models import Deal
+            from ..models import EricDeal
             
             # Get customers with recent deals
-            customers_query = select(Deal.customer_id).where(
+            customers_query = select(EricDeal.customer_id).where(
                 and_(
-                    Deal.status == "closed",
-                    Deal.closed_at >= datetime.utcnow() - timedelta(days=90)
+                    EricDeal.status == "closed",
+                    EricDeal.closed_at >= datetime.utcnow() - timedelta(days=90)
                 )
             ).distinct().limit(limit)
             

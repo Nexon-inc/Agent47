@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from typing import Dict, List, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..models import BusinessIdea, CustomerAvatar, BusinessModel
+from ..models import PurityBusinessIdea, PurityCustomerAvatar, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -120,7 +120,7 @@ class CustomerAvatarService:
                 "created_at": datetime.utcnow()
             }
 
-            stmt = insert(CustomerAvatar).values(**customer_avatar)
+            stmt = insert(PurityCustomerAvatar).values(**customer_avatar)
             await db.execute(stmt)
             await db.commit()
 
@@ -228,7 +228,7 @@ class CustomerAvatarService:
             if cached_result:
                 return json.loads(cached_result)
 
-            stmt = select(CustomerAvatar).where(CustomerAvatar.id == customer_avatar_id)
+            stmt = select(PurityCustomerAvatar).where(PurityCustomerAvatar.id == customer_avatar_id)
             result = await db.execute(stmt)
             avatar = result.scalar_one_or_none()
 
@@ -309,7 +309,7 @@ class CustomerAvatarService:
         validation_criteria: Dict[str, Any]
     ) -> Dict[str, Any]:
         try:
-            stmt = select(CustomerAvatar).where(CustomerAvatar.id == customer_avatar_id)
+            stmt = select(PurityCustomerAvatar).where(PurityCustomerAvatar.id == customer_avatar_id)
             result = await db.execute(stmt)
             avatar = result.scalar_one_or_none()
 

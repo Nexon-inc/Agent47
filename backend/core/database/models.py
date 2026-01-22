@@ -153,6 +153,7 @@ class User(Base):
     tasks = relationship("Task", back_populates="user")
     platforms = relationship("UserPlatformToken", back_populates="user")
     verification_tokens = relationship("EmailVerificationToken", back_populates="user")
+    subscriptions = relationship("Subscription", back_populates="user")
     # NOTE: Agent-specific models (e.g. Clara's SupportTicket) should define
     # their own relationships with backrefs to avoid core model coupling.
 
@@ -455,74 +456,8 @@ class IntegrationAuditLog(Base):
             "timestamp": self.timestamp.isoformat() if self.timestamp else None
         }
 
-# Billing Models
-class Subscription(Base):
-    __tablename__ = "subscriptions"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    plan_id = Column(Integer, ForeignKey("billing_plans.id"), nullable=False)
-    status = Column(Enum(SubscriptionStatus), default=SubscriptionStatus.ACTIVE)
-    current_period_start = Column(DateTime(timezone=True))
-    current_period_end = Column(DateTime(timezone=True))
-    trial_start = Column(DateTime(timezone=True))
-    trial_end = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    
-    # Relationships
-    user = relationship("User")
-    plan = relationship("BillingPlan")
 
-class Payment(Base):
-    __tablename__ = "payments"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    subscription_id = Column(Integer, ForeignKey("subscriptions.id"), nullable=True)
-    amount = Column(Float, nullable=False)
-    currency = Column(String(3), default="USD")
-    status = Column(Enum(PaymentStatus), default=PaymentStatus.PENDING)
-    payment_method = Column(String(50))
-    transaction_id = Column(String(255), unique=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    processed_at = Column(DateTime(timezone=True))
-    
-    # Relationships
-    user = relationship("User")
-    subscription = relationship("Subscription")
-
-class BillingPlan(Base):
-    __tablename__ = "billing_plans"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    description = Column(Text)
-    tier = Column(Enum(BillingTier), nullable=False)
-    price = Column(Float, nullable=False)
-    currency = Column(String(3), default="USD")
-    billing_interval = Column(String(20), default="monthly")
-    features = Column(JSON)
-    limits = Column(JSON)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-class Usage(Base):
-    __tablename__ = "usage"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    plan_id = Column(Integer, ForeignKey("billing_plans.id"), nullable=False)
-    metric_name = Column(String(100), nullable=False)
-    metric_value = Column(Integer, default=0)
-    period_start = Column(DateTime(timezone=True))
-    period_end = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
-    # Relationships
-    user = relationship("User")
-    plan = relationship("BillingPlan")
+# Legacy Billing Models removed (moved to core/billing/models.py)
 
 # Additional User Management Models
 class UserProfile(Base):

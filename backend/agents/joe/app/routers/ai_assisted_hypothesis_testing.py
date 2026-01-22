@@ -127,7 +127,7 @@ async def get_available_statistical_tests(service: AIAssistedHypothesisTestingSe
             "test_id": "chi_square",
             "name": "Chi-Square Test",
             "description": "Test independence between categorical variables",
-            "use_case": "Survey analysis, categorical data relationships",
+            "use_case": "JoeSurvey analysis, categorical data relationships",
             "assumptions": ["Expected frequencies > 5", "Independent observations"],
             "outputs": ["Chi-square statistic", "p-value", "degrees of freedom"]
         },

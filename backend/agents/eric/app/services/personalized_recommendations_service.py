@@ -20,8 +20,8 @@ from core.config import settings
 
 from ..database import get_eric_database
 from ..models import (
-    Lead, Deal, SalesActivity, SalesCampaign, SalesAnalytics,
-    SalesForecast, SalesTeam, SalesRep, CustomerProfile
+    EricLead, EricDeal, EricSalesActivity, EricSalesCampaign, EricSalesAnalytics,
+    EricSalesForecast, EricSalesTeam, EricSalesRep, CustomerProfile
 )
 
 logger = logging.getLogger(__name__)
@@ -101,10 +101,10 @@ class PersonalizedRecommendationsService:
                 
                 # Get customer's deals and activities
                 deals = await session.execute(
-                    select(Deal).where(
+                    select(EricDeal).where(
                         and_(
-                            Deal.customer_id == customer_id,
-                            Deal.status == "closed"
+                            EricDeal.customer_id == customer_id,
+                            EricDeal.status == "closed"
                         )
                     )
                 )
@@ -112,10 +112,10 @@ class PersonalizedRecommendationsService:
                 
                 # Get customer activities
                 activities = await session.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.customer_id == customer_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=180)
+                            EricSalesActivity.customer_id == customer_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=180)
                         )
                     )
                 )
@@ -268,10 +268,10 @@ class PersonalizedRecommendationsService:
                 
                 # Get customer's purchase history
                 deals = await session.execute(
-                    select(Deal).where(
+                    select(EricDeal).where(
                         and_(
-                            Deal.customer_id == customer_id,
-                            Deal.status == "closed"
+                            EricDeal.customer_id == customer_id,
+                            EricDeal.status == "closed"
                         )
                     )
                 )
@@ -353,11 +353,11 @@ class PersonalizedRecommendationsService:
                 # Market comparison based on historical data
                 # Query similar deals to understand market positioning
                 similar_deals = await session.execute(
-                    select(Deal).where(
+                    select(EricDeal).where(
                         and_(
-                            Deal.product_id == product_id,
-                            Deal.status == "closed_won",
-                            Deal.created_at >= datetime.utcnow() - timedelta(days=365)
+                            EricDeal.product_id == product_id,
+                            EricDeal.status == "closed_won",
+                            EricDeal.created_at >= datetime.utcnow() - timedelta(days=365)
                         )
                     )
                 )
@@ -430,10 +430,10 @@ class PersonalizedRecommendationsService:
                 
                 # Get customer activities
                 activities = await session.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.customer_id == customer_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
+                            EricSalesActivity.customer_id == customer_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=90)
                         )
                     )
                 )
@@ -482,7 +482,7 @@ class PersonalizedRecommendationsService:
                 # Strategy 2: Timing recommendation
                 if deal_id:
                     deal = await session.execute(
-                        select(Deal).where(Deal.id == deal_id)
+                        select(EricDeal).where(EricDeal.id == deal_id)
                     )
                     deal = deal.scalar_one_or_none()
                     
@@ -495,7 +495,7 @@ class PersonalizedRecommendationsService:
                                 recommendation="Accelerate deal closure with urgency",
                                 confidence=0.72,
                                 reasoning=[
-                                    f"Deal in pipeline for {days_in_pipeline} days",
+                                    f"EricDeal in pipeline for {days_in_pipeline} days",
                                     "Risk of deal stagnation",
                                     "Need for momentum"
                                 ],
@@ -608,10 +608,10 @@ class PersonalizedRecommendationsService:
         """Internal method to get customer profile"""
         # Get customer deals
         deals = await session.execute(
-            select(Deal).where(
+            select(EricDeal).where(
                 and_(
-                    Deal.customer_id == customer_id,
-                    Deal.status == "closed"
+                    EricDeal.customer_id == customer_id,
+                    EricDeal.status == "closed"
                 )
             )
         )
@@ -619,10 +619,10 @@ class PersonalizedRecommendationsService:
         
         # Get customer activities
         activities = await session.execute(
-            select(SalesActivity).where(
+            select(EricSalesActivity).where(
                 and_(
-                    SalesActivity.customer_id == customer_id,
-                    SalesActivity.created_at >= datetime.utcnow() - timedelta(days=180)
+                    EricSalesActivity.customer_id == customer_id,
+                    EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=180)
                 )
             )
         )
@@ -678,7 +678,7 @@ class PersonalizedRecommendationsService:
             engagement_score=engagement_score
         )
     
-    def _analyze_purchase_patterns(self, deals: List[Deal]) -> Dict[str, Any]:
+    def _analyze_purchase_patterns(self, deals: List[EricDeal]) -> Dict[str, Any]:
         """Analyze customer purchase patterns"""
         if not deals:
             return {}
@@ -696,7 +696,7 @@ class PersonalizedRecommendationsService:
         
         return patterns
     
-    def _calculate_engagement_score(self, activities: List[SalesActivity]) -> float:
+    def _calculate_engagement_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate customer engagement score"""
         if not activities:
             return 0.0
@@ -719,7 +719,7 @@ class PersonalizedRecommendationsService:
         max_possible_score = len(activities) * 5.0  # Assuming max weight is 5
         return min(total_score / max_possible_score, 1.0) if max_possible_score > 0 else 0.0
     
-    def _analyze_channel_preferences(self, activities: List[SalesActivity]) -> Dict[str, int]:
+    def _analyze_channel_preferences(self, activities: List[EricSalesActivity]) -> Dict[str, int]:
         """Analyze customer channel preferences"""
         channel_counts = defaultdict(int)
         
@@ -728,7 +728,7 @@ class PersonalizedRecommendationsService:
         
         return dict(channel_counts)
     
-    def _get_preferred_channel(self, activities: List[SalesActivity]) -> str:
+    def _get_preferred_channel(self, activities: List[EricSalesActivity]) -> str:
         """Get customer's preferred communication channel"""
         channel_preferences = self._analyze_channel_preferences(activities)
         
@@ -737,7 +737,7 @@ class PersonalizedRecommendationsService:
         
         return max(channel_preferences.items(), key=lambda x: x[1])[0]
     
-    def _calculate_avg_response_time(self, activities: List[SalesActivity]) -> float:
+    def _calculate_avg_response_time(self, activities: List[EricSalesActivity]) -> float:
         """Calculate average response time from activity data"""
         if not activities:
             return 24.0  # Default fallback
@@ -759,7 +759,7 @@ class PersonalizedRecommendationsService:
         else:
             return 24.0  # Default fallback
     
-    def _analyze_deal_size_preference(self, deals: List[Deal]) -> str:
+    def _analyze_deal_size_preference(self, deals: List[EricDeal]) -> str:
         """Analyze customer's preferred deal size"""
         if not deals:
             return "unknown"

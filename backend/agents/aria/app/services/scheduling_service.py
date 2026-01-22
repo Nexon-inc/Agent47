@@ -4,7 +4,7 @@ from core.cache.redis_manager import get_redis
 from core.billing.usage_tracker import get_usage_tracker
 from core.database.connection import get_supabase
 from core.event_bus.kafka_manager import get_kafka
-from ..models import ScheduledPost, PostStatus
+from ..models import AriaScheduledPost, AriaPostStatus
 from ..repositories.schedules_repo import SchedulesRepository
 from ..config import aria_settings
 
@@ -47,7 +47,7 @@ class SchedulingService:
                 "media_refs": payload.get("media_refs", []),
                 "scheduled_at": scheduled_at,
                 "timezone": payload.get("timezone", "UTC"),
-                "status": PostStatus.scheduled
+                "status": AriaPostStatus.scheduled
             })
 
             await session.commit()

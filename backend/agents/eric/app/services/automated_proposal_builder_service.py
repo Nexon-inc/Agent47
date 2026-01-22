@@ -33,8 +33,8 @@ class GeneratedProposal(BaseModel):
 
 from ..database import get_eric_database
 from ..models import (
-    Lead, Deal, SalesActivity, SalesRep, CustomerProfile, 
-    SalesCampaign, SalesAnalytics, SalesForecast
+    EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile, 
+    EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
 )
 # NLPUtils removed - not used
 from core.integrations.integration_manager import IntegrationManager
@@ -111,9 +111,9 @@ class AutomatedProposalBuilderService:
             db = next(get_db())
             
             # Get lead information
-            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
             if not lead:
-                raise ValueError(f"Lead with ID {lead_id} not found")
+                raise ValueError(f"EricLead with ID {lead_id} not found")
             
             # Get customer profile
             customer_profile = db.query(CustomerProfile).filter(CustomerProfile.lead_id == lead_id).first()
@@ -274,7 +274,7 @@ class AutomatedProposalBuilderService:
             logger.error(f"Error exporting proposal: {e}")
             return {"status": "error", "message": str(e)}
             
-    async def _analyze_lead_requirements(self, lead: Lead, customer_profile: CustomerProfile, proposal_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def _analyze_lead_requirements(self, lead: EricLead, customer_profile: CustomerProfile, proposal_data: Dict[str, Any]) -> Dict[str, Any]:
         """Analyze lead requirements for proposal generation"""
         requirements = {
             "industry": lead.industry if hasattr(lead, 'industry') else "general",
@@ -470,8 +470,8 @@ class AutomatedProposalBuilderService:
                 conversion_rate = 0.0
                 
                 # Get related activities to calculate rates
-                activities = db.query(SalesActivity).filter(
-                    SalesActivity.proposal_id == proposal.id
+                activities = db.query(EricSalesActivity).filter(
+                    EricSalesActivity.proposal_id == proposal.id
                 ).all()
                 
                 if activities:
@@ -480,10 +480,10 @@ class AutomatedProposalBuilderService:
                     response_rate = len(response_activities) / len(activities) if activities else 0.0
                     
                     # Calculate conversion rate (deals won from this proposal)
-                    deals = db.query(Deal).filter(
+                    deals = db.query(EricDeal).filter(
                         and_(
-                            Deal.proposal_id == proposal.id,
-                            Deal.status == "closed_won"
+                            EricDeal.proposal_id == proposal.id,
+                            EricDeal.status == "closed_won"
                         )
                     ).all()
                     conversion_rate = len(deals) / 1 if proposal.status == "sent" else 0.0

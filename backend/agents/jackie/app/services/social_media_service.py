@@ -6,7 +6,7 @@ from sqlalchemy import select, update
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
-from ..models import MarketingCampaign, PlatformType
+from ..models import JackieMarketingCampaign, PlatformType
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ class SocialMediaService:
             optimized_content = await self._optimize_content_for_platform(content, platform)
             
             async with self.db.get_session() as session:
-                campaign = MarketingCampaign(
+                campaign = JackieMarketingCampaign(
                     user_id=user_id,
                     campaign_name=f"Social Post - {platform.value}",
                     campaign_type="social_media",
@@ -93,7 +93,7 @@ class SocialMediaService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                campaign = MarketingCampaign(
+                campaign = JackieMarketingCampaign(
                     user_id=user_id,
                     campaign_name=campaign_name,
                     campaign_type="social_media",
@@ -136,7 +136,7 @@ class SocialMediaService:
     async def get_social_analytics(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(MarketingCampaign).where(MarketingCampaign.id == campaign_id)
+                query = select(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id)
                 result = await session.execute(query)
                 campaign = result.scalar_one_or_none()
 
@@ -166,7 +166,7 @@ class SocialMediaService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(MarketingCampaign).where(MarketingCampaign.id == post_id)
+                query = select(JackieMarketingCampaign).where(JackieMarketingCampaign.id == post_id)
                 result = await session.execute(query)
                 post = result.scalar_one_or_none()
 
@@ -175,7 +175,7 @@ class SocialMediaService:
 
                 optimized_content = await self._optimize_content_for_engagement(post.content, optimization_type)
 
-                stmt = update(MarketingCampaign).where(MarketingCampaign.id == post_id).values(
+                stmt = update(JackieMarketingCampaign).where(JackieMarketingCampaign.id == post_id).values(
                     content=optimized_content
                 )
                 await session.execute(stmt)
@@ -243,7 +243,7 @@ class SocialMediaService:
         optimized_content = response.text_content if response.success else content
         return optimized_content
 
-    async def _generate_social_analytics(self, campaign: MarketingCampaign) -> Dict[str, Any]:
+    async def _generate_social_analytics(self, campaign: JackieMarketingCampaign) -> Dict[str, Any]:
         return {
             "impressions": 5000,
             "reach": 3000,

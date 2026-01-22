@@ -6,7 +6,7 @@ from sqlalchemy import select, update
 from core.utils.nlp_utils import NLPUtils
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
-from ..models import InfluencerCampaign
+from ..models import JackieInfluencerCampaign
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class InfluencerMarketingService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                campaign = InfluencerCampaign(
+                campaign = JackieInfluencerCampaign(
                     user_id=user_id,
                     campaign_name=campaign_name,
                     influencer_id=influencer_id,
@@ -108,7 +108,7 @@ class InfluencerMarketingService:
     async def get_influencer_performance(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(InfluencerCampaign).where(InfluencerCampaign.id == campaign_id)
+                query = select(JackieInfluencerCampaign).where(JackieInfluencerCampaign.id == campaign_id)
                 result = await session.execute(query)
                 campaign = result.scalar_one_or_none()
 
@@ -163,7 +163,7 @@ class InfluencerMarketingService:
         return [
             {
                 "id": 1,
-                "name": "Tech Influencer",
+                "name": "Tech JackieInfluencer",
                 "followers": 50000,
                 "engagement_rate": 0.08,
                 "platforms": ["instagram", "youtube"],
@@ -183,7 +183,7 @@ class InfluencerMarketingService:
             }
         ]
 
-    async def _calculate_influencer_performance(self, campaign: InfluencerCampaign) -> Dict[str, Any]:
+    async def _calculate_influencer_performance(self, campaign: JackieInfluencerCampaign) -> Dict[str, Any]:
         return {
             "reach": 25000,
             "engagement": 2000,

@@ -1,7 +1,7 @@
 from typing import Dict, Any, Optional
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.database.connection import get_supabase
-from ..models import EngagementEvent
+from ..models import AriaEngagementEvent
 
 
 class EngagementService:
@@ -70,7 +70,7 @@ Guidelines:
             # Save engagement event
             db = await get_supabase()
             async with db.get_session() as session:
-                evt = EngagementEvent(
+                evt = AriaEngagementEvent(
                     user_id=user_id, 
                     platform=platform, 
                     source="auto", 

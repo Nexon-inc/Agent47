@@ -11,7 +11,7 @@ from core.storage.chroma_manager import ChromaManager
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
-from ..models import Lead, Deal, SalesActivity, LeadStatus, SalesStage, SalesForecast
+from ..models import EricLead, EricDeal, EricSalesActivity, LeadStatus, SalesStage, EricSalesForecast
 from ..database import get_eric_database
 
 logger = logging.getLogger(__name__)
@@ -75,20 +75,20 @@ class SalesForecastingService:
                 days_ahead = 30
             
             # Get historical data
-            historical_deals = db.query(Deal).filter(
+            historical_deals = db.query(EricDeal).filter(
                 and_(
-                    Deal.brand_id == brand_id,
-                    Deal.created_at >= start_date,
-                    Deal.created_at <= end_date
+                    EricDeal.brand_id == brand_id,
+                    EricDeal.created_at >= start_date,
+                    EricDeal.created_at <= end_date
                 )
             ).all()
             
             # Get historical leads
-            historical_leads = db.query(Lead).filter(
+            historical_leads = db.query(EricLead).filter(
                 and_(
-                    Lead.brand_id == brand_id,
-                    Lead.created_at >= start_date,
-                    Lead.created_at <= end_date
+                    EricLead.brand_id == brand_id,
+                    EricLead.created_at >= start_date,
+                    EricLead.created_at <= end_date
                 )
             ).all()
             
@@ -121,7 +121,7 @@ class SalesForecastingService:
             )
             
             # Store forecast in database
-            forecast = SalesForecast(
+            forecast = EricSalesForecast(
                 brand_id=brand_id,
                 forecast_type=forecast_type,
                 forecast_period=forecast_period,
@@ -178,17 +178,17 @@ class SalesForecastingService:
             
             # Get revenue data by month
             monthly_revenue = db.query(
-                func.date_trunc('month', Deal.created_at).label('month'),
-                func.sum(Deal.deal_value).label('revenue')
+                func.date_trunc('month', EricDeal.created_at).label('month'),
+                func.sum(EricDeal.deal_value).label('revenue')
             ).filter(
                 and_(
-                    Deal.brand_id == brand_id,
-                    Deal.created_at >= start_date,
-                    Deal.created_at <= end_date,
-                    Deal.sales_stage == SalesStage.CLOSED,
-                    Deal.win_reason.isnot(None)
+                    EricDeal.brand_id == brand_id,
+                    EricDeal.created_at >= start_date,
+                    EricDeal.created_at <= end_date,
+                    EricDeal.sales_stage == SalesStage.CLOSED,
+                    EricDeal.win_reason.isnot(None)
                 )
-            ).group_by(func.date_trunc('month', Deal.created_at)).all()
+            ).group_by(func.date_trunc('month', EricDeal.created_at)).all()
             
             # Analyze trends
             revenue_trends = []
@@ -237,9 +237,9 @@ class SalesForecastingService:
             db = next(get_db())
             
             # Get current pipeline deals
-            query = db.query(Deal).filter(Deal.brand_id == brand_id)
+            query = db.query(EricDeal).filter(EricDeal.brand_id == brand_id)
             if pipeline_id:
-                query = query.filter(Deal.pipeline_id == pipeline_id)
+                query = query.filter(EricDeal.pipeline_id == pipeline_id)
             
             pipeline_deals = query.all()
             
@@ -297,9 +297,9 @@ class SalesForecastingService:
             db = next(get_db())
             
             # Get recent forecasts
-            forecasts = db.query(SalesForecast).filter(
-                SalesForecast.brand_id == brand_id
-            ).order_by(desc(SalesForecast.created_at)).limit(limit).all()
+            forecasts = db.query(EricSalesForecast).filter(
+                EricSalesForecast.brand_id == brand_id
+            ).order_by(desc(EricSalesForecast.created_at)).limit(limit).all()
             
             forecast_history = []
             for forecast in forecasts:
@@ -327,8 +327,8 @@ class SalesForecastingService:
     
     async def _generate_ai_forecast(
         self,
-        historical_deals: List[Deal],
-        historical_leads: List[Lead],
+        historical_deals: List[EricDeal],
+        historical_leads: List[EricLead],
         conversion_rates: Dict[str, float],
         revenue_metrics: Dict[str, float],
         forecast_period: str,
@@ -353,10 +353,10 @@ class SalesForecastingService:
             Historical Data:
             - Deals: {len(historical_deals)}
             - Leads: {len(historical_leads)}
-            - Lead to Qualified Rate: {conversion_rates['lead_to_qualified']}%
-            - Qualified to Deal Rate: {conversion_rates['qualified_to_deal']}%
+            - EricLead to Qualified Rate: {conversion_rates['lead_to_qualified']}%
+            - Qualified to EricDeal Rate: {conversion_rates['qualified_to_deal']}%
             - Total Revenue: ${revenue_metrics['total_revenue']:,.2f}
-            - Average Deal Value: ${revenue_metrics['avg_deal_value']:,.2f}
+            - Average EricDeal Value: ${revenue_metrics['avg_deal_value']:,.2f}
             
             Forecast Period: {forecast_period} ({days_ahead} days)
             

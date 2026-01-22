@@ -16,7 +16,7 @@ class InfluencerTrackingService:
         
     def track_influencer_performance(self, influencer_id: str, campaign_id: str, performance_data: Dict[str, Any]) -> Dict[str, Any]:
         tracking_id = str(uuid.uuid4())
-        tracking_result = self.nlp_processor.track_influencer_performance(f"Influencer ID: {influencer_id}")
+        tracking_result = self.nlp_processor.track_influencer_performance(f"JackieInfluencer ID: {influencer_id}")
         
         tracking = InfluencerPerformance(
             id=tracking_id, influencer_id=influencer_id, campaign_id=campaign_id,

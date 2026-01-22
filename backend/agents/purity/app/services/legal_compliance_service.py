@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime, timedelta
 
-from ..models import BusinessIdea, LegalRequirement, BusinessModel
+from ..models import PurityBusinessIdea, PurityLegalRequirement, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -27,10 +27,10 @@ class LegalComplianceService:
         has_international_operations: bool,
         handles_personal_data: bool,
         sells_products_online: bool
-    ) -> LegalRequirement:
+    ) -> PurityLegalRequirement:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -59,7 +59,7 @@ class LegalComplianceService:
             ai_response = ai_response_obj.text_content if ai_response_obj.success else "{}"
             legal_data = json.loads(ai_response)
             
-            legal_requirement = LegalRequirement(
+            legal_requirement = PurityLegalRequirement(
                 business_idea_id=business_idea_id,
                 business_location=business_location,
                 business_type=business_type,
@@ -103,7 +103,7 @@ class LegalComplianceService:
     ) -> Dict[str, Any]:
         try:
             legal_req_result = await db.execute(
-                select(LegalRequirement).where(LegalRequirement.id == legal_requirement_id)
+                select(PurityLegalRequirement).where(PurityLegalRequirement.id == legal_requirement_id)
             )
             legal_requirement = legal_req_result.scalar_one_or_none()
             if not legal_requirement:
@@ -154,7 +154,7 @@ class LegalComplianceService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -209,10 +209,10 @@ class LegalComplianceService:
         has_international_operations: bool,
         handles_personal_data: bool,
         sells_products_online: bool
-    ) -> LegalRequirement:
+    ) -> PurityLegalRequirement:
         try:
             result = await db.execute(
-                select(LegalRequirement).where(LegalRequirement.id == requirement_id)
+                select(PurityLegalRequirement).where(PurityLegalRequirement.id == requirement_id)
             )
             legal_requirement = result.scalar_one_or_none()
             if not legal_requirement:

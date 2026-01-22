@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, BusinessModel
+from ..models import PurityBusinessIdea, PurityBusinessModel
 from ..services.business_idea_generator_service import BusinessIdeaGeneratorService
 
 router = APIRouter(prefix="/business-ideas", tags=["Business Idea Generator"])

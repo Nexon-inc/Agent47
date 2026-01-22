@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from core.database.connection import get_supabase
 from core.database.models import UserSelectedAgent
-from ..models import ScheduledPost, PostStatus
+from ..models import AriaScheduledPost, AriaPostStatus
 from .scheduling_service import SchedulingService
 from .content_service import ContentService
 

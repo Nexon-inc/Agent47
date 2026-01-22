@@ -7,12 +7,12 @@ from .main import app
 from .lifespan import create_app
 from .database import get_purity_database, init_purity_database
 from .models import (
-    BusinessIdea, BusinessModel, PurityMarketResearch, CustomerAvatar,
-    FinancialForecast, LegalRequirement, BrandIdentity, LaunchStrategy,
-    InvestmentPitch, ExitStrategy, BusinessHealth, PurityCompetitorAnalysis,
-    NicheOpportunity, MonetizationStrategy, PartnershipOpportunity,
-    FranchiseOpportunity, SustainabilityPlan, TaskAutomation,
-    BusinessMentor, CrowdfundingCampaign, EcommerceSetup
+    PurityBusinessIdea, PurityBusinessModel, PurityMarketResearch, PurityCustomerAvatar,
+    PurityFinancialForecast, PurityLegalRequirement, PurityBrandIdentity, PurityLaunchStrategy,
+    PurityInvestmentPitch, PurityExitStrategy, PurityBusinessHealth, PurityCompetitorAnalysis,
+    PurityNicheOpportunity, PurityMonetizationStrategy, PurityPartnershipOpportunity,
+    PurityFranchiseOpportunity, PuritySustainabilityPlan, PurityTaskAutomation,
+    PurityBusinessMentor, PurityCrowdfundingCampaign, PurityEcommerceSetup
 )
 
 __all__ = [
@@ -20,25 +20,25 @@ __all__ = [
     "create_app",
     "get_purity_database",
     "init_purity_database",
-    "BusinessIdea",
-    "BusinessModel", 
+    "PurityBusinessIdea",
+    "PurityBusinessModel", 
     "PurityMarketResearch",
-    "CustomerAvatar",
-    "FinancialForecast",
-    "LegalRequirement",
-    "BrandIdentity",
-    "LaunchStrategy",
-    "InvestmentPitch",
-    "ExitStrategy",
-    "BusinessHealth",
+    "PurityCustomerAvatar",
+    "PurityFinancialForecast",
+    "PurityLegalRequirement",
+    "PurityBrandIdentity",
+    "PurityLaunchStrategy",
+    "PurityInvestmentPitch",
+    "PurityExitStrategy",
+    "PurityBusinessHealth",
     "PurityCompetitorAnalysis",
-    "NicheOpportunity",
-    "MonetizationStrategy",
-    "PartnershipOpportunity",
-    "FranchiseOpportunity",
-    "SustainabilityPlan",
-    "TaskAutomation",
-    "BusinessMentor",
-    "CrowdfundingCampaign",
-    "EcommerceSetup"
+    "PurityNicheOpportunity",
+    "PurityMonetizationStrategy",
+    "PurityPartnershipOpportunity",
+    "PurityFranchiseOpportunity",
+    "PuritySustainabilityPlan",
+    "PurityTaskAutomation",
+    "PurityBusinessMentor",
+    "PurityCrowdfundingCampaign",
+    "PurityEcommerceSetup"
 ]

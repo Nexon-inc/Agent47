@@ -12,8 +12,8 @@ import json
 
 from ..database import get_eric_database
 from ..models import (
-    Lead, Deal, SalesActivity, SalesRep, CustomerProfile, 
-    SalesCampaign, SalesAnalytics, SalesForecast
+    EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile, 
+    EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
 )
 # NLPUtils removed - not used
 from core.integrations.integration_manager import IntegrationManager
@@ -90,9 +90,9 @@ class CrossChannelLeadTrackingService:
             db = next(get_db())
             
             # Get or create lead
-            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
             if not lead:
-                raise ValueError(f"Lead with ID {lead_id} not found")
+                raise ValueError(f"EricLead with ID {lead_id} not found")
             
             # Extract channel information
             channel_type = channel_data.get("channel_type")
@@ -139,9 +139,9 @@ class CrossChannelLeadTrackingService:
             db = next(get_db())
             
             # Get lead
-            lead = db.query(Lead).filter(Lead.id == lead_id).first()
+            lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
             if not lead:
-                raise ValueError(f"Lead with ID {lead_id} not found")
+                raise ValueError(f"EricLead with ID {lead_id} not found")
             
             # Get tracking records for the period
             start_date = datetime.utcnow() - timedelta(days=period_days)
@@ -181,9 +181,9 @@ class CrossChannelLeadTrackingService:
             
             # Get team or all leads
             if team_id:
-                leads = db.query(Lead).join(SalesRep).filter(SalesRep.team_id == team_id).all()
+                leads = db.query(EricLead).join(EricSalesRep).filter(EricSalesRep.team_id == team_id).all()
             else:
-                leads = db.query(Lead).all()
+                leads = db.query(EricLead).all()
             
             lead_ids = [lead.id for lead in leads]
             

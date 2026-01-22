@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, CrowdfundingCampaign, BusinessModel
+from ..models import PurityBusinessIdea, PurityCrowdfundingCampaign, PurityBusinessModel
 from ..services.crowdfunding_service import CrowdfundingService
 
 router = APIRouter(prefix="/crowdfunding", tags=["Crowdfunding"])

@@ -9,7 +9,7 @@ from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from core.database.models import User
 from ..database import get_db
-from ..models import MarketingCampaign, CampaignContent, AdCampaign, CampaignStatus, CampaignType, PlatformType
+from ..models import JackieMarketingCampaign, JackieCampaignContent, JackieAdCampaign, CampaignStatus, CampaignType, PlatformType
 from ..services.campaign_service import CampaignService
 from ..services.analytics_service import AnalyticsService
 from ..services.content_service import ContentService

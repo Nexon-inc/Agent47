@@ -7,7 +7,7 @@ import json
 
 from ..database import get_db
 from ..services.proactive_notifications_service import ProactiveNotificationsService
-from ..models import ProactiveNotification, NotificationRule, NotificationTemplate, CustomerProfile
+from ..models import ClaraProactiveNotification, ClaraNotificationRule, ClaraNotificationTemplate, CustomerProfile
 from ..core.integration_manager import IntegrationManager
 from ..core.event_bus import EventBus
 

@@ -94,7 +94,7 @@ def create_app() -> FastAPI:
     """Create FastAPI app with lifespan"""
     app = FastAPI(
         title="Eric - Sales Agent",
-        description="AI-Powered Sales Automation and Lead Management",
+        description="AI-Powered Sales Automation and EricLead Management",
         version="1.0.0",
         lifespan=lifespan
     )

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import json
 import math
 
-from ..models import ABTest
+from ..models import JackieABTest
 from core.utils.nlp_utils import NLPUtils
 
 class ABTestingService:
@@ -17,7 +17,7 @@ class ABTestingService:
         start_date = datetime.utcnow()
         end_date = start_date + timedelta(days=duration_days)
         
-        test = ABTest(
+        test = JackieABTest(
             name=name,
             description=description,
             test_type=test_type,
@@ -49,7 +49,7 @@ class ABTestingService:
         }
 
     def get_test(self, test_id: int) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -68,14 +68,14 @@ class ABTestingService:
         }
 
     def list_tests(self, status: Optional[str] = None, test_type: Optional[str] = None, limit: int = 50, offset: int = 0) -> List[Dict[str, Any]]:
-        query = self.db.query(ABTest)
+        query = self.db.query(JackieABTest)
         
         if status:
-            query = query.filter(ABTest.status == status)
+            query = query.filter(JackieABTest.status == status)
         if test_type:
-            query = query.filter(ABTest.test_type == test_type)
+            query = query.filter(JackieABTest.test_type == test_type)
         
-        tests = query.order_by(desc(ABTest.created_at)).offset(offset).limit(limit).all()
+        tests = query.order_by(desc(JackieABTest.created_at)).offset(offset).limit(limit).all()
         
         return [
             {
@@ -95,7 +95,7 @@ class ABTestingService:
         ]
 
     def update_test(self, test_id: int, name: Optional[str] = None, description: Optional[str] = None, status: Optional[str] = None, traffic_split: Optional[Dict[str, float]] = None) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -126,7 +126,7 @@ class ABTestingService:
         }
 
     def delete_test(self, test_id: int) -> bool:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return False
         
@@ -135,7 +135,7 @@ class ABTestingService:
         return True
 
     def start_test(self, test_id: int) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -151,7 +151,7 @@ class ABTestingService:
         }
 
     def stop_test(self, test_id: int) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -167,7 +167,7 @@ class ABTestingService:
         }
 
     def add_variant(self, test_id: int, variant_name: str, variant_data: Dict[str, Any], traffic_percentage: float) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -192,7 +192,7 @@ class ABTestingService:
         return new_variant
 
     def remove_variant(self, test_id: int, variant_name: str) -> bool:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return False
         
@@ -210,7 +210,7 @@ class ABTestingService:
         return True
 
     def get_test_results(self, test_id: int) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -240,7 +240,7 @@ class ABTestingService:
         return results
 
     def track_conversion(self, test_id: int, variant_name: str, conversion_type: str, user_id: Optional[str] = None) -> bool:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return False
         
@@ -253,7 +253,7 @@ class ABTestingService:
         return True
 
     def determine_winner(self, test_id: int, confidence_level: float = 0.95) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -277,7 +277,7 @@ class ABTestingService:
         if not winner_result:
             return None
         
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -292,7 +292,7 @@ class ABTestingService:
         }
 
     def check_statistical_significance(self, test_id: int, confidence_level: float = 0.95) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         
@@ -312,7 +312,7 @@ class ABTestingService:
         }
 
     def calculate_sample_size(self, test_id: int, baseline_conversion_rate: float, minimum_detectable_effect: float, confidence_level: float = 0.95, power: float = 0.8) -> Optional[Dict[str, Any]]:
-        test = self.db.query(ABTest).filter(ABTest.id == test_id).first()
+        test = self.db.query(JackieABTest).filter(JackieABTest.id == test_id).first()
         if not test:
             return None
         

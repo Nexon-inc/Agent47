@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, BusinessModel, CustomerAvatar
+from ..models import PurityBusinessIdea, PurityBusinessModel, PurityCustomerAvatar
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class SalesFunnelService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -92,7 +92,7 @@ class SalesFunnelService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -151,7 +151,7 @@ class SalesFunnelService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -207,7 +207,7 @@ class SalesFunnelService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -255,7 +255,7 @@ class SalesFunnelService:
     
     def _create_sales_funnel_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_audience: str,
         funnel_type: str,
         conversion_goals: List[str],
@@ -330,7 +330,7 @@ class SalesFunnelService:
     
     def _create_lead_nurturing_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         lead_stage: str,
         sequence_length: int,
         nurture_goals: List[str],
@@ -391,7 +391,7 @@ class SalesFunnelService:
     
     def _create_conversion_optimization_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         current_conversion_rate: float,
         funnel_stages: List[str],
         optimization_goals: List[str]
@@ -445,7 +445,7 @@ class SalesFunnelService:
     
     def _create_funnel_analytics_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         funnel_metrics: Dict[str, Any],
         tracking_period: str
     ) -> str:

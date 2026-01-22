@@ -13,8 +13,8 @@ from core.platforms.platform_manager import PlatformManager
 from core.ai import get_ai_service_manager
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep, SalesAnalytics
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep, EricSalesAnalytics
 )
 
 logger = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ class ObjectionHandlingService:
             await self.integration_manager.initialize()
             await self.platform_manager.initialize()
             self._initialized = True
-            logger.info("Objection handling service initialized successfully")
+            logger.info("EricObjection handling service initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize objection handling service: {e}")
             raise
@@ -95,7 +95,7 @@ class ObjectionHandlingService:
         # Pre-defined objection types and responses
         self.objection_types = {
             "price": {
-                "name": "Price Objection",
+                "name": "Price EricObjection",
                 "category": "financial",
                 "description": "Customer thinks the price is too high",
                 "common_phrases": [
@@ -110,7 +110,7 @@ class ObjectionHandlingService:
                 "success_rate": 0.75
             },
             "timing": {
-                "name": "Timing Objection",
+                "name": "Timing EricObjection",
                 "category": "decision",
                 "description": "Customer wants to delay the decision",
                 "common_phrases": [
@@ -125,7 +125,7 @@ class ObjectionHandlingService:
                 "success_rate": 0.65
             },
             "authority": {
-                "name": "Authority Objection",
+                "name": "Authority EricObjection",
                 "category": "decision",
                 "description": "Customer doesn't have decision-making authority",
                 "common_phrases": [
@@ -140,7 +140,7 @@ class ObjectionHandlingService:
                 "success_rate": 0.70
             },
             "need": {
-                "name": "Need Objection",
+                "name": "Need EricObjection",
                 "category": "value",
                 "description": "Customer doesn't see the need for the solution",
                 "common_phrases": [
@@ -155,7 +155,7 @@ class ObjectionHandlingService:
                 "success_rate": 0.60
             },
             "competition": {
-                "name": "Competition Objection",
+                "name": "Competition EricObjection",
                 "category": "comparison",
                 "description": "Customer is considering competitors",
                 "common_phrases": [
@@ -170,7 +170,7 @@ class ObjectionHandlingService:
                 "success_rate": 0.55
             },
             "trust": {
-                "name": "Trust Objection",
+                "name": "Trust EricObjection",
                 "category": "relationship",
                 "description": "Customer doesn't trust the company or solution",
                 "common_phrases": [
@@ -442,7 +442,7 @@ class ObjectionHandlingService:
             # Get session
             cached_session = await self.redis_manager.get_cache(f"objection_session_{session_id}")
             if not cached_session:
-                raise ValueError("Objection handling session not found")
+                raise ValueError("EricObjection handling session not found")
             
             session = ObjectionHandlingSession(**cached_session)
             
@@ -488,7 +488,7 @@ class ObjectionHandlingService:
             # Get session
             cached_session = await self.redis_manager.get_cache(f"objection_session_{session_id}")
             if not cached_session:
-                raise ValueError("Objection handling session not found")
+                raise ValueError("EricObjection handling session not found")
             
             session = ObjectionHandlingSession(**cached_session)
             
@@ -590,18 +590,18 @@ class ObjectionHandlingService:
                     start_date = end_date - timedelta(days=30)
                 
                 # Query objection handling activities
-                query = select(SalesActivity).where(
+                query = select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.activity_type == "objection_handling",
-                        SalesActivity.created_at >= start_date,
-                        SalesActivity.created_at <= end_date
+                        EricSalesActivity.activity_type == "objection_handling",
+                        EricSalesActivity.created_at >= start_date,
+                        EricSalesActivity.created_at <= end_date
                     )
                 )
                 
                 if lead_id:
-                    query = query.where(SalesActivity.lead_id == lead_id)
+                    query = query.where(EricSalesActivity.lead_id == lead_id)
                 if sales_rep_id:
-                    query = query.where(SalesActivity.sales_rep_id == sales_rep_id)
+                    query = query.where(EricSalesActivity.sales_rep_id == sales_rep_id)
                 
                 activities = await session.execute(query)
                 activities = activities.scalars().all()

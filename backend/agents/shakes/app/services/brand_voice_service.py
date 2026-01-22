@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, BrandVoice
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesBrandVoice
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +133,7 @@ class BrandVoiceService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -201,7 +201,7 @@ class BrandVoiceService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -391,7 +391,7 @@ class BrandVoiceService:
         """
     
     def _create_consistency_analysis_prompt(
-        self, content: str, content_type: str, brand_voice: BrandVoice
+        self, content: str, content_type: str, brand_voice: ShakesBrandVoice
     ) -> str:
         """Create prompt for consistency analysis"""
         return f"""

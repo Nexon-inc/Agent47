@@ -10,7 +10,7 @@ from ..services.objection_prediction_service import (
 from ..database import get_db
 from core.authentication.auth import get_current_user
 
-router = APIRouter(prefix="/objection-prediction", tags=["Objection Prediction"])
+router = APIRouter(prefix="/objection-prediction", tags=["EricObjection Prediction"])
 
 # Initialize service
 objection_service = ObjectionPredictionService()
@@ -169,7 +169,7 @@ async def get_team_prediction_performance(
     """Get team-wide objection prediction performance"""
     try:
         # Get all sales reps in the team
-        sales_reps = db.query(SalesRep).filter(SalesRep.team_id == team_id).all()
+        sales_reps = db.query(EricSalesRep).filter(EricSalesRep.team_id == team_id).all()
         
         if not sales_reps:
             raise HTTPException(status_code=404, detail="Team not found")
@@ -227,9 +227,9 @@ async def get_lead_objection_insights(
     """Get detailed objection insights for a specific lead"""
     try:
         # Get lead information
-        lead = db.query(Lead).filter(Lead.id == lead_id).first()
+        lead = db.query(EricLead).filter(EricLead.id == lead_id).first()
         if not lead:
-            raise HTTPException(status_code=404, detail="Lead not found")
+            raise HTTPException(status_code=404, detail="EricLead not found")
         
         # Get customer profile
         customer = db.query(CustomerProfile).filter(

@@ -5,9 +5,9 @@ from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 
 from ..models import (
-    SocialAccount, AccountGroup, BrandProfile, Campaign, 
-    ScheduledPost, PublishedPost, EngagementEvent, AnalyticsSnapshot,
-    PlatformEnum, PostStatus, ApprovalStatus
+    AriaSocialAccount, AriaAccountGroup, AriaBrandProfile, AriaCampaign, 
+    AriaScheduledPost, AriaPublishedPost, AriaEngagementEvent, AriaAnalyticsSnapshot,
+    PlatformEnum, AriaPostStatus, ApprovalStatus
 )
 from ..database import get_db
 from core.ai import get_ai_service_manager, AIServiceManager
@@ -46,9 +46,9 @@ class AccountAnalysisService:
                 db = await get_db().__anext__()
             
             # Get all accounts for the user/brand
-            accounts_query = select(SocialAccount).where(SocialAccount.user_id == user_id)
+            accounts_query = select(AriaSocialAccount).where(AriaSocialAccount.user_id == user_id)
             if brand_id:
-                accounts_query = accounts_query.where(SocialAccount.brand_id == brand_id)
+                accounts_query = accounts_query.where(AriaSocialAccount.brand_id == brand_id)
             
             accounts_result = await db.execute(accounts_query)
             accounts = accounts_result.scalars().all()
@@ -111,7 +111,7 @@ class AccountAnalysisService:
     
     async def _analyze_single_account(
         self,
-        account: SocialAccount,
+        account: AriaSocialAccount,
         db: AsyncSession
     ) -> Dict[str, Any]:
         """Analyze a single social media account"""
@@ -180,18 +180,18 @@ class AccountAnalysisService:
             # Get post statistics
             posts_query = select(
                 func.count().label("total_posts"),
-                func.max(PublishedPost.published_at).label("last_post_date"),
-                func.avg(PublishedPost.engagement_rate).label("avg_engagement_rate")
-            ).where(PublishedPost.account_id == account_id)
+                func.max(AriaPublishedPost.published_at).label("last_post_date"),
+                func.avg(AriaPublishedPost.engagement_rate).label("avg_engagement_rate")
+            ).where(AriaPublishedPost.account_id == account_id)
             
             posts_result = await db.execute(posts_query)
             posts_stats = posts_result.fetchone()
             
             # Get engagement statistics
             engagement_query = select(
-                func.sum(EngagementEvent.engagement_value).label("total_engagement"),
+                func.sum(AriaEngagementEvent.engagement_value).label("total_engagement"),
                 func.count().label("total_events")
-            ).where(EngagementEvent.account_id == account_id)
+            ).where(AriaEngagementEvent.account_id == account_id)
             
             engagement_result = await db.execute(engagement_query)
             engagement_stats = engagement_result.fetchone()
@@ -199,8 +199,8 @@ class AccountAnalysisService:
             # Get scheduled posts
             scheduled_query = select(func.count()).where(
                 and_(
-                    ScheduledPost.account_id == account_id,
-                    ScheduledPost.status == PostStatus.PENDING
+                    AriaScheduledPost.account_id == account_id,
+                    AriaScheduledPost.status == AriaPostStatus.PENDING
                 )
             )
             scheduled_result = await db.execute(scheduled_query)
@@ -240,9 +240,9 @@ class AccountAnalysisService:
         """Analyze content performance for an account"""
         try:
             # Get recent posts for analysis
-            posts_query = select(PublishedPost).where(
-                PublishedPost.account_id == account_id
-            ).order_by(PublishedPost.published_at.desc()).limit(50)
+            posts_query = select(AriaPublishedPost).where(
+                AriaPublishedPost.account_id == account_id
+            ).order_by(AriaPublishedPost.published_at.desc()).limit(50)
             
             posts_result = await db.execute(posts_query)
             posts = posts_result.scalars().all()
@@ -329,9 +329,9 @@ class AccountAnalysisService:
         """Analyze engagement patterns for an account"""
         try:
             # Get engagement events
-            events_query = select(EngagementEvent).where(
-                EngagementEvent.account_id == account_id
-            ).order_by(EngagementEvent.timestamp.desc()).limit(100)
+            events_query = select(AriaEngagementEvent).where(
+                AriaEngagementEvent.account_id == account_id
+            ).order_by(AriaEngagementEvent.timestamp.desc()).limit(100)
             
             events_result = await db.execute(events_query)
             events = events_result.scalars().all()
@@ -519,7 +519,7 @@ class AccountAnalysisService:
         
         return strengths, weaknesses
     
-    async def _generate_platform_insights(self, account: SocialAccount) -> Dict[str, Any]:
+    async def _generate_platform_insights(self, account: AriaSocialAccount) -> Dict[str, Any]:
         """Generate platform-specific insights and recommendations"""
         platform = account.platform.value
         
@@ -647,7 +647,7 @@ class AccountAnalysisService:
     
     async def _analyze_brand_performance(
         self,
-        accounts: List[SocialAccount],
+        accounts: List[AriaSocialAccount],
         account_analyses: List[Dict[str, Any]],
         total_engagement: int,
         total_posts: int,
@@ -733,7 +733,7 @@ class AccountAnalysisService:
     
     def _assess_growth_potential(
         self,
-        accounts: List[SocialAccount],
+        accounts: List[AriaSocialAccount],
         total_followers: int,
         total_engagement: int
     ) -> str:

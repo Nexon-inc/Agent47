@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, PartnershipOpportunity, BusinessModel
+from ..models import PurityBusinessIdea, PurityPartnershipOpportunity, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class PartnershipMatchmakerService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -90,7 +90,7 @@ class PartnershipMatchmakerService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -141,7 +141,7 @@ class PartnershipMatchmakerService:
     
     def _create_partnership_search_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         partnership_type: str,
         required_skills: List[str],
         investment_capacity: float,
@@ -202,7 +202,7 @@ class PartnershipMatchmakerService:
     
     def _create_compatibility_analysis_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         potential_partner: Dict[str, Any],
         partnership_goals: List[str],
         working_style_preferences: Dict[str, Any]

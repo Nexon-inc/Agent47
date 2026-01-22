@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from ..database import get_joe_database
 from ..services.multi_language_service import MultiLanguageService
 
-router = APIRouter(prefix="/multi-language", tags=["Multi-Language Research"])
+router = APIRouter(prefix="/multi-language", tags=["Multi-JoeLanguage Research"])
 
 class TranslationRequest(BaseModel):
     query: str = Field(..., description="Query to translate")
@@ -15,7 +15,7 @@ class TranslationRequest(BaseModel):
 
 class LocalizedInsightsRequest(BaseModel):
     market_region: str = Field(..., description="Market region to analyze")
-    language: str = Field(..., description="Language for analysis")
+    language: str = Field(..., description="JoeLanguage for analysis")
 
 # Dependency
 async def get_multi_language_service() -> MultiLanguageService:

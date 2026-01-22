@@ -9,8 +9,8 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    ProactiveNotification, NotificationRule, NotificationTemplate,
-    CustomerProfile, SupportTicket, CustomerInteraction, SupportAgent
+    ClaraProactiveNotification, ClaraNotificationRule, ClaraNotificationTemplate,
+    CustomerProfile, ClaraSupportTicket, ClaraCustomerInteraction, ClaraSupportAgent
 )
 from ..schemas.proactive_notifications import (
     CreateNotificationRuleRequest, UpdateNotificationRuleRequest,
@@ -60,7 +60,7 @@ class ProactiveNotificationsService:
                 raise HTTPException(status_code=400, detail="Invalid rule conditions")
             
             # Create notification rule
-            rule = NotificationRule(
+            rule = ClaraNotificationRule(
                 name=request.name,
                 description=request.description,
                 conditions=request.conditions,
@@ -105,7 +105,7 @@ class ProactiveNotificationsService:
         rule_id: int
     ) -> NotificationRuleResponse:
         """Get a notification rule by ID"""
-        rule = db.query(NotificationRule).filter(NotificationRule.id == rule_id).first()
+        rule = db.query(ClaraNotificationRule).filter(ClaraNotificationRule.id == rule_id).first()
         if not rule:
             raise HTTPException(status_code=404, detail="Notification rule not found")
         
@@ -130,10 +130,10 @@ class ProactiveNotificationsService:
         is_active: Optional[bool] = None
     ) -> List[NotificationRuleResponse]:
         """List notification rules with optional filtering"""
-        query = db.query(NotificationRule)
+        query = db.query(ClaraNotificationRule)
         
         if is_active is not None:
-            query = query.filter(NotificationRule.is_active == is_active)
+            query = query.filter(ClaraNotificationRule.is_active == is_active)
         
         rules = query.offset(skip).limit(limit).all()
         
@@ -159,7 +159,7 @@ class ProactiveNotificationsService:
         request: UpdateNotificationRuleRequest
     ) -> NotificationRuleResponse:
         """Update a notification rule"""
-        rule = db.query(NotificationRule).filter(NotificationRule.id == rule_id).first()
+        rule = db.query(ClaraNotificationRule).filter(ClaraNotificationRule.id == rule_id).first()
         if not rule:
             raise HTTPException(status_code=404, detail="Notification rule not found")
         
@@ -216,7 +216,7 @@ class ProactiveNotificationsService:
         rule_id: int
     ) -> Dict[str, str]:
         """Delete a notification rule"""
-        rule = db.query(NotificationRule).filter(NotificationRule.id == rule_id).first()
+        rule = db.query(ClaraNotificationRule).filter(ClaraNotificationRule.id == rule_id).first()
         if not rule:
             raise HTTPException(status_code=404, detail="Notification rule not found")
         
@@ -243,7 +243,7 @@ class ProactiveNotificationsService:
     ) -> NotificationTemplateResponse:
         """Create a new notification template"""
         try:
-            template = NotificationTemplate(
+            template = ClaraNotificationTemplate(
                 name=request.name,
                 description=request.description,
                 content=request.content,
@@ -280,7 +280,7 @@ class ProactiveNotificationsService:
         template_id: int
     ) -> NotificationTemplateResponse:
         """Get a notification template by ID"""
-        template = db.query(NotificationTemplate).filter(NotificationTemplate.id == template_id).first()
+        template = db.query(ClaraNotificationTemplate).filter(ClaraNotificationTemplate.id == template_id).first()
         if not template:
             raise HTTPException(status_code=404, detail="Notification template not found")
         
@@ -305,12 +305,12 @@ class ProactiveNotificationsService:
         is_active: Optional[bool] = None
     ) -> List[NotificationTemplateResponse]:
         """List notification templates with optional filtering"""
-        query = db.query(NotificationTemplate)
+        query = db.query(ClaraNotificationTemplate)
         
         if channel:
-            query = query.filter(NotificationTemplate.channel == channel)
+            query = query.filter(ClaraNotificationTemplate.channel == channel)
         if is_active is not None:
-            query = query.filter(NotificationTemplate.is_active == is_active)
+            query = query.filter(ClaraNotificationTemplate.is_active == is_active)
         
         templates = query.offset(skip).limit(limit).all()
         
@@ -335,7 +335,7 @@ class ProactiveNotificationsService:
         request: UpdateNotificationTemplateRequest
     ) -> NotificationTemplateResponse:
         """Update a notification template"""
-        template = db.query(NotificationTemplate).filter(NotificationTemplate.id == template_id).first()
+        template = db.query(ClaraNotificationTemplate).filter(ClaraNotificationTemplate.id == template_id).first()
         if not template:
             raise HTTPException(status_code=404, detail="Notification template not found")
         
@@ -380,7 +380,7 @@ class ProactiveNotificationsService:
         template_id: int
     ) -> Dict[str, str]:
         """Delete a notification template"""
-        template = db.query(NotificationTemplate).filter(NotificationTemplate.id == template_id).first()
+        template = db.query(ClaraNotificationTemplate).filter(ClaraNotificationTemplate.id == template_id).first()
         if not template:
             raise HTTPException(status_code=404, detail="Notification template not found")
         
@@ -403,8 +403,8 @@ class ProactiveNotificationsService:
             # Get template if specified
             template = None
             if request.template_id:
-                template = db.query(NotificationTemplate).filter(
-                    NotificationTemplate.id == request.template_id
+                template = db.query(ClaraNotificationTemplate).filter(
+                    ClaraNotificationTemplate.id == request.template_id
                 ).first()
                 if not template:
                     raise HTTPException(status_code=404, detail="Notification template not found")
@@ -415,7 +415,7 @@ class ProactiveNotificationsService:
                 content = self._render_template(template.content, request.variables or {})
             
             # Create notification record
-            notification = ProactiveNotification(
+            notification = ClaraProactiveNotification(
                 customer_id=request.customer_id,
                 channel=request.channel,
                 content=content,
@@ -465,14 +465,14 @@ class ProactiveNotificationsService:
                 raise HTTPException(status_code=404, detail="Customer not found")
             
             # Analyze customer behavior patterns
-            recent_tickets = db.query(SupportTicket).filter(
-                SupportTicket.customer_id == customer_id,
-                SupportTicket.created_at >= datetime.utcnow() - timedelta(days=30)
+            recent_tickets = db.query(ClaraSupportTicket).filter(
+                ClaraSupportTicket.customer_id == customer_id,
+                ClaraSupportTicket.created_at >= datetime.utcnow() - timedelta(days=30)
             ).all()
             
-            recent_interactions = db.query(CustomerInteraction).filter(
-                CustomerInteraction.customer_id == customer_id,
-                CustomerInteraction.created_at >= datetime.utcnow() - timedelta(days=7)
+            recent_interactions = db.query(ClaraCustomerInteraction).filter(
+                ClaraCustomerInteraction.customer_id == customer_id,
+                ClaraCustomerInteraction.created_at >= datetime.utcnow() - timedelta(days=7)
             ).all()
             
             # Detect potential issues
@@ -549,8 +549,8 @@ class ProactiveNotificationsService:
             target_customers = query.all()
             
             # Get campaign template
-            template = db.query(NotificationTemplate).filter(
-                NotificationTemplate.name == f"{campaign_type}_campaign"
+            template = db.query(ClaraNotificationTemplate).filter(
+                ClaraNotificationTemplate.name == f"{campaign_type}_campaign"
             ).first()
             
             if not template:
@@ -571,7 +571,7 @@ class ProactiveNotificationsService:
                     }
                     
                     # Create notification
-                    notification = ProactiveNotification(
+                    notification = ClaraProactiveNotification(
                         customer_id=customer.id,
                         channel=template.channel,
                         content=template.content,
@@ -628,10 +628,10 @@ class ProactiveNotificationsService:
                 cutoff_date = datetime.utcnow() - timedelta(days=days)
                 # Filter customers with recent purchases
                 # Join with purchase/order table for accurate data
-                query = query.join(CustomerInteraction).filter(
+                query = query.join(ClaraCustomerInteraction).filter(
                     and_(
-                        CustomerInteraction.created_at >= cutoff_date,
-                        CustomerInteraction.interaction_type == "purchase"
+                        ClaraCustomerInteraction.created_at >= cutoff_date,
+                        ClaraCustomerInteraction.interaction_type == "purchase"
                     )
                 )
             
@@ -657,7 +657,7 @@ class ProactiveNotificationsService:
                     content = self._render_template(message_template.get("content", ""), variables)
                     
                     # Create notification
-                    notification = ProactiveNotification(
+                    notification = ClaraProactiveNotification(
                         customer_id=customer.id,
                         channel=message_template.get("channel", "email"),
                         content=content,
@@ -699,10 +699,10 @@ class ProactiveNotificationsService:
         """Get analytics for proactive notifications"""
         try:
             # Get notifications in date range
-            notifications = db.query(ProactiveNotification).filter(
+            notifications = db.query(ClaraProactiveNotification).filter(
                 and_(
-                    ProactiveNotification.created_at >= start_date,
-                    ProactiveNotification.created_at <= end_date
+                    ClaraProactiveNotification.created_at >= start_date,
+                    ClaraProactiveNotification.created_at <= end_date
                 )
             ).all()
             
@@ -773,9 +773,9 @@ class ProactiveNotificationsService:
         """Determine optimal time to send notification to customer"""
         try:
             # Get customer's interaction history
-            interactions = db.query(CustomerInteraction).filter(
-                CustomerInteraction.customer_id == customer_id
-            ).order_by(CustomerInteraction.created_at.desc()).limit(100).all()
+            interactions = db.query(ClaraCustomerInteraction).filter(
+                ClaraCustomerInteraction.customer_id == customer_id
+            ).order_by(ClaraCustomerInteraction.created_at.desc()).limit(100).all()
             
             if not interactions:
                 # Default to business hours if no history
@@ -818,10 +818,10 @@ class ProactiveNotificationsService:
         try:
             # Check database connectivity
             db = next(get_db())
-            rule_count = db.query(NotificationRule).count()
-            template_count = db.query(NotificationTemplate).count()
-            pending_notifications = db.query(ProactiveNotification).filter(
-                ProactiveNotification.status == "pending"
+            rule_count = db.query(ClaraNotificationRule).count()
+            template_count = db.query(ClaraNotificationTemplate).count()
+            pending_notifications = db.query(ClaraProactiveNotification).filter(
+                ClaraProactiveNotification.status == "pending"
             ).count()
             
             # Check integration health
@@ -898,7 +898,7 @@ class ProactiveNotificationsService:
         except Exception:
             return template_content
     
-    async def _send_notification(self, notification: ProactiveNotification, db: Session):
+    async def _send_notification(self, notification: ClaraProactiveNotification, db: Session):
         """Send notification through appropriate channel"""
         try:
             # Update status to sending
@@ -946,7 +946,7 @@ class ProactiveNotificationsService:
             
             raise e
     
-    async def _send_email_notification(self, notification: ProactiveNotification):
+    async def _send_email_notification(self, notification: ClaraProactiveNotification):
         """Send email notification"""
         # Integration with email service (SendGrid, AWS SES, etc.)
         email_data = {
@@ -959,7 +959,7 @@ class ProactiveNotificationsService:
         # Use integration manager to send email
         await self.integration_manager.send_email(email_data)
     
-    async def _send_sms_notification(self, notification: ProactiveNotification):
+    async def _send_sms_notification(self, notification: ClaraProactiveNotification):
         """Send SMS notification"""
         # Integration with SMS service (Twilio, AWS SNS, etc.)
         sms_data = {
@@ -971,7 +971,7 @@ class ProactiveNotificationsService:
         # Use integration manager to send SMS
         await self.integration_manager.send_sms(sms_data)
     
-    async def _send_slack_notification(self, notification: ProactiveNotification):
+    async def _send_slack_notification(self, notification: ClaraProactiveNotification):
         """Send Slack notification"""
         # Integration with Slack API
         slack_data = {
@@ -983,7 +983,7 @@ class ProactiveNotificationsService:
         # Use integration manager to send Slack message
         await self.integration_manager.send_slack_message(slack_data)
     
-    async def _send_push_notification(self, notification: ProactiveNotification):
+    async def _send_push_notification(self, notification: ClaraProactiveNotification):
         """Send push notification"""
         # Integration with push notification service
         push_data = {
@@ -996,7 +996,7 @@ class ProactiveNotificationsService:
         # Use integration manager to send push notification
         await self.integration_manager.send_push_notification(push_data)
     
-    async def _send_webhook_notification(self, notification: ProactiveNotification):
+    async def _send_webhook_notification(self, notification: ClaraProactiveNotification):
         """Send webhook notification"""
         # Send to configured webhook URL
         webhook_data = {
@@ -1010,7 +1010,7 @@ class ProactiveNotificationsService:
         # Use integration manager to send webhook
         await self.integration_manager.send_webhook(webhook_data)
     
-    async def _send_in_app_notification(self, notification: ProactiveNotification):
+    async def _send_in_app_notification(self, notification: ClaraProactiveNotification):
         """Send in-app notification"""
         # Store notification for in-app display
         in_app_data = {

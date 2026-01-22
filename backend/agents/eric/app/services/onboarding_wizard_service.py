@@ -13,8 +13,8 @@ from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep, SalesAnalytics
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep, EricSalesAnalytics
 )
 
 logger = logging.getLogger(__name__)
@@ -184,7 +184,7 @@ class OnboardingWizardService:
                 "step_number": 6,
                 "step_name": "lead_sources",
                 "step_type": "configuration",
-                "title": "Lead Source Configuration",
+                "title": "EricLead Source Configuration",
                 "description": "Configure where Eric should look for and capture leads.",
                 "instructions": [
                     "Select lead sources to monitor",
@@ -198,7 +198,7 @@ class OnboardingWizardService:
                     "lead_sources": {"min_items": 1},
                     "qualification_criteria": {"min_items": 1}
                 },
-                "help_text": "Lead source configuration helps Eric identify and capture qualified prospects from multiple channels.",
+                "help_text": "EricLead source configuration helps Eric identify and capture qualified prospects from multiple channels.",
                 "estimated_time": 4
             },
             {

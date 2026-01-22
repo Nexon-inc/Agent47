@@ -8,8 +8,8 @@ from core.utils.nlp_utils import NLPUtils
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
 from ..models import (
-    CampaignAnalytics, MarketingCampaign, CampaignContent, AdCampaign,
-    EmailCampaign, CustomerSegment, SEOProject
+    JackieCampaignAnalytics, JackieMarketingCampaign, JackieCampaignContent, JackieAdCampaign,
+    JackieEmailCampaign, JackieCustomerSegment, JackieSEOProject
 )
 
 logger = logging.getLogger(__name__)
@@ -80,11 +80,11 @@ class AnalyticsService:
                 start_dt = datetime.fromisoformat(start_date) if start_date else datetime.now() - timedelta(days=30)
                 end_dt = datetime.fromisoformat(end_date) if end_date else datetime.now()
                 
-                query = select(CampaignAnalytics).where(
-                    CampaignAnalytics.campaign_id == campaign_id,
-                    CampaignAnalytics.date >= start_dt,
-                    CampaignAnalytics.date <= end_dt
-                ).order_by(CampaignAnalytics.date)
+                query = select(JackieCampaignAnalytics).where(
+                    JackieCampaignAnalytics.campaign_id == campaign_id,
+                    JackieCampaignAnalytics.date >= start_dt,
+                    JackieCampaignAnalytics.date <= end_dt
+                ).order_by(JackieCampaignAnalytics.date)
                 
                 result = await session.execute(query)
                 analytics = result.scalars().all()
@@ -173,15 +173,15 @@ class AnalyticsService:
                 start_dt = datetime.fromisoformat(start_date) if start_date else datetime.now() - timedelta(days=30)
                 end_dt = datetime.fromisoformat(end_date) if end_date else datetime.now()
                 
-                query = select(CampaignContent).where(
-                    CampaignContent.created_at >= start_dt,
-                    CampaignContent.created_at <= end_dt
+                query = select(JackieCampaignContent).where(
+                    JackieCampaignContent.created_at >= start_dt,
+                    JackieCampaignContent.created_at <= end_dt
                 )
                 
                 if content_type:
-                    query = query.where(CampaignContent.content_type == content_type)
+                    query = query.where(JackieCampaignContent.content_type == content_type)
                 if platform:
-                    query = query.where(CampaignContent.platform == platform)
+                    query = query.where(JackieCampaignContent.platform == platform)
                 
                 result = await session.execute(query)
                 contents = result.scalars().all()
@@ -274,51 +274,51 @@ class AnalyticsService:
             return {"success": False, "error": str(e)}
     
     async def _get_total_campaigns(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> int:
-        query = select(func.count(MarketingCampaign.id)).where(
-            MarketingCampaign.user_id == user_id,
-            MarketingCampaign.created_at >= start_dt,
-            MarketingCampaign.created_at <= end_dt
+        query = select(func.count(JackieMarketingCampaign.id)).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieMarketingCampaign.created_at >= start_dt,
+            JackieMarketingCampaign.created_at <= end_dt
         )
         result = await session.execute(query)
         return result.scalar() or 0
     
     async def _get_total_spend(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> float:
-        query = select(func.sum(CampaignAnalytics.spend)).join(MarketingCampaign).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
+        query = select(func.sum(JackieCampaignAnalytics.spend)).join(JackieMarketingCampaign).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
         )
         result = await session.execute(query)
         return result.scalar() or 0.0
     
     async def _get_total_conversions(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> int:
-        query = select(func.sum(CampaignAnalytics.conversions)).join(MarketingCampaign).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
+        query = select(func.sum(JackieCampaignAnalytics.conversions)).join(JackieMarketingCampaign).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
         )
         result = await session.execute(query)
         return result.scalar() or 0
     
     async def _get_average_roas(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> float:
-        query = select(func.avg(CampaignAnalytics.roas)).join(MarketingCampaign).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
+        query = select(func.avg(JackieCampaignAnalytics.roas)).join(JackieMarketingCampaign).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
         )
         result = await session.execute(query)
         return result.scalar() or 0.0
     
     async def _get_platform_performance(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> List[Dict[str, Any]]:
         query = select(
-            CampaignAnalytics.platform_metrics,
-            func.sum(CampaignAnalytics.spend).label("total_spend"),
-            func.sum(CampaignAnalytics.conversions).label("total_conversions")
-        ).join(MarketingCampaign).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
-        ).group_by(CampaignAnalytics.platform_metrics)
+            JackieCampaignAnalytics.platform_metrics,
+            func.sum(JackieCampaignAnalytics.spend).label("total_spend"),
+            func.sum(JackieCampaignAnalytics.conversions).label("total_conversions")
+        ).join(JackieMarketingCampaign).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
+        ).group_by(JackieCampaignAnalytics.platform_metrics)
         
         result = await session.execute(query)
         platforms = result.all()
@@ -336,14 +336,14 @@ class AnalyticsService:
     
     async def _get_top_campaigns(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> List[Dict[str, Any]]:
         query = select(
-            MarketingCampaign.name,
-            func.sum(CampaignAnalytics.spend).label("total_spend"),
-            func.sum(CampaignAnalytics.conversions).label("total_conversions")
-        ).join(CampaignAnalytics).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
-        ).group_by(MarketingCampaign.name).order_by(func.sum(CampaignAnalytics.conversions).desc()).limit(5)
+            JackieMarketingCampaign.name,
+            func.sum(JackieCampaignAnalytics.spend).label("total_spend"),
+            func.sum(JackieCampaignAnalytics.conversions).label("total_conversions")
+        ).join(JackieCampaignAnalytics).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
+        ).group_by(JackieMarketingCampaign.name).order_by(func.sum(JackieCampaignAnalytics.conversions).desc()).limit(5)
         
         result = await session.execute(query)
         campaigns = result.all()
@@ -401,14 +401,14 @@ class AnalyticsService:
     
     async def _get_roi_by_campaign(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> List[Dict[str, Any]]:
         query = select(
-            MarketingCampaign.name,
-            func.sum(CampaignAnalytics.spend).label("total_spend"),
-            func.sum(CampaignAnalytics.conversions).label("total_conversions")
-        ).join(CampaignAnalytics).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
-        ).group_by(MarketingCampaign.name)
+            JackieMarketingCampaign.name,
+            func.sum(JackieCampaignAnalytics.spend).label("total_spend"),
+            func.sum(JackieCampaignAnalytics.conversions).label("total_conversions")
+        ).join(JackieCampaignAnalytics).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
+        ).group_by(JackieMarketingCampaign.name)
         
         result = await session.execute(query)
         campaigns = result.all()
@@ -427,14 +427,14 @@ class AnalyticsService:
     
     async def _get_roi_by_platform(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> List[Dict[str, Any]]:
         query = select(
-            CampaignAnalytics.platform_metrics,
-            func.sum(CampaignAnalytics.spend).label("total_spend"),
-            func.sum(CampaignAnalytics.conversions).label("total_conversions")
-        ).join(MarketingCampaign).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
-        ).group_by(CampaignAnalytics.platform_metrics)
+            JackieCampaignAnalytics.platform_metrics,
+            func.sum(JackieCampaignAnalytics.spend).label("total_spend"),
+            func.sum(JackieCampaignAnalytics.conversions).label("total_conversions")
+        ).join(JackieMarketingCampaign).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
+        ).group_by(JackieCampaignAnalytics.platform_metrics)
         
         result = await session.execute(query)
         platforms = result.all()
@@ -453,13 +453,13 @@ class AnalyticsService:
     
     async def _get_roi_trends(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> List[Dict[str, Any]]:
         query = select(
-            CampaignAnalytics.date,
-            func.avg(CampaignAnalytics.roas).label("avg_roas")
-        ).join(MarketingCampaign).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
-        ).group_by(CampaignAnalytics.date).order_by(CampaignAnalytics.date)
+            JackieCampaignAnalytics.date,
+            func.avg(JackieCampaignAnalytics.roas).label("avg_roas")
+        ).join(JackieMarketingCampaign).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
+        ).group_by(JackieCampaignAnalytics.date).order_by(JackieCampaignAnalytics.date)
         
         result = await session.execute(query)
         trends = result.all()
@@ -475,13 +475,13 @@ class AnalyticsService:
     
     async def _get_cost_analysis(self, session: AsyncSession, user_id: int, start_dt: datetime, end_dt: datetime) -> Dict[str, Any]:
         query = select(
-            func.avg(CampaignAnalytics.cpc).label("avg_cpc"),
-            func.avg(CampaignAnalytics.cpm).label("avg_cpm"),
-            func.sum(CampaignAnalytics.spend).label("total_spend")
-        ).join(MarketingCampaign).where(
-            MarketingCampaign.user_id == user_id,
-            CampaignAnalytics.date >= start_dt,
-            CampaignAnalytics.date <= end_dt
+            func.avg(JackieCampaignAnalytics.cpc).label("avg_cpc"),
+            func.avg(JackieCampaignAnalytics.cpm).label("avg_cpm"),
+            func.sum(JackieCampaignAnalytics.spend).label("total_spend")
+        ).join(JackieMarketingCampaign).where(
+            JackieMarketingCampaign.user_id == user_id,
+            JackieCampaignAnalytics.date >= start_dt,
+            JackieCampaignAnalytics.date <= end_dt
         )
         
         result = await session.execute(query)

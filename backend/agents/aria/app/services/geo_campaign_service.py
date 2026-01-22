@@ -2,7 +2,7 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import Campaign, SocialAccount, BrandProfile
+from ..models import AriaCampaign, AriaSocialAccount, AriaBrandProfile
 from core.ai import get_ai_service_manager, AIServiceManager
 
 
@@ -280,7 +280,7 @@ class GeoCampaignService:
             # Create campaign object
             campaign_data = {
                 "brand_id": brand_id,
-                "name": f"Geo-Campaign: {content_theme} - {', '.join(target_regions)}",
+                "name": f"Geo-AriaCampaign: {content_theme} - {', '.join(target_regions)}",
                 "description": campaign_strategy["overview"],
                 "campaign_type": campaign_type,
                 "target_regions": expanded_regions,
@@ -419,7 +419,7 @@ class GeoCampaignService:
         Regional insights: {regional_insights}
         
         Provide:
-        1. Campaign overview
+        1. AriaCampaign overview
         2. Regional adaptation strategies
         3. Content pillars
         4. Engagement tactics
@@ -431,7 +431,7 @@ class GeoCampaignService:
             response = await nlp.generate_text(strategy_prompt)
             strategy_text = response.get("text", "")
         except:
-            strategy_text = f"Campaign strategy for {content_theme} targeting {len(expanded_regions)} regions"
+            strategy_text = f"AriaCampaign strategy for {content_theme} targeting {len(expanded_regions)} regions"
         
         return {
             "overview": strategy_text,

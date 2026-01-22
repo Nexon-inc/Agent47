@@ -1,5 +1,5 @@
 """
-AI FAQ Builder Schemas
+AI ClaraFAQ Builder Schemas
 """
 
 from typing import List, Optional, Dict, Any
@@ -14,7 +14,7 @@ class FAQSourceType(str, Enum):
     DOCUMENTS = "documents"
     MANUAL = "manual"
 
-# FAQ Category Schemas
+# ClaraFAQ Category Schemas
 class CreateFAQCategoryRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
@@ -39,7 +39,7 @@ class FAQCategoryResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# FAQ Entry Schemas
+# ClaraFAQ Entry Schemas
 class CreateFAQEntryRequest(BaseModel):
     category_id: int
     question: str = Field(..., min_length=1)
@@ -74,7 +74,7 @@ class FAQEntryResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# FAQ Source Schemas
+# ClaraFAQ Source Schemas
 class FAQSourceResponse(BaseModel):
     id: int
     source_type: str
@@ -89,7 +89,7 @@ class FAQSourceResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# FAQ Analytics Schemas
+# ClaraFAQ Analytics Schemas
 class FAQAnalyticsResponse(BaseModel):
     id: int
     entry_id: int

@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, BusinessModel, CustomerAvatar
+from ..models import PurityBusinessIdea, PurityBusinessModel, PurityCustomerAvatar
 from ..services.customer_retention_service import CustomerRetentionService
 
 router = APIRouter(prefix="/customer-retention", tags=["Customer Retention"])

@@ -18,8 +18,8 @@ from core.config import settings
 
 from ..database import get_eric_database
 from ..models import (
-    Lead, Deal, SalesActivity, SalesCampaign, SalesAnalytics,
-    SalesForecast, SalesTeam, SalesRep
+    EricLead, EricDeal, EricSalesActivity, EricSalesCampaign, EricSalesAnalytics,
+    EricSalesForecast, EricSalesTeam, EricSalesRep
 )
 
 logger = logging.getLogger(__name__)
@@ -81,10 +81,10 @@ class SalesFunnelService:
             try:
                 # Check if stage name already exists
                 existing_stage = await session.execute(
-                    select(SalesCampaign).where(
+                    select(EricSalesCampaign).where(
                         and_(
-                            SalesCampaign.name == stage_data.name,
-                            SalesCampaign.type == "funnel_stage"
+                            EricSalesCampaign.name == stage_data.name,
+                            EricSalesCampaign.type == "funnel_stage"
                         )
                     )
                 )
@@ -93,7 +93,7 @@ class SalesFunnelService:
                     raise ValueError(f"Funnel stage '{stage_data.name}' already exists")
                 
                 # Create funnel stage as a campaign
-                funnel_stage = SalesCampaign(
+                funnel_stage = EricSalesCampaign(
                     name=stage_data.name,
                     description=stage_data.description,
                     type="funnel_stage",
@@ -140,12 +140,12 @@ class SalesFunnelService:
         """Get all funnel stages"""
         async with get_eric_database() as session:
             try:
-                query = select(SalesCampaign).where(
+                query = select(EricSalesCampaign).where(
                     and_(
-                        SalesCampaign.type == "funnel_stage",
-                        SalesCampaign.status == "active" if active_only else True
+                        EricSalesCampaign.type == "funnel_stage",
+                        EricSalesCampaign.status == "active" if active_only else True
                     )
-                ).order_by(asc(SalesCampaign.metadata['position'].astext.cast(int)))
+                ).order_by(asc(EricSalesCampaign.metadata['position'].astext.cast(int)))
                 
                 result = await session.execute(query)
                 stages = result.scalars().all()
@@ -177,10 +177,10 @@ class SalesFunnelService:
         async with get_eric_database() as session:
             try:
                 stage = await session.execute(
-                    select(SalesCampaign).where(
+                    select(EricSalesCampaign).where(
                         and_(
-                            SalesCampaign.id == stage_id,
-                            SalesCampaign.type == "funnel_stage"
+                            EricSalesCampaign.id == stage_id,
+                            EricSalesCampaign.type == "funnel_stage"
                         )
                     )
                 )
@@ -235,10 +235,10 @@ class SalesFunnelService:
         async with get_eric_database() as session:
             try:
                 stage = await session.execute(
-                    select(SalesCampaign).where(
+                    select(EricSalesCampaign).where(
                         and_(
-                            SalesCampaign.id == stage_id,
-                            SalesCampaign.type == "funnel_stage"
+                            EricSalesCampaign.id == stage_id,
+                            EricSalesCampaign.type == "funnel_stage"
                         )
                     )
                 )
@@ -249,10 +249,10 @@ class SalesFunnelService:
                 
                 # Check if stage has active deals
                 active_deals = await session.execute(
-                    select(func.count(Deal.id)).where(
+                    select(func.count(EricDeal.id)).where(
                         and_(
-                            Deal.stage == stage.name,
-                            Deal.status.in_(["active", "negotiation", "proposal"])
+                            EricDeal.stage == stage.name,
+                            EricDeal.status.in_(["active", "negotiation", "proposal"])
                         )
                     )
                 )
@@ -294,10 +294,10 @@ class SalesFunnelService:
                     end_date = datetime.fromisoformat(date_range["end"])
                 
                 # Get all deals in date range
-                deals_query = select(Deal).where(
+                deals_query = select(EricDeal).where(
                     and_(
-                        Deal.created_at >= start_date,
-                        Deal.created_at <= end_date
+                        EricDeal.created_at >= start_date,
+                        EricDeal.created_at <= end_date
                     )
                 )
                 deals_result = await session.execute(deals_query)
@@ -398,12 +398,12 @@ class SalesFunnelService:
         async with get_eric_database() as session:
             try:
                 deal = await session.execute(
-                    select(Deal).where(Deal.id == deal_id)
+                    select(EricDeal).where(EricDeal.id == deal_id)
                 )
                 deal = deal.scalar_one_or_none()
                 
                 if not deal:
-                    raise ValueError(f"Deal with ID {deal_id} not found")
+                    raise ValueError(f"EricDeal with ID {deal_id} not found")
                 
                 # Validate stage exists
                 stages = await self.get_funnel_stages()
@@ -418,7 +418,7 @@ class SalesFunnelService:
                 deal.updated_at = datetime.utcnow()
                 
                 # Create activity record
-                activity = SalesActivity(
+                activity = EricSalesActivity(
                     deal_id=deal.id,
                     type="stage_change",
                     description=f"Moved from {old_stage} to {new_stage}",
@@ -462,10 +462,10 @@ class SalesFunnelService:
                 # Get current deals by stage
                 deals_by_stage = {}
                 for stage in stages:
-                    deals_query = select(Deal).where(
+                    deals_query = select(EricDeal).where(
                         and_(
-                            Deal.stage == stage.name,
-                            Deal.status.in_(["active", "negotiation", "proposal"])
+                            EricDeal.stage == stage.name,
+                            EricDeal.status.in_(["active", "negotiation", "proposal"])
                         )
                     )
                     deals_result = await session.execute(deals_query)
@@ -488,10 +488,10 @@ class SalesFunnelService:
                     next_date = date + timedelta(days=1)
                     
                     daily_deals = await session.execute(
-                        select(Deal).where(
+                        select(EricDeal).where(
                             and_(
-                                Deal.created_at >= date,
-                                Deal.created_at < next_date
+                                EricDeal.created_at >= date,
+                                EricDeal.created_at < next_date
                             )
                         )
                     )
@@ -520,7 +520,7 @@ class SalesFunnelService:
             try:
                 # Get deals in the stage
                 stage_deals = await session.execute(
-                    select(Deal).where(Deal.stage == stage_name)
+                    select(EricDeal).where(EricDeal.stage == stage_name)
                 )
                 stage_deals = stage_deals.scalars().all()
                 
@@ -534,10 +534,10 @@ class SalesFunnelService:
                 # Get activities for these deals
                 deal_ids = [deal.id for deal in stage_deals]
                 activities = await session.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.deal_id.in_(deal_ids),
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=30)
+                            EricSalesActivity.deal_id.in_(deal_ids),
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=30)
                         )
                     )
                 )
@@ -592,10 +592,10 @@ class SalesFunnelService:
             try:
                 # Get the funnel stage
                 stage = await session.execute(
-                    select(SalesCampaign).where(
+                    select(EricSalesCampaign).where(
                         and_(
-                            SalesCampaign.name == stage_name,
-                            SalesCampaign.type == "funnel_stage"
+                            EricSalesCampaign.name == stage_name,
+                            EricSalesCampaign.type == "funnel_stage"
                         )
                     )
                 )
@@ -640,11 +640,11 @@ class SalesFunnelService:
                 # Get team performance
                 team_performance = await session.execute(
                     select(
-                        SalesRep.name,
-                        func.count(Deal.id).label("deals_count"),
-                        func.sum(Deal.value).label("total_value"),
-                        func.avg(Deal.value).label("avg_value")
-                    ).select_from(Deal).join(SalesRep).group_by(SalesRep.id, SalesRep.name)
+                        EricSalesRep.name,
+                        func.count(EricDeal.id).label("deals_count"),
+                        func.sum(EricDeal.value).label("total_value"),
+                        func.avg(EricDeal.value).label("avg_value")
+                    ).select_from(EricDeal).join(EricSalesRep).group_by(EricSalesRep.id, EricSalesRep.name)
                 )
                 team_performance = team_performance.all()
                 
@@ -653,7 +653,7 @@ class SalesFunnelService:
                 stage_performance = []
                 for stage in stages:
                     stage_deals = await session.execute(
-                        select(Deal).where(Deal.stage == stage.name)
+                        select(EricDeal).where(EricDeal.stage == stage.name)
                     )
                     stage_deals = stage_deals.scalars().all()
                     

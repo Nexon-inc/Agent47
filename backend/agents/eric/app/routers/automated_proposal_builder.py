@@ -9,7 +9,7 @@ from ..services.automated_proposal_builder_service import (
 )
 from ..database import get_db
 from core.authentication.auth import get_current_user
-from ..models import SalesRep
+from ..models import EricSalesRep
 
 router = APIRouter(prefix="/automated-proposal-builder", tags=["Automated Proposal Builder"])
 
@@ -222,7 +222,7 @@ async def get_team_proposal_performance(
     """Get team-wide proposal performance metrics"""
     try:
         # Get all sales reps in the team
-        sales_reps = db.query(SalesRep).filter(SalesRep.team_id == team_id).all()
+        sales_reps = db.query(EricSalesRep).filter(EricSalesRep.team_id == team_id).all()
         
         if not sales_reps:
             raise HTTPException(status_code=404, detail="Team not found")

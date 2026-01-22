@@ -6,7 +6,7 @@ from sqlalchemy import select, update
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
-from ..models import EmailCampaign
+from ..models import JackieEmailCampaign
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class EmailMarketingService:
             optimized_content = await self._optimize_email_content(email_content)
             
             async with self.db.get_session() as session:
-                campaign = EmailCampaign(
+                campaign = JackieEmailCampaign(
                     user_id=user_id,
                     campaign_name=campaign_name,
                     subject_line=optimized_subject,
@@ -97,7 +97,7 @@ class EmailMarketingService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                template = EmailCampaign(
+                template = JackieEmailCampaign(
                     user_id=user_id,
                     campaign_name=template_name,
                     subject_line=subject_line,
@@ -130,7 +130,7 @@ class EmailMarketingService:
     async def get_email_analytics(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(EmailCampaign).where(EmailCampaign.id == campaign_id)
+                query = select(JackieEmailCampaign).where(JackieEmailCampaign.id == campaign_id)
                 result = await session.execute(query)
                 campaign = result.scalar_one_or_none()
 
@@ -161,7 +161,7 @@ class EmailMarketingService:
     async def send_email_campaign(self, campaign_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(EmailCampaign).where(EmailCampaign.id == campaign_id)
+                query = select(JackieEmailCampaign).where(JackieEmailCampaign.id == campaign_id)
                 result = await session.execute(query)
                 campaign = result.scalar_one_or_none()
 
@@ -171,7 +171,7 @@ class EmailMarketingService:
                 if campaign.status.value != "draft":
                     return {"success": False, "error": "Campaign is not in draft status"}
 
-                stmt = update(EmailCampaign).where(EmailCampaign.id == campaign_id).values(
+                stmt = update(JackieEmailCampaign).where(JackieEmailCampaign.id == campaign_id).values(
                     status="sent",
                     sent_count=len(campaign.recipient_list)
                 )
@@ -203,9 +203,9 @@ class EmailMarketingService:
     async def get_email_templates(self, user_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(EmailCampaign).where(
-                    EmailCampaign.user_id == user_id,
-                    EmailCampaign.status == "template"
+                query = select(JackieEmailCampaign).where(
+                    JackieEmailCampaign.user_id == user_id,
+                    JackieEmailCampaign.status == "template"
                 )
                 result = await session.execute(query)
                 templates = result.scalars().all()
@@ -236,7 +236,7 @@ class EmailMarketingService:
     ) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                automation = EmailCampaign(
+                automation = JackieEmailCampaign(
                     user_id=user_id,
                     campaign_name=automation_name,
                     subject_line="",
@@ -296,7 +296,7 @@ class EmailMarketingService:
         ai_response = await ai_manager.generate_text(messages=messages, max_tokens=1000, temperature=0.7)
         return ai_response.text_content if ai_response.success else email_content
 
-    async def _calculate_email_analytics(self, campaign: EmailCampaign) -> Dict[str, float]:
+    async def _calculate_email_analytics(self, campaign: JackieEmailCampaign) -> Dict[str, float]:
         sent_count = campaign.sent_count or 0
         open_count = campaign.open_count or 0
         click_count = campaign.click_count or 0

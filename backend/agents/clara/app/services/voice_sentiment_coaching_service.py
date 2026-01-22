@@ -8,9 +8,9 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    VoiceSentimentSession, VoiceSentimentAnalysis, VoiceSentimentFeedback,
-    VoiceSentimentCoaching, VoiceSentimentScenario, VoiceSentimentPractice,
-    SupportAgent, CustomerInteraction
+    ClaraVoiceSentimentSession, ClaraVoiceSentimentAnalysis, ClaraVoiceSentimentFeedback,
+    ClaraVoiceSentimentCoaching, ClaraVoiceSentimentScenario, ClaraVoiceSentimentPractice,
+    ClaraSupportAgent, ClaraCustomerInteraction
 )
 from ..schemas.voice_sentiment_coaching import (
     CreateVoiceSentimentSessionRequest, UpdateVoiceSentimentSessionRequest,
@@ -75,7 +75,7 @@ class VoiceSentimentCoachingService:
     ) -> VoiceSentimentSessionResponse:
         """Create a new voice sentiment coaching session"""
         try:
-            session = VoiceSentimentSession(
+            session = ClaraVoiceSentimentSession(
                 agent_id=request.agent_id,
                 session_type=request.session_type,
                 status=VoiceSentimentSessionStatus.ACTIVE,
@@ -116,7 +116,7 @@ class VoiceSentimentCoachingService:
         session_id: int
     ) -> VoiceSentimentSessionResponse:
         """Get voice sentiment session by ID"""
-        session = db.query(VoiceSentimentSession).filter(VoiceSentimentSession.id == session_id).first()
+        session = db.query(ClaraVoiceSentimentSession).filter(ClaraVoiceSentimentSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Voice sentiment session not found")
         
@@ -144,16 +144,16 @@ class VoiceSentimentCoachingService:
         status: Optional[str] = None
     ) -> List[VoiceSentimentSessionResponse]:
         """List voice sentiment sessions"""
-        query = db.query(VoiceSentimentSession)
+        query = db.query(ClaraVoiceSentimentSession)
         
         if agent_id:
-            query = query.filter(VoiceSentimentSession.agent_id == agent_id)
+            query = query.filter(ClaraVoiceSentimentSession.agent_id == agent_id)
         if session_type:
-            query = query.filter(VoiceSentimentSession.session_type == session_type)
+            query = query.filter(ClaraVoiceSentimentSession.session_type == session_type)
         if status:
-            query = query.filter(VoiceSentimentSession.status == status)
+            query = query.filter(ClaraVoiceSentimentSession.status == status)
         
-        sessions = query.order_by(desc(VoiceSentimentSession.created_at)).offset(skip).limit(limit).all()
+        sessions = query.order_by(desc(ClaraVoiceSentimentSession.created_at)).offset(skip).limit(limit).all()
         
         return [
             VoiceSentimentSessionResponse(
@@ -178,7 +178,7 @@ class VoiceSentimentCoachingService:
         request: UpdateVoiceSentimentSessionRequest
     ) -> VoiceSentimentSessionResponse:
         """Update voice sentiment session"""
-        session = db.query(VoiceSentimentSession).filter(VoiceSentimentSession.id == session_id).first()
+        session = db.query(ClaraVoiceSentimentSession).filter(ClaraVoiceSentimentSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Voice sentiment session not found")
         
@@ -224,7 +224,7 @@ class VoiceSentimentCoachingService:
             # Analyze voice sentiment using NLP
             sentiment_result = await self._analyze_voice_sentiment(request.audio_data, request.transcript)
             
-            analysis = VoiceSentimentAnalysis(
+            analysis = ClaraVoiceSentimentAnalysis(
                 session_id=request.session_id,
                 scenario_id=request.scenario_id,
                 audio_data=request.audio_data,
@@ -265,7 +265,7 @@ class VoiceSentimentCoachingService:
         analysis_id: int
     ) -> VoiceSentimentAnalysisResponse:
         """Get voice sentiment analysis by ID"""
-        analysis = db.query(VoiceSentimentAnalysis).filter(VoiceSentimentAnalysis.id == analysis_id).first()
+        analysis = db.query(ClaraVoiceSentimentAnalysis).filter(ClaraVoiceSentimentAnalysis.id == analysis_id).first()
         if not analysis:
             raise HTTPException(status_code=404, detail="Voice sentiment analysis not found")
         
@@ -293,16 +293,16 @@ class VoiceSentimentCoachingService:
         sentiment_type: Optional[str] = None
     ) -> List[VoiceSentimentAnalysisResponse]:
         """List voice sentiment analyses"""
-        query = db.query(VoiceSentimentAnalysis)
+        query = db.query(ClaraVoiceSentimentAnalysis)
         
         if session_id:
-            query = query.filter(VoiceSentimentAnalysis.session_id == session_id)
+            query = query.filter(ClaraVoiceSentimentAnalysis.session_id == session_id)
         if scenario_id:
-            query = query.filter(VoiceSentimentAnalysis.scenario_id == scenario_id)
+            query = query.filter(ClaraVoiceSentimentAnalysis.scenario_id == scenario_id)
         if sentiment_type:
-            query = query.filter(VoiceSentimentAnalysis.sentiment_type == sentiment_type)
+            query = query.filter(ClaraVoiceSentimentAnalysis.sentiment_type == sentiment_type)
         
-        analyses = query.order_by(desc(VoiceSentimentAnalysis.created_at)).offset(skip).limit(limit).all()
+        analyses = query.order_by(desc(ClaraVoiceSentimentAnalysis.created_at)).offset(skip).limit(limit).all()
         
         return [
             VoiceSentimentAnalysisResponse(
@@ -327,7 +327,7 @@ class VoiceSentimentCoachingService:
     ) -> VoiceSentimentFeedbackResponse:
         """Create a new voice sentiment feedback"""
         try:
-            feedback = VoiceSentimentFeedback(
+            feedback = ClaraVoiceSentimentFeedback(
                 analysis_id=request.analysis_id,
                 agent_id=request.agent_id,
                 feedback_type=request.feedback_type,
@@ -366,7 +366,7 @@ class VoiceSentimentCoachingService:
         feedback_id: int
     ) -> VoiceSentimentFeedbackResponse:
         """Get voice sentiment feedback by ID"""
-        feedback = db.query(VoiceSentimentFeedback).filter(VoiceSentimentFeedback.id == feedback_id).first()
+        feedback = db.query(ClaraVoiceSentimentFeedback).filter(ClaraVoiceSentimentFeedback.id == feedback_id).first()
         if not feedback:
             raise HTTPException(status_code=404, detail="Voice sentiment feedback not found")
         
@@ -393,16 +393,16 @@ class VoiceSentimentCoachingService:
         feedback_type: Optional[str] = None
     ) -> List[VoiceSentimentFeedbackResponse]:
         """List voice sentiment feedbacks"""
-        query = db.query(VoiceSentimentFeedback)
+        query = db.query(ClaraVoiceSentimentFeedback)
         
         if agent_id:
-            query = query.filter(VoiceSentimentFeedback.agent_id == agent_id)
+            query = query.filter(ClaraVoiceSentimentFeedback.agent_id == agent_id)
         if analysis_id:
-            query = query.filter(VoiceSentimentFeedback.analysis_id == analysis_id)
+            query = query.filter(ClaraVoiceSentimentFeedback.analysis_id == analysis_id)
         if feedback_type:
-            query = query.filter(VoiceSentimentFeedback.feedback_type == feedback_type)
+            query = query.filter(ClaraVoiceSentimentFeedback.feedback_type == feedback_type)
         
-        feedbacks = query.order_by(desc(VoiceSentimentFeedback.created_at)).offset(skip).limit(limit).all()
+        feedbacks = query.order_by(desc(ClaraVoiceSentimentFeedback.created_at)).offset(skip).limit(limit).all()
         
         return [
             VoiceSentimentFeedbackResponse(
@@ -426,7 +426,7 @@ class VoiceSentimentCoachingService:
     ) -> VoiceSentimentCoachingResponse:
         """Create a new voice sentiment coaching recommendation"""
         try:
-            coaching = VoiceSentimentCoaching(
+            coaching = ClaraVoiceSentimentCoaching(
                 agent_id=request.agent_id,
                 session_id=request.session_id,
                 coaching_type=request.coaching_type,
@@ -469,7 +469,7 @@ class VoiceSentimentCoachingService:
         coaching_id: int
     ) -> VoiceSentimentCoachingResponse:
         """Get voice sentiment coaching by ID"""
-        coaching = db.query(VoiceSentimentCoaching).filter(VoiceSentimentCoaching.id == coaching_id).first()
+        coaching = db.query(ClaraVoiceSentimentCoaching).filter(ClaraVoiceSentimentCoaching.id == coaching_id).first()
         if not coaching:
             raise HTTPException(status_code=404, detail="Voice sentiment coaching not found")
         
@@ -498,16 +498,16 @@ class VoiceSentimentCoachingService:
         coaching_type: Optional[str] = None
     ) -> List[VoiceSentimentCoachingResponse]:
         """List voice sentiment coachings"""
-        query = db.query(VoiceSentimentCoaching)
+        query = db.query(ClaraVoiceSentimentCoaching)
         
         if agent_id:
-            query = query.filter(VoiceSentimentCoaching.agent_id == agent_id)
+            query = query.filter(ClaraVoiceSentimentCoaching.agent_id == agent_id)
         if session_id:
-            query = query.filter(VoiceSentimentCoaching.session_id == session_id)
+            query = query.filter(ClaraVoiceSentimentCoaching.session_id == session_id)
         if coaching_type:
-            query = query.filter(VoiceSentimentCoaching.coaching_type == coaching_type)
+            query = query.filter(ClaraVoiceSentimentCoaching.coaching_type == coaching_type)
         
-        coachings = query.order_by(desc(VoiceSentimentCoaching.created_at)).offset(skip).limit(limit).all()
+        coachings = query.order_by(desc(ClaraVoiceSentimentCoaching.created_at)).offset(skip).limit(limit).all()
         
         return [
             VoiceSentimentCoachingResponse(
@@ -533,7 +533,7 @@ class VoiceSentimentCoachingService:
     ) -> VoiceSentimentScenarioResponse:
         """Create a new voice sentiment scenario"""
         try:
-            scenario = VoiceSentimentScenario(
+            scenario = ClaraVoiceSentimentScenario(
                 scenario_type=request.scenario_type,
                 title=request.title,
                 description=request.description,
@@ -578,7 +578,7 @@ class VoiceSentimentCoachingService:
         scenario_id: int
     ) -> VoiceSentimentScenarioResponse:
         """Get voice sentiment scenario by ID"""
-        scenario = db.query(VoiceSentimentScenario).filter(VoiceSentimentScenario.id == scenario_id).first()
+        scenario = db.query(ClaraVoiceSentimentScenario).filter(ClaraVoiceSentimentScenario.id == scenario_id).first()
         if not scenario:
             raise HTTPException(status_code=404, detail="Voice sentiment scenario not found")
         
@@ -608,14 +608,14 @@ class VoiceSentimentCoachingService:
         is_active: Optional[bool] = None
     ) -> List[VoiceSentimentScenarioResponse]:
         """List voice sentiment scenarios"""
-        query = db.query(VoiceSentimentScenario)
+        query = db.query(ClaraVoiceSentimentScenario)
         
         if scenario_type:
-            query = query.filter(VoiceSentimentScenario.scenario_type == scenario_type)
+            query = query.filter(ClaraVoiceSentimentScenario.scenario_type == scenario_type)
         if difficulty_level:
-            query = query.filter(VoiceSentimentScenario.difficulty_level == difficulty_level)
+            query = query.filter(ClaraVoiceSentimentScenario.difficulty_level == difficulty_level)
         if is_active is not None:
-            query = query.filter(VoiceSentimentScenario.is_active == is_active)
+            query = query.filter(ClaraVoiceSentimentScenario.is_active == is_active)
         
         scenarios = query.offset(skip).limit(limit).all()
         
@@ -647,30 +647,30 @@ class VoiceSentimentCoachingService:
         """Get voice sentiment analytics"""
         try:
             # Build queries
-            sessions_query = db.query(VoiceSentimentSession).filter(
+            sessions_query = db.query(ClaraVoiceSentimentSession).filter(
                 and_(
-                    VoiceSentimentSession.created_at >= start_date,
-                    VoiceSentimentSession.created_at <= end_date
+                    ClaraVoiceSentimentSession.created_at >= start_date,
+                    ClaraVoiceSentimentSession.created_at <= end_date
                 )
             )
             
-            analyses_query = db.query(VoiceSentimentAnalysis).filter(
+            analyses_query = db.query(ClaraVoiceSentimentAnalysis).filter(
                 and_(
-                    VoiceSentimentAnalysis.created_at >= start_date,
-                    VoiceSentimentAnalysis.created_at <= end_date
+                    ClaraVoiceSentimentAnalysis.created_at >= start_date,
+                    ClaraVoiceSentimentAnalysis.created_at <= end_date
                 )
             )
             
-            feedbacks_query = db.query(VoiceSentimentFeedback).filter(
+            feedbacks_query = db.query(ClaraVoiceSentimentFeedback).filter(
                 and_(
-                    VoiceSentimentFeedback.created_at >= start_date,
-                    VoiceSentimentFeedback.created_at <= end_date
+                    ClaraVoiceSentimentFeedback.created_at >= start_date,
+                    ClaraVoiceSentimentFeedback.created_at <= end_date
                 )
             )
             
             if agent_id:
-                sessions_query = sessions_query.filter(VoiceSentimentSession.agent_id == agent_id)
-                feedbacks_query = feedbacks_query.filter(VoiceSentimentFeedback.agent_id == agent_id)
+                sessions_query = sessions_query.filter(ClaraVoiceSentimentSession.agent_id == agent_id)
+                feedbacks_query = feedbacks_query.filter(ClaraVoiceSentimentFeedback.agent_id == agent_id)
             
             sessions = sessions_query.all()
             analyses = analyses_query.all()
@@ -696,14 +696,14 @@ class VoiceSentimentCoachingService:
                 sentiment_breakdown[sentiment_type] += 1
             
             # Coaching type breakdown
-            coaching_query = db.query(VoiceSentimentCoaching).filter(
+            coaching_query = db.query(ClaraVoiceSentimentCoaching).filter(
                 and_(
-                    VoiceSentimentCoaching.created_at >= start_date,
-                    VoiceSentimentCoaching.created_at <= end_date
+                    ClaraVoiceSentimentCoaching.created_at >= start_date,
+                    ClaraVoiceSentimentCoaching.created_at <= end_date
                 )
             )
             if agent_id:
-                coaching_query = coaching_query.filter(VoiceSentimentCoaching.agent_id == agent_id)
+                coaching_query = coaching_query.filter(ClaraVoiceSentimentCoaching.agent_id == agent_id)
             
             coachings = coaching_query.all()
             coaching_type_breakdown = {}
@@ -735,11 +735,11 @@ class VoiceSentimentCoachingService:
         """Check the health of voice sentiment coaching system"""
         try:
             db = next(get_db())
-            session_count = db.query(VoiceSentimentSession).count()
-            analysis_count = db.query(VoiceSentimentAnalysis).count()
-            feedback_count = db.query(VoiceSentimentFeedback).count()
-            coaching_count = db.query(VoiceSentimentCoaching).count()
-            scenario_count = db.query(VoiceSentimentScenario).count()
+            session_count = db.query(ClaraVoiceSentimentSession).count()
+            analysis_count = db.query(ClaraVoiceSentimentAnalysis).count()
+            feedback_count = db.query(ClaraVoiceSentimentFeedback).count()
+            coaching_count = db.query(ClaraVoiceSentimentCoaching).count()
+            scenario_count = db.query(ClaraVoiceSentimentScenario).count()
             
             return {
                 "status": "healthy",

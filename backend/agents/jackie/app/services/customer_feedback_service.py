@@ -9,7 +9,7 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import CustomerFeedback, SurveyData, FeedbackAnalysis, CampaignRefinement
+from ..models import JackieCustomerFeedback, JackieSurveyData, JackieFeedbackAnalysis, CampaignRefinement
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +86,7 @@ class CustomerFeedbackService:
                 
                 analysis_result = await self.nlp_processor.analyze_survey_data(prompt)
                 
-                analysis = SurveyData(
+                analysis = JackieSurveyData(
                     id=analysis_id, survey_id=survey_id, survey_responses=json.dumps(survey_responses),
                     analysis_result=json.dumps(analysis_result), created_at=datetime.utcnow()
                 )
@@ -138,7 +138,7 @@ class CustomerFeedbackService:
                 cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
                 
                 feedback_query = select(func.count(CustomerFeedback.id)).where(CustomerFeedback.created_at >= cutoff_date)
-                survey_query = select(func.count(SurveyData.id)).where(SurveyData.created_at >= cutoff_date)
+                survey_query = select(func.count(JackieSurveyData.id)).where(JackieSurveyData.created_at >= cutoff_date)
                 refinement_query = select(func.count(CampaignRefinement.id)).where(CampaignRefinement.created_at >= cutoff_date)
                 
                 feedback_collected = await session.scalar(feedback_query)

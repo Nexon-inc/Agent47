@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.event_bus.kafka_manager import EventBus
 from core.cache.redis_manager import RedisManager
-from ..models import AgentConnection, AgentEvent, AgentSyncData
+from ..models import JackieAgentConnection, JackieAgentEvent, JackieAgentSyncData
 
 class AgentIntegrationService:
     def __init__(self, db: Session):
@@ -16,7 +16,7 @@ class AgentIntegrationService:
         
     async def sync_data_with_agent(self, target_agent: str, data_type: str, data: Dict[str, Any], sync_config: Dict[str, Any]) -> Dict[str, Any]:
         sync_id = str(uuid.uuid4())
-        sync_data = AgentSyncData(
+        sync_data = JackieAgentSyncData(
             id=sync_id, source_agent="jackie", target_agent=target_agent,
             data_type=data_type, data=json.dumps(data), sync_config=json.dumps(sync_config),
             status="pending", created_at=datetime.utcnow()
@@ -42,7 +42,7 @@ class AgentIntegrationService:
     
     async def publish_event_to_agents(self, event_type: str, payload: Dict[str, Any], target_agents: List[str]) -> Dict[str, Any]:
         event_id = str(uuid.uuid4())
-        event = AgentEvent(
+        event = JackieAgentEvent(
             id=event_id, source_agent="jackie", event_type=event_type,
             payload=json.dumps(payload), target_agents=json.dumps(target_agents),
             status="published", created_at=datetime.utcnow()
@@ -71,16 +71,16 @@ class AgentIntegrationService:
     
     async def establish_connection(self, agent_name: str, connection_config: Dict[str, Any]) -> Dict[str, Any]:
         connection_id = str(uuid.uuid4())
-        existing_connection = self.db.query(AgentConnection).filter(
-            AgentConnection.source_agent == "jackie",
-            AgentConnection.target_agent == agent_name,
-            AgentConnection.status == "active"
+        existing_connection = self.db.query(JackieAgentConnection).filter(
+            JackieAgentConnection.source_agent == "jackie",
+            JackieAgentConnection.target_agent == agent_name,
+            JackieAgentConnection.status == "active"
         ).first()
         
         if existing_connection:
             return {"connection_id": existing_connection.id, "status": "already_connected", "message": f"Already connected to {agent_name}"}
         
-        connection = AgentConnection(
+        connection = JackieAgentConnection(
             id=connection_id, source_agent="jackie", target_agent=agent_name,
             connection_type=connection_config.get("type", "kafka"), config=json.dumps(connection_config),
             status="connecting", created_at=datetime.utcnow()
@@ -104,7 +104,7 @@ class AgentIntegrationService:
             raise Exception(f"Failed to establish connection with {agent_name}: {str(e)}")
     
     async def manage_connection(self, connection_id: str, action: str, config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        connection = self.db.query(AgentConnection).filter(AgentConnection.id == connection_id).first()
+        connection = self.db.query(JackieAgentConnection).filter(JackieAgentConnection.id == connection_id).first()
         if not connection:
             raise Exception("Connection not found")
         
@@ -204,14 +204,14 @@ class AgentIntegrationService:
             return {"agent": agent_name, "capabilities": [], "error": str(e)}
     
     def list_active_connections(self) -> List[Dict[str, Any]]:
-        connections = self.db.query(AgentConnection).filter(AgentConnection.status == "active").all()
+        connections = self.db.query(JackieAgentConnection).filter(JackieAgentConnection.status == "active").all()
         return [{
             "id": conn.id, "target_agent": conn.target_agent, "connection_type": conn.connection_type,
             "created_at": conn.created_at.isoformat(), "connected_at": conn.connected_at.isoformat() if conn.connected_at else None
         } for conn in connections]
     
     def get_sync_status(self, sync_id: str) -> Optional[Dict[str, Any]]:
-        sync_data = self.db.query(AgentSyncData).filter(AgentSyncData.id == sync_id).first()
+        sync_data = self.db.query(JackieAgentSyncData).filter(JackieAgentSyncData.id == sync_id).first()
         if not sync_data:
             return None
         return {
@@ -221,7 +221,7 @@ class AgentIntegrationService:
         }
     
     def get_recent_events(self, limit: int = 50) -> List[Dict[str, Any]]:
-        events = self.db.query(AgentEvent).order_by(AgentEvent.created_at.desc()).limit(limit).all()
+        events = self.db.query(JackieAgentEvent).order_by(JackieAgentEvent.created_at.desc()).limit(limit).all()
         return [{
             "id": event.id, "event_type": event.event_type, "source_agent": event.source_agent,
             "target_agents": json.loads(event.target_agents) if event.target_agents else [], "status": event.status,
@@ -239,7 +239,7 @@ class AgentIntegrationService:
     
     async def _handle_agent_event(self, event_data: Dict[str, Any]) -> None:
         try:
-            event = AgentEvent(
+            event = JackieAgentEvent(
                 id=str(uuid.uuid4()), source_agent=event_data.get("source_agent"),
                 event_type=event_data.get("event_type"), payload=json.dumps(event_data.get("payload", {})),
                 status="received", created_at=datetime.utcnow()
@@ -267,7 +267,7 @@ class AgentIntegrationService:
     async def _handle_sync_response(self, payload: Dict[str, Any]) -> None:
         sync_id = payload.get("sync_id")
         if sync_id:
-            sync_data = self.db.query(AgentSyncData).filter(AgentSyncData.id == sync_id).first()
+            sync_data = self.db.query(JackieAgentSyncData).filter(JackieAgentSyncData.id == sync_id).first()
             if sync_data:
                 sync_data.status = "completed"
                 sync_data.completed_at = datetime.utcnow()

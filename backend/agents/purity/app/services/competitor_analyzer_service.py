@@ -7,7 +7,7 @@ from sqlalchemy import select, insert, update, delete
 from sqlalchemy.orm import selectinload
 
 from ..database import get_purity_database
-from ..models import PurityCompetitorAnalysis, BusinessIdea
+from ..models import PurityCompetitorAnalysis, PurityBusinessIdea
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager

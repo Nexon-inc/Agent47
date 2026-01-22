@@ -2,7 +2,7 @@ from fastapi import APIRouter, Header, HTTPException, Request
 import hmac
 import hashlib
 from core.config import settings
-from ..models import WebhookEvent
+from ..models import AriaWebhookEvent
 from core.database.connection import get_supabase
 from core.event_bus.kafka_manager import get_kafka
 from ..config import aria_settings
@@ -27,7 +27,7 @@ async def ingest(platform: str, request: Request, x_signature: str = Header(None
     db = await get_supabase()
     kafka = await get_kafka()
     async with db.get_session() as session:
-        evt = WebhookEvent(
+        evt = AriaWebhookEvent(
             source=platform,
             signature=x_signature,
             payload=await request.json(),

@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, LaunchStrategy, BusinessModel, PurityMarketResearch
+from ..models import PurityBusinessIdea, PurityLaunchStrategy, PurityBusinessModel, PurityMarketResearch
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -25,10 +25,10 @@ class LaunchStrategyService:
         launch_channels: List[str],
         success_metrics: List[str],
         risk_factors: Optional[List[str]] = None
-    ) -> LaunchStrategy:
+    ) -> PurityLaunchStrategy:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -56,7 +56,7 @@ class LaunchStrategyService:
             ai_response = ai_response_obj.text_content if ai_response_obj.success else "{}"
             strategy_data = json.loads(ai_response)
             
-            launch_strategy = LaunchStrategy(
+            launch_strategy = PurityLaunchStrategy(
                 business_idea_id=business_idea_id,
                 target_market=target_market,
                 launch_budget=launch_budget,
@@ -100,7 +100,7 @@ class LaunchStrategyService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -161,7 +161,7 @@ class LaunchStrategyService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -223,7 +223,7 @@ class LaunchStrategyService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -280,17 +280,17 @@ class LaunchStrategyService:
         launch_channels: List[str],
         success_metrics: List[str],
         risk_factors: Optional[List[str]] = None
-    ) -> LaunchStrategy:
+    ) -> PurityLaunchStrategy:
         try:
             result = await db.execute(
-                select(LaunchStrategy).where(LaunchStrategy.id == strategy_id)
+                select(PurityLaunchStrategy).where(PurityLaunchStrategy.id == strategy_id)
             )
             launch_strategy = result.scalar_one_or_none()
             if not launch_strategy:
                 raise ValueError("Launch strategy not found")
             
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == launch_strategy.business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == launch_strategy.business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             
@@ -341,7 +341,7 @@ class LaunchStrategyService:
     
     def _create_launch_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_market: str,
         launch_budget: float,
         timeline_months: int,
@@ -400,7 +400,7 @@ class LaunchStrategyService:
     
     def _create_mvp_blueprint_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         development_budget: float,
         timeline_weeks: int,
         core_features: List[str],
@@ -454,7 +454,7 @@ class LaunchStrategyService:
     
     def _create_go_to_market_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         target_customer_segments: List[str],
         value_proposition: str,
         pricing_strategy: str,
@@ -507,7 +507,7 @@ class LaunchStrategyService:
     
     def _create_launch_timeline_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         launch_date: datetime,
         pre_launch_activities: List[str],
         launch_activities: List[str],

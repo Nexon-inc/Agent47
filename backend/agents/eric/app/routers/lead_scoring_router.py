@@ -9,7 +9,7 @@ from core.authentication.auth_manager import AuthManager
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/lead-scoring", tags=["Lead Scoring"])
+router = APIRouter(prefix="/lead-scoring", tags=["EricLead Scoring"])
 
 # Pydantic models
 class LeadScoringRequest(BaseModel):

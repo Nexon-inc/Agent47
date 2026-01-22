@@ -11,9 +11,9 @@ from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_clara_database
 from ..models import (
-    SupportTicket, CustomerInteraction, CustomerProfile, SupportWorkflow,
-    TicketPriority, TicketStatus, TicketCategory, SupportChannel, TicketEscalation,
-    SupportAgent
+    ClaraSupportTicket, ClaraCustomerInteraction, CustomerProfile, ClaraSupportWorkflow,
+    TicketPriority, TicketStatus, TicketCategory, SupportChannel, ClaraTicketEscalation,
+    ClaraSupportAgent
 )
 
 logger = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ class CustomWorkflowsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Create workflow record
-                workflow = SupportWorkflow(
+                workflow = ClaraSupportWorkflow(
                     name=name,
                     description=description,
                     category=category,
@@ -237,7 +237,7 @@ class CustomWorkflowsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Update workflow in database
-                workflow_query = select(SupportWorkflow).where(SupportWorkflow.id == workflow_id)
+                workflow_query = select(ClaraSupportWorkflow).where(ClaraSupportWorkflow.id == workflow_id)
                 workflow_result = await session.execute(workflow_query)
                 db_workflow = workflow_result.scalar_one_or_none()
                 
@@ -292,7 +292,7 @@ class CustomWorkflowsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Delete from database
-                workflow_query = select(SupportWorkflow).where(SupportWorkflow.id == workflow_id)
+                workflow_query = select(ClaraSupportWorkflow).where(ClaraSupportWorkflow.id == workflow_id)
                 workflow_result = await session.execute(workflow_query)
                 db_workflow = workflow_result.scalar_one_or_none()
                 
@@ -343,7 +343,7 @@ class CustomWorkflowsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -419,7 +419,7 @@ class CustomWorkflowsService:
             db = await get_clara_database()
             async with db.get_session() as session:
                 # Get ticket
-                ticket_query = select(SupportTicket).where(SupportTicket.id == ticket_id)
+                ticket_query = select(ClaraSupportTicket).where(ClaraSupportTicket.id == ticket_id)
                 ticket_result = await session.execute(ticket_query)
                 ticket = ticket_result.scalar_one_or_none()
                 
@@ -599,7 +599,7 @@ class CustomWorkflowsService:
     async def _check_workflow_conditions(
         self,
         workflow: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         context: Optional[Dict[str, Any]]
     ) -> bool:
         """Check if workflow conditions are met"""
@@ -640,7 +640,7 @@ class CustomWorkflowsService:
     async def _execute_workflow_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession,
         context: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
@@ -697,7 +697,7 @@ class CustomWorkflowsService:
     async def _execute_assign_agent_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """Execute assign agent step"""
@@ -737,7 +737,7 @@ class CustomWorkflowsService:
     async def _execute_update_status_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """Execute update status step"""
@@ -765,7 +765,7 @@ class CustomWorkflowsService:
     async def _execute_update_priority_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """Execute update priority step"""
@@ -793,7 +793,7 @@ class CustomWorkflowsService:
     async def _execute_add_tag_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """Execute add tag step"""
@@ -825,7 +825,7 @@ class CustomWorkflowsService:
     async def _execute_send_notification_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         context: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Execute send notification step"""
@@ -879,7 +879,7 @@ class CustomWorkflowsService:
     async def _execute_create_follow_up_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """Execute create follow up step"""
@@ -888,7 +888,7 @@ class CustomWorkflowsService:
             follow_up_date = datetime.utcnow() + timedelta(days=follow_up_days)
             
             # Create follow-up ticket
-            follow_up_ticket = SupportTicket(
+            follow_up_ticket = ClaraSupportTicket(
                 customer_id=ticket.customer_id,
                 channel=ticket.channel,
                 priority=ticket.priority,
@@ -922,7 +922,7 @@ class CustomWorkflowsService:
     async def _execute_escalate_ticket_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """Execute escalate ticket step"""
@@ -934,7 +934,7 @@ class CustomWorkflowsService:
             ticket.status = TicketStatus.ESCALATED
             
             # Create escalation record
-            escalation = TicketEscalation(
+            escalation = ClaraTicketEscalation(
                 ticket_id=ticket.id,
                 escalated_to_agent_id=escalated_to_agent_id,
                 reason=escalation_reason,
@@ -961,7 +961,7 @@ class CustomWorkflowsService:
     async def _execute_update_sla_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """Execute update SLA step"""
@@ -988,7 +988,7 @@ class CustomWorkflowsService:
     async def _execute_add_note_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         session: AsyncSession
     ) -> Dict[str, Any]:
         """Execute add note step"""
@@ -1029,7 +1029,7 @@ class CustomWorkflowsService:
     async def _execute_trigger_webhook_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         context: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Execute trigger webhook step"""
@@ -1100,7 +1100,7 @@ class CustomWorkflowsService:
     async def _execute_send_email_step(
         self,
         step: Dict[str, Any],
-        ticket: SupportTicket,
+        ticket: ClaraSupportTicket,
         context: Optional[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """Execute send email step"""
@@ -1193,25 +1193,25 @@ class CustomWorkflowsService:
         self,
         criteria: Dict[str, Any],
         session: AsyncSession
-    ) -> Optional[SupportAgent]:
+    ) -> Optional[ClaraSupportAgent]:
         """Find agent based on criteria"""
         try:
-            query = select(SupportAgent).where(SupportAgent.availability_status == "available")
+            query = select(ClaraSupportAgent).where(ClaraSupportAgent.availability_status == "available")
             
             if "skills" in criteria:
                 required_skills = criteria["skills"]
-                query = query.where(SupportAgent.skills.contains(required_skills))
+                query = query.where(ClaraSupportAgent.skills.contains(required_skills))
             
             if "specializations" in criteria:
                 required_specializations = criteria["specializations"]
-                query = query.where(SupportAgent.specializations.contains(required_specializations))
+                query = query.where(ClaraSupportAgent.specializations.contains(required_specializations))
             
             if "max_tickets" in criteria:
                 max_tickets = criteria["max_tickets"]
-                query = query.where(SupportAgent.current_ticket_count < max_tickets)
+                query = query.where(ClaraSupportAgent.current_ticket_count < max_tickets)
             
             # Order by performance score and current ticket count
-            query = query.order_by(SupportAgent.performance_score.desc(), SupportAgent.current_ticket_count.asc())
+            query = query.order_by(ClaraSupportAgent.performance_score.desc(), ClaraSupportAgent.current_ticket_count.asc())
             
             result = await session.execute(query)
             return result.scalar_one_or_none()
@@ -1225,7 +1225,7 @@ class CustomWorkflowsService:
         try:
             db = await get_clara_database()
             async with db.get_session() as session:
-                workflows_query = select(SupportWorkflow).where(SupportWorkflow.is_active == True)
+                workflows_query = select(ClaraSupportWorkflow).where(ClaraSupportWorkflow.is_active == True)
                 workflows_result = await session.execute(workflows_query)
                 workflows = workflows_result.scalars().all()
                 

@@ -12,8 +12,8 @@ from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep
 )
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class GamifiedIncentivesService:
         
         self.achievement_types = {
             "deals_closed": {
-                "name": "Deal Closer",
+                "name": "EricDeal Closer",
                 "description": "Close deals successfully",
                 "points": 100,
                 "levels": [
@@ -59,7 +59,7 @@ class GamifiedIncentivesService:
                 ]
             },
             "leads_generated": {
-                "name": "Lead Generator",
+                "name": "EricLead Generator",
                 "description": "Generate high-quality leads",
                 "points": 50,
                 "levels": [
@@ -153,7 +153,7 @@ class GamifiedIncentivesService:
                 start_date = await self._get_period_start_date(period)
                 
                 sales_reps = await session.execute(
-                    select(SalesRep).where(SalesRep.brand_id == brand_id)
+                    select(EricSalesRep).where(EricSalesRep.brand_id == brand_id)
                 )
                 sales_reps = sales_reps.scalars().all()
                 
@@ -194,25 +194,25 @@ class GamifiedIncentivesService:
         """Calculate statistics for a sales representative"""
         try:
             deals = await session.execute(
-                select(Deal).where(
-                    Deal.assigned_to == rep_id,
-                    Deal.created_at >= start_date
+                select(EricDeal).where(
+                    EricDeal.assigned_to == rep_id,
+                    EricDeal.created_at >= start_date
                 )
             )
             deals = deals.scalars().all()
             
             leads = await session.execute(
-                select(Lead).where(
-                    Lead.assigned_to == rep_id,
-                    Lead.created_at >= start_date
+                select(EricLead).where(
+                    EricLead.assigned_to == rep_id,
+                    EricLead.created_at >= start_date
                 )
             )
             leads = leads.scalars().all()
             
             activities = await session.execute(
-                select(SalesActivity).where(
-                    SalesActivity.assigned_to == rep_id,
-                    SalesActivity.created_at >= start_date
+                select(EricSalesActivity).where(
+                    EricSalesActivity.assigned_to == rep_id,
+                    EricSalesActivity.created_at >= start_date
                 )
             )
             activities = activities.scalars().all()
@@ -239,10 +239,10 @@ class GamifiedIncentivesService:
         """Calculate average response time for a sales rep"""
         try:
             interactions = await session.execute(
-                select(LeadInteraction).where(
-                    LeadInteraction.assigned_to == rep_id,
-                    LeadInteraction.created_at >= start_date,
-                    LeadInteraction.response_time.isnot(None)
+                select(EricLeadInteraction).where(
+                    EricLeadInteraction.assigned_to == rep_id,
+                    EricLeadInteraction.created_at >= start_date,
+                    EricLeadInteraction.response_time.isnot(None)
                 )
             )
             interactions = interactions.scalars().all()
@@ -261,10 +261,10 @@ class GamifiedIncentivesService:
         """Calculate customer satisfaction score for a sales rep"""
         try:
             deals = await session.execute(
-                select(Deal).where(
-                    Deal.assigned_to == rep_id,
-                    Deal.created_at >= start_date,
-                    Deal.satisfaction_score.isnot(None)
+                select(EricDeal).where(
+                    EricDeal.assigned_to == rep_id,
+                    EricDeal.created_at >= start_date,
+                    EricDeal.satisfaction_score.isnot(None)
                 )
             )
             deals = deals.scalars().all()
@@ -332,7 +332,7 @@ class GamifiedIncentivesService:
             db = await get_eric_database()
             async with db.get_session() as session:
                 rep = await session.execute(
-                    select(SalesRep).where(SalesRep.id == rep_id)
+                    select(EricSalesRep).where(EricSalesRep.id == rep_id)
                 )
                 rep = rep.scalar_one_or_none()
                 
@@ -474,7 +474,7 @@ class GamifiedIncentivesService:
                 total_points = await self._calculate_total_points(stats, achievements)
                 
                 rep = await session.execute(
-                    select(SalesRep).where(SalesRep.id == rep_id)
+                    select(EricSalesRep).where(EricSalesRep.id == rep_id)
                 )
                 rep = rep.scalar_one_or_none()
                 
@@ -506,9 +506,9 @@ class GamifiedIncentivesService:
         """Get recent activity for a sales representative"""
         try:
             activities = await session.execute(
-                select(SalesActivity).where(
-                    SalesActivity.assigned_to == rep_id
-                ).order_by(desc(SalesActivity.created_at)).limit(10)
+                select(EricSalesActivity).where(
+                    EricSalesActivity.assigned_to == rep_id
+                ).order_by(desc(EricSalesActivity.created_at)).limit(10)
             )
             activities = activities.scalars().all()
             
@@ -621,7 +621,7 @@ class GamifiedIncentivesService:
         try:
             async with get_eric_database() as db:
                 # Get sales rep information
-                rep_query = select(SalesRep).where(SalesRep.id == rep_id)
+                rep_query = select(EricSalesRep).where(EricSalesRep.id == rep_id)
                 rep_result = await db.execute(rep_query)
                 rep = rep_result.scalar_one_or_none()
                 
@@ -646,9 +646,9 @@ class GamifiedIncentivesService:
                     description = f"Generate ${target_value:,.0f} in new revenue within {duration_days} days"
                     reward = "Recognition on leaderboard + $500 bonus"
                 elif challenge_type == "deals":
-                    challenge_name = f"Deal Closer Challenge"
+                    challenge_name = f"EricDeal Closer Challenge"
                     description = f"Close {int(target_value)} deals within {duration_days} days"
-                    reward = "Deal Closer badge + $300 bonus"
+                    reward = "EricDeal Closer badge + $300 bonus"
                 elif challenge_type == "prospects":
                     challenge_name = f"Prospecting Master Challenge"
                     description = f"Generate {int(target_value)} qualified prospects within {duration_days} days"

@@ -26,7 +26,7 @@ Key Features:
 - Self-Service Customer Portal
 - Agent Training Tools
 - Customer Journey Tracking
-- Multi-Brand Support
+- Multi-ClaraBrand Support
 - And many more advanced features...
 
 Architecture:

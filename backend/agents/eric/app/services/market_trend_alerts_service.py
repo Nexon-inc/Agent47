@@ -13,8 +13,8 @@ from core.platforms.platform_manager import PlatformManager
 # NLPUtils removed - not used
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep, SalesAnalytics
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep, EricSalesAnalytics
 )
 
 logger = logging.getLogger(__name__)
@@ -740,10 +740,10 @@ class MarketTrendAlertsService:
         try:
             # Query customer behavior data
             customer_activities = await session.execute(
-                select(SalesActivity).where(
+                select(EricSalesActivity).where(
                     and_(
-                        SalesActivity.created_at >= datetime.utcnow() - timedelta(days=90),
-                        SalesActivity.activity_type.in_(["email_open", "email_click", "website_visit", "demo_request"])
+                        EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=90),
+                        EricSalesActivity.activity_type.in_(["email_open", "email_click", "website_visit", "demo_request"])
                     )
                 )
             )
@@ -751,10 +751,10 @@ class MarketTrendAlertsService:
             
             # Query deals for purchase behavior
             deals = await session.execute(
-                select(Deal).where(
+                select(EricDeal).where(
                     and_(
-                        Deal.created_at >= datetime.utcnow() - timedelta(days=90),
-                        Deal.status.in_(["closed_won", "closed_lost"])
+                        EricDeal.created_at >= datetime.utcnow() - timedelta(days=90),
+                        EricDeal.status.in_(["closed_won", "closed_lost"])
                     )
                 )
             )
@@ -802,7 +802,7 @@ class MarketTrendAlertsService:
                         
                         if recent_avg > older_avg * 1.15:
                             trends.append(MarketTrend(
-                                trend_name="Increasing Deal Sizes",
+                                trend_name="Increasing EricDeal Sizes",
                                 description="Average deal sizes have increased significantly",
                                 trend_type="purchase",
                                 impact_level="high",

@@ -10,7 +10,7 @@ from core.cache.redis_manager import init_redis
 from core.storage.chroma_manager import ChromaManager
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
-from ..models import Lead, LeadInteraction, CommunicationChannel
+from ..models import EricLead, EricLeadInteraction, CommunicationChannel
 from ..database import get_eric_database
 
 logger = logging.getLogger(__name__)
@@ -60,13 +60,13 @@ class ConversationalAIService:
             eric_db = await get_eric_database()
             async with eric_db.get_session() as db:
                 from sqlalchemy import select
-                result = await db.execute(select(Lead).where(Lead.id == lead_id))
+                result = await db.execute(select(EricLead).where(EricLead.id == lead_id))
                 lead = result.scalar_one_or_none()
                 
                 if not lead:
                     return {
                         "success": False,
-                        "error": "Lead not found"
+                        "error": "EricLead not found"
                     }
                 
                 # Analyze message intent
@@ -81,7 +81,7 @@ class ConversationalAIService:
                 )
                 
                 # Record interaction
-                interaction = LeadInteraction(
+                interaction = EricLeadInteraction(
                     lead_id=lead_id,
                     interaction_type="chat_message",
                     channel=CommunicationChannel.CHAT,
@@ -128,13 +128,13 @@ class ConversationalAIService:
             eric_db = await get_eric_database()
             async with eric_db.get_session() as db:
                 from sqlalchemy import select
-                result = await db.execute(select(Lead).where(Lead.id == lead_id))
+                result = await db.execute(select(EricLead).where(EricLead.id == lead_id))
                 lead = result.scalar_one_or_none()
                 
                 if not lead:
                     return {
                         "success": False,
-                        "error": "Lead not found"
+                        "error": "EricLead not found"
                     }
                 
                 # Transcribe audio to text using Groq STT
@@ -202,20 +202,20 @@ class ConversationalAIService:
             eric_db = await get_eric_database()
             async with eric_db.get_session() as db:
                 from sqlalchemy import select
-                result = await db.execute(select(Lead).where(Lead.id == lead_id))
+                result = await db.execute(select(EricLead).where(EricLead.id == lead_id))
                 lead = result.scalar_one_or_none()
                 
                 if not lead:
                     return {
                         "success": False,
-                        "error": "Lead not found"
+                        "error": "EricLead not found"
                     }
                 
                 # Generate demo scheduling response
                 demo_response = await self._generate_demo_scheduling_response(lead, demo_preferences)
                 
                 # Create demo scheduling interaction
-                interaction = LeadInteraction(
+                interaction = EricLeadInteraction(
                     lead_id=lead_id,
                     interaction_type="demo_scheduled",
                     channel=CommunicationChannel.CHAT,
@@ -274,13 +274,13 @@ class ConversationalAIService:
             eric_db = await get_eric_database()
             async with eric_db.get_session() as db:
                 from sqlalchemy import select
-                result = await db.execute(select(Lead).where(Lead.id == lead_id))
+                result = await db.execute(select(EricLead).where(EricLead.id == lead_id))
                 lead = result.scalar_one_or_none()
                 
                 if not lead:
                     return {
                         "success": False,
-                        "error": "Lead not found"
+                        "error": "EricLead not found"
                     }
                 
                 # Search knowledge base for relevant information
@@ -295,7 +295,7 @@ class ConversationalAIService:
                 )
                 
                 # Record interaction
-                interaction = LeadInteraction(
+                interaction = EricLeadInteraction(
                     lead_id=lead_id,
                     interaction_type="product_question",
                     channel=CommunicationChannel.CHAT,
@@ -340,9 +340,9 @@ class ConversationalAIService:
                 from sqlalchemy import select
                 # Get recent interactions
                 result = await db.execute(
-                    select(LeadInteraction)
-                    .where(LeadInteraction.lead_id == lead_id)
-                    .order_by(desc(LeadInteraction.created_at))
+                    select(EricLeadInteraction)
+                    .where(EricLeadInteraction.lead_id == lead_id)
+                    .order_by(desc(EricLeadInteraction.created_at))
                     .limit(limit)
                 )
                 interactions = result.scalars().all()
@@ -438,7 +438,7 @@ class ConversationalAIService:
     async def _generate_contextual_response(
         self,
         message: str,
-        lead: Lead,
+        lead: EricLead,
         intent_analysis: Dict[str, Any],
         context: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -593,7 +593,7 @@ class ConversationalAIService:
     async def _generate_product_answer(
         self,
         question: str,
-        lead: Lead,
+        lead: EricLead,
         knowledge_response: Dict[str, Any],
         context: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -649,7 +649,7 @@ class ConversationalAIService:
     
     async def _generate_demo_scheduling_response(
         self,
-        lead: Lead,
+        lead: EricLead,
         demo_preferences: Dict[str, Any]
     ) -> str:
         """Generate demo scheduling confirmation response"""

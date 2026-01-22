@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, NicheOpportunity, PurityMarketResearch
+from ..models import PurityBusinessIdea, PurityNicheOpportunity, PurityMarketResearch
 from ..services.niche_finder_service import NicheFinderService
 
 router = APIRouter(prefix="/niche-finder", tags=["Niche Finder"])

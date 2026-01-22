@@ -13,7 +13,7 @@ from core.event_bus.kafka_manager import EventBus
 from core.cache.redis_manager import init_redis
 from ..database import get_purity_database
 from ..models import (
-    BusinessIdea, FinancialForecast, BusinessModel, PurityMarketResearch,
+    PurityBusinessIdea, PurityFinancialForecast, PurityBusinessModel, PurityMarketResearch,
     RevenueModel
 )
 
@@ -63,7 +63,7 @@ class FinancialPlanningService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea and related data
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -71,7 +71,7 @@ class FinancialPlanningService:
                     return {"success": False, "error": "Idea not found"}
                 
                 # Get business model and market research
-                business_model_query = select(BusinessModel).where(BusinessModel.idea_id == idea_id)
+                business_model_query = select(PurityBusinessModel).where(PurityBusinessModel.idea_id == idea_id)
                 business_model_result = await session.execute(business_model_query)
                 business_model = business_model_result.scalar_one_or_none()
                 
@@ -85,7 +85,7 @@ class FinancialPlanningService:
                 )
                 
                 # Save financial forecast
-                financial_forecast = FinancialForecast(
+                financial_forecast = PurityFinancialForecast(
                     idea_id=idea_id,
                     forecast_period=forecast_period,
                     revenue_projections=forecast_data["revenue_projections"],
@@ -137,7 +137,7 @@ class FinancialPlanningService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea and financial data
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -145,7 +145,7 @@ class FinancialPlanningService:
                     return {"success": False, "error": "Idea not found"}
                 
                 # Get existing financial forecast
-                forecast_query = select(FinancialForecast).where(FinancialForecast.idea_id == idea_id)
+                forecast_query = select(PurityFinancialForecast).where(PurityFinancialForecast.idea_id == idea_id)
                 forecast_result = await session.execute(forecast_query)
                 forecast = forecast_result.scalar_one_or_none()
                 
@@ -182,7 +182,7 @@ class FinancialPlanningService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea and financial data
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -190,7 +190,7 @@ class FinancialPlanningService:
                     return {"success": False, "error": "Idea not found"}
                 
                 # Get financial forecast
-                forecast_query = select(FinancialForecast).where(FinancialForecast.idea_id == idea_id)
+                forecast_query = select(PurityFinancialForecast).where(PurityFinancialForecast.idea_id == idea_id)
                 forecast_result = await session.execute(forecast_query)
                 forecast = forecast_result.scalar_one_or_none()
                 
@@ -225,7 +225,7 @@ class FinancialPlanningService:
             db = await get_purity_database()
             async with db.get_session() as session:
                 # Get idea details
-                idea_query = select(BusinessIdea).where(BusinessIdea.id == idea_id)
+                idea_query = select(PurityBusinessIdea).where(PurityBusinessIdea.id == idea_id)
                 idea_result = await session.execute(idea_query)
                 idea = idea_result.scalar_one_or_none()
                 
@@ -246,8 +246,8 @@ class FinancialPlanningService:
     
     async def _generate_forecast_with_ai(
         self,
-        idea: BusinessIdea,
-        business_model: Optional[BusinessModel],
+        idea: PurityBusinessIdea,
+        business_model: Optional[PurityBusinessModel],
         market_research: Optional[PurityMarketResearch],
         forecast_period: int,
         assumptions: Optional[Dict[str, Any]]
@@ -313,8 +313,8 @@ class FinancialPlanningService:
     
     async def _perform_break_even_analysis(
         self,
-        idea: BusinessIdea,
-        forecast: FinancialForecast,
+        idea: PurityBusinessIdea,
+        forecast: PurityFinancialForecast,
         detailed_analysis: bool
     ) -> Dict[str, Any]:
         """Perform detailed break-even analysis"""
@@ -371,8 +371,8 @@ class FinancialPlanningService:
     
     async def _perform_valuation_analysis(
         self,
-        idea: BusinessIdea,
-        forecast: FinancialForecast,
+        idea: PurityBusinessIdea,
+        forecast: PurityFinancialForecast,
         valuation_method: str,
         exit_year: int
     ) -> Dict[str, Any]:
@@ -429,7 +429,7 @@ class FinancialPlanningService:
     
     async def _generate_tax_strategy(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         business_location: str,
         business_structure: str
     ) -> Dict[str, Any]:
@@ -475,7 +475,7 @@ class FinancialPlanningService:
     
     async def _generate_break_even_insights(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         break_even_data: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Generate insights for break-even analysis"""
@@ -517,7 +517,7 @@ class FinancialPlanningService:
     
     async def _calculate_dcf_valuation(
         self,
-        forecast: FinancialForecast,
+        forecast: PurityFinancialForecast,
         exit_year: int
     ) -> Dict[str, Any]:
         """Calculate Discounted Cash Flow valuation"""
@@ -555,7 +555,7 @@ class FinancialPlanningService:
     
     async def _calculate_multiple_valuation(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         avg_annual_profit: float
     ) -> Dict[str, Any]:
         """Calculate multiple-based valuation"""
@@ -593,8 +593,8 @@ class FinancialPlanningService:
     
     async def _calculate_asset_valuation(
         self,
-        idea: BusinessIdea,
-        forecast: FinancialForecast
+        idea: PurityBusinessIdea,
+        forecast: PurityFinancialForecast
     ) -> Dict[str, Any]:
         """Calculate asset-based valuation"""
         try:
@@ -620,9 +620,9 @@ class FinancialPlanningService:
     
     async def _generate_valuation_insights(
         self,
-        idea: BusinessIdea,
+        idea: PurityBusinessIdea,
         valuations: Dict[str, Any],
-        forecast: FinancialForecast
+        forecast: PurityFinancialForecast
     ) -> Dict[str, Any]:
         """Generate valuation insights using AI"""
         try:

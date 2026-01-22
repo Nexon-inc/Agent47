@@ -5,7 +5,7 @@ import httpx
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.database.connection import get_supabase
 from core.integrations.integration_manager import get_integration_manager
-from ..models import TrendSignal
+from ..models import AriaTrendSignal
 from core.config import settings
 import json
 
@@ -310,9 +310,9 @@ class TrendAlertsService:
             }
             
             # This would go to a TrendAlert model if we had one
-            # For now, we'll store in TrendSignal with alert flag
+            # For now, we'll store in AriaTrendSignal with alert flag
             for trend in trends:
-                signal = TrendSignal(
+                signal = AriaTrendSignal(
                     user_id=user_id,
                     topic=trend.get("keyword", ""),
                     region="global",
@@ -329,7 +329,7 @@ class TrendAlertsService:
         db = await get_supabase()
         async with db.get_session() as session:
             for trend in trends:
-                signal = TrendSignal(
+                signal = AriaTrendSignal(
                     user_id=user_id,
                     topic=trend.get("keyword", ""),
                     region="global",

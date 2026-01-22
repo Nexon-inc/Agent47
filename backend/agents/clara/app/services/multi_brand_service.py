@@ -8,7 +8,7 @@ import uuid
 import asyncio
 from pydantic import ValidationError
 
-from ..models import Brand, BrandConfiguration, BrandTemplate, SupportTicket, CustomerInteraction
+from ..models import ClaraBrand, ClaraBrandConfiguration, ClaraBrandTemplate, ClaraSupportTicket, ClaraCustomerInteraction
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from core.ai import get_ai_service_manager
@@ -25,7 +25,7 @@ class MultiBrandService:
         self._configuration_cache = {}
         self._template_cache = {}
 
-    # Brand Management Methods
+    # ClaraBrand Management Methods
     async def create_brand(
         self,
         name: str,
@@ -38,7 +38,7 @@ class MultiBrandService:
         target_audience: Optional[str] = None,
         contact_info: Optional[Dict[str, str]] = None,
         social_media_handles: Optional[Dict[str, str]] = None
-    ) -> Brand:
+    ) -> ClaraBrand:
         """Create a new brand configuration"""
         try:
             # Validate tone of voice
@@ -48,13 +48,13 @@ class MultiBrandService:
 
             # Check if brand name already exists
             existing_brand = await self.db.execute(
-                select(Brand).where(Brand.name == name)
+                select(ClaraBrand).where(ClaraBrand.name == name)
             )
             if existing_brand.scalar_one_or_none():
-                raise ValueError(f"Brand with name '{name}' already exists")
+                raise ValueError(f"ClaraBrand with name '{name}' already exists")
 
             # Create new brand
-            brand = Brand(
+            brand = ClaraBrand(
                 name=name,
                 description=description,
                 logo_url=logo_url,
@@ -90,13 +90,13 @@ class MultiBrandService:
             await self.db.rollback()
             raise e
 
-    async def get_brands(self, active_only: bool = True) -> List[Brand]:
+    async def get_brands(self, active_only: bool = True) -> List[ClaraBrand]:
         """Get all brands with optional filtering"""
         try:
-            query = select(Brand)
+            query = select(ClaraBrand)
             if active_only:
-                query = query.where(Brand.is_active == True)
-            query = query.order_by(Brand.name)
+                query = query.where(ClaraBrand.is_active == True)
+            query = query.order_by(ClaraBrand.name)
             
             result = await self.db.execute(query)
             return result.scalars().all()
@@ -104,11 +104,11 @@ class MultiBrandService:
         except Exception as e:
             raise e
 
-    async def get_brand(self, brand_id: int) -> Optional[Brand]:
+    async def get_brand(self, brand_id: int) -> Optional[ClaraBrand]:
         """Get a specific brand by ID"""
         try:
             result = await self.db.execute(
-                select(Brand).where(Brand.id == brand_id)
+                select(ClaraBrand).where(ClaraBrand.id == brand_id)
             )
             return result.scalar_one_or_none()
 
@@ -129,7 +129,7 @@ class MultiBrandService:
         contact_info: Optional[Dict[str, str]] = None,
         social_media_handles: Optional[Dict[str, str]] = None,
         is_active: Optional[bool] = None
-    ) -> Optional[Brand]:
+    ) -> Optional[ClaraBrand]:
         """Update a brand configuration"""
         try:
             # Get existing brand
@@ -146,10 +146,10 @@ class MultiBrandService:
             # Check name uniqueness if changing
             if name and name != brand.name:
                 existing_brand = await self.db.execute(
-                    select(Brand).where(and_(Brand.name == name, Brand.id != brand_id))
+                    select(ClaraBrand).where(and_(ClaraBrand.name == name, ClaraBrand.id != brand_id))
                 )
                 if existing_brand.scalar_one_or_none():
-                    raise ValueError(f"Brand with name '{name}' already exists")
+                    raise ValueError(f"ClaraBrand with name '{name}' already exists")
 
             # Update fields
             update_data = {}
@@ -180,7 +180,7 @@ class MultiBrandService:
 
             # Execute update
             await self.db.execute(
-                update(Brand).where(Brand.id == brand_id).values(**update_data)
+                update(ClaraBrand).where(ClaraBrand.id == brand_id).values(**update_data)
             )
             await self.db.commit()
 
@@ -212,7 +212,7 @@ class MultiBrandService:
 
             # Soft delete
             await self.db.execute(
-                update(Brand).where(Brand.id == brand_id).values(
+                update(ClaraBrand).where(ClaraBrand.id == brand_id).values(
                     is_active=False,
                     updated_at=datetime.utcnow()
                 )
@@ -243,13 +243,13 @@ class MultiBrandService:
         config_data: Dict[str, Any],
         is_default: bool = False,
         priority: int = 1
-    ) -> BrandConfiguration:
+    ) -> ClaraBrandConfiguration:
         """Create a new brand configuration"""
         try:
             # Validate brand exists
             brand = await self.get_brand(brand_id)
             if not brand:
-                raise ValueError(f"Brand with ID {brand_id} not found")
+                raise ValueError(f"ClaraBrand with ID {brand_id} not found")
 
             # Validate configuration type
             valid_types = [
@@ -263,17 +263,17 @@ class MultiBrandService:
             # If this is default, unset other defaults of same type
             if is_default:
                 await self.db.execute(
-                    update(BrandConfiguration).where(
+                    update(ClaraBrandConfiguration).where(
                         and_(
-                            BrandConfiguration.brand_id == brand_id,
-                            BrandConfiguration.config_type == config_type,
-                            BrandConfiguration.is_default == True
+                            ClaraBrandConfiguration.brand_id == brand_id,
+                            ClaraBrandConfiguration.config_type == config_type,
+                            ClaraBrandConfiguration.is_default == True
                         )
                     ).values(is_default=False)
                 )
 
             # Create configuration
-            config = BrandConfiguration(
+            config = ClaraBrandConfiguration(
                 brand_id=brand_id,
                 config_type=config_type,
                 config_data=config_data,
@@ -300,15 +300,15 @@ class MultiBrandService:
         self, 
         brand_id: int, 
         config_type: Optional[str] = None
-    ) -> List[BrandConfiguration]:
+    ) -> List[ClaraBrandConfiguration]:
         """Get configurations for a specific brand"""
         try:
-            query = select(BrandConfiguration).where(BrandConfiguration.brand_id == brand_id)
+            query = select(ClaraBrandConfiguration).where(ClaraBrandConfiguration.brand_id == brand_id)
             
             if config_type:
-                query = query.where(BrandConfiguration.config_type == config_type)
+                query = query.where(ClaraBrandConfiguration.config_type == config_type)
             
-            query = query.order_by(BrandConfiguration.priority.desc(), BrandConfiguration.created_at)
+            query = query.order_by(ClaraBrandConfiguration.priority.desc(), ClaraBrandConfiguration.created_at)
             
             result = await self.db.execute(query)
             return result.scalars().all()
@@ -316,11 +316,11 @@ class MultiBrandService:
         except Exception as e:
             raise e
 
-    async def get_configuration(self, config_id: int) -> Optional[BrandConfiguration]:
+    async def get_configuration(self, config_id: int) -> Optional[ClaraBrandConfiguration]:
         """Get a specific configuration by ID"""
         try:
             result = await self.db.execute(
-                select(BrandConfiguration).where(BrandConfiguration.id == config_id)
+                select(ClaraBrandConfiguration).where(ClaraBrandConfiguration.id == config_id)
             )
             return result.scalar_one_or_none()
 
@@ -334,7 +334,7 @@ class MultiBrandService:
         config_data: Optional[Dict[str, Any]] = None,
         is_default: Optional[bool] = None,
         priority: Optional[int] = None
-    ) -> Optional[BrandConfiguration]:
+    ) -> Optional[ClaraBrandConfiguration]:
         """Update a configuration"""
         try:
             config = await self.get_configuration(config_id)
@@ -344,12 +344,12 @@ class MultiBrandService:
             # If setting as default, unset other defaults of same type
             if is_default and not config.is_default:
                 await self.db.execute(
-                    update(BrandConfiguration).where(
+                    update(ClaraBrandConfiguration).where(
                         and_(
-                            BrandConfiguration.brand_id == config.brand_id,
-                            BrandConfiguration.config_type == config.config_type,
-                            BrandConfiguration.is_default == True,
-                            BrandConfiguration.id != config_id
+                            ClaraBrandConfiguration.brand_id == config.brand_id,
+                            ClaraBrandConfiguration.config_type == config.config_type,
+                            ClaraBrandConfiguration.is_default == True,
+                            ClaraBrandConfiguration.id != config_id
                         )
                     ).values(is_default=False)
                 )
@@ -369,7 +369,7 @@ class MultiBrandService:
 
             # Execute update
             await self.db.execute(
-                update(BrandConfiguration).where(BrandConfiguration.id == config_id).values(**update_data)
+                update(ClaraBrandConfiguration).where(ClaraBrandConfiguration.id == config_id).values(**update_data)
             )
             await self.db.commit()
 
@@ -393,7 +393,7 @@ class MultiBrandService:
                 return False
 
             await self.db.execute(
-                delete(BrandConfiguration).where(BrandConfiguration.id == config_id)
+                delete(ClaraBrandConfiguration).where(ClaraBrandConfiguration.id == config_id)
             )
             await self.db.commit()
 
@@ -415,20 +415,20 @@ class MultiBrandService:
         content: str,
         variables: List[str] = None,
         is_active: bool = True
-    ) -> BrandTemplate:
+    ) -> ClaraBrandTemplate:
         """Create a new brand template"""
         try:
             # Validate brand exists
             brand = await self.get_brand(brand_id)
             if not brand:
-                raise ValueError(f"Brand with ID {brand_id} not found")
+                raise ValueError(f"ClaraBrand with ID {brand_id} not found")
 
             # Check template name uniqueness for this brand
             existing_template = await self.db.execute(
-                select(BrandTemplate).where(
+                select(ClaraBrandTemplate).where(
                     and_(
-                        BrandTemplate.brand_id == brand_id,
-                        BrandTemplate.template_name == template_name
+                        ClaraBrandTemplate.brand_id == brand_id,
+                        ClaraBrandTemplate.template_name == template_name
                     )
                 )
             )
@@ -444,7 +444,7 @@ class MultiBrandService:
                 raise ValueError(f"Invalid template type. Must be one of: {valid_types}")
 
             # Create template
-            template = BrandTemplate(
+            template = ClaraBrandTemplate(
                 brand_id=brand_id,
                 template_name=template_name,
                 template_type=template_type,
@@ -473,18 +473,18 @@ class MultiBrandService:
         brand_id: int,
         template_type: Optional[str] = None,
         active_only: bool = True
-    ) -> List[BrandTemplate]:
+    ) -> List[ClaraBrandTemplate]:
         """Get templates for a specific brand"""
         try:
-            query = select(BrandTemplate).where(BrandTemplate.brand_id == brand_id)
+            query = select(ClaraBrandTemplate).where(ClaraBrandTemplate.brand_id == brand_id)
             
             if template_type:
-                query = query.where(BrandTemplate.template_type == template_type)
+                query = query.where(ClaraBrandTemplate.template_type == template_type)
             
             if active_only:
-                query = query.where(BrandTemplate.is_active == True)
+                query = query.where(ClaraBrandTemplate.is_active == True)
             
-            query = query.order_by(BrandTemplate.template_name)
+            query = query.order_by(ClaraBrandTemplate.template_name)
             
             result = await self.db.execute(query)
             return result.scalars().all()
@@ -492,11 +492,11 @@ class MultiBrandService:
         except Exception as e:
             raise e
 
-    async def get_template(self, template_id: int) -> Optional[BrandTemplate]:
+    async def get_template(self, template_id: int) -> Optional[ClaraBrandTemplate]:
         """Get a specific template by ID"""
         try:
             result = await self.db.execute(
-                select(BrandTemplate).where(BrandTemplate.id == template_id)
+                select(ClaraBrandTemplate).where(ClaraBrandTemplate.id == template_id)
             )
             return result.scalar_one_or_none()
 
@@ -511,7 +511,7 @@ class MultiBrandService:
         content: Optional[str] = None,
         variables: Optional[List[str]] = None,
         is_active: Optional[bool] = None
-    ) -> Optional[BrandTemplate]:
+    ) -> Optional[ClaraBrandTemplate]:
         """Update a template"""
         try:
             template = await self.get_template(template_id)
@@ -521,11 +521,11 @@ class MultiBrandService:
             # Check name uniqueness if changing
             if template_name and template_name != template.template_name:
                 existing_template = await self.db.execute(
-                    select(BrandTemplate).where(
+                    select(ClaraBrandTemplate).where(
                         and_(
-                            BrandTemplate.brand_id == template.brand_id,
-                            BrandTemplate.template_name == template_name,
-                            BrandTemplate.id != template_id
+                            ClaraBrandTemplate.brand_id == template.brand_id,
+                            ClaraBrandTemplate.template_name == template_name,
+                            ClaraBrandTemplate.id != template_id
                         )
                     )
                 )
@@ -549,7 +549,7 @@ class MultiBrandService:
 
             # Execute update
             await self.db.execute(
-                update(BrandTemplate).where(BrandTemplate.id == template_id).values(**update_data)
+                update(ClaraBrandTemplate).where(ClaraBrandTemplate.id == template_id).values(**update_data)
             )
             await self.db.commit()
 
@@ -573,7 +573,7 @@ class MultiBrandService:
                 return False
 
             await self.db.execute(
-                delete(BrandTemplate).where(BrandTemplate.id == template_id)
+                delete(ClaraBrandTemplate).where(ClaraBrandTemplate.id == template_id)
             )
             await self.db.commit()
 
@@ -586,7 +586,7 @@ class MultiBrandService:
             await self.db.rollback()
             raise e
 
-    # Brand Context Management
+    # ClaraBrand Context Management
     async def switch_brand_context(
         self,
         brand_id: int,
@@ -598,7 +598,7 @@ class MultiBrandService:
             # Get brand
             brand = await self.get_brand(brand_id)
             if not brand:
-                raise ValueError(f"Brand with ID {brand_id} not found")
+                raise ValueError(f"ClaraBrand with ID {brand_id} not found")
 
             # Get configurations and templates
             configurations = await self.get_brand_configurations(brand_id)
@@ -651,7 +651,7 @@ class MultiBrandService:
         except Exception as e:
             raise e
 
-    # Brand-Specific Response Generation
+    # ClaraBrand-Specific Response Generation
     async def generate_brand_response(
         self,
         brand_id: int,
@@ -664,7 +664,7 @@ class MultiBrandService:
             # Get brand
             brand = await self.get_brand(brand_id)
             if not brand:
-                raise ValueError(f"Brand with ID {brand_id} not found")
+                raise ValueError(f"ClaraBrand with ID {brand_id} not found")
 
             # Get brand configurations
             configs = await self.get_brand_configurations(brand_id, "response_templates")
@@ -709,7 +709,7 @@ class MultiBrandService:
             # Validate brand exists
             brand = await self.get_brand(brand_id)
             if not brand:
-                raise ValueError(f"Brand with ID {brand_id} not found")
+                raise ValueError(f"ClaraBrand with ID {brand_id} not found")
 
             # Set default date range if not provided
             if not end_date:
@@ -802,7 +802,7 @@ class MultiBrandService:
             # Get brand
             brand = await self.get_brand(brand_id)
             if not brand:
-                raise ValueError(f"Brand with ID {brand_id} not found")
+                raise ValueError(f"ClaraBrand with ID {brand_id} not found")
 
             export_data = {
                 "brand": {
@@ -853,7 +853,7 @@ class MultiBrandService:
         except Exception as e:
             raise e
 
-    async def import_brand_configuration(self, brand_data: Dict[str, Any]) -> Brand:
+    async def import_brand_configuration(self, brand_data: Dict[str, Any]) -> ClaraBrand:
         """Import brand configuration"""
         try:
             # Validate required fields
@@ -950,11 +950,11 @@ class MultiBrandService:
 
     async def _generate_brand_aware_response(
         self,
-        brand: Brand,
+        brand: ClaraBrand,
         message: str,
         context: Optional[Dict[str, Any]] = None,
-        response_config: Optional[BrandConfiguration] = None,
-        templates: List[BrandTemplate] = None
+        response_config: Optional[ClaraBrandConfiguration] = None,
+        templates: List[ClaraBrandTemplate] = None
     ) -> str:
         """Generate a brand-aware response using NLP and brand configurations"""
         try:
@@ -1038,11 +1038,11 @@ class MultiBrandService:
             db = next(get_db())
             
             # Query tickets for the brand in the date range
-            tickets = db.query(SupportTicket).filter(
+            tickets = db.query(ClaraSupportTicket).filter(
                 and_(
-                    SupportTicket.brand_id == brand_id,
-                    SupportTicket.created_at >= start_date,
-                    SupportTicket.created_at <= end_date
+                    ClaraSupportTicket.brand_id == brand_id,
+                    ClaraSupportTicket.created_at >= start_date,
+                    ClaraSupportTicket.created_at <= end_date
                 )
             ).all()
             
@@ -1059,10 +1059,10 @@ class MultiBrandService:
             avg_response_time = sum(response_times) / len(response_times) if response_times else 0
             
             # Count active agents
-            active_agents = db.query(SupportAgent).filter(
+            active_agents = db.query(ClaraSupportAgent).filter(
                 and_(
-                    SupportAgent.brand_id == brand_id,
-                    SupportAgent.is_active == True
+                    ClaraSupportAgent.brand_id == brand_id,
+                    ClaraSupportAgent.is_active == True
                 )
             ).count()
             
@@ -1087,12 +1087,12 @@ class MultiBrandService:
             db = next(get_db())
             
             # Query customer interactions with satisfaction scores
-            interactions = db.query(CustomerInteraction).filter(
+            interactions = db.query(ClaraCustomerInteraction).filter(
                 and_(
-                    CustomerInteraction.brand_id == brand_id,
-                    CustomerInteraction.created_at >= start_date,
-                    CustomerInteraction.created_at <= end_date,
-                    CustomerInteraction.satisfaction_score.isnot(None)
+                    ClaraCustomerInteraction.brand_id == brand_id,
+                    ClaraCustomerInteraction.created_at >= start_date,
+                    ClaraCustomerInteraction.created_at <= end_date,
+                    ClaraCustomerInteraction.satisfaction_score.isnot(None)
                 )
             ).all()
             
@@ -1118,11 +1118,11 @@ class MultiBrandService:
             db = next(get_db())
             
             # Query interactions for the brand in the date range
-            interactions = db.query(CustomerInteraction).filter(
+            interactions = db.query(ClaraCustomerInteraction).filter(
                 and_(
-                    CustomerInteraction.brand_id == brand_id,
-                    CustomerInteraction.created_at >= start_date,
-                    CustomerInteraction.created_at <= end_date
+                    ClaraCustomerInteraction.brand_id == brand_id,
+                    ClaraCustomerInteraction.created_at >= start_date,
+                    ClaraCustomerInteraction.created_at <= end_date
                 )
             ).all()
             
@@ -1164,11 +1164,11 @@ class MultiBrandService:
             db = next(get_db())
             
             # Query tickets for the brand in the date range
-            tickets = db.query(SupportTicket).filter(
+            tickets = db.query(ClaraSupportTicket).filter(
                 and_(
-                    SupportTicket.brand_id == brand_id,
-                    SupportTicket.created_at >= start_date,
-                    SupportTicket.created_at <= end_date
+                    ClaraSupportTicket.brand_id == brand_id,
+                    ClaraSupportTicket.created_at >= start_date,
+                    ClaraSupportTicket.created_at <= end_date
                 )
             ).all()
             

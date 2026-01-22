@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, ExitStrategy, BusinessModel, FinancialForecast
+from ..models import PurityBusinessIdea, PurityExitStrategy, PurityBusinessModel, PurityFinancialForecast
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -24,10 +24,10 @@ class ExitStrategyService:
         current_valuation: float,
         growth_rate: float,
         industry_multiplier: float
-    ) -> ExitStrategy:
+    ) -> PurityExitStrategy:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -55,7 +55,7 @@ class ExitStrategyService:
             ai_response = ai_response_obj.text_content if ai_response_obj.success else "{}"
             strategy_data = json.loads(ai_response)
             
-            exit_strategy = ExitStrategy(
+            exit_strategy = PurityExitStrategy(
                 business_idea_id=business_idea_id,
                 exit_type=exit_type,
                 target_timeline_years=target_timeline_years,
@@ -97,7 +97,7 @@ class ExitStrategyService:
     ) -> Dict[str, Any]:
         try:
             strategy_result = await db.execute(
-                select(ExitStrategy).where(ExitStrategy.id == exit_strategy_id)
+                select(PurityExitStrategy).where(PurityExitStrategy.id == exit_strategy_id)
             )
             exit_strategy = strategy_result.scalar_one_or_none()
             if not exit_strategy:
@@ -154,7 +154,7 @@ class ExitStrategyService:
     ) -> Dict[str, Any]:
         try:
             strategy_result = await db.execute(
-                select(ExitStrategy).where(ExitStrategy.id == exit_strategy_id)
+                select(PurityExitStrategy).where(PurityExitStrategy.id == exit_strategy_id)
             )
             exit_strategy = strategy_result.scalar_one_or_none()
             if not exit_strategy:
@@ -207,7 +207,7 @@ class ExitStrategyService:
     ) -> Dict[str, Any]:
         try:
             strategy_result = await db.execute(
-                select(ExitStrategy).where(ExitStrategy.id == exit_strategy_id)
+                select(PurityExitStrategy).where(PurityExitStrategy.id == exit_strategy_id)
             )
             exit_strategy = strategy_result.scalar_one_or_none()
             if not exit_strategy:
@@ -253,7 +253,7 @@ class ExitStrategyService:
     
     def _create_exit_strategy_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         exit_type: str,
         target_timeline_years: int,
         current_valuation: float,
@@ -317,7 +317,7 @@ class ExitStrategyService:
     
     def _create_valuation_estimation_prompt(
         self,
-        exit_strategy: ExitStrategy,
+        exit_strategy: PurityExitStrategy,
         valuation_methods: List[str],
         market_conditions: str
     ) -> str:
@@ -365,7 +365,7 @@ class ExitStrategyService:
     
     def _create_exit_timeline_prompt(
         self,
-        exit_strategy: ExitStrategy,
+        exit_strategy: PurityExitStrategy,
         target_exit_date: datetime,
         preparation_activities: List[str]
     ) -> str:
@@ -414,7 +414,7 @@ class ExitStrategyService:
     
     def _create_buyer_identification_prompt(
         self,
-        exit_strategy: ExitStrategy,
+        exit_strategy: PurityExitStrategy,
         buyer_criteria: Dict[str, Any]
     ) -> str:
         return f"""

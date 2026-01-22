@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ class CMSIntegrationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -282,7 +282,7 @@ class CMSIntegrationService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -540,7 +540,7 @@ class CMSIntegrationService:
             }
     
     async def _prepare_content_for_platform(
-        self, content_piece: ContentPiece, platform_name: str, publishing_options: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, platform_name: str, publishing_options: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Prepare content for platform publishing"""
         try:
@@ -581,7 +581,7 @@ class CMSIntegrationService:
                 "error": str(e)
             }
     
-    async def _prepare_wordpress_content(self, content_piece: ContentPiece, publishing_options: Dict[str, Any]) -> Dict[str, Any]:
+    async def _prepare_wordpress_content(self, content_piece: ShakesContentPiece, publishing_options: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare content for WordPress"""
         return {
             "title": content_piece.title,
@@ -598,7 +598,7 @@ class CMSIntegrationService:
             }
         }
     
-    async def _prepare_shopify_content(self, content_piece: ContentPiece, publishing_options: Dict[str, Any]) -> Dict[str, Any]:
+    async def _prepare_shopify_content(self, content_piece: ShakesContentPiece, publishing_options: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare content for Shopify"""
         return {
             "title": content_piece.title,
@@ -613,7 +613,7 @@ class CMSIntegrationService:
             }
         }
     
-    async def _prepare_contentful_content(self, content_piece: ContentPiece, publishing_options: Dict[str, Any]) -> Dict[str, Any]:
+    async def _prepare_contentful_content(self, content_piece: ShakesContentPiece, publishing_options: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare content for Contentful"""
         return {
             "fields": {
@@ -628,7 +628,7 @@ class CMSIntegrationService:
             }
         }
     
-    async def _prepare_strapi_content(self, content_piece: ContentPiece, publishing_options: Dict[str, Any]) -> Dict[str, Any]:
+    async def _prepare_strapi_content(self, content_piece: ShakesContentPiece, publishing_options: Dict[str, Any]) -> Dict[str, Any]:
         """Prepare content for Strapi"""
         return {
             "data": {
@@ -913,7 +913,7 @@ class CMSIntegrationService:
             async with db.get_session() as session:
                 for item in platform_content:
                     # Create or update content piece
-                    content_piece = ContentPiece(
+                    content_piece = ShakesContentPiece(
                         title=item.get("title", ""),
                         content=item.get("content", ""),
                         content_type=item.get("content_type", "article"),
@@ -1131,7 +1131,7 @@ class CMSIntegrationService:
         """
     
     def _create_platform_optimization_prompt(
-        self, content_piece: ContentPiece, platform_name: str, platform_structure: Dict[str, Any], optimization_goals: List[str]
+        self, content_piece: ShakesContentPiece, platform_name: str, platform_structure: Dict[str, Any], optimization_goals: List[str]
     ) -> str:
         """Create prompt for platform optimization"""
         return f"""
@@ -1153,7 +1153,7 @@ class CMSIntegrationService:
         """
     
     def _create_optimization_recommendations_prompt(
-        self, content_piece: ContentPiece, platform_name: str, optimization_goals: List[str], optimized_content: str
+        self, content_piece: ShakesContentPiece, platform_name: str, optimization_goals: List[str], optimized_content: str
     ) -> str:
         """Create prompt for optimization recommendations"""
         return f"""

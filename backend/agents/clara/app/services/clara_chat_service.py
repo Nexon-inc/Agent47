@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 
-from ..models import SupportTicket, CustomerInteraction, CustomerFeedback, SupportChannel
+from ..models import ClaraSupportTicket, ClaraCustomerInteraction, CustomerFeedback, SupportChannel
 from ..database import get_db
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.utils.platform_integration_loader import (
@@ -131,8 +131,8 @@ class ClaraChatService:
         
         Domain-specific for Clara (Customer Support):
         - Support Channels: Email, Chat, Voice, SMS, Slack, Discord, Telegram, WhatsApp
-        - Tools: Knowledge base, FAQ, Ticket management, Live chat
-        - Task types: Support tickets, FAQ items, Response templates, Escalation workflows
+        - Tools: Knowledge base, ClaraFAQ, Ticket management, Live chat
+        - Task types: Support tickets, ClaraFAQ items, Response templates, Escalation workflows
         """
         import re
         
@@ -209,7 +209,7 @@ class ClaraChatService:
         # Support Tools Detection
         support_tools = {
             "ticket": "Ticket Management",
-            "faq": "FAQ",
+            "faq": "ClaraFAQ",
             "knowledge": "Knowledge Base",
             "template": "Response Templates",
             "escalation": "Escalation Workflows"
@@ -241,20 +241,20 @@ class ClaraChatService:
                     f"Support channels: {', '.join(tasks['channels'])}"
                 ]
         
-        # Detect FAQ creation requests
+        # Detect ClaraFAQ creation requests
         elif "faq" in message_lower or "question" in message_lower and "answer" in message_lower:
             faq_matches = re.findall(r'(\d+)[\s-]?(?:faq|question|q&a)', message_lower)
             if faq_matches:
                 tasks["total_tasks"] = int(faq_matches[0])
                 tasks["task_type"] = "faq_creation"
-                tasks["support_tools"] = ["FAQ", "Knowledge Base"]
+                tasks["support_tools"] = ["ClaraFAQ", "Knowledge Base"]
                 tasks["requirements"] = [
-                    f"FAQ {i+1}: Complete FAQ entry with question, answer, category, tags, and related articles" 
+                    f"ClaraFAQ {i+1}: Complete ClaraFAQ entry with question, answer, category, tags, and related articles" 
                     for i in range(tasks["total_tasks"])
                 ]
                 tasks["completion_criteria"] = [
-                    f"All {tasks['total_tasks']} FAQ entries must be provided",
-                    "Each FAQ must include: question, detailed answer, category, tags, and related articles",
+                    f"All {tasks['total_tasks']} ClaraFAQ entries must be provided",
+                    "Each ClaraFAQ must include: question, detailed answer, category, tags, and related articles",
                     "FAQs must be searchable and categorized"
                 ]
         

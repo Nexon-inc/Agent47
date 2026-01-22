@@ -126,7 +126,7 @@ class CustomerPersonaService:
                     {
                         "insight": "Social proof significantly influences purchase decisions",
                         "confidence": 92,
-                        "source": "Survey data",
+                        "source": "JoeSurvey data",
                         "impact": "High"
                     }
                 ]

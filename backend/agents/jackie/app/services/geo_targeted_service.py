@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
 from core.services.google_maps_service import get_google_maps_service
-from ..models import GeoTargetedAd, JackieLocalMarket, GeographicData, RegionalStrategy
+from ..models import JackieGeoTargetedAd, JackieLocalMarket, GeographicData, RegionalStrategy
 
 class GeoTargetedService:
     def __init__(self, db: Session):
@@ -20,7 +20,7 @@ class GeoTargetedService:
         ad_id = str(uuid.uuid4())
         ad_result = self.nlp_processor.create_geo_targeted_ad(f"Ad Brief: {ad_brief}")
         
-        ad = GeoTargetedAd(
+        ad = JackieGeoTargetedAd(
             id=ad_id, ad_brief=json.dumps(ad_brief), target_locations=json.dumps(target_locations),
             ad_content=json.dumps(ad_result), created_at=datetime.utcnow()
         )
@@ -69,7 +69,7 @@ class GeoTargetedService:
     def get_geo_targeted_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        ads_created = self.db.query(GeoTargetedAd).filter(GeoTargetedAd.created_at >= cutoff_date).count()
+        ads_created = self.db.query(JackieGeoTargetedAd).filter(JackieGeoTargetedAd.created_at >= cutoff_date).count()
         markets_analyzed = self.db.query(JackieLocalMarket).filter(JackieLocalMarket.created_at >= cutoff_date).count()
         
         return {

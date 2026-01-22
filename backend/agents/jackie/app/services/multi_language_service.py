@@ -9,7 +9,7 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import MultiLanguageCampaign, TranslationData, CulturalAdaptation, LanguageAnalytics
+from ..models import JackieMultiLanguageCampaign, JackieTranslationData, JackieCulturalAdaptation, LanguageAnalytics
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class MultiLanguageService:
                 
                 campaign_result = await self.nlp_processor.create_multi_language_campaign(prompt)
                 
-                ml_campaign = MultiLanguageCampaign(
+                ml_campaign = JackieMultiLanguageCampaign(
                     id=ml_campaign_id, campaign_id=campaign_id, target_languages=json.dumps(target_languages),
                     source_content=json.dumps(source_content), campaign_data=json.dumps(campaign_result),
                     created_at=datetime.utcnow()
@@ -87,7 +87,7 @@ class MultiLanguageService:
                 
                 translation_result = await self.nlp_processor.translate_campaign_content(prompt)
                 
-                translation = TranslationData(
+                translation = JackieTranslationData(
                     id=translation_id, campaign_id=campaign_id, content=content,
                     target_language=target_language, translation_result=json.dumps(translation_result),
                     created_at=datetime.utcnow()
@@ -119,7 +119,7 @@ class MultiLanguageService:
                 
                 adaptation_result = await self.nlp_processor.adapt_content_culturally(prompt)
                 
-                adaptation = CulturalAdaptation(
+                adaptation = JackieCulturalAdaptation(
                     id=adaptation_id, campaign_id=campaign_id, content=content,
                     target_culture=target_culture, adaptation_result=json.dumps(adaptation_result),
                     created_at=datetime.utcnow()
@@ -141,9 +141,9 @@ class MultiLanguageService:
             async with self.db.get_session() as session:
                 cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
                 
-                campaigns_created_query = select(func.count(MultiLanguageCampaign.id)).where(MultiLanguageCampaign.created_at >= cutoff_date)
-                translations_made_query = select(func.count(TranslationData.id)).where(TranslationData.created_at >= cutoff_date)
-                adaptations_performed_query = select(func.count(CulturalAdaptation.id)).where(CulturalAdaptation.created_at >= cutoff_date)
+                campaigns_created_query = select(func.count(JackieMultiLanguageCampaign.id)).where(JackieMultiLanguageCampaign.created_at >= cutoff_date)
+                translations_made_query = select(func.count(JackieTranslationData.id)).where(JackieTranslationData.created_at >= cutoff_date)
+                adaptations_performed_query = select(func.count(JackieCulturalAdaptation.id)).where(JackieCulturalAdaptation.created_at >= cutoff_date)
                 
                 campaigns_created = await session.scalar(campaigns_created_query)
                 translations_made = await session.scalar(translations_made_query)

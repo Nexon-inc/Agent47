@@ -9,7 +9,7 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import CampaignVersion, VersionChange, CampaignRollback, VersionHistory
+from ..models import JackieCampaignVersion, VersionChange, JackieCampaignRollback, JackieVersionHistory
 
 logger = logging.getLogger(__name__)
 
@@ -47,15 +47,15 @@ class CampaignVersionControlService:
                 
                 prompt = f"""
                 Campaign ID: {campaign_id}
-                Version Data: {version_data}
-                Version Notes: {version_notes}
+                JackieVersion Data: {version_data}
+                JackieVersion Notes: {version_notes}
                 
                 Create a new version of the campaign with proper versioning.
                 """
                 
                 version_result = await self.nlp_processor.create_campaign_version(prompt)
                 
-                version = CampaignVersion(
+                version = JackieCampaignVersion(
                     id=version_id, campaign_id=campaign_id, version_data=json.dumps(version_data),
                     version_notes=version_notes, version_result=json.dumps(version_result),
                     created_at=datetime.utcnow()
@@ -78,7 +78,7 @@ class CampaignVersionControlService:
                 change_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Version ID: {version_id}
+                JackieVersion ID: {version_id}
                 Changes: {changes}
                 
                 Track and document changes made in the campaign version.
@@ -109,14 +109,14 @@ class CampaignVersionControlService:
                 
                 prompt = f"""
                 Campaign ID: {campaign_id}
-                Target Version ID: {target_version_id}
+                Target JackieVersion ID: {target_version_id}
                 
                 Rollback campaign to the specified version.
                 """
                 
                 rollback_result = await self.nlp_processor.rollback_campaign_version(prompt)
                 
-                rollback = CampaignRollback(
+                rollback = JackieCampaignRollback(
                     id=rollback_id, campaign_id=campaign_id, target_version_id=target_version_id,
                     rollback_result=json.dumps(rollback_result), created_at=datetime.utcnow()
                 )
@@ -145,7 +145,7 @@ class CampaignVersionControlService:
                 
                 history_result = await self.nlp_processor.get_version_history(prompt)
                 
-                history = VersionHistory(
+                history = JackieVersionHistory(
                     id=history_id, campaign_id=campaign_id, history_data=json.dumps(history_result),
                     created_at=datetime.utcnow()
                 )
@@ -166,9 +166,9 @@ class CampaignVersionControlService:
             async with self.db.get_session() as session:
                 cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
                 
-                versions_created_query = select(func.count(CampaignVersion.id)).where(CampaignVersion.created_at >= cutoff_date)
+                versions_created_query = select(func.count(JackieCampaignVersion.id)).where(JackieCampaignVersion.created_at >= cutoff_date)
                 changes_tracked_query = select(func.count(VersionChange.id)).where(VersionChange.created_at >= cutoff_date)
-                rollbacks_performed_query = select(func.count(CampaignRollback.id)).where(CampaignRollback.created_at >= cutoff_date)
+                rollbacks_performed_query = select(func.count(JackieCampaignRollback.id)).where(JackieCampaignRollback.created_at >= cutoff_date)
                 
                 versions_created = await session.scalar(versions_created_query)
                 changes_tracked = await session.scalar(changes_tracked_query)

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import PlatformOptimization, EmergingChannel, PlatformContent, ChannelStrategy
+from ..models import PlatformOptimization, JackieEmergingChannel, JackiePlatformContent, JackieChannelStrategy
 
 class PlatformOptimizationService:
     def __init__(self, db: Session):
@@ -98,7 +98,7 @@ class PlatformOptimizationService:
         
         strategy_result = self.nlp_processor.create_emerging_channel_strategy(prompt)
         
-        channel = EmergingChannel(
+        channel = JackieEmergingChannel(
             id=channel_id, channel_name=channel_name, channel_data=json.dumps(channel_data),
             target_audience=json.dumps(target_audience), strategy_data=json.dumps(strategy_result),
             created_at=datetime.utcnow()
@@ -122,7 +122,7 @@ class PlatformOptimizationService:
         
         content_result = self.nlp_processor.create_platform_content(prompt)
         
-        content = PlatformContent(
+        content = JackiePlatformContent(
             id=content_id, platform=platform, content_brief=json.dumps(content_brief),
             platform_requirements=json.dumps(platform_specific_requirements),
             content_data=json.dumps(content_result), created_at=datetime.utcnow()
@@ -154,12 +154,12 @@ class PlatformOptimizationService:
             PlatformOptimization.created_at >= cutoff_date
         ).count()
         
-        channels_created = self.db.query(EmergingChannel).filter(
-            EmergingChannel.created_at >= cutoff_date
+        channels_created = self.db.query(JackieEmergingChannel).filter(
+            JackieEmergingChannel.created_at >= cutoff_date
         ).count()
         
-        content_created = self.db.query(PlatformContent).filter(
-            PlatformContent.created_at >= cutoff_date
+        content_created = self.db.query(JackiePlatformContent).filter(
+            JackiePlatformContent.created_at >= cutoff_date
         ).count()
         
         return {

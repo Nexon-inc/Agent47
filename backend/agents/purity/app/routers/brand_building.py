@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 from ..database import get_purity_database
-from ..models import BusinessIdea, BrandIdentity, BusinessModel
+from ..models import PurityBusinessIdea, PurityBrandIdentity, PurityBusinessModel
 from ..services.brand_building_service import BrandBuildingService
 
 router = APIRouter(prefix="/brand-building", tags=["Brand Building"])
@@ -216,7 +216,7 @@ async def get_brand_identity(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(BrandIdentity).where(BrandIdentity.id == identity_id))
+        result = await db.execute(select(PurityBrandIdentity).where(PurityBrandIdentity.id == identity_id))
         brand_identity = result.scalar_one_or_none()
         if not brand_identity:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Brand identity not found")
@@ -246,7 +246,7 @@ async def get_business_brand_identities(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(BrandIdentity).where(BrandIdentity.business_idea_id == business_idea_id))
+        result = await db.execute(select(PurityBrandIdentity).where(PurityBrandIdentity.business_idea_id == business_idea_id))
         brand_identities = result.scalars().all()
         return [
             BrandIdentityResponse(
@@ -276,7 +276,7 @@ async def update_brand_identity(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(BrandIdentity).where(BrandIdentity.id == identity_id))
+        result = await db.execute(select(PurityBrandIdentity).where(PurityBrandIdentity.id == identity_id))
         brand_identity = result.scalar_one_or_none()
         if not brand_identity:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Brand identity not found")
@@ -320,7 +320,7 @@ async def delete_brand_identity(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(BrandIdentity).where(BrandIdentity.id == identity_id))
+        result = await db.execute(select(PurityBrandIdentity).where(PurityBrandIdentity.id == identity_id))
         brand_identity = result.scalar_one_or_none()
         if not brand_identity:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Brand identity not found")
@@ -339,7 +339,7 @@ async def get_logo_concepts(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(BrandIdentity).where(BrandIdentity.id == logo_id))
+        result = await db.execute(select(PurityBrandIdentity).where(PurityBrandIdentity.id == logo_id))
         logo_concepts = result.scalar_one_or_none()
         if not logo_concepts:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Logo concepts not found")
@@ -364,7 +364,7 @@ async def get_brand_slogan(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(BrandIdentity).where(BrandIdentity.id == slogan_id))
+        result = await db.execute(select(PurityBrandIdentity).where(PurityBrandIdentity.id == slogan_id))
         slogan_options = result.scalar_one_or_none()
         if not slogan_options:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Brand slogan not found")
@@ -388,7 +388,7 @@ async def get_style_guide(
     db: AsyncSession = Depends(get_purity_database)
 ):
     try:
-        result = await db.execute(select(BrandIdentity).where(BrandIdentity.id == guide_id))
+        result = await db.execute(select(PurityBrandIdentity).where(PurityBrandIdentity.id == guide_id))
         style_guide = result.scalar_one_or_none()
         if not style_guide:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Style guide not found")

@@ -8,8 +8,8 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    MobileAppUser, MobileAppSession, MobileAppOverride, MobileAppNotification,
-    MobileAppDevice, MobileAppPermission, SupportTicket, CustomerInteraction
+    ClaraMobileAppUser, ClaraMobileAppSession, ClaraMobileAppOverride, ClaraMobileAppNotification,
+    ClaraMobileAppDevice, ClaraMobileAppPermission, ClaraSupportTicket, ClaraCustomerInteraction
 )
 from ..schemas.mobile_app_monitoring import (
     CreateMobileAppUserRequest, UpdateMobileAppUserRequest,
@@ -68,7 +68,7 @@ class MobileAppMonitoringService:
     ) -> MobileAppUserResponse:
         """Create a new mobile app user"""
         try:
-            user = MobileAppUser(
+            user = ClaraMobileAppUser(
                 username=request.username,
                 email=request.email,
                 role=request.role,
@@ -105,7 +105,7 @@ class MobileAppMonitoringService:
         user_id: int
     ) -> MobileAppUserResponse:
         """Get mobile app user by ID"""
-        user = db.query(MobileAppUser).filter(MobileAppUser.id == user_id).first()
+        user = db.query(ClaraMobileAppUser).filter(ClaraMobileAppUser.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="Mobile app user not found")
         
@@ -130,12 +130,12 @@ class MobileAppMonitoringService:
         is_active: Optional[bool] = None
     ) -> List[MobileAppUserResponse]:
         """List mobile app users"""
-        query = db.query(MobileAppUser)
+        query = db.query(ClaraMobileAppUser)
         
         if role:
-            query = query.filter(MobileAppUser.role == role)
+            query = query.filter(ClaraMobileAppUser.role == role)
         if is_active is not None:
-            query = query.filter(MobileAppUser.is_active == is_active)
+            query = query.filter(ClaraMobileAppUser.is_active == is_active)
         
         users = query.offset(skip).limit(limit).all()
         
@@ -160,7 +160,7 @@ class MobileAppMonitoringService:
         request: UpdateMobileAppUserRequest
     ) -> MobileAppUserResponse:
         """Update mobile app user"""
-        user = db.query(MobileAppUser).filter(MobileAppUser.id == user_id).first()
+        user = db.query(ClaraMobileAppUser).filter(ClaraMobileAppUser.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="Mobile app user not found")
         
@@ -205,7 +205,7 @@ class MobileAppMonitoringService:
         user_id: int
     ) -> Dict[str, str]:
         """Delete mobile app user"""
-        user = db.query(MobileAppUser).filter(MobileAppUser.id == user_id).first()
+        user = db.query(ClaraMobileAppUser).filter(ClaraMobileAppUser.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="Mobile app user not found")
         
@@ -225,7 +225,7 @@ class MobileAppMonitoringService:
     ) -> MobileAppSessionResponse:
         """Create a new mobile app session"""
         try:
-            session = MobileAppSession(
+            session = ClaraMobileAppSession(
                 user_id=request.user_id,
                 device_id=request.device_id,
                 session_token=request.session_token,
@@ -262,7 +262,7 @@ class MobileAppMonitoringService:
         session_id: int
     ) -> MobileAppSessionResponse:
         """Get mobile app session by ID"""
-        session = db.query(MobileAppSession).filter(MobileAppSession.id == session_id).first()
+        session = db.query(ClaraMobileAppSession).filter(ClaraMobileAppSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Mobile app session not found")
         
@@ -285,7 +285,7 @@ class MobileAppMonitoringService:
         request: UpdateMobileAppSessionRequest
     ) -> MobileAppSessionResponse:
         """Update mobile app session"""
-        session = db.query(MobileAppSession).filter(MobileAppSession.id == session_id).first()
+        session = db.query(ClaraMobileAppSession).filter(ClaraMobileAppSession.id == session_id).first()
         if not session:
             raise HTTPException(status_code=404, detail="Mobile app session not found")
         
@@ -327,7 +327,7 @@ class MobileAppMonitoringService:
     ) -> MobileAppOverrideResponse:
         """Create a new mobile app override"""
         try:
-            override = MobileAppOverride(
+            override = ClaraMobileAppOverride(
                 user_id=request.user_id,
                 ticket_id=request.ticket_id,
                 override_type=request.override_type,
@@ -372,7 +372,7 @@ class MobileAppMonitoringService:
         override_id: int
     ) -> MobileAppOverrideResponse:
         """Get mobile app override by ID"""
-        override = db.query(MobileAppOverride).filter(MobileAppOverride.id == override_id).first()
+        override = db.query(ClaraMobileAppOverride).filter(ClaraMobileAppOverride.id == override_id).first()
         if not override:
             raise HTTPException(status_code=404, detail="Mobile app override not found")
         
@@ -401,18 +401,18 @@ class MobileAppMonitoringService:
         is_approved: Optional[bool] = None
     ) -> List[MobileAppOverrideResponse]:
         """List mobile app overrides"""
-        query = db.query(MobileAppOverride)
+        query = db.query(ClaraMobileAppOverride)
         
         if user_id:
-            query = query.filter(MobileAppOverride.user_id == user_id)
+            query = query.filter(ClaraMobileAppOverride.user_id == user_id)
         if ticket_id:
-            query = query.filter(MobileAppOverride.ticket_id == ticket_id)
+            query = query.filter(ClaraMobileAppOverride.ticket_id == ticket_id)
         if override_type:
-            query = query.filter(MobileAppOverride.override_type == override_type)
+            query = query.filter(ClaraMobileAppOverride.override_type == override_type)
         if is_approved is not None:
-            query = query.filter(MobileAppOverride.is_approved == is_approved)
+            query = query.filter(ClaraMobileAppOverride.is_approved == is_approved)
         
-        overrides = query.order_by(desc(MobileAppOverride.created_at)).offset(skip).limit(limit).all()
+        overrides = query.order_by(desc(ClaraMobileAppOverride.created_at)).offset(skip).limit(limit).all()
         
         return [
             MobileAppOverrideResponse(
@@ -437,7 +437,7 @@ class MobileAppMonitoringService:
         approved_by: int
     ) -> MobileAppOverrideResponse:
         """Approve a mobile app override"""
-        override = db.query(MobileAppOverride).filter(MobileAppOverride.id == override_id).first()
+        override = db.query(ClaraMobileAppOverride).filter(ClaraMobileAppOverride.id == override_id).first()
         if not override:
             raise HTTPException(status_code=404, detail="Mobile app override not found")
         
@@ -477,7 +477,7 @@ class MobileAppMonitoringService:
     ) -> MobileAppNotificationResponse:
         """Create a new mobile app notification"""
         try:
-            notification = MobileAppNotification(
+            notification = ClaraMobileAppNotification(
                 user_id=request.user_id,
                 notification_type=request.notification_type,
                 title=request.title,
@@ -517,7 +517,7 @@ class MobileAppMonitoringService:
         notification_id: int
     ) -> MobileAppNotificationResponse:
         """Get mobile app notification by ID"""
-        notification = db.query(MobileAppNotification).filter(MobileAppNotification.id == notification_id).first()
+        notification = db.query(ClaraMobileAppNotification).filter(ClaraMobileAppNotification.id == notification_id).first()
         if not notification:
             raise HTTPException(status_code=404, detail="Mobile app notification not found")
         
@@ -543,16 +543,16 @@ class MobileAppMonitoringService:
         is_read: Optional[bool] = None
     ) -> List[MobileAppNotificationResponse]:
         """List mobile app notifications"""
-        query = db.query(MobileAppNotification)
+        query = db.query(ClaraMobileAppNotification)
         
         if user_id:
-            query = query.filter(MobileAppNotification.user_id == user_id)
+            query = query.filter(ClaraMobileAppNotification.user_id == user_id)
         if notification_type:
-            query = query.filter(MobileAppNotification.notification_type == notification_type)
+            query = query.filter(ClaraMobileAppNotification.notification_type == notification_type)
         if is_read is not None:
-            query = query.filter(MobileAppNotification.is_read == is_read)
+            query = query.filter(ClaraMobileAppNotification.is_read == is_read)
         
-        notifications = query.order_by(desc(MobileAppNotification.created_at)).offset(skip).limit(limit).all()
+        notifications = query.order_by(desc(ClaraMobileAppNotification.created_at)).offset(skip).limit(limit).all()
         
         return [
             MobileAppNotificationResponse(
@@ -574,7 +574,7 @@ class MobileAppMonitoringService:
         notification_id: int
     ) -> MobileAppNotificationResponse:
         """Mark notification as read"""
-        notification = db.query(MobileAppNotification).filter(MobileAppNotification.id == notification_id).first()
+        notification = db.query(ClaraMobileAppNotification).filter(ClaraMobileAppNotification.id == notification_id).first()
         if not notification:
             raise HTTPException(status_code=404, detail="Mobile app notification not found")
         
@@ -610,31 +610,31 @@ class MobileAppMonitoringService:
         """Get mobile app analytics"""
         try:
             # Build queries
-            sessions_query = db.query(MobileAppSession).filter(
+            sessions_query = db.query(ClaraMobileAppSession).filter(
                 and_(
-                    MobileAppSession.created_at >= start_date,
-                    MobileAppSession.created_at <= end_date
+                    ClaraMobileAppSession.created_at >= start_date,
+                    ClaraMobileAppSession.created_at <= end_date
                 )
             )
             
-            overrides_query = db.query(MobileAppOverride).filter(
+            overrides_query = db.query(ClaraMobileAppOverride).filter(
                 and_(
-                    MobileAppOverride.created_at >= start_date,
-                    MobileAppOverride.created_at <= end_date
+                    ClaraMobileAppOverride.created_at >= start_date,
+                    ClaraMobileAppOverride.created_at <= end_date
                 )
             )
             
-            notifications_query = db.query(MobileAppNotification).filter(
+            notifications_query = db.query(ClaraMobileAppNotification).filter(
                 and_(
-                    MobileAppNotification.created_at >= start_date,
-                    MobileAppNotification.created_at <= end_date
+                    ClaraMobileAppNotification.created_at >= start_date,
+                    ClaraMobileAppNotification.created_at <= end_date
                 )
             )
             
             if user_id:
-                sessions_query = sessions_query.filter(MobileAppSession.user_id == user_id)
-                overrides_query = overrides_query.filter(MobileAppOverride.user_id == user_id)
-                notifications_query = notifications_query.filter(MobileAppNotification.user_id == user_id)
+                sessions_query = sessions_query.filter(ClaraMobileAppSession.user_id == user_id)
+                overrides_query = overrides_query.filter(ClaraMobileAppOverride.user_id == user_id)
+                notifications_query = notifications_query.filter(ClaraMobileAppNotification.user_id == user_id)
             
             sessions = sessions_query.all()
             overrides = overrides_query.all()
@@ -686,10 +686,10 @@ class MobileAppMonitoringService:
         """Check the health of mobile app monitoring system"""
         try:
             db = next(get_db())
-            user_count = db.query(MobileAppUser).count()
-            session_count = db.query(MobileAppSession).count()
-            override_count = db.query(MobileAppOverride).count()
-            notification_count = db.query(MobileAppNotification).count()
+            user_count = db.query(ClaraMobileAppUser).count()
+            session_count = db.query(ClaraMobileAppSession).count()
+            override_count = db.query(ClaraMobileAppOverride).count()
+            notification_count = db.query(ClaraMobileAppNotification).count()
             
             return {
                 "status": "healthy",
@@ -710,33 +710,33 @@ class MobileAppMonitoringService:
                 "last_check": datetime.utcnow().isoformat()
             }
     
-    async def _apply_override(self, db: Session, override: MobileAppOverride):
+    async def _apply_override(self, db: Session, override: ClaraMobileAppOverride):
         """Apply an approved override"""
         try:
             if override.override_type == MobileAppOverrideType.RESPONSE_OVERRIDE:
                 # Update ticket response
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == override.ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == override.ticket_id).first()
                 if ticket:
                     ticket.resolution = override.new_value
                     ticket.updated_at = datetime.utcnow()
             
             elif override.override_type == MobileAppOverrideType.PRIORITY_CHANGE:
                 # Update ticket priority
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == override.ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == override.ticket_id).first()
                 if ticket:
                     ticket.priority = override.new_value
                     ticket.updated_at = datetime.utcnow()
             
             elif override.override_type == MobileAppOverrideType.AGENT_ASSIGNMENT:
                 # Update ticket assignment
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == override.ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == override.ticket_id).first()
                 if ticket:
                     ticket.assigned_agent_id = override.new_value
                     ticket.updated_at = datetime.utcnow()
             
             elif override.override_type == MobileAppOverrideType.STATUS_UPDATE:
                 # Update ticket status
-                ticket = db.query(SupportTicket).filter(SupportTicket.id == override.ticket_id).first()
+                ticket = db.query(ClaraSupportTicket).filter(ClaraSupportTicket.id == override.ticket_id).first()
                 if ticket:
                     ticket.status = override.new_value
                     ticket.updated_at = datetime.utcnow()
@@ -747,11 +747,11 @@ class MobileAppMonitoringService:
             db.rollback()
             raise Exception(f"Failed to apply override: {str(e)}")
     
-    async def _send_push_notification(self, db: Session, notification: MobileAppNotification):
+    async def _send_push_notification(self, db: Session, notification: ClaraMobileAppNotification):
         """Send push notification to mobile device"""
         try:
             # Get user's devices
-            user = db.query(MobileAppUser).filter(MobileAppUser.id == notification.user_id).first()
+            user = db.query(ClaraMobileAppUser).filter(ClaraMobileAppUser.id == notification.user_id).first()
             if user and user.device_ids:
                 for device_id in user.device_ids:
                     await self.integration_manager.send_push_notification({

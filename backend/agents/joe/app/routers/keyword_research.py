@@ -10,7 +10,7 @@ router = APIRouter(prefix="/keyword-research", tags=["Keyword Research"])
 
 class KeywordResearchRequest(BaseModel):
     seed_keywords: List[str] = Field(..., description="Seed keywords to research")
-    language: str = Field(default="en", description="Language for research")
+    language: str = Field(default="en", description="JoeLanguage for research")
     country: str = Field(default="US", description="Country for research")
 
 class KeywordSuggestionsRequest(BaseModel):

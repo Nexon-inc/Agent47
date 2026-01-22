@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, BusinessHealth, BusinessModel, FinancialForecast
+from ..models import PurityBusinessIdea, PurityBusinessHealth, PurityBusinessModel, PurityFinancialForecast
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -25,10 +25,10 @@ class BusinessHealthService:
         conversion_rate: float,
         churn_rate: float,
         growth_rate: float
-    ) -> BusinessHealth:
+    ) -> PurityBusinessHealth:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -55,7 +55,7 @@ class BusinessHealthService:
             ai_response = ai_response_obj.text_content if ai_response_obj.success else "{}"
             health_data = json.loads(ai_response)
             
-            business_health = BusinessHealth(
+            business_health = PurityBusinessHealth(
                 business_idea_id=business_idea_id,
                 current_revenue=current_revenue,
                 current_costs=current_costs,
@@ -97,7 +97,7 @@ class BusinessHealthService:
     ) -> Dict[str, Any]:
         try:
             health_result = await db.execute(
-                select(BusinessHealth).where(BusinessHealth.id == business_health_id)
+                select(PurityBusinessHealth).where(PurityBusinessHealth.id == business_health_id)
             )
             business_health = health_result.scalar_one_or_none()
             if not business_health:
@@ -150,7 +150,7 @@ class BusinessHealthService:
     ) -> Dict[str, Any]:
         try:
             health_result = await db.execute(
-                select(BusinessHealth).where(BusinessHealth.id == business_health_id)
+                select(PurityBusinessHealth).where(PurityBusinessHealth.id == business_health_id)
             )
             business_health = health_result.scalar_one_or_none()
             if not business_health:
@@ -205,17 +205,17 @@ class BusinessHealthService:
         conversion_rate: float,
         churn_rate: float,
         growth_rate: float
-    ) -> BusinessHealth:
+    ) -> PurityBusinessHealth:
         try:
             result = await db.execute(
-                select(BusinessHealth).where(BusinessHealth.id == health_id)
+                select(PurityBusinessHealth).where(PurityBusinessHealth.id == health_id)
             )
             business_health = result.scalar_one_or_none()
             if not business_health:
                 raise ValueError("Business health record not found")
             
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_health.business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_health.business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             
@@ -266,7 +266,7 @@ class BusinessHealthService:
     
     def _create_business_health_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         current_revenue: float,
         current_costs: float,
         customer_count: int,
@@ -323,7 +323,7 @@ class BusinessHealthService:
     
     def _create_kpi_tracking_prompt(
         self,
-        business_health: BusinessHealth,
+        business_health: PurityBusinessHealth,
         metrics_data: Dict[str, Any],
         tracking_period: str
     ) -> str:
@@ -372,7 +372,7 @@ class BusinessHealthService:
     
     def _create_health_report_prompt(
         self,
-        business_health: BusinessHealth,
+        business_health: PurityBusinessHealth,
         report_type: str,
         include_recommendations: bool
     ) -> str:

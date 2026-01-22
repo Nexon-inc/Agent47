@@ -9,7 +9,7 @@ from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from core.database.models import User
 from ..database import get_db
-from ..models import ContentProject, ContentPiece, ContentType, ContentStatus, PlatformType, SEOStatus
+from ..models import ShakesContentProject, ShakesContentPiece, ContentType, ContentStatus, PlatformType, SEOStatus
 from ..services.ai_generation_service import AIGenerationService
 from ..services.content_analytics_service import ContentAnalyticsService
 from ..services.seo_optimization_service import SEOOptimizationService

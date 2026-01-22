@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece
+from ..models import ShakesContentProject, ShakesContentPiece
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class VersionControlService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -125,7 +125,7 @@ class VersionControlService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -178,7 +178,7 @@ class VersionControlService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -237,7 +237,7 @@ class VersionControlService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -307,7 +307,7 @@ class VersionControlService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -372,7 +372,7 @@ class VersionControlService:
             return {"success": False, "error": str(e)}
     
     async def _generate_version_summary(
-        self, content_piece: ContentPiece, version_type: str, change_description: str, version_notes: str
+        self, content_piece: ShakesContentPiece, version_type: str, change_description: str, version_notes: str
     ) -> str:
         """Generate version summary"""
         summary_prompt = self._create_version_summary_prompt(
@@ -386,7 +386,7 @@ class VersionControlService:
         return summary_result
     
     async def _generate_change_analysis(
-        self, content_piece: ContentPiece, version_type: str, change_description: str
+        self, content_piece: ShakesContentPiece, version_type: str, change_description: str
     ) -> Dict[str, Any]:
         """Generate change analysis"""
         analysis_prompt = self._create_change_analysis_prompt(
@@ -414,9 +414,9 @@ class VersionControlService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Query version history from database
-                version_query = select(ContentVersion).where(
-                    ContentVersion.content_piece_id == content_piece_id
-                ).order_by(ContentVersion.created_at.desc()).limit(version_limit)
+                version_query = select(ShakesContentVersion).where(
+                    ShakesContentVersion.content_piece_id == content_piece_id
+                ).order_by(ShakesContentVersion.created_at.desc()).limit(version_limit)
                 
                 version_result = await session.execute(version_query)
                 versions = version_result.scalars().all()
@@ -457,7 +457,7 @@ class VersionControlService:
         return timeline
     
     async def _generate_version_insights(
-        self, version_history: List[Dict[str, Any]], content_piece: ContentPiece
+        self, version_history: List[Dict[str, Any]], content_piece: ShakesContentPiece
     ) -> str:
         """Generate version insights"""
         insights_prompt = self._create_version_insights_prompt(
@@ -476,7 +476,7 @@ class VersionControlService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Query version from database
-                version_query = select(ContentVersion).where(ContentVersion.id == version_id)
+                version_query = select(ShakesContentVersion).where(ShakesContentVersion.id == version_id)
                 version_result = await session.execute(version_query)
                 version = version_result.scalar_one_or_none()
                 
@@ -546,7 +546,7 @@ class VersionControlService:
         ]
     
     async def _create_revert_version(
-        self, content_piece: ContentPiece, target_version_data: Dict[str, Any], revert_reason: str
+        self, content_piece: ShakesContentPiece, target_version_data: Dict[str, Any], revert_reason: str
     ) -> Dict[str, Any]:
         """Create revert version"""
         return {
@@ -559,7 +559,7 @@ class VersionControlService:
         }
     
     async def _generate_revert_report(
-        self, content_piece: ContentPiece, target_version_data: Dict[str, Any], revert_reason: str
+        self, content_piece: ShakesContentPiece, target_version_data: Dict[str, Any], revert_reason: str
     ) -> str:
         """Generate revert report"""
         report_prompt = self._create_revert_report_prompt(
@@ -596,7 +596,7 @@ class VersionControlService:
         }
     
     async def _create_merge_version(
-        self, content_piece: ContentPiece, source_versions: List[str], merge_strategy: str, merge_notes: str, merged_content: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, source_versions: List[str], merge_strategy: str, merge_notes: str, merged_content: Dict[str, Any]
     ) -> Dict[str, Any]:
         """Create merge version"""
         return {
@@ -624,7 +624,7 @@ class VersionControlService:
         return report_result
     
     def _create_version_summary_prompt(
-        self, content_piece: ContentPiece, version_type: str, change_description: str, version_notes: str
+        self, content_piece: ShakesContentPiece, version_type: str, change_description: str, version_notes: str
     ) -> str:
         """Create prompt for version summary"""
         return f"""
@@ -646,7 +646,7 @@ class VersionControlService:
         """
     
     def _create_change_analysis_prompt(
-        self, content_piece: ContentPiece, version_type: str, change_description: str
+        self, content_piece: ShakesContentPiece, version_type: str, change_description: str
     ) -> str:
         """Create prompt for change analysis"""
         return f"""
@@ -667,7 +667,7 @@ class VersionControlService:
         """
     
     def _create_version_insights_prompt(
-        self, version_history: List[Dict[str, Any]], content_piece: ContentPiece
+        self, version_history: List[Dict[str, Any]], content_piece: ShakesContentPiece
     ) -> str:
         """Create prompt for version insights"""
         return f"""
@@ -729,7 +729,7 @@ class VersionControlService:
         """
     
     def _create_revert_report_prompt(
-        self, content_piece: ContentPiece, target_version_data: Dict[str, Any], revert_reason: str
+        self, content_piece: ShakesContentPiece, target_version_data: Dict[str, Any], revert_reason: str
     ) -> str:
         """Create prompt for revert report"""
         return f"""

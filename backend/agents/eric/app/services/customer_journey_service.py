@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, or_, func, desc
 
-from ..models import Lead, Deal, LeadInteraction, CommunicationChannel
+from ..models import EricLead, EricDeal, EricLeadInteraction, CommunicationChannel
 from ..database import get_eric_database
 from core.ai import get_ai_service_manager, AIServiceManager
 
@@ -49,27 +49,27 @@ class CustomerJourneyService:
             if lead_id:
                 # Map journey for specific lead
                 result = await db.execute(
-                    select(Lead).where(Lead.id == lead_id)
+                    select(EricLead).where(EricLead.id == lead_id)
                 )
                 lead = result.scalar_one_or_none()
                 
                 if not lead:
                     return {
                         "success": False,
-                        "error": "Lead not found"
+                        "error": "EricLead not found"
                     }
                 
                 # Get interactions for this lead
                 interactions_result = await db.execute(
-                    select(LeadInteraction).where(
-                        LeadInteraction.lead_id == lead_id
-                    ).order_by(LeadInteraction.created_at)
+                    select(EricLeadInteraction).where(
+                        EricLeadInteraction.lead_id == lead_id
+                    ).order_by(EricLeadInteraction.created_at)
                 )
                 interactions = interactions_result.scalars().all()
                 
                 # Get associated deals
                 deals_result = await db.execute(
-                    select(Deal).where(Deal.lead_id == lead_id)
+                    select(EricDeal).where(EricDeal.lead_id == lead_id)
                 )
                 deals = deals_result.scalars().all()
                 
@@ -97,7 +97,7 @@ class CustomerJourneyService:
             else:
                 # Map overall customer journey patterns
                 leads_result = await db.execute(
-                    select(Lead).where(Lead.user_id == user_id).limit(100)
+                    select(EricLead).where(EricLead.user_id == user_id).limit(100)
                 )
                 leads = leads_result.scalars().all()
                 
@@ -140,9 +140,9 @@ class CustomerJourneyService:
             
             # Analyze leads at specific stage
             leads_result = await db.execute(
-                select(Lead).where(
-                    Lead.user_id == user_id,
-                    Lead.lead_status == stage
+                select(EricLead).where(
+                    EricLead.user_id == user_id,
+                    EricLead.lead_status == stage
                 )
             )
             leads = leads_result.scalars().all()

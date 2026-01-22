@@ -5,7 +5,7 @@ from datetime import datetime
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.storage.s3_manager import storage_manager
 from core.database.connection import get_supabase
-from ..models import ScheduledPost, PostStatus
+from ..models import AriaScheduledPost, AriaPostStatus
 import uuid
 
 
@@ -183,7 +183,7 @@ class VoicePostsService:
         db = await get_supabase()
         async with db.get_session() as session:
             # Create scheduled post
-            scheduled_post = ScheduledPost(
+            scheduled_post = AriaScheduledPost(
                 user_id=user_id,
                 idempotency_key=f"voice_post_{uuid.uuid4().hex}",
                 platform_targets=post_config.get("platform_targets", ["twitter"]),
@@ -192,7 +192,7 @@ class VoicePostsService:
                 media_refs=[],
                 scheduled_at=post_config.get("scheduled_at", datetime.utcnow()),
                 timezone=post_config.get("timezone", "UTC"),
-                status=PostStatus.scheduled
+                status=AriaPostStatus.scheduled
             )
             
             session.add(scheduled_post)
@@ -357,13 +357,13 @@ class VoicePostsService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select, desc
-            from ..models import ScheduledPost
+            from ..models import AriaScheduledPost
             
             # Get posts that were created from voice (identified by idempotency key)
-            query = select(ScheduledPost).where(
-                ScheduledPost.user_id == user_id,
-                ScheduledPost.idempotency_key.like("voice_post_%")
-            ).order_by(desc(ScheduledPost.created_at)).limit(limit)
+            query = select(AriaScheduledPost).where(
+                AriaScheduledPost.user_id == user_id,
+                AriaScheduledPost.idempotency_key.like("voice_post_%")
+            ).order_by(desc(AriaScheduledPost.created_at)).limit(limit)
             
             result = await session.execute(query)
             posts = result.scalars().all()

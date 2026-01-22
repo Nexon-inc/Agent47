@@ -6,7 +6,7 @@ from sqlalchemy import select, update
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_jackie_database
-from ..models import SEOProject
+from ..models import JackieSEOProject
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ class SEOService:
                 keyword_rankings = await self._analyze_keyword_rankings(target_keywords)
                 competitor_analysis = await self._analyze_competitors(competitor_urls) if competitor_urls else {}
                 
-                seo_project = SEOProject(
+                seo_project = JackieSEOProject(
                     user_id=user_id,
                     project_name=f"SEO Analysis - {website_url}",
                     website_url=website_url,
@@ -101,7 +101,7 @@ class SEOService:
     async def get_keyword_rankings(self, project_id: int) -> Dict[str, Any]:
         try:
             async with self.db.get_session() as session:
-                query = select(SEOProject).where(SEOProject.id == project_id)
+                query = select(JackieSEOProject).where(JackieSEOProject.id == project_id)
                 result = await session.execute(query)
                 project = result.scalar_one_or_none()
                 

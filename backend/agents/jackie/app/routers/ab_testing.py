@@ -6,7 +6,7 @@ import json
 
 from ..database import get_db
 from ..services.ab_testing_service import ABTestingService
-from ..models import ABTest
+from ..models import JackieABTest
 from pydantic import BaseModel
 from typing import Dict, Any
 

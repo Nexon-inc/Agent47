@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 import json
 from datetime import datetime
 
-from ..models import BusinessIdea, TaskAutomation, BusinessModel
+from ..models import PurityBusinessIdea, PurityTaskAutomation, PurityBusinessModel
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
@@ -26,7 +26,7 @@ class TaskAutomationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -90,7 +90,7 @@ class TaskAutomationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -146,7 +146,7 @@ class TaskAutomationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -202,7 +202,7 @@ class TaskAutomationService:
     ) -> Dict[str, Any]:
         try:
             business_idea_result = await db.execute(
-                select(BusinessIdea).where(BusinessIdea.id == business_idea_id)
+                select(PurityBusinessIdea).where(PurityBusinessIdea.id == business_idea_id)
             )
             business_idea = business_idea_result.scalar_one_or_none()
             if not business_idea:
@@ -249,7 +249,7 @@ class TaskAutomationService:
     
     def _create_workflow_automation_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         workflow_type: str,
         current_processes: List[str],
         automation_goals: List[str],
@@ -318,7 +318,7 @@ class TaskAutomationService:
     
     def _create_integration_setup_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         platform_integrations: List[str],
         data_flow_requirements: Dict[str, Any],
         security_requirements: List[str]
@@ -379,7 +379,7 @@ class TaskAutomationService:
     
     def _create_process_optimization_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         current_processes: Dict[str, Any],
         optimization_goals: List[str],
         resource_constraints: Dict[str, Any]
@@ -446,7 +446,7 @@ class TaskAutomationService:
     
     def _create_automation_dashboard_prompt(
         self,
-        business_idea: BusinessIdea,
+        business_idea: PurityBusinessIdea,
         automation_metrics: Dict[str, Any],
         monitoring_requirements: List[str],
         alert_settings: Dict[str, Any]

@@ -8,8 +8,8 @@ from fastapi import HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
 from ..models import (
-    SalesRep, Deal, SalesActivity, Lead, CustomerProfile,
-    EthicalSalesScore, SalesAnalytics, SalesForecast
+    EricSalesRep, EricDeal, EricSalesActivity, EricLead, CustomerProfile,
+    EthicalSalesScore, EricSalesAnalytics, EricSalesForecast
 )
 from ..database import get_eric_database
 from core.event_bus.kafka_manager import EventBus as KafkaProducer
@@ -87,16 +87,16 @@ class EthicalSalesScoringService:
             start_date = end_date - timedelta(days=30)
         
         # Get sales rep
-        sales_rep = db.query(SalesRep).filter(SalesRep.id == sales_rep_id).first()
+        sales_rep = db.query(EricSalesRep).filter(EricSalesRep.id == sales_rep_id).first()
         if not sales_rep:
             raise HTTPException(status_code=404, detail="Sales rep not found")
         
         # Get activities for the period
-        activities = db.query(SalesActivity).filter(
+        activities = db.query(EricSalesActivity).filter(
             and_(
-                SalesActivity.sales_rep_id == sales_rep_id,
-                SalesActivity.created_at >= start_date,
-                SalesActivity.created_at <= end_date
+                EricSalesActivity.sales_rep_id == sales_rep_id,
+                EricSalesActivity.created_at >= start_date,
+                EricSalesActivity.created_at <= end_date
             )
         ).all()
         
@@ -155,7 +155,7 @@ class EthicalSalesScoringService:
     ) -> SalesActivityEthicalAnalysis:
         """Analyze the ethical aspects of a specific sales activity"""
         # Get activity
-        activity = db.query(SalesActivity).filter(SalesActivity.id == activity_id).first()
+        activity = db.query(EricSalesActivity).filter(EricSalesActivity.id == activity_id).first()
         if not activity:
             raise HTTPException(status_code=404, detail="Sales activity not found")
         
@@ -181,7 +181,7 @@ class EthicalSalesScoringService:
     ) -> Dict[str, Any]:
         """Get comprehensive ethical report for entire team"""
         # Get team members
-        team_members = db.query(SalesRep).filter(SalesRep.team_id == team_id).all()
+        team_members = db.query(EricSalesRep).filter(EricSalesRep.team_id == team_id).all()
         if not team_members:
             raise HTTPException(status_code=404, detail="Team not found")
         
@@ -255,11 +255,11 @@ class EthicalSalesScoringService:
             start_date = end_date - timedelta(days=7)
         
         # Get recent activities
-        activities = db.query(SalesActivity).filter(
+        activities = db.query(EricSalesActivity).filter(
             and_(
-                SalesActivity.sales_rep_id == sales_rep_id,
-                SalesActivity.created_at >= start_date,
-                SalesActivity.created_at <= end_date
+                EricSalesActivity.sales_rep_id == sales_rep_id,
+                EricSalesActivity.created_at >= start_date,
+                EricSalesActivity.created_at <= end_date
             )
         ).all()
         
@@ -287,7 +287,7 @@ class EthicalSalesScoringService:
     ) -> Dict[str, Any]:
         """Suggest ethical alternatives for a specific activity"""
         # Get activity
-        activity = db.query(SalesActivity).filter(SalesActivity.id == activity_id).first()
+        activity = db.query(EricSalesActivity).filter(EricSalesActivity.id == activity_id).first()
         if not activity:
             raise HTTPException(status_code=404, detail="Sales activity not found")
         
@@ -308,7 +308,7 @@ class EthicalSalesScoringService:
             "benefits": await self._explain_ethical_benefits(alternatives)
         }
 
-    async def _calculate_transparency_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_transparency_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate transparency score based on activities"""
         if not activities:
             return 100.0
@@ -339,7 +339,7 @@ class EthicalSalesScoringService:
         base_score = (transparency_indicators / total_activities) * 100
         return max(0, min(100, base_score + 50))  # Base score of 50
 
-    async def _calculate_pressure_tactics_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_pressure_tactics_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate pressure tactics score (higher is better - less pressure)"""
         if not activities:
             return 100.0
@@ -368,7 +368,7 @@ class EthicalSalesScoringService:
         score = 100 - (pressure_ratio * 100)
         return max(0, min(100, score))
 
-    async def _calculate_honesty_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_honesty_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate honesty score based on activities"""
         if not activities:
             return 100.0
@@ -406,7 +406,7 @@ class EthicalSalesScoringService:
         base_score = (honesty_indicators / total_activities) * 100
         return max(0, min(100, base_score + 50))  # Base score of 50
 
-    async def _calculate_customer_focus_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_customer_focus_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate customer focus score"""
         if not activities:
             return 100.0
@@ -445,7 +445,7 @@ class EthicalSalesScoringService:
         base_score = (customer_focus_indicators / total_activities) * 100
         return max(0, min(100, base_score + 50))  # Base score of 50
 
-    async def _calculate_compliance_score(self, activities: List[SalesActivity]) -> float:
+    async def _calculate_compliance_score(self, activities: List[EricSalesActivity]) -> float:
         """Calculate compliance score"""
         if not activities:
             return 100.0
@@ -530,7 +530,7 @@ class EthicalSalesScoringService:
         
         return recommendations
 
-    async def _identify_risk_factors(self, activity: SalesActivity) -> List[str]:
+    async def _identify_risk_factors(self, activity: EricSalesActivity) -> List[str]:
         """Identify potential risk factors in a sales activity"""
         risk_factors = []
         
@@ -569,7 +569,7 @@ class EthicalSalesScoringService:
 
     async def _calculate_activity_ethical_score(
         self, 
-        activity: SalesActivity, 
+        activity: EricSalesActivity, 
         risk_factors: List[str]
     ) -> float:
         """Calculate ethical score for a specific activity"""
@@ -584,7 +584,7 @@ class EthicalSalesScoringService:
 
     async def _generate_activity_suggestions(
         self, 
-        activity: SalesActivity, 
+        activity: EricSalesActivity, 
         risk_factors: List[str]
     ) -> List[str]:
         """Generate suggestions for improving activity ethics"""
@@ -614,7 +614,7 @@ class EthicalSalesScoringService:
 
     async def _suggest_ethical_alternatives(
         self, 
-        activity: SalesActivity, 
+        activity: EricSalesActivity, 
         risk_factors: List[str]
     ) -> List[str]:
         """Suggest ethical alternatives for risky activities"""

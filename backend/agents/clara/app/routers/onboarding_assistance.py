@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from ..database import get_clara_database, get_db
 from ..services.onboarding_assistance_service import OnboardingAssistanceService
-from ..models import OnboardingStep, OnboardingSession, OnboardingTutorial, OnboardingProgress
+from ..models import OnboardingStep, ClaraOnboardingSession, OnboardingTutorial, OnboardingProgress
 
 
 # Pydantic models for request/response

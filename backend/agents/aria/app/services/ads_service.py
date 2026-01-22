@@ -4,7 +4,7 @@ import httpx
 from core.config import settings
 from core.database.connection import get_supabase
 from core.platforms.platform_manager import get_platform_manager
-from ..models import Campaign
+from ..models import AriaCampaign
 import json
 
 
@@ -86,9 +86,9 @@ class AdsService:
             # Facebook Marketing API endpoints
             base_url = "https://graph.facebook.com/v18.0"
             
-            # Step 1: Create Campaign
+            # Step 1: Create AriaCampaign
             campaign_payload = {
-                "name": campaign_data.get("name", "Instagram Ad Campaign"),
+                "name": campaign_data.get("name", "Instagram Ad AriaCampaign"),
                 "objective": self._map_objective_to_facebook(campaign_data.get("objective", "AWARENESS")),
                 "status": "PAUSED",  # Start paused for safety
                 "special_ad_categories": [],
@@ -104,7 +104,7 @@ class AdsService:
                 )
 
                 if campaign_response.status_code != 200:
-                    return {"success": False, "error": f"Campaign creation failed: {campaign_response.text}"}
+                    return {"success": False, "error": f"AriaCampaign creation failed: {campaign_response.text}"}
 
                 campaign_result = campaign_response.json()
                 campaign_id = campaign_result.get("id")
@@ -197,9 +197,9 @@ class AdsService:
             # LinkedIn Ads API endpoints
             base_url = "https://api.linkedin.com/v2"
             
-            # Step 1: Create Campaign
+            # Step 1: Create AriaCampaign
             campaign_payload = {
-                "name": campaign_data.get("name", "LinkedIn Ad Campaign"),
+                "name": campaign_data.get("name", "LinkedIn Ad AriaCampaign"),
                 "campaignGroup": f"urn:li:sponsoredCampaignGroup:{campaign_data.get('campaign_group_id', 'default')}",
                 "status": "PAUSED",  # Start paused for safety
                 "format": "TEXT_AD",
@@ -227,7 +227,7 @@ class AdsService:
                 )
 
                 if campaign_response.status_code != 201:
-                    return {"success": False, "error": f"Campaign creation failed: {campaign_response.text}"}
+                    return {"success": False, "error": f"AriaCampaign creation failed: {campaign_response.text}"}
 
                 campaign_result = campaign_response.json()
                 campaign_id = campaign_result.get("id")
@@ -304,7 +304,7 @@ class AdsService:
         """Store campaign in database"""
         db = await get_supabase()
         async with db.get_session() as session:
-            campaign = Campaign(
+            campaign = AriaCampaign(
                 user_id=user_id,
                 name=campaign_data.get("name", ""),
                 objective=campaign_data.get("objective", ""),
@@ -416,14 +416,14 @@ class AdsService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            from ..models import Campaign
+            from ..models import AriaCampaign
             
-            query = select(Campaign).where(Campaign.id == campaign_id, Campaign.user_id == user_id)
+            query = select(AriaCampaign).where(AriaCampaign.id == campaign_id, AriaCampaign.user_id == user_id)
             result = await session.execute(query)
             campaign = result.scalar_one_or_none()
             
             if not campaign:
-                return {"success": False, "error": "Campaign not found"}
+                return {"success": False, "error": "AriaCampaign not found"}
             
             return {
                 "success": True,
@@ -442,14 +442,14 @@ class AdsService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            from ..models import Campaign
+            from ..models import AriaCampaign
             
-            query = select(Campaign).where(Campaign.id == campaign_id, Campaign.user_id == user_id)
+            query = select(AriaCampaign).where(AriaCampaign.id == campaign_id, AriaCampaign.user_id == user_id)
             result = await session.execute(query)
             campaign = result.scalar_one_or_none()
             
             if not campaign:
-                return {"success": False, "error": "Campaign not found"}
+                return {"success": False, "error": "AriaCampaign not found"}
             
             # Update budget
             campaign.budget_cents = new_budget_cents
@@ -461,7 +461,7 @@ class AdsService:
                 "success": True,
                 "campaign_id": campaign_id,
                 "new_budget_cents": new_budget_cents,
-                "message": "Campaign budget updated successfully"
+                "message": "AriaCampaign budget updated successfully"
             }
 
     async def pause_campaign(self, user_id: int, campaign_id: int) -> Dict[str, Any]:
@@ -469,14 +469,14 @@ class AdsService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            from ..models import Campaign
+            from ..models import AriaCampaign
             
-            query = select(Campaign).where(Campaign.id == campaign_id, Campaign.user_id == user_id)
+            query = select(AriaCampaign).where(AriaCampaign.id == campaign_id, AriaCampaign.user_id == user_id)
             result = await session.execute(query)
             campaign = result.scalar_one_or_none()
             
             if not campaign:
-                return {"success": False, "error": "Campaign not found"}
+                return {"success": False, "error": "AriaCampaign not found"}
             
             # Update status
             campaign.status = "paused"
@@ -488,7 +488,7 @@ class AdsService:
                 "success": True,
                 "campaign_id": campaign_id,
                 "status": "paused",
-                "message": "Campaign paused successfully"
+                "message": "AriaCampaign paused successfully"
             }
 
     async def get_user_campaigns(self, user_id: int, status: str = None) -> Dict[str, Any]:
@@ -496,11 +496,11 @@ class AdsService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            from ..models import Campaign
+            from ..models import AriaCampaign
             
-            query = select(Campaign).where(Campaign.user_id == user_id)
+            query = select(AriaCampaign).where(AriaCampaign.user_id == user_id)
             if status:
-                query = query.where(Campaign.status == status)
+                query = query.where(AriaCampaign.status == status)
             
             result = await session.execute(query)
             campaigns = result.scalars().all()

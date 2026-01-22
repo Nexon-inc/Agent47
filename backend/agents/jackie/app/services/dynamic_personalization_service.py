@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import CustomerSegment, PersonalizationRule, DynamicContent, CRMIntegration
+from ..models import JackieCustomerSegment, JackiePersonalizationRule, JackieDynamicContent, CRMIntegration
 
 class DynamicPersonalizationService:
     def __init__(self, db: Session):
@@ -18,7 +18,7 @@ class DynamicPersonalizationService:
         segment_id = str(uuid.uuid4())
         segment_result = self.nlp_processor.create_customer_segment(f"Segment Criteria: {segment_criteria}")
         
-        segment = CustomerSegment(
+        segment = JackieCustomerSegment(
             id=segment_id, segment_criteria=json.dumps(segment_criteria), segment_name=segment_name,
             segment_data=json.dumps(segment_result), created_at=datetime.utcnow()
         )
@@ -31,7 +31,7 @@ class DynamicPersonalizationService:
         content_id = str(uuid.uuid4())
         content_result = self.nlp_processor.generate_dynamic_content(f"Content Template: {content_template}")
         
-        content = DynamicContent(
+        content = JackieDynamicContent(
             id=content_id, content_template=content_template, customer_data=json.dumps(customer_data),
             content_data=json.dumps(content_result), created_at=datetime.utcnow()
         )
@@ -43,8 +43,8 @@ class DynamicPersonalizationService:
     def get_personalization_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        segments_created = self.db.query(CustomerSegment).filter(CustomerSegment.created_at >= cutoff_date).count()
-        dynamic_content = self.db.query(DynamicContent).filter(DynamicContent.created_at >= cutoff_date).count()
+        segments_created = self.db.query(JackieCustomerSegment).filter(JackieCustomerSegment.created_at >= cutoff_date).count()
+        dynamic_content = self.db.query(JackieDynamicContent).filter(JackieDynamicContent.created_at >= cutoff_date).count()
         
         return {
             "timeframe": timeframe, "segments_created": segments_created,

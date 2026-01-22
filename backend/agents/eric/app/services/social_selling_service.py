@@ -13,8 +13,8 @@ from core.platforms.platform_manager import PlatformManager
 from core.ai import get_ai_service_manager
 from ..database import get_eric_database
 from ..models import (
-    Lead, LeadInteraction, Deal, SalesActivity, Objection,
-    SalesCampaign, EmailSequence, SalesTeam, SalesRep, SalesAnalytics
+    EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricObjection,
+    EricSalesCampaign, EricEmailSequence, EricSalesTeam, EricSalesRep, EricSalesAnalytics
 )
 
 logger = logging.getLogger(__name__)
@@ -372,7 +372,7 @@ class SocialSellingService:
         """Get analytics for social selling activities"""
         try:
             # Query actual social selling data from database
-            from ..models import SalesActivity, Lead, Deal
+            from ..models import EricSalesActivity, EricLead, EricDeal
             
             # Calculate date range
             end_date = datetime.now()
@@ -386,17 +386,17 @@ class SocialSellingService:
                 start_date = end_date - timedelta(days=30)
             
             # Get social selling activities
-            activities_query = db.query(SalesActivity).filter(
+            activities_query = db.query(EricSalesActivity).filter(
                 and_(
-                    SalesActivity.activity_type == "social_post",
-                    SalesActivity.created_at >= start_date,
-                    SalesActivity.created_at <= end_date
+                    EricSalesActivity.activity_type == "social_post",
+                    EricSalesActivity.created_at >= start_date,
+                    EricSalesActivity.created_at <= end_date
                 )
             )
             
             if platform:
                 activities_query = activities_query.filter(
-                    SalesActivity.metadata.contains({"platform": platform})
+                    EricSalesActivity.metadata.contains({"platform": platform})
                 )
             
             activities = activities_query.all()

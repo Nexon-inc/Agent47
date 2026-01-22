@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import CampaignEvent, CalendarView, TimelineEvent, ScheduleConflict
+from ..models import CampaignEvent, CalendarView, JackieTimelineEvent, ScheduleConflict
 
 class CampaignCalendarService:
     def __init__(self, db: Session):

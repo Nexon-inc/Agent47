@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ContentProject, ContentPiece, ContentAnalytics
+from ..models import ShakesContentProject, ShakesContentPiece, ContentAnalytics
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class ContentAnalyticsService:
             async with db.get_session() as session:
                 # Get content piece
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id == content_piece_id)
+                    select(ShakesContentPiece).where(ShakesContentPiece.id == content_piece_id)
                 )
                 content_piece = content_result.scalar_one_or_none()
                 
@@ -205,11 +205,11 @@ class ContentAnalyticsService:
                 start_date = end_date - timedelta(days=date_range_days)
                 
                 # Get content pieces for user
-                content_query = select(ContentPiece).join(ContentProject).where(
+                content_query = select(ShakesContentPiece).join(ShakesContentProject).where(
                     and_(
-                        ContentProject.user_id == user_id,
-                        ContentPiece.created_at >= start_date,
-                        ContentPiece.created_at <= end_date
+                        ShakesContentProject.user_id == user_id,
+                        ShakesContentPiece.created_at >= start_date,
+                        ShakesContentPiece.created_at <= end_date
                     )
                 )
                 content_result = await session.execute(content_query)
@@ -290,7 +290,7 @@ class ContentAnalyticsService:
             async with db.get_session() as session:
                 # Get content pieces
                 content_result = await session.execute(
-                    select(ContentPiece).where(ContentPiece.id.in_(content_piece_ids))
+                    select(ShakesContentPiece).where(ShakesContentPiece.id.in_(content_piece_ids))
                 )
                 content_pieces = content_result.scalars().all()
                 
@@ -363,7 +363,7 @@ class ContentAnalyticsService:
             return {"success": False, "error": str(e)}
     
     def _create_performance_analysis_prompt(
-        self, content_piece: ContentPiece, platform: str, metrics: Dict[str, Any]
+        self, content_piece: ShakesContentPiece, platform: str, metrics: Dict[str, Any]
     ) -> str:
         """Create prompt for performance analysis"""
         return f"""

@@ -348,7 +348,7 @@ class ChatMessageResponse(ChatMessageBase):
     class Config:
         from_attributes = True
 
-# Multi-Brand Support Schemas
+# Multi-ClaraBrand Support Schemas
 class BrandBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
@@ -475,7 +475,7 @@ class TrainingModuleResponse(TrainingModuleBase):
     class Config:
         from_attributes = True
 
-# FAQ Schemas
+# ClaraFAQ Schemas
 class FAQCategoryBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None

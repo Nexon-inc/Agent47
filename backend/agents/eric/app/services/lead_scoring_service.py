@@ -38,7 +38,7 @@ class LeadScoringService:
             await self.kafka_manager.initialize()
             await self.redis_manager.initialize()
             self._initialized = True
-            logger.info("Lead scoring service initialized successfully")
+            logger.info("EricLead scoring service initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize lead scoring service: {e}")
             raise
@@ -296,11 +296,11 @@ class LeadScoringService:
             async with get_eric_database() as db:
                 # Get lead's interaction history
                 interactions = await db.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.lead_id == lead_id,
-                            SalesActivity.brand_id == brand_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=30)
+                            EricSalesActivity.lead_id == lead_id,
+                            EricSalesActivity.brand_id == brand_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=30)
                         )
                     )
                 )
@@ -387,12 +387,12 @@ class LeadScoringService:
             async with get_eric_database() as db:
                 # Get lead's intent signals from recent activities
                 intent_activities = await db.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.lead_id == lead_id,
-                            SalesActivity.brand_id == brand_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=14),
-                            SalesActivity.activity_type.in_([
+                            EricSalesActivity.lead_id == lead_id,
+                            EricSalesActivity.brand_id == brand_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=14),
+                            EricSalesActivity.activity_type.in_([
                                 "pricing_page_view", "demo_request", "trial_signup", 
                                 "case_study_download", "competitor_research", "purchase_intent"
                             ])
@@ -448,11 +448,11 @@ class LeadScoringService:
             async with get_eric_database() as db:
                 # Get lead's engagement activities
                 engagement_activities = await db.execute(
-                    select(SalesActivity).where(
+                    select(EricSalesActivity).where(
                         and_(
-                            SalesActivity.lead_id == lead_id,
-                            SalesActivity.brand_id == brand_id,
-                            SalesActivity.created_at >= datetime.utcnow() - timedelta(days=30)
+                            EricSalesActivity.lead_id == lead_id,
+                            EricSalesActivity.brand_id == brand_id,
+                            EricSalesActivity.created_at >= datetime.utcnow() - timedelta(days=30)
                         )
                     )
                 )
@@ -588,16 +588,16 @@ class LeadScoringService:
             insights.append("High-scoring lead with strong potential for conversion")
         
         if behavioral_score >= 0.8:
-            insights.append("Lead shows strong behavioral signals indicating high interest")
+            insights.append("EricLead shows strong behavioral signals indicating high interest")
         
         if intent_score >= 0.8:
-            insights.append("Lead demonstrates clear purchase intent")
+            insights.append("EricLead demonstrates clear purchase intent")
         
         if engagement_score < 0.5:
             insights.append("Low engagement score suggests need for more nurturing")
         
         if company_fit_score >= 0.8:
-            insights.append("Lead fits ideal customer profile very well")
+            insights.append("EricLead fits ideal customer profile very well")
         
         return insights
 
@@ -787,14 +787,14 @@ class LeadScoringService:
         insights = []
         
         if intent_score >= 0.8:
-            insights.append("Lead shows strong purchase intent signals")
+            insights.append("EricLead shows strong purchase intent signals")
         
         signal_types = [signal["signal_type"] for signal in processed_signals]
         if "website_visit" in signal_types:
-            insights.append("Lead has visited website multiple times")
+            insights.append("EricLead has visited website multiple times")
         
         if "email_open" in signal_types:
-            insights.append("Lead is engaging with email content")
+            insights.append("EricLead is engaging with email content")
         
         return insights
 
@@ -846,9 +846,9 @@ class LeadScoringService:
         insights = []
         
         if updated_score > current_score:
-            insights.append("Lead score increased due to positive activity")
+            insights.append("EricLead score increased due to positive activity")
         elif updated_score < current_score:
-            insights.append("Lead score decreased due to negative activity")
+            insights.append("EricLead score decreased due to negative activity")
         
         insights.append(f"Activity: {activity_impact.get('activity_type')}")
         insights.append(f"Impact: {activity_impact.get('impact_reason')}")
@@ -893,7 +893,7 @@ class LeadScoringService:
                                                 scoring_trends: Dict[str, Any]) -> List[str]:
         """Generate insights from scoring analytics"""
         return [
-            "Lead scoring shows strong correlation with conversion rates",
+            "EricLead scoring shows strong correlation with conversion rates",
             "High-scoring leads convert at 5x the rate of low-scoring leads",
             "Scoring accuracy has improved by 5% over the last month"
         ]

@@ -5,7 +5,7 @@ from datetime import datetime
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.storage.s3_manager import storage_manager
 from core.database.connection import get_supabase
-from ..models import ScheduledPost
+from ..models import AriaScheduledPost
 import uuid
 
 
@@ -290,10 +290,10 @@ class AccessibilityService:
         db = await get_supabase()
         async with db.get_session() as session:
             from sqlalchemy import select
-            from ..models import ScheduledPost
+            from ..models import AriaScheduledPost
             
             # Get post data
-            query = select(ScheduledPost).where(ScheduledPost.id == post_id, ScheduledPost.user_id == user_id)
+            query = select(AriaScheduledPost).where(AriaScheduledPost.id == post_id, AriaScheduledPost.user_id == user_id)
             result = await session.execute(query)
             post = result.scalar_one_or_none()
             
