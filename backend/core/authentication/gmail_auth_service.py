@@ -368,6 +368,57 @@ class GmailAuthService:
         except Exception as e:
             logger.error(f"Failed to send welcome email to {to_email}: {e}")
             return False
+            
+    async def send_security_notification(
+        self,
+        to_email: str,
+        action_name: str,
+        user_name: Optional[str] = None
+    ) -> bool:
+        """Send security notification email"""
+        try:
+            subject = f"Security Alert: {action_name} - Agent47"
+            
+            # Load template
+            html_template = self._get_template("security_notification.html")
+            if not html_template:
+                logger.error("Security notification template not found, falling back to basic HTML")
+                html_body = f"Security notification: your {action_name} was recently updated."
+            else:
+                # Replace placeholders
+                html_body = html_template.replace("{{action_name}}", action_name)
+                html_body = html_body.replace("{{time}}", datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC"))
+                html_body = html_body.replace("{{user_name}}", user_name or "there")
+            
+            # Plain text body
+            text_body = f"""
+            Security Alert: {action_name}
+            
+            Hello,
+            
+            This is an automated notification to inform you that your {action_name} was recently updated.
+            
+            Details:
+            Action: {action_name}
+            Time: {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")}
+            
+            If you made this change, you can safely ignore this email.
+            
+            If you did NOT make this change, please contact our support team immediately or reset your password to secure your account.
+            
+            © 2026 Agent47 Platform. All rights reserved.
+            """
+            
+            return await self.send_email(
+                to_email=to_email,
+                subject=subject,
+                body_html=html_body,
+                body_text=text_body
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to send security notification email to {to_email}: {e}")
+            return False
     
     async def close(self):
         """Close Gmail service"""

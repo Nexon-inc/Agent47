@@ -312,6 +312,23 @@ class EmailVerificationManager:
             logger.error(f"Failed to get verification status for user {user_id}: {e}")
             return None
     
+    async def send_security_notification(
+        self,
+        email: str,
+        action_name: str,
+        user_name: Optional[str] = None
+    ) -> bool:
+        """Send security notification email"""
+        try:
+            return await self.gmail_service.send_security_notification(
+                to_email=email,
+                action_name=action_name,
+                user_name=user_name
+            )
+        except Exception as e:
+            logger.error(f"Failed to send security notification to {email}: {e}")
+            return False
+            
     async def close(self):
         """Close the email verification manager"""
         await self.gmail_service.close()

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Alert - Agent47</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1a1a1a;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fa;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .content {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .content h2 {
+            color: #ef4444;
+            margin-top: 0;
+        }
+
+        .content p {
+            font-size: 16px;
+            color: #4b5563;
+            margin-bottom: 24px;
+        }
+
+        .footer {
+            padding: 30px;
+            text-align: center;
+            background-color: #f9fafb;
+            color: #9ca3af;
+            font-size: 14px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .alert-box {
+            background-color: #fef2f2;
+            border: 1px solid #fee2e2;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Agent47 Security</h1>
+        </div>
+        <div class="content">
+            <h2>Security Notification</h2>
+            <p>Hello,</p>
+            <p>This is an automated notification to inform you that your <strong>{{action_name}}</strong> was recently
+                updated.</p>
+
+            <div class="alert-box">
+                <p style="margin: 0; color: #b91c1c;"><strong>Details:</strong></p>
+                <p style="margin: 5px 0 0 0; font-size: 14px;"><strong>Action:</strong> {{action_name}}</p>
+                <p style="margin: 5px 0 0 0; font-size: 14px;"><strong>Time:</strong> {{time}}</p>
+            </div>
+
+            <p>If you made this change, you can safely ignore this email.</p>
+            <p style="color: #b91c1c; font-weight: bold;">If you did NOT make this change, please contact our support
+                team immediately or reset your password to secure your account.</p>
+        </div>
+        <div class="footer">
+            <p>© 2026 Agent47 Platform. All rights reserved.</p>
+            <p>This is a mandatory security notification.</p>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -125,6 +125,35 @@ class EmailVerificationResponse(BaseModel):
 async def signup(user_data: UserSignupRequest):
     """User registration endpoint using Supabase Auth"""
     try:
+        # CRITICAL: Check if email or username already exists in local database 
+        # BEFORE attempting Supabase signup to prevent partial registration issues
+        try:
+            from ..database import get_database
+            db_mgr = get_database()
+            async with db_mgr.get_session() as session_db:
+                from sqlalchemy import select, or_
+                # Check for existing user with same email or username
+                existing_check = await session_db.execute(
+                    select(User).where(or_(User.email == user_data.email, User.username == user_data.username))
+                )
+                existing_user = existing_check.scalar_one_or_none()
+                
+                if existing_user:
+                    if existing_user.email == user_data.email:
+                        raise HTTPException(
+                            status_code=status.HTTP_409_CONFLICT,
+                            detail=f"Email '{user_data.email}' is already registered. Please login or use a different email."
+                        )
+                    if existing_user.username == user_data.username:
+                        raise HTTPException(
+                            status_code=status.HTTP_409_CONFLICT,
+                            detail=f"Username '{user_data.username}' is already taken. Please choose another username."
+                        )
+        except HTTPException:
+            raise
+        except Exception as db_err:
+            logger.warning(f"Pre-signup database check failed (will continue): {db_err}")
+
         # Prepare user data for Supabase
         supabase_user_data = {
             "username": user_data.username,
@@ -630,6 +659,18 @@ async def reset_password(reset_data: PasswordResetRequest):
         success = await auth_manager.reset_password_with_token(reset_data.token, reset_data.new_password)
         
         if success:
+            # Send security notification after successful password reset
+            try:
+                payload = auth_manager.verify_token(reset_data.token)
+                email = payload.get("email")
+                if email:
+                    await email_verification_manager.send_security_notification(
+                        email=email,
+                        action_name="Password Reset"
+                    )
+            except Exception as notify_error:
+                logger.warning(f"Failed to send security notification after password reset: {notify_error}")
+                
             return {"success": True, "message": "Password reset successfully"}
         else:
             raise HTTPException(
@@ -659,6 +700,16 @@ async def change_password(
         )
         
         if success:
+            # Send security notification
+            try:
+                await email_verification_manager.send_security_notification(
+                    email=current_user.email,
+                    action_name="Password Update",
+                    user_name=current_user.username
+                )
+            except Exception as notify_error:
+                logger.warning(f"Failed to send security notification after password change: {notify_error}")
+                
             return {"message": "Password changed successfully"}
         else:
             raise HTTPException(

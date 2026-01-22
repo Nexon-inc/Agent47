@@ -864,14 +864,14 @@ class ApiClient {
 
   // Billing Methods
   async getSubscription(opts?: { suppressRedirect?: boolean }): Promise<Subscription> {
-    return this.makeRequest<Subscription>('/billing/subscription', {
+    return this.makeRequest<Subscription>('/api/v1/billing/subscription', {
       suppressTierRedirect: !!opts?.suppressRedirect,
     } as any);
   }
 
   // Backwards-compatible getBillingPlans with optional suppression
   async getBillingPlans(opts?: { suppressRedirect?: boolean }): Promise<BillingPlan[]> {
-    return this.makeRequest<BillingPlan[]>('/billing/plans', {
+    return this.makeRequest<BillingPlan[]>('/api/v1/billing/plans', {
       suppressTierRedirect: !!opts?.suppressRedirect,
     } as any);
   }
@@ -882,7 +882,7 @@ class ApiClient {
     billingPeriod: string = 'monthly',
     opts?: { suppressRedirect?: boolean }
   ): Promise<PaymentResponse> {
-    return this.makeRequest<PaymentResponse>('/billing/subscribe', {
+    return this.makeRequest<PaymentResponse>('/api/v1/billing/subscribe', {
       method: 'POST',
       body: JSON.stringify({
         tier,
@@ -895,7 +895,7 @@ class ApiClient {
   }
 
   async cancelSubscription(reason: string = 'User requested cancellation'): Promise<{ message: string }> {
-    return this.makeRequest<{ message: string }>('/billing/cancel', {
+    return this.makeRequest<{ message: string }>('/api/v1/billing/cancel', {
       method: 'POST',
       body: JSON.stringify({ reason }),
     });
@@ -906,7 +906,7 @@ class ApiClient {
   }
 
   async getUserUsage(): Promise<UsageData> {
-    return this.makeRequest<UsageData>('/billing/usage');
+    return this.makeRequest<UsageData>('/api/v1/billing/usage');
   }
 
   // Admin Methods
