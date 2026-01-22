@@ -105,6 +105,7 @@ steps:
         TIKTOK_CLIENT_SECRET=tiktok-client-secret:latest,
         PINTEREST_CLIENT_ID=pinterest-client-id:latest,
         PINTERENT_CLIENT_SECRET=pinterest-secret-id:latest,
+        GMAIL_APP_PASSWORD=gmail-app-password:latest,
       # Confluent Kafka static values (not secrets)
       - '--set-env-vars'
       - >-

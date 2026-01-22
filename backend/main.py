@@ -101,6 +101,10 @@ async def lifespan(app: FastAPI):
         await _init_with_timeout(init_kafka(), timeout=10.0, service_name="Kafka", critical=True)
         await _init_with_timeout(init_rate_limiter(), timeout=5.0, service_name="Rate limiter", critical=True)
 
+        # Initialize Email Verification Manager
+        from core.authentication.email_verification_manager import email_verification_manager
+        await _init_with_timeout(email_verification_manager.initialize(), timeout=20.0, service_name="Email Verification Manager", critical=False)
+
         from admin import init_admin_core
         await _init_with_timeout(init_admin_core(), timeout=15.0, service_name="Admin core", critical=True)
 

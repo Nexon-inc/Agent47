@@ -27,6 +27,7 @@ export default function AuthPage() {
   const [passwordStrength, setPasswordStrength] = useState(0)
   const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false)
   const [resetEmailSent, setResetEmailSent] = useState(false)
+  const [showSignupSuccess, setShowSignupSuccess] = useState(false)
 
   // Form state
   const [firstName, setFirstName] = useState("")
@@ -88,7 +89,9 @@ export default function AuthPage() {
     try {
       const success = await signup(signupData)
       if (success) {
-        router.push("/onboarding")
+        setShowSignupSuccess(true)
+        // We still allow them to go to onboarding, but they should check email
+        // or we could delay redirection
       } else {
         // Get error from store
         const errorMessage = useAuthStore.getState().error
@@ -172,7 +175,28 @@ export default function AuthPage() {
           <CardContent>
             {/* Sign Up Form */}
             <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
+              {showSignupSuccess ? (
+                <div className="text-center py-6 space-y-4">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                    <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Registration Successful!</h3>
+                  <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg text-sm text-blue-800">
+                    <p className="font-semibold mb-1">📧 Please check your email</p>
+                    <p>We've sent a <strong>welcome email</strong> and a <strong>verification link</strong> to <strong>{email}</strong>. Please verify your email to fully activate your account.</p>
+                  </div>
+                  <Button 
+                    onClick={() => router.push("/onboarding")} 
+                    className="w-full bg-[#3B82F6] hover:bg-blue-600"
+                  >
+                    Continue to Onboarding
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <Input

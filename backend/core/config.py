@@ -435,6 +435,7 @@ class GmailAPISettings(BaseSettings):
     client_secret: str = os.getenv("GMAIL_CLIENT_SECRET", "")
     refresh_token: str = os.getenv("GMAIL_REFRESH_TOKEN", "")
     access_token: str = os.getenv("GMAIL_ACCESS_TOKEN", "")
+    app_password: str = os.getenv("GMAIL_APP_PASSWORD", "")
     credentials_file: str = os.getenv("GMAIL_CREDENTIALS_FILE", "./credentials/gmail_credentials.json")
     token_file: str = os.getenv("GMAIL_TOKEN_FILE", "./credentials/gmail_token.json")
     scopes: list = ["https://www.googleapis.com/auth/gmail.send"]
@@ -655,7 +656,7 @@ class Settings(BaseSettings):
     google_gemini_image: GoogleGeminiImageSettings = GoogleGeminiImageSettings()
     
     admin_default_email: str = os.getenv("ADMIN_DEFAULT_EMAIL", "agent47assist@gmail.com")
-    admin_default_password: str = os.getenv("ADMIN_DEFAULT_PASSWORD", "")
+    admin_default_password: str = os.getenv("ADMIN_DEFAULT_PASSWORD", "G.z.t.i.p.0,1,0")
     admin_session_timeout_hours: int = int(os.getenv("ADMIN_SESSION_TIMEOUT_HOURS", "24"))
     admin_enable_2fa: bool = os.getenv("ADMIN_ENABLE_2FA", "false").lower() == "true"
     admin_ip_whitelist: list = os.getenv("ADMIN_IP_WHITELIST", "").split(",") if os.getenv("ADMIN_IP_WHITELIST") else []

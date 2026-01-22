@@ -105,14 +105,17 @@ class MessageType(enum.Enum):
     BILLING_NOTIFICATION = "billing_notification"
 
 class SubscriptionStatus(enum.Enum):
+    PENDING = "pending"
     ACTIVE = "active"
     INACTIVE = "inactive"
     CANCELLED = "cancelled"
     PAST_DUE = "past_due"
     TRIALING = "trialing"
+    EXPIRED = "expired"
 
 class PaymentStatus(enum.Enum):
     PENDING = "pending"
+    SUCCESSFUL = "successful"
     COMPLETED = "completed"
     FAILED = "failed"
     REFUNDED = "refunded"

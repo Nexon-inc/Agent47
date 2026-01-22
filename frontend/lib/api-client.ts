@@ -460,14 +460,14 @@ class ApiClient {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('user');
-      
+
       // Clear cookies
       document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       document.cookie = 'refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       document.cookie = 'user_tier=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       document.cookie = 'onboarding_completed=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
     }
-    
+
     this.accessToken = null;
     this.refreshToken = null;
   }
@@ -491,9 +491,9 @@ class ApiClient {
         // ignore - we'll handle 401s below
       }
     }
-    
+
     const url = `${this.baseURL}${endpoint}`;
-    
+
     // Add authorization header if token exists
     const token = this.getToken();
     const headers: Record<string, string> = {
@@ -525,7 +525,7 @@ class ApiClient {
         console.debug('[apiClient] makeRequest - token present?', !!this.getToken(), 'tokenPreview:', (this.getToken() || '').substring(0, 8));
         // eslint-disable-next-line no-console
         console.debug('[apiClient] makeRequest - headers:', headers);
-      } catch (e) {}
+      } catch (e) { }
       const response = await fetch(url, config);
 
       // Handle 401 Unauthorized - try to refresh token
@@ -579,13 +579,13 @@ class ApiClient {
         // Check if user has a tier selected (they should have one after signup)
         const authStore = require('@/lib/stores/auth-store').useAuthStore.getState();
         const user = authStore?.user;
-        
+
         // If user has a tier (even if free), don't redirect - they've already made a choice
         if (user?.tier) {
           // User has a tier, so this is a different 403 error - just throw it
           throw new Error(errorData.detail || "Access denied");
         }
-        
+
         // If caller asked to suppress automatic redirect (e.g., background calls), just throw
         if (suppressTierRedirect) {
           throw new Error("Tier selection required. Background call suppressed redirect.");
@@ -608,7 +608,7 @@ class ApiClient {
       // Handle 409 Conflict errors with specific field information
       if (response.status === 409) {
         const detail = errorData.detail || errorData.message || '';
-        
+
         // Check for specific field conflicts
         if (detail.toLowerCase().includes('email') || detail.toLowerCase().includes('e-mail')) {
           throw new Error("This email address is already registered. Please use a different email or try logging in.");
@@ -626,7 +626,7 @@ class ApiClient {
       // Handle 400 Bad Request errors
       if (response.status === 400) {
         const detail = errorData.detail || errorData.message || '';
-        
+
         if (detail.toLowerCase().includes('password')) {
           throw new Error("Password requirements not met. Please ensure your password is at least 8 characters long.");
         } else if (detail.toLowerCase().includes('email')) {
@@ -643,7 +643,7 @@ class ApiClient {
         console.warn(`Endpoint not found: ${response.url}`);
         throw new Error(errorData.detail || errorData.message || 'Endpoint not found');
       }
-      
+
       throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}: ${response.statusText}`);
     }
 
@@ -662,7 +662,7 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    
+
     this.saveTokensToStorage(response);
     return response;
   }
@@ -673,7 +673,7 @@ class ApiClient {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    
+
     this.saveTokensToStorage(response);
     return response;
   }
@@ -681,9 +681,9 @@ class ApiClient {
   async logout(): Promise<void> {
     try {
       // Use backend API for logout
-        await this.makeRequest('/api/v1/auth/logout', {
-          method: 'POST',
-        });
+      await this.makeRequest('/api/v1/auth/logout', {
+        method: 'POST',
+      });
     } catch (error) {
       // Continue with logout even if API call fails
       console.warn('Logout API call failed:', error);
@@ -694,12 +694,12 @@ class ApiClient {
 
   async refreshAccessToken(): Promise<boolean> {
     const supabase = await initSupabaseClient();
-    
+
     if (supabase) {
       try {
         // Supabase handles token refresh automatically
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (error) {
           console.error('Session refresh failed:', error);
           this.clearTokensFromStorage();
@@ -709,7 +709,7 @@ class ApiClient {
         if (session) {
           this.accessToken = session.access_token;
           this.refreshToken = session.refresh_token;
-          
+
           if (typeof window !== 'undefined') {
             localStorage.setItem('access_token', session.access_token);
             localStorage.setItem('refresh_token', session.refresh_token);
@@ -749,14 +749,14 @@ class ApiClient {
       }
     }
 
-      // If refresh failed, clear all tokens
+    // If refresh failed, clear all tokens
     this.clearTokensFromStorage();
     return false;
   }
 
   async getCurrentSession(): Promise<any> {
     const supabase = await initSupabaseClient();
-    
+
     if (supabase) {
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error) {
@@ -765,13 +765,13 @@ class ApiClient {
       }
       return session;
     }
-    
+
     return null;
   }
 
   async resetPasswordRequest(data: PasswordResetData): Promise<{ message: string }> {
     const supabase = await initSupabaseClient();
-    
+
     if (supabase) {
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
         redirectTo: `${window.location.origin}/auth/reset-password`
@@ -793,7 +793,7 @@ class ApiClient {
 
   async changePassword(data: PasswordChangeData): Promise<{ message: string }> {
     const supabase = await initSupabaseClient();
-    
+
     if (supabase) {
       const { error } = await supabase.auth.updateUser({
         password: data.new_password
@@ -849,6 +849,19 @@ class ApiClient {
     });
   }
 
+  // Alias for getOnboardingData - used by account tab
+  async getAccountData(): Promise<any> {
+    return this.makeRequest('/api/v1/onboarding/data');
+  }
+
+  // Save selected agents
+  async saveSelectedAgents(agentIds: string[]): Promise<any> {
+    return this.makeRequest('/api/v1/account/selected-agents', {
+      method: 'POST',
+      body: JSON.stringify({ agents: agentIds }),
+    });
+  }
+
   // Billing Methods
   async getSubscription(opts?: { suppressRedirect?: boolean }): Promise<Subscription> {
     return this.makeRequest<Subscription>('/billing/subscription', {
@@ -871,10 +884,10 @@ class ApiClient {
   ): Promise<PaymentResponse> {
     return this.makeRequest<PaymentResponse>('/billing/subscribe', {
       method: 'POST',
-      body: JSON.stringify({ 
-        tier, 
+      body: JSON.stringify({
+        tier,
         payment_method: paymentMethod,
-        billing_period: billingPeriod 
+        billing_period: billingPeriod
       }),
       // forward suppress flag so makeRequest/handleResponse won't auto-redirect
       suppressTierRedirect: !!opts?.suppressRedirect,
@@ -1116,8 +1129,8 @@ class ApiClient {
     return this.makeRequest<{ data: any }>('/api/v1/account/selected-agents/status', {
       method: 'PUT',
       body: JSON.stringify({
-      agent_id: agentId,
-      status: status
+        agent_id: agentId,
+        status: status
       }),
     })
   }
@@ -1128,14 +1141,14 @@ class ApiClient {
   }
 
   async updateAgentConfiguration(
-    agentId: string, 
-    customInstructions?: string, 
+    agentId: string,
+    customInstructions?: string,
     preferences?: Record<string, any>
   ): Promise<{ data: any }> {
     return this.makeRequest<{ data: any }>(`/api/v1/account/selected-agents/configuration`, {
       method: 'PUT',
       body: JSON.stringify({
-      agent_id: agentId,
+        agent_id: agentId,
         custom_instructions: customInstructions,
         preferences: preferences
       }),
@@ -1196,7 +1209,7 @@ class ApiClient {
 
   // Analytics Methods
   async getAnalyticsSummary(periodDays: number, agentId?: string): Promise<any> {
-    const params = new URLSearchParams({ 
+    const params = new URLSearchParams({
       period_days: periodDays.toString(),
       ...(agentId && agentId !== 'all' && { agent_id: agentId })
     });
@@ -1204,7 +1217,7 @@ class ApiClient {
   }
 
   async getAnalyticsChartData(metricType: string, periodDays: number, agentId?: string, groupBy: string = 'day'): Promise<any> {
-    const params = new URLSearchParams({ 
+    const params = new URLSearchParams({
       metric_type: metricType,
       period_days: periodDays.toString(),
       group_by: groupBy,
@@ -1218,7 +1231,7 @@ class ApiClient {
   }
 
   async getAnalyticsDetailedData(periodDays: number, agentId?: string, limit: number = 50): Promise<any> {
-    const params = new URLSearchParams({ 
+    const params = new URLSearchParams({
       period_days: periodDays.toString(),
       limit: limit.toString(),
       ...(agentId && agentId !== 'all' && { agent_id: agentId })

@@ -18,6 +18,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import aiosmtplib
 
 from ..config import settings
 
@@ -160,6 +161,20 @@ class GmailAuthService:
         except Exception as e:
             logger.error(f"Gmail service test error: {e}")
             return False
+
+    def _get_template(self, template_name: str) -> str:
+        """Load a template from the templates directory"""
+        try:
+            template_path = Path(__file__).resolve().parents[2] / "templates" / template_name
+            if not template_path.exists():
+                logger.error(f"Template {template_name} not found at {template_path}")
+                return ""
+            
+            with open(template_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            logger.error(f"Error loading template {template_name}: {e}")
+            return ""
     
     async def send_email(
         self,
@@ -170,10 +185,49 @@ class GmailAuthService:
         from_email: Optional[str] = None,
         from_name: Optional[str] = None
     ) -> bool:
-        """Send email via Gmail API"""
+        """Send email via SMTP (preferred) or Gmail API (fallback)"""
+        # Try SMTP first if app_password is provided
+        if self.settings.app_password:
+            try:
+                # Use default from email if not provided
+                from_email = from_email or self.settings.from_email
+                from_name = from_name or self.settings.from_name
+                
+                # Create message
+                message = MIMEMultipart('alternative')
+                message['to'] = to_email
+                message['from'] = f"{from_name} <{from_email}>"
+                message['subject'] = subject
+                
+                # Add text part
+                if body_text:
+                    text_part = MIMEText(body_text, 'plain')
+                    message.attach(text_part)
+                
+                # Add HTML part
+                html_part = MIMEText(body_html, 'html')
+                message.attach(html_part)
+                
+                # Send via SMTP
+                await aiosmtplib.send(
+                    message,
+                    hostname="smtp.gmail.com",
+                    port=587,
+                    username=from_email,
+                    password=self.settings.app_password,
+                    use_tls=True
+                )
+                
+                logger.info(f"Email sent successfully via SMTP to {to_email}")
+                return True
+            except Exception as smtp_error:
+                logger.error(f"SMTP error sending email to {to_email}: {smtp_error}")
+                # Fall back to Gmail API if possible
+        
+        # Fallback to Gmail API
         try:
             if not self._initialized or not self.service:
-                logger.error("Gmail service not initialized")
+                logger.error("Gmail service not initialized for API fallback")
                 return False
             
             # Use default from email if not provided
@@ -204,7 +258,7 @@ class GmailAuthService:
                 body={'raw': raw_message}
             ).execute()
             
-            logger.info(f"Email sent successfully to {to_email}. Message ID: {send_message['id']}")
+            logger.info(f"Email sent successfully via Gmail API to {to_email}. Message ID: {send_message['id']}")
             return True
             
         except HttpError as e:
@@ -228,49 +282,16 @@ class GmailAuthService:
             # Email subject
             subject = "Verify Your Agent47 Account"
             
-            # HTML body
-            html_body = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <title>Verify Your Agent47 Account</title>
-                <style>
-                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                    .header {{ background-color: #4f46e5; color: white; padding: 20px; text-align: center; }}
-                    .content {{ padding: 20px; background-color: #f9fafb; }}
-                    .button {{ display: inline-block; background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }}
-                    .footer {{ padding: 20px; text-align: center; color: #6b7280; font-size: 14px; }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>Welcome to Agent47!</h1>
-                    </div>
-                    <div class="content">
-                        <h2>Verify Your Email Address</h2>
-                        <p>Hello{f' {user_name}' if user_name else ''},</p>
-                        <p>Thank you for signing up for Agent47! To complete your registration and start using our AI automation platform, please verify your email address by clicking the button below:</p>
-                        
-                        <a href="{verification_url}" class="button">Verify Email Address</a>
-                        
-                        <p>If the button doesn't work, you can also copy and paste this link into your browser:</p>
-                        <p><a href="{verification_url}">{verification_url}</a></p>
-                        
-                        <p>This verification link will expire in {self.settings.verification_token_expiry_hours} hours.</p>
-                        
-                        <p>If you didn't create an account with Agent47, please ignore this email.</p>
-                    </div>
-                    <div class="footer">
-                        <p>© 2024 Agent47. All rights reserved.</p>
-                        <p>This is an automated message, please do not reply to this email.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-            """
+            # Load template
+            html_template = self._get_template("verification.html")
+            if not html_template:
+                logger.error("Email verification template not found, falling back to basic HTML")
+                html_body = f"Please verify your email: {verification_url}"
+            else:
+                # Replace placeholders
+                html_body = html_template.replace("{{user_name}}", user_name or "there")
+                html_body = html_body.replace("{{verification_url}}", verification_url)
+                html_body = html_body.replace("{{expiry_hours}}", str(self.settings.verification_token_expiry_hours))
             
             # Plain text body
             text_body = f"""
@@ -306,74 +327,35 @@ class GmailAuthService:
         to_email: str,
         user_name: Optional[str] = None
     ) -> bool:
-        """Send welcome email after successful verification"""
+        """Send welcome email to user"""
         try:
-            subject = "Welcome to Agent47 - Your Account is Verified!"
+            subject = "Welcome to Agent47!"
             
-            html_body = f"""
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <title>Welcome to Agent47</title>
-                <style>
-                    body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-                    .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-                    .header {{ background-color: #10b981; color: white; padding: 20px; text-align: center; }}
-                    .content {{ padding: 20px; background-color: #f9fafb; }}
-                    .button {{ display: inline-block; background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }}
-                    .footer {{ padding: 20px; text-align: center; color: #6b7280; font-size: 14px; }}
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>🎉 Welcome to Agent47!</h1>
-                    </div>
-                    <div class="content">
-                        <h2>Your Account is Now Verified</h2>
-                        <p>Hello{f' {user_name}' if user_name else ''},</p>
-                        <p>Congratulations! Your Agent47 account has been successfully verified. You can now access all the features of our AI automation platform.</p>
-                        
-                        <a href="{settings.frontend_url}/dashboard" class="button">Go to Dashboard</a>
-                        
-                        <h3>What's Next?</h3>
-                        <ul>
-                            <li>Complete your profile setup</li>
-                            <li>Choose your subscription tier</li>
-                            <li>Select your AI agents</li>
-                            <li>Start automating your workflows</li>
-                        </ul>
-                        
-                        <p>If you have any questions, feel free to reach out to our support team.</p>
-                    </div>
-                    <div class="footer">
-                        <p>© 2024 Agent47. All rights reserved.</p>
-                        <p>This is an automated message, please do not reply to this email.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-            """
+            # Load template
+            html_template = self._get_template("welcome.html")
+            if not html_template:
+                logger.error("Welcome email template not found, falling back to basic HTML")
+                html_body = f"Welcome to Agent47, {user_name or 'there'}!"
+            else:
+                # Replace placeholders
+                html_body = html_template.replace("{{user_name}}", user_name or "there")
+                html_body = html_body.replace("{{dashboard_url}}", f"{settings.frontend_url}/dashboard")
             
+            # Plain text body
             text_body = f"""
-            🎉 Welcome to Agent47!
+            Welcome to Agent47!
             
             Hello{f' {user_name}' if user_name else ''},
             
-            Congratulations! Your Agent47 account has been successfully verified. You can now access all the features of our AI automation platform.
+            We're thrilled to have you on board! Agent47 is designed to help you automate your business workflows using our specialized AI agents.
             
-            Visit your dashboard: {settings.frontend_url}/dashboard
+            Get ready to supercharge your productivity and scale your operations like never before.
             
-            What's Next?
-            - Complete your profile setup
-            - Choose your subscription tier
-            - Select your AI agents
-            - Start automating your workflows
+            Go to your dashboard: {settings.frontend_url}/dashboard
             
-            If you have any questions, feel free to reach out to our support team.
+            If you have any questions, just hit reply - we're here to help!
             
-            © 2024 Agent47. All rights reserved.
+            © 2024 Agent47 Platform. All rights reserved.
             """
             
             return await self.send_email(

@@ -314,6 +314,29 @@ async def signup(user_data: UserSignupRequest):
             except Exception:
                 pass
             
+            # Send Welcome and Verification Emails
+            try:
+                # Initialize email manager if needed
+                if not email_verification_manager.gmail_service._initialized:
+                    await email_verification_manager.initialize()
+                
+                # Send Welcome Email first as requested
+                await email_verification_manager.send_welcome_email(
+                    user_id=response_user_id,
+                    email=user.email,
+                    user_name=f"{user_data.first_name}"
+                )
+                
+                # Send Verification Email
+                await email_verification_manager.send_verification_email(
+                    user_id=response_user_id,
+                    email=user.email,
+                    user_name=f"{user_data.first_name}"
+                )
+                logger.info(f"Welcome and verification emails triggered for {user.email}")
+            except Exception as email_err:
+                logger.error(f"Failed to trigger emails during signup for {user.email}: {email_err}")
+
             return TokenResponse(
                 access_token=access_token,
                 refresh_token=refresh_token,
@@ -922,7 +945,6 @@ class CreateSubscriptionRequest(BaseModel):
 @auth_router.post("/billing/subscribe")
 async def create_subscription(
     request: CreateSubscriptionRequest,
-    response: Response = None,
     current_user: User = Depends(get_current_active_user)
 ):
     """Create a new subscription for the current user"""
@@ -938,28 +960,7 @@ async def create_subscription(
             request.billing_period
         )
 
-        # Update user tier in database
-        from ..user_management.user_manager import UserManager
-        user_manager = UserManager()
-        user_tier = UserTier(request.tier)
-        await user_manager.update_user_tier(current_user.id, user_tier)
-
-        # Set a cookie so Next.js middleware and frontend see the updated tier immediately.
-        try:
-            if response is not None:
-                # set cookie for 24 hours (or until you prefer)
-                max_age = 24 * 60 * 60
-                response.set_cookie(
-                    key="user_tier",
-                    value=user_tier.value,
-                    max_age=max_age,
-                    path="/",
-                    samesite="lax"
-                )
-        except Exception:
-            # Non-fatal: cookie setting failure should not block subscription creation
-            logger.exception("Failed to set user_tier cookie on subscription creation")
-
+        # Note: User tier will be updated by webhook after successful payment
         logger.info(f"Subscription created successfully for user {current_user.id}")
         return result
     except ValueError as e:
@@ -1012,12 +1013,6 @@ async def choose_free_plan(
             return {"success": True, "tier": UserTier.FREE.value}
     except Exception as e:
         logger.error(f"Choose free plan error: {str(e)}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
-        )
-    except Exception as e:
-        logger.error(f"Create subscription error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error"
