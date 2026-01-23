@@ -60,7 +60,7 @@ class InteractionType(enum.Enum):
     RESOLUTION = "resolution"
 
 class ClaraSupportTicket(Base):
-    __tablename__ = "support_tickets"
+    __tablename__ = "clara_support_tickets"
     
     id = Column(Integer, primary_key=True, index=True)
     ticket_number = Column(String(50), unique=True, index=True)
@@ -99,10 +99,10 @@ class ClaraSupportTicket(Base):
     feedback = relationship(lambda: ClaraCustomerFeedback, back_populates="ticket", uselist=False)
 
 class ClaraCustomerInteraction(Base):
-    __tablename__ = "customer_interactions"
+    __tablename__ = "clara_customer_interactions"
     
     id = Column(Integer, primary_key=True, index=True)
-    ticket_id = Column(Integer, ForeignKey("support_tickets.id"), nullable=False)
+    ticket_id = Column(Integer, ForeignKey("clara_support_tickets.id"), nullable=False)
     interaction_type = Column(Enum(InteractionType), nullable=False)
     channel = Column(Enum(SupportChannel), nullable=False)
     message = Column(Text, nullable=False)
@@ -121,10 +121,10 @@ class ClaraCustomerInteraction(Base):
     agent = relationship("User", foreign_keys=[agent_id])
 
 class ClaraTicketAttachment(Base):
-    __tablename__ = "ticket_attachments"
+    __tablename__ = "clara_ticket_attachments"
     
     id = Column(Integer, primary_key=True, index=True)
-    ticket_id = Column(Integer, ForeignKey("support_tickets.id"), nullable=False)
+    ticket_id = Column(Integer, ForeignKey("clara_support_tickets.id"), nullable=False)
     filename = Column(String(255), nullable=False)
     file_path = Column(String(500), nullable=False)
     file_size = Column(Integer)  # in bytes
@@ -138,10 +138,10 @@ class ClaraTicketAttachment(Base):
     user = relationship("User", foreign_keys=[uploaded_by])
 
 class ClaraTicketEscalation(Base):
-    __tablename__ = "ticket_escalations"
+    __tablename__ = "clara_ticket_escalations"
     
     id = Column(Integer, primary_key=True, index=True)
-    ticket_id = Column(Integer, ForeignKey("support_tickets.id"), nullable=False)
+    ticket_id = Column(Integer, ForeignKey("clara_support_tickets.id"), nullable=False)
     escalated_from_agent_id = Column(Integer, ForeignKey("users.id"))
     escalated_to_agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     reason = Column(Text, nullable=False)
@@ -160,7 +160,7 @@ class ClaraCustomerFeedback(Base):
     __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
-    ticket_id = Column(Integer, ForeignKey("support_tickets.id"), nullable=False, unique=True)
+    ticket_id = Column(Integer, ForeignKey("clara_support_tickets.id"), nullable=False, unique=True)
     overall_satisfaction = Column(Integer, nullable=False)  # 1-5 rating
     response_time_rating = Column(Integer)  # 1-5 rating
     solution_quality_rating = Column(Integer)  # 1-5 rating
@@ -176,7 +176,7 @@ class ClaraCustomerFeedback(Base):
 
 # Chat session models
 class ClaraChatSession(Base):
-    __tablename__ = "chat_sessions"
+    __tablename__ = "clara_chat_sessions"
 
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -191,10 +191,10 @@ class ClaraChatSession(Base):
 
 
 class ClaraChatMessage(Base):
-    __tablename__ = "chat_messages"
+    __tablename__ = "clara_chat_messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("chat_sessions.id"), nullable=False)
+    session_id = Column(Integer, ForeignKey("clara_chat_sessions.id"), nullable=False)
     sender_type = Column(String(50))  # customer, agent, system
     sender_id = Column(Integer)  # user id for agents/customers
     content = Column(Text, nullable=False)
@@ -207,7 +207,7 @@ class ClaraChatMessage(Base):
 ClaraChatSession.messages = relationship("ClaraChatMessage", back_populates="session", cascade="all, delete-orphan")
 
 class ClaraKnowledgeBase(Base):
-    __tablename__ = "knowledge_base"
+    __tablename__ = "clara_knowledge_base"
     
     id = Column(Integer, primary_key=True, index=True)
     category = Column(String(100), nullable=False, index=True)
@@ -234,7 +234,7 @@ class ClaraKnowledgeBase(Base):
     creator = relationship("User", foreign_keys=[created_by])
 
 class ClaraSupportAgent(Base):
-    __tablename__ = "support_agents"
+    __tablename__ = "clara_support_agents"
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, unique=True)
@@ -365,7 +365,7 @@ class VoiceSentimentScenarioType(enum.Enum):
 
 # Multi-ClaraBrand Support Models
 class ClaraBrand(Base):
-    __tablename__ = "brands"
+    __tablename__ = "clara_brands"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False, unique=True, index=True)
@@ -383,10 +383,10 @@ class ClaraBrand(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraBrandConfiguration(Base):
-    __tablename__ = "brand_configurations"
+    __tablename__ = "clara_brand_configurations"
     
     id = Column(Integer, primary_key=True, index=True)
-    brand_id = Column(Integer, ForeignKey("brands.id"), nullable=False)
+    brand_id = Column(Integer, ForeignKey("clara_brands.id"), nullable=False)
     config_type = Column(String(50), nullable=False)  # response_templates, workflows, integrations
     config_key = Column(String(100), nullable=False)
     config_value = Column(JSON, nullable=False)
@@ -398,10 +398,10 @@ class ClaraBrandConfiguration(Base):
     brand = relationship("ClaraBrand")
 
 class ClaraBrandTemplate(Base):
-    __tablename__ = "brand_templates"
+    __tablename__ = "clara_brand_templates"
     
     id = Column(Integer, primary_key=True, index=True)
-    brand_id = Column(Integer, ForeignKey("brands.id"), nullable=False)
+    brand_id = Column(Integer, ForeignKey("clara_brands.id"), nullable=False)
     template_type = Column(String(50), nullable=False)  # email, chat, sms, notification
     template_name = Column(String(100), nullable=False)
     subject = Column(String(200))
@@ -416,7 +416,7 @@ class ClaraBrandTemplate(Base):
 
 # Customer Journey Tracking Models
 class ClaraCustomerJourney(Base):
-    __tablename__ = "customer_journeys"
+    __tablename__ = "clara_customer_journeys"
     
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -434,10 +434,10 @@ class ClaraCustomerJourney(Base):
     stages = relationship("ClaraJourneyStage", back_populates="journey", cascade="all, delete-orphan")
 
 class ClaraJourneyEvent(Base):
-    __tablename__ = "journey_events"
+    __tablename__ = "clara_journey_events"
     
     id = Column(Integer, primary_key=True, index=True)
-    journey_id = Column(Integer, ForeignKey("customer_journeys.id"), nullable=False)
+    journey_id = Column(Integer, ForeignKey("clara_customer_journeys.id"), nullable=False)
     event_type = Column(String(100), nullable=False)  # ticket_created, response_sent, resolved
     event_data = Column(JSON, nullable=False)
     channel = Column(Enum(SupportChannel))
@@ -447,10 +447,10 @@ class ClaraJourneyEvent(Base):
     journey = relationship("ClaraCustomerJourney", back_populates="events")
 
 class ClaraJourneyStage(Base):
-    __tablename__ = "journey_stages"
+    __tablename__ = "clara_journey_stages"
     
     id = Column(Integer, primary_key=True, index=True)
-    journey_id = Column(Integer, ForeignKey("customer_journeys.id"), nullable=False)
+    journey_id = Column(Integer, ForeignKey("clara_customer_journeys.id"), nullable=False)
     stage_name = Column(String(100), nullable=False)
     stage_order = Column(Integer, nullable=False)
     status = Column(String(50), default="pending")  # pending, active, completed, skipped
@@ -463,7 +463,7 @@ class ClaraJourneyStage(Base):
 
 # Proactive Support Notifications Models
 class ClaraProactiveNotification(Base):
-    __tablename__ = "proactive_notifications"
+    __tablename__ = "clara_proactive_notifications"
     
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -483,13 +483,13 @@ class ClaraProactiveNotification(Base):
     customer = relationship("User", foreign_keys=[customer_id])
 
 class ClaraNotificationRule(Base):
-    __tablename__ = "notification_rules"
+    __tablename__ = "clara_notification_rules"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
     description = Column(Text)
     trigger_conditions = Column(JSON, nullable=False)  # Conditions that trigger the notification
-    notification_template_id = Column(Integer, ForeignKey("notification_templates.id"))
+    notification_template_id = Column(Integer, ForeignKey("clara_notification_templates.id"))
     channels = Column(JSON, default=[])  # List of channels to send to
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -499,7 +499,7 @@ class ClaraNotificationRule(Base):
     template = relationship("ClaraNotificationTemplate")
 
 class ClaraNotificationTemplate(Base):
-    __tablename__ = "notification_templates"
+    __tablename__ = "clara_notification_templates"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
@@ -513,7 +513,7 @@ class ClaraNotificationTemplate(Base):
 
 # Support workflow model for Clara (custom workflows engine)
 class ClaraSupportWorkflow(Base):
-    __tablename__ = "support_workflows"
+    __tablename__ = "clara_support_workflows"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(200), nullable=False)
@@ -535,7 +535,7 @@ class ClaraSupportWorkflow(Base):
 
 # Agent Training Tools Models
 class ClaraAgentTraining(Base):
-    __tablename__ = "agent_training"
+    __tablename__ = "clara_agent_training"
     
     id = Column(Integer, primary_key=True, index=True)
     agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -553,7 +553,7 @@ class ClaraAgentTraining(Base):
     agent = relationship("User", foreign_keys=[agent_id])
 
 class ClaraTrainingModule(Base):
-    __tablename__ = "training_modules"
+    __tablename__ = "clara_training_modules"
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
@@ -568,11 +568,11 @@ class ClaraTrainingModule(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraTrainingSession(Base):
-    __tablename__ = "training_sessions"
+    __tablename__ = "clara_training_sessions"
     
     id = Column(Integer, primary_key=True, index=True)
     agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    module_id = Column(Integer, ForeignKey("training_modules.id"), nullable=False)
+    module_id = Column(Integer, ForeignKey("clara_training_modules.id"), nullable=False)
     status = Column(String(50), default="not_started")  # not_started, in_progress, completed, paused
     start_time = Column(DateTime(timezone=True))
     end_time = Column(DateTime(timezone=True))
@@ -587,7 +587,7 @@ class ClaraTrainingSession(Base):
     module = relationship("ClaraTrainingModule")
 
 class ClaraAgentPerformance(Base):
-    __tablename__ = "agent_performance"
+    __tablename__ = "clara_agent_performance"
     
     id = Column(Integer, primary_key=True, index=True)
     agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -605,10 +605,10 @@ class ClaraAgentPerformance(Base):
     agent = relationship("User", foreign_keys=[agent_id])
 
 class ClaraTrainingAssessment(Base):
-    __tablename__ = "training_assessments"
+    __tablename__ = "clara_training_assessments"
     
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("training_sessions.id"), nullable=False)
+    session_id = Column(Integer, ForeignKey("clara_training_sessions.id"), nullable=False)
     assessment_type = Column(String(50), nullable=False)  # quiz, practical, simulation
     questions = Column(JSON, nullable=False)
     answers = Column(JSON, default={})
@@ -624,12 +624,12 @@ class ClaraTrainingAssessment(Base):
 
 # AI-Driven ClaraFAQ Builder Models
 class ClaraFAQCategory(Base):
-    __tablename__ = "faq_categories"
+    __tablename__ = "clara_faq_categories"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False, unique=True)
     description = Column(Text)
-    parent_category_id = Column(Integer, ForeignKey("faq_categories.id"))
+    parent_category_id = Column(Integer, ForeignKey("clara_faq_categories.id"))
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -639,10 +639,10 @@ class ClaraFAQCategory(Base):
     entries = relationship("ClaraFAQEntry", back_populates="category")
 
 class ClaraFAQEntry(Base):
-    __tablename__ = "faq_entries"
+    __tablename__ = "clara_faq_entries"
     
     id = Column(Integer, primary_key=True, index=True)
-    category_id = Column(Integer, ForeignKey("faq_categories.id"), nullable=False)
+    category_id = Column(Integer, ForeignKey("clara_faq_categories.id"), nullable=False)
     question = Column(Text, nullable=False)
     answer = Column(Text, nullable=False)
     keywords = Column(JSON, default=[])
@@ -659,7 +659,7 @@ class ClaraFAQEntry(Base):
     category = relationship("ClaraFAQCategory", back_populates="entries")
 
 class ClaraFAQSource(Base):
-    __tablename__ = "faq_sources"
+    __tablename__ = "clara_faq_sources"
     
     id = Column(Integer, primary_key=True, index=True)
     source_type = Column(Enum(FAQSourceType), nullable=False)
@@ -672,10 +672,10 @@ class ClaraFAQSource(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraFAQAnalytics(Base):
-    __tablename__ = "faq_analytics"
+    __tablename__ = "clara_faq_analytics"
     
     id = Column(Integer, primary_key=True, index=True)
-    entry_id = Column(Integer, ForeignKey("faq_entries.id"), nullable=False)
+    entry_id = Column(Integer, ForeignKey("clara_faq_entries.id"), nullable=False)
     date = Column(DateTime, nullable=False)
     views = Column(Integer, default=0)
     helpful_votes = Column(Integer, default=0)
@@ -688,7 +688,7 @@ class ClaraFAQAnalytics(Base):
 
 
 class ClaraSupportAnalytics(Base):
-    __tablename__ = "support_analytics"
+    __tablename__ = "clara_support_analytics"
 
     id = Column(Integer, primary_key=True, index=True)
     event_type = Column(String(100), nullable=False)
@@ -696,8 +696,8 @@ class ClaraSupportAnalytics(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Lightweight relation fields if needed by queries
-    ticket_id = Column(Integer, ForeignKey("support_tickets.id"), nullable=True)
-    session_id = Column(Integer, ForeignKey("chat_sessions.id"), nullable=True)
+    ticket_id = Column(Integer, ForeignKey("clara_support_tickets.id"), nullable=True)
+    session_id = Column(Integer, ForeignKey("clara_chat_sessions.id"), nullable=True)
 
     ticket = relationship("ClaraSupportTicket", foreign_keys=[ticket_id])
     session = relationship("ClaraChatSession", foreign_keys=[session_id])
@@ -719,7 +719,7 @@ class ClaraPredictionModel(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraAlertRule(Base):
-    __tablename__ = "alert_rules"
+    __tablename__ = "clara_alert_rules"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
@@ -732,7 +732,7 @@ class ClaraAlertRule(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraSystemMetric(Base):
-    __tablename__ = "system_metrics"
+    __tablename__ = "clara_system_metrics"
     
     id = Column(Integer, primary_key=True, index=True)
     metric_name = Column(String(100), nullable=False)
@@ -742,7 +742,7 @@ class ClaraSystemMetric(Base):
     extra_metadata = Column('metadata', JSON, default={})
 
 class ClaraIssuePrediction(Base):
-    __tablename__ = "issue_predictions"
+    __tablename__ = "clara_issue_predictions"
     
     id = Column(Integer, primary_key=True, index=True)
     prediction_type = Column(String(50), nullable=False)  # ticket_spike, system_issue, customer_churn
@@ -756,7 +756,7 @@ class ClaraIssuePrediction(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class ClaraIssuePattern(Base):
-    __tablename__ = "issue_patterns"
+    __tablename__ = "clara_issue_patterns"
 
     id = Column(Integer, primary_key=True, index=True)
     pattern_name = Column(String(200), nullable=False)
@@ -773,7 +773,7 @@ class ClaraIssuePattern(Base):
 
 # Multi-Ticket Resolution Models
 class ClaraTicketGroup(Base):
-    __tablename__ = "ticket_groups"
+    __tablename__ = "clara_ticket_groups"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
@@ -786,7 +786,7 @@ class ClaraTicketGroup(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraBulkAction(Base):
-    __tablename__ = "bulk_actions"
+    __tablename__ = "clara_bulk_actions"
     
     id = Column(Integer, primary_key=True, index=True)
     action_type = Column(String(50), nullable=False)  # status_update, assign, escalate, close
@@ -802,7 +802,7 @@ class ClaraBulkAction(Base):
     creator = relationship("User", foreign_keys=[created_by])
 
 class ClaraResolutionTemplate(Base):
-    __tablename__ = "resolution_templates"
+    __tablename__ = "clara_resolution_templates"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(100), nullable=False)
@@ -815,7 +815,7 @@ class ClaraResolutionTemplate(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraTicketCluster(Base):
-    __tablename__ = "ticket_clusters"
+    __tablename__ = "clara_ticket_clusters"
     
     id = Column(Integer, primary_key=True, index=True)
     cluster_name = Column(String(100), nullable=False)
@@ -827,12 +827,12 @@ class ClaraTicketCluster(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraResolutionBatch(Base):
-    __tablename__ = "resolution_batches"
+    __tablename__ = "clara_resolution_batches"
     
     id = Column(Integer, primary_key=True, index=True)
     batch_name = Column(String(100), nullable=False)
     ticket_ids = Column(JSON, nullable=False)
-    template_id = Column(Integer, ForeignKey("resolution_templates.id"))
+    template_id = Column(Integer, ForeignKey("clara_resolution_templates.id"))
     status = Column(String(50), default="pending")  # pending, processing, completed, failed
     processed_count = Column(Integer, default=0)
     success_count = Column(Integer, default=0)
@@ -848,7 +848,7 @@ class ClaraResolutionBatch(Base):
 
 # Onboarding Assistance Models
 class ClaraOnboardingStep(Base):
-    __tablename__ = "onboarding_steps"
+    __tablename__ = "clara_onboarding_steps"
     
     id = Column(Integer, primary_key=True, index=True)
     step_type = Column(Enum(OnboardingStepType), nullable=False)
@@ -867,7 +867,7 @@ class ClaraOnboardingSession(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    current_step_id = Column(Integer, ForeignKey("onboarding_steps.id"))
+    current_step_id = Column(Integer, ForeignKey("clara_onboarding_steps.id"))
     status = Column(Enum(OnboardingStatus), default=OnboardingStatus.NOT_STARTED)
     progress_percentage = Column(Float, default=0.0)
     start_time = Column(DateTime(timezone=True), server_default=func.now())
@@ -879,14 +879,14 @@ class ClaraOnboardingSession(Base):
     current_step = relationship("ClaraOnboardingStep")
 
 class ClaraOnboardingTutorial(Base):
-    __tablename__ = "onboarding_tutorials"
+    __tablename__ = "clara_onboarding_tutorials"
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
     description = Column(Text)
     content = Column(Text, nullable=False)
     video_url = Column(String(500))
-    step_id = Column(Integer, ForeignKey("onboarding_steps.id"))
+    step_id = Column(Integer, ForeignKey("clara_onboarding_steps.id"))
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -895,11 +895,11 @@ class ClaraOnboardingTutorial(Base):
     step = relationship("ClaraOnboardingStep")
 
 class ClaraOnboardingProgress(Base):
-    __tablename__ = "onboarding_progress"
+    __tablename__ = "clara_onboarding_progress"
     
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(Integer, ForeignKey("clara_onboarding_sessions.id"), nullable=False)
-    step_id = Column(Integer, ForeignKey("onboarding_steps.id"), nullable=False)
+    step_id = Column(Integer, ForeignKey("clara_onboarding_steps.id"), nullable=False)
     status = Column(Enum(OnboardingStatus), default=OnboardingStatus.NOT_STARTED)
     started_at = Column(DateTime(timezone=True))
     completed_at = Column(DateTime(timezone=True))
@@ -912,7 +912,7 @@ class ClaraOnboardingProgress(Base):
 
 # Setup Wizard Models
 class ClaraSetupWizardStep(Base):
-    __tablename__ = "setup_wizard_steps"
+    __tablename__ = "clara_setup_wizard_steps"
     
     id = Column(Integer, primary_key=True, index=True)
     step_type = Column(Enum(SetupWizardStepType), nullable=False)
@@ -927,11 +927,11 @@ class ClaraSetupWizardStep(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraSetupWizardSession(Base):
-    __tablename__ = "setup_wizard_sessions"
+    __tablename__ = "clara_setup_wizard_sessions"
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    current_step_id = Column(Integer, ForeignKey("setup_wizard_steps.id"))
+    current_step_id = Column(Integer, ForeignKey("clara_setup_wizard_steps.id"))
     status = Column(Enum(SetupWizardStatus), default=SetupWizardStatus.NOT_STARTED)
     progress_percentage = Column(Float, default=0.0)
     configuration_data = Column(JSON, default={})
@@ -943,10 +943,10 @@ class ClaraSetupWizardSession(Base):
     current_step = relationship("ClaraSetupWizardStep")
 
 class ClaraSetupWizardConfig(Base):
-    __tablename__ = "setup_wizard_configs"
+    __tablename__ = "clara_setup_wizard_configs"
     
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("setup_wizard_sessions.id"), nullable=False)
+    session_id = Column(Integer, ForeignKey("clara_setup_wizard_sessions.id"), nullable=False)
     config_key = Column(String(100), nullable=False)
     config_value = Column(JSON, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -955,10 +955,10 @@ class ClaraSetupWizardConfig(Base):
     session = relationship("ClaraSetupWizardSession")
 
 class ClaraSetupWizardValidation(Base):
-    __tablename__ = "setup_wizard_validations"
+    __tablename__ = "clara_setup_wizard_validations"
     
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("setup_wizard_sessions.id"), nullable=False)
+    session_id = Column(Integer, ForeignKey("clara_setup_wizard_sessions.id"), nullable=False)
     validation_type = Column(Enum(SetupWizardValidationType), nullable=False)
     validation_data = Column(JSON, nullable=False)
     status = Column(String(50), default="pending")  # pending, success, failed
@@ -970,7 +970,7 @@ class ClaraSetupWizardValidation(Base):
 
 # In-Store Inquiry Integration Models
 class ClaraInStoreKiosk(Base):
-    __tablename__ = "in_store_kiosks"
+    __tablename__ = "clara_in_store_kiosks"
     
     id = Column(Integer, primary_key=True, index=True)
     kiosk_id = Column(String(100), unique=True, nullable=False)
@@ -984,10 +984,10 @@ class ClaraInStoreKiosk(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraInStoreInquiry(Base):
-    __tablename__ = "in_store_inquiries"
+    __tablename__ = "clara_in_store_inquiries"
     
     id = Column(Integer, primary_key=True, index=True)
-    kiosk_id = Column(Integer, ForeignKey("in_store_kiosks.id"), nullable=False)
+    kiosk_id = Column(Integer, ForeignKey("clara_in_store_kiosks.id"), nullable=False)
     inquiry_type = Column(Enum(InStoreInquiryType), nullable=False)
     customer_question = Column(Text, nullable=False)
     ai_response = Column(Text)
@@ -1002,11 +1002,11 @@ class ClaraInStoreInquiry(Base):
     kiosk = relationship("InStoreKiosk")
 
 class ClaraInStoreQRCode(Base):
-    __tablename__ = "in_store_qr_codes"
+    __tablename__ = "clara_in_store_qr_codes"
     
     id = Column(Integer, primary_key=True, index=True)
     qr_code_id = Column(String(100), unique=True, nullable=False)
-    location_id = Column(Integer, ForeignKey("in_store_locations.id"))
+    location_id = Column(Integer, ForeignKey("clara_in_store_locations.id"))
     product_id = Column(String(100))
     qr_code_url = Column(String(500), nullable=False)
     scan_count = Column(Integer, default=0)
@@ -1017,7 +1017,7 @@ class ClaraInStoreQRCode(Base):
     location = relationship("ClaraInStoreLocation")
 
 class ClaraInStoreLocation(Base):
-    __tablename__ = "in_store_locations"
+    __tablename__ = "clara_in_store_locations"
     
     id = Column(Integer, primary_key=True, index=True)
     location_name = Column(String(200), nullable=False)
@@ -1029,12 +1029,12 @@ class ClaraInStoreLocation(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
 class ClaraInStoreDevice(Base):
-    __tablename__ = "in_store_devices"
+    __tablename__ = "clara_in_store_devices"
     
     id = Column(Integer, primary_key=True, index=True)
     device_id = Column(String(100), unique=True, nullable=False)
     device_type = Column(Enum(InStoreDeviceType), nullable=False)
-    location_id = Column(Integer, ForeignKey("in_store_locations.id"))
+    location_id = Column(Integer, ForeignKey("clara_in_store_locations.id"))
     device_name = Column(String(200))
     device_model = Column(String(100))
     is_active = Column(Boolean, default=True)
@@ -1047,7 +1047,7 @@ class ClaraInStoreDevice(Base):
 
 # Mobile App for Monitoring Models
 class ClaraMobileAppUser(Base):
-    __tablename__ = "mobile_app_users"
+    __tablename__ = "clara_mobile_app_users"
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -1068,7 +1068,7 @@ class ClaraMobileAppSession(Base):
     __tablename__ = "mobile_app_sessions"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("mobile_app_users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("clara_mobile_app_users.id"), nullable=False)
     session_token = Column(String(255), unique=True, nullable=False)
     status = Column(Enum(MobileAppSessionStatus), default=MobileAppSessionStatus.ACTIVE)
     start_time = Column(DateTime(timezone=True), server_default=func.now())
@@ -1083,7 +1083,7 @@ class ClaraMobileAppOverride(Base):
     __tablename__ = "mobile_app_overrides"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("mobile_app_users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("clara_mobile_app_users.id"), nullable=False)
     override_type = Column(Enum(MobileAppOverrideType), nullable=False)
     target_id = Column(Integer)  # ticket_id, response_id, etc.
     original_value = Column(JSON)
@@ -1100,7 +1100,7 @@ class ClaraMobileAppNotification(Base):
     __tablename__ = "mobile_app_notifications"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("mobile_app_users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("clara_mobile_app_users.id"), nullable=False)
     notification_type = Column(Enum(MobileAppNotificationType), nullable=False)
     title = Column(String(200), nullable=False)
     message = Column(Text, nullable=False)
@@ -1117,7 +1117,7 @@ class ClaraMobileAppDevice(Base):
     __tablename__ = "mobile_app_devices"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("mobile_app_users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("clara_mobile_app_users.id"), nullable=False)
     device_token = Column(String(255), unique=True, nullable=False)
     device_type = Column(String(50))  # ios, android, web
     device_model = Column(String(100))
@@ -1134,7 +1134,7 @@ class ClaraMobileAppPermission(Base):
     __tablename__ = "mobile_app_permissions"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("mobile_app_users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("clara_mobile_app_users.id"), nullable=False)
     permission_name = Column(String(100), nullable=False)
     permission_value = Column(JSON, nullable=False)
     granted_by = Column(Integer, ForeignKey("users.id"))

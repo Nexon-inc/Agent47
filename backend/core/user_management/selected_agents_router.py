@@ -7,7 +7,8 @@ from pydantic import BaseModel
 import os
 
 from core.authentication.auth_manager import get_current_user
-from core.database.models import User, UserSelectedAgent, UserTier, Subscription
+from core.database.models import User, UserSelectedAgent, UserTier
+from core.billing.models import Subscription
 from core.database.connection import get_db
 
 router = APIRouter(prefix="/api/v1/account", tags=["Selected Agents"])
