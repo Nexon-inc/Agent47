@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import PlatformOptimization, JackieEmergingChannel, JackiePlatformContent, JackieChannelStrategy
+from ..models import JackiePlatformOptimization, JackieEmergingChannel, JackiePlatformContent, JackieChannelStrategy
 
 class PlatformOptimizationService:
     def __init__(self, db: Session):
@@ -28,7 +28,7 @@ class PlatformOptimizationService:
         
         tiktok_result = self.nlp_processor.optimize_for_tiktok(prompt)
         
-        optimization = PlatformOptimization(
+        optimization = JackiePlatformOptimization(
             id=optimization_id, platform="tiktok", content_brief=json.dumps(content_brief),
             target_audience=json.dumps(target_audience), content_type=content_type,
             optimization_data=json.dumps(tiktok_result), created_at=datetime.utcnow()
@@ -52,7 +52,7 @@ class PlatformOptimizationService:
         
         shopify_result = self.nlp_processor.optimize_for_shopify_ads(prompt)
         
-        optimization = PlatformOptimization(
+        optimization = JackiePlatformOptimization(
             id=optimization_id, platform="shopify_ads", content_brief=json.dumps(product_data),
             target_audience=json.dumps(target_audience), content_type=ad_format,
             optimization_data=json.dumps(shopify_result), created_at=datetime.utcnow()
@@ -74,7 +74,7 @@ class PlatformOptimizationService:
         
         threads_result = self.nlp_processor.optimize_for_threads(prompt)
         
-        optimization = PlatformOptimization(
+        optimization = JackiePlatformOptimization(
             id=optimization_id, platform="threads", content_brief=json.dumps(content_brief),
             target_audience=json.dumps([]), content_type="text",
             optimization_data=json.dumps(threads_result), created_at=datetime.utcnow()
@@ -150,8 +150,8 @@ class PlatformOptimizationService:
     def get_platform_optimization_analytics(self, timeframe: str = "30d") -> Dict[str, Any]:
         cutoff_date = datetime.utcnow() - timedelta(days=30 if timeframe == "30d" else 7)
         
-        optimizations_count = self.db.query(PlatformOptimization).filter(
-            PlatformOptimization.created_at >= cutoff_date
+        optimizations_count = self.db.query(JackiePlatformOptimization).filter(
+            JackiePlatformOptimization.created_at >= cutoff_date
         ).count()
         
         channels_created = self.db.query(JackieEmergingChannel).filter(

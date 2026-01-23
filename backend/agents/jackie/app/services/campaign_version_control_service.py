@@ -31,7 +31,7 @@ class CampaignVersionControlService:
             await self.nlp_processor.initialize()
             self.redis_client = await init_redis()
             self._initialized = True
-            logger.info("Campaign version control service initialized successfully")
+            logger.info("JackieCampaign version control service initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize campaign version control service: {e}")
             raise
@@ -46,7 +46,7 @@ class CampaignVersionControlService:
                 version_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 JackieVersion Data: {version_data}
                 JackieVersion Notes: {version_notes}
                 
@@ -108,7 +108,7 @@ class CampaignVersionControlService:
                 rollback_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 Target JackieVersion ID: {target_version_id}
                 
                 Rollback campaign to the specified version.
@@ -138,7 +138,7 @@ class CampaignVersionControlService:
                 history_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 
                 Retrieve and format the version history for the campaign.
                 """

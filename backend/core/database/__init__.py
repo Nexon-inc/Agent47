@@ -1,5 +1,6 @@
 from .connection import get_database, get_supabase, get_db, SupabaseManager, init_database, close_database
-from .models import Base, User, Task, Agent, Event, BillingRecord, Community, TeamMember, Subscription, Payment, BillingPlan, Usage, UserProfile, UserActivity, UserError, UserRole, CommunityType
+from .models import Base, User, Task, Agent, Event, BillingRecord, Community, TeamMember, UserProfile, UserActivity, UserError, UserRole, CommunityType
+from ..billing.models import Subscription, Payment, BillingPlan, Usage
 
 # Alias for backward compatibility
 DatabaseManager = SupabaseManager

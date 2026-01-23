@@ -843,7 +843,7 @@ class ClaraResolutionBatch(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    template = relationship("ResolutionTemplate")
+    template = relationship("ClaraResolutionTemplate")
     creator = relationship("User", foreign_keys=[created_by])
 
 # Onboarding Assistance Models
@@ -876,7 +876,7 @@ class ClaraOnboardingSession(Base):
     
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
-    current_step = relationship("OnboardingStep")
+    current_step = relationship("ClaraOnboardingStep")
 
 class ClaraOnboardingTutorial(Base):
     __tablename__ = "onboarding_tutorials"
@@ -892,7 +892,7 @@ class ClaraOnboardingTutorial(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    step = relationship("OnboardingStep")
+    step = relationship("ClaraOnboardingStep")
 
 class ClaraOnboardingProgress(Base):
     __tablename__ = "onboarding_progress"
@@ -908,7 +908,7 @@ class ClaraOnboardingProgress(Base):
     
     # Relationships
     session = relationship("ClaraOnboardingSession", foreign_keys=[session_id])
-    step = relationship("OnboardingStep", foreign_keys=[step_id])
+    step = relationship("ClaraOnboardingStep", foreign_keys=[step_id])
 
 # Setup Wizard Models
 class ClaraSetupWizardStep(Base):
@@ -940,7 +940,7 @@ class ClaraSetupWizardSession(Base):
     
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
-    current_step = relationship("SetupWizardStep")
+    current_step = relationship("ClaraSetupWizardStep")
 
 class ClaraSetupWizardConfig(Base):
     __tablename__ = "setup_wizard_configs"

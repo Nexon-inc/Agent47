@@ -30,7 +30,7 @@ class InfluencerTrackingService:
     
     def calculate_influencer_roi(self, campaign_id: str, investment_amount: float, revenue_generated: float) -> Dict[str, Any]:
         roi_id = str(uuid.uuid4())
-        roi_result = self.nlp_processor.calculate_influencer_roi(f"Campaign ID: {campaign_id}")
+        roi_result = self.nlp_processor.calculate_influencer_roi(f"JackieCampaign ID: {campaign_id}")
         
         roi = ROIAnalysis(
             id=roi_id, campaign_id=campaign_id, investment_amount=investment_amount,

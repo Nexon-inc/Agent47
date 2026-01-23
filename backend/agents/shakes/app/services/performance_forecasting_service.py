@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ShakesContentProject, ShakesContentPiece, ContentAnalytics
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesContentAnalytics
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ class PerformanceForecastingService:
                 
                 # Get historical analytics
                 analytics_result = await session.execute(
-                    select(ContentAnalytics).where(ContentAnalytics.content_piece_id == content_piece_id)
+                    select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id == content_piece_id)
                 )
                 analytics_records = analytics_result.scalars().all()
                 
@@ -306,7 +306,7 @@ class PerformanceForecastingService:
             return []
         
         analytics_result = await session.execute(
-            select(ContentAnalytics).where(ContentAnalytics.content_piece_id.in_(similar_content_ids))
+            select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id.in_(similar_content_ids))
         )
         analytics_records = analytics_result.scalars().all()
         
@@ -342,7 +342,7 @@ class PerformanceForecastingService:
         
         # Get analytics for user's content
         analytics_result = await session.execute(
-            select(ContentAnalytics).where(ContentAnalytics.content_piece_id.in_(content_piece_ids))
+            select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id.in_(content_piece_ids))
         )
         analytics_records = analytics_result.scalars().all()
         
@@ -442,15 +442,15 @@ class PerformanceForecastingService:
         try:
             # Query performance data grouped by hour of day
             time_query = select(
-                func.extract('hour', ContentPerformance.created_at).label('hour'),
-                func.avg(ContentPerformance.engagement_rate).label('average_engagement'),
-                func.avg(ContentPerformance.views).label('average_views')
+                func.extract('hour', ShakesContentPerformance.created_at).label('hour'),
+                func.avg(ShakesContentPerformance.engagement_rate).label('average_engagement'),
+                func.avg(ShakesContentPerformance.views).label('average_views')
             ).where(
-                ContentPerformance.user_id == user_id,
-                ContentPerformance.platform == platform,
-                ContentPerformance.content_type == content_type
+                ShakesContentPerformance.user_id == user_id,
+                ShakesContentPerformance.platform == platform,
+                ShakesContentPerformance.content_type == content_type
             ).group_by(
-                func.extract('hour', ContentPerformance.created_at)
+                func.extract('hour', ShakesContentPerformance.created_at)
             ).order_by('hour')
             
             time_result = await session.execute(time_query)
@@ -633,7 +633,7 @@ class PerformanceForecastingService:
             ]
     
     def _create_forecast_prompt(
-        self, content_piece: ShakesContentPiece, analytics_records: List[ContentAnalytics],
+        self, content_piece: ShakesContentPiece, analytics_records: List[ShakesContentAnalytics],
         similar_content: List[Dict[str, Any]], forecast_period_days: int, forecast_metrics: List[str]
     ) -> str:
         """Create prompt for performance forecast"""
@@ -661,7 +661,7 @@ class PerformanceForecastingService:
         """
     
     def _create_confidence_prompt(
-        self, content_piece: ShakesContentPiece, analytics_records: List[ContentAnalytics],
+        self, content_piece: ShakesContentPiece, analytics_records: List[ShakesContentAnalytics],
         similar_content: List[Dict[str, Any]], forecast_period_days: int
     ) -> str:
         """Create prompt for forecast confidence"""

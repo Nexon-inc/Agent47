@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import JackieOnboardingSession, TutorialStep, SetupWizard, JackieUserProgress
+from ..models import JackieOnboardingSession, JackieTutorialStep, JackieSetupWizard, JackieUserProgress
 
 class OnboardingService:
     def __init__(self, db: Session):
@@ -52,7 +52,7 @@ class OnboardingService:
         
         wizard_result = self.nlp_processor.create_setup_wizard(prompt)
         
-        wizard = SetupWizard(
+        wizard = JackieSetupWizard(
             id=wizard_id, wizard_type=wizard_type, steps_data=json.dumps(steps_data),
             target_audience=target_audience, wizard_config=json.dumps(wizard_result),
             created_at=datetime.utcnow()
@@ -76,7 +76,7 @@ class OnboardingService:
         
         step_result = self.nlp_processor.create_tutorial_step(prompt)
         
-        step = TutorialStep(
+        step = JackieTutorialStep(
             id=step_id, step_data=json.dumps(step_data), tutorial_type=tutorial_type,
             difficulty_level=difficulty_level, step_content=json.dumps(step_result),
             created_at=datetime.utcnow()
@@ -162,12 +162,12 @@ class OnboardingService:
             JackieOnboardingSession.status == "completed"
         ).count()
         
-        wizards_created = self.db.query(SetupWizard).filter(
-            SetupWizard.created_at >= cutoff_date
+        wizards_created = self.db.query(JackieSetupWizard).filter(
+            JackieSetupWizard.created_at >= cutoff_date
         ).count()
         
-        tutorial_steps = self.db.query(TutorialStep).filter(
-            TutorialStep.created_at >= cutoff_date
+        tutorial_steps = self.db.query(JackieTutorialStep).filter(
+            JackieTutorialStep.created_at >= cutoff_date
         ).count()
         
         return {

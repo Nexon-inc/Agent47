@@ -7,7 +7,7 @@ import json
 
 from ..database import get_db
 from ..services.multi_ticket_resolution_service import MultiTicketResolutionService
-from ..models import ClaraTicketGroup, ClaraBulkAction, ResolutionTemplate, TicketCluster, ResolutionBatch
+from ..models import ClaraTicketGroup, ClaraBulkAction, ClaraResolutionTemplate, ClaraTicketCluster, ClaraResolutionBatch
 from ..core.integration_manager import IntegrationManager
 from ..core.event_bus import EventBus
 

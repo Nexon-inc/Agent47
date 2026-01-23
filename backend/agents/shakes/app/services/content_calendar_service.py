@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ShakesContentProject, ShakesContentPiece, ContentCalendar, ScheduledContent
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesContentCalendar, ShakesScheduledContent
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class ContentCalendarService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Create calendar
-                content_calendar = ContentCalendar(
+                content_calendar = ShakesContentCalendar(
                     user_id=user_id,
                     calendar_name=calendar_name,
                     calendar_description=calendar_description,
@@ -90,7 +90,7 @@ class ContentCalendarService:
                 # Create scheduled content entries
                 scheduled_entries = []
                 for plan_item in content_plan:
-                    scheduled_content = ScheduledContent(
+                    scheduled_content = ShakesScheduledContent(
                         calendar_id=content_calendar.id,
                         scheduled_time=plan_item["scheduled_time"],
                         content_type=plan_item["content_type"],
@@ -156,7 +156,7 @@ class ContentCalendarService:
             async with db.get_session() as session:
                 # Get calendar
                 calendar_result = await session.execute(
-                    select(ContentCalendar).where(ContentCalendar.id == calendar_id)
+                    select(ShakesContentCalendar).where(ShakesContentCalendar.id == calendar_id)
                 )
                 calendar = calendar_result.scalar_one_or_none()
                 
@@ -173,7 +173,7 @@ class ContentCalendarService:
                     return {"success": False, "error": "Content piece not found"}
                 
                 # Create scheduled content
-                scheduled_content = ScheduledContent(
+                scheduled_content = ShakesScheduledContent(
                     calendar_id=calendar_id,
                     content_piece_id=content_piece_id,
                     scheduled_time=scheduled_time,
@@ -216,7 +216,7 @@ class ContentCalendarService:
             async with db.get_session() as session:
                 # Get calendar
                 calendar_result = await session.execute(
-                    select(ContentCalendar).where(ContentCalendar.id == calendar_id)
+                    select(ShakesContentCalendar).where(ShakesContentCalendar.id == calendar_id)
                 )
                 calendar = calendar_result.scalar_one_or_none()
                 
@@ -236,13 +236,13 @@ class ContentCalendarService:
                 
                 # Get scheduled content
                 scheduled_result = await session.execute(
-                    select(ScheduledContent).where(
+                    select(ShakesScheduledContent).where(
                         and_(
-                            ScheduledContent.calendar_id == calendar_id,
-                            ScheduledContent.scheduled_time >= start_date,
-                            ScheduledContent.scheduled_time <= end_date
+                            ShakesScheduledContent.calendar_id == calendar_id,
+                            ShakesScheduledContent.scheduled_time >= start_date,
+                            ShakesScheduledContent.scheduled_time <= end_date
                         )
-                    ).order_by(ScheduledContent.scheduled_time)
+                    ).order_by(ShakesScheduledContent.scheduled_time)
                 )
                 scheduled_content = scheduled_result.scalars().all()
                 
@@ -290,7 +290,7 @@ class ContentCalendarService:
             async with db.get_session() as session:
                 # Get calendar
                 calendar_result = await session.execute(
-                    select(ContentCalendar).where(ContentCalendar.id == calendar_id)
+                    select(ShakesContentCalendar).where(ShakesContentCalendar.id == calendar_id)
                 )
                 calendar = calendar_result.scalar_one_or_none()
                 
@@ -299,7 +299,7 @@ class ContentCalendarService:
                 
                 # Get scheduled content
                 scheduled_result = await session.execute(
-                    select(ScheduledContent).where(ScheduledContent.calendar_id == calendar_id)
+                    select(ShakesScheduledContent).where(ShakesScheduledContent.calendar_id == calendar_id)
                 )
                 scheduled_content = scheduled_result.scalars().all()
                 
@@ -412,7 +412,7 @@ class ContentCalendarService:
         """
     
     def _create_optimization_prompt(
-        self, calendar: ContentCalendar, scheduled_content: List[ScheduledContent], optimization_goals: List[str]
+        self, calendar: ShakesContentCalendar, scheduled_content: List[ShakesScheduledContent], optimization_goals: List[str]
     ) -> str:
         """Create prompt for calendar optimization"""
         return f"""

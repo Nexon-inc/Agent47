@@ -5,7 +5,7 @@ from typing import Dict, List, Any
 from ..database import get_db
 from ..services.interactive_elements_service import InteractiveElementsService
 
-router = APIRouter(prefix="/interactive-elements", tags=["Interactive Campaign Elements"])
+router = APIRouter(prefix="/interactive-elements", tags=["Interactive JackieCampaign Elements"])
 
 @router.post("/poll")
 def create_interactive_poll(poll_data: Dict[str, Any], target_audience: List[str], 

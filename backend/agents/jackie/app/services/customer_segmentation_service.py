@@ -306,7 +306,7 @@ class CustomerSegmentationService:
                     "phase": 2,
                     "duration": "4 weeks",
                     "segments": ["New Customers", "At-Risk Customers"],
-                    "activities": ["Campaign development", "A/B testing", "Performance monitoring"]
+                    "activities": ["JackieCampaign development", "A/B testing", "Performance monitoring"]
                 }
             ],
             "resources_required": ["Data analyst", "Marketing specialist", "Technical support"],

@@ -46,7 +46,7 @@ class CustomerFeedbackService:
                 feedback_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 Feedback Data: {feedback_data}
                 Feedback Type: {feedback_type}
                 
@@ -108,7 +108,7 @@ class CustomerFeedbackService:
                 refinement_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 Feedback Insights: {feedback_insights}
                 
                 Refine campaign strategy and content based on customer feedback insights.

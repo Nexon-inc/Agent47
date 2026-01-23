@@ -5,7 +5,7 @@ from typing import Dict, List, Any
 from ..database import get_db
 from ..services.deep_analytics_service import DeepAnalyticsService
 
-router = APIRouter(prefix="/deep-analytics", tags=["Deep Campaign Analytics"])
+router = APIRouter(prefix="/deep-analytics", tags=["Deep JackieCampaign Analytics"])
 
 @router.post("/campaign-analysis/{campaign_id}")
 def analyze_campaign_performance(campaign_id: str, analysis_depth: str = "comprehensive", 

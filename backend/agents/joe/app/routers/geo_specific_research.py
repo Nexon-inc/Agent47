@@ -15,17 +15,17 @@ class RegionalMarketsRequest(BaseModel):
     research_focus: str = Field(..., description="Research focus area")
 
 class LocalSearchTrendsRequest(BaseModel):
-    region: str = Field(..., description="Region to analyze")
+    region: str = Field(..., description="JoeRegion to analyze")
     keywords: List[str] = Field(..., description="Keywords to analyze")
     timeframe: str = Field(default="30d", description="Analysis timeframe")
 
 class RegionalHashtagsRequest(BaseModel):
-    region: str = Field(..., description="Region to analyze")
+    region: str = Field(..., description="JoeRegion to analyze")
     industry: str = Field(..., description="Industry context")
     social_platforms: List[str] = Field(..., description="Social media platforms to analyze")
 
 class RegionalReportRequest(BaseModel):
-    region: str = Field(..., description="Region for report")
+    region: str = Field(..., description="JoeRegion for report")
     research_data: Dict[str, Any] = Field(..., description="Research data")
     report_type: str = Field(default="comprehensive", description="Report type")
 

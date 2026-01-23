@@ -18,7 +18,7 @@ class PerformanceForecastingService:
         forecast_id = str(uuid.uuid4())
         
         prompt = f"""
-        Campaign Data: {campaign_data}
+        JackieCampaign Data: {campaign_data}
         Forecast Horizon: {forecast_horizon}
         
         Predict campaign performance metrics and engagement rates.

@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ShakesContentProject, ShakesContentPiece, ContentAnalytics
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesContentAnalytics
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ class ContentDNAService:
                 # Get analytics for content pieces
                 content_piece_ids = [piece.id for piece in content_pieces]
                 analytics_result = await session.execute(
-                    select(ContentAnalytics).where(ContentAnalytics.content_piece_id.in_(content_piece_ids))
+                    select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id.in_(content_piece_ids))
                 )
                 analytics_records = analytics_result.scalars().all()
                 
@@ -143,7 +143,7 @@ class ContentDNAService:
                 
                 content_piece_ids = [piece.id for piece in content_pieces]
                 analytics_result = await session.execute(
-                    select(ContentAnalytics).where(ContentAnalytics.content_piece_id.in_(content_piece_ids))
+                    select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id.in_(content_piece_ids))
                 )
                 analytics_records = analytics_result.scalars().all()
                 
@@ -204,7 +204,7 @@ class ContentDNAService:
                 # Get analytics
                 content_piece_ids = [piece.id for piece in content_pieces]
                 analytics_result = await session.execute(
-                    select(ContentAnalytics).where(ContentAnalytics.content_piece_id.in_(content_piece_ids))
+                    select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id.in_(content_piece_ids))
                 )
                 analytics_records = analytics_result.scalars().all()
                 
@@ -262,7 +262,7 @@ class ContentDNAService:
                 
                 content_piece_ids = [piece.id for piece in content_pieces]
                 analytics_result = await session.execute(
-                    select(ContentAnalytics).where(ContentAnalytics.content_piece_id.in_(content_piece_ids))
+                    select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id.in_(content_piece_ids))
                 )
                 analytics_records = analytics_result.scalars().all()
                 
@@ -305,7 +305,7 @@ class ContentDNAService:
             return {"success": False, "error": str(e)}
     
     async def _analyze_content_patterns(
-        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ContentAnalytics]
+        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ShakesContentAnalytics]
     ) -> Dict[str, Any]:
         """Analyze patterns in content pieces and analytics"""
         # Analyze content themes
@@ -350,7 +350,7 @@ class ContentDNAService:
         }
     
     async def _generate_heatmap_data(
-        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ContentAnalytics], heatmap_type: str
+        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ShakesContentAnalytics], heatmap_type: str
     ) -> Dict[str, Any]:
         """Generate heatmap data based on type"""
         heatmap_data = {}
@@ -387,7 +387,7 @@ class ContentDNAService:
         return heatmap_data
     
     async def _identify_specific_patterns(
-        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ContentAnalytics], pattern_type: str
+        self, content_pieces: List[ShakesContentPiece], analytics_records: List[ShakesContentAnalytics], pattern_type: str
     ) -> Dict[str, Any]:
         """Identify specific patterns based on type"""
         if pattern_type == "themes":
@@ -444,7 +444,7 @@ class ContentDNAService:
         return {}
     
     def _create_dna_insights_prompt(
-        self, user_id: int, content_pieces: List[ShakesContentPiece], analytics_records: List[ContentAnalytics], dna_analysis: Dict[str, Any]
+        self, user_id: int, content_pieces: List[ShakesContentPiece], analytics_records: List[ShakesContentAnalytics], dna_analysis: Dict[str, Any]
     ) -> str:
         """Create prompt for DNA insights"""
         return f"""

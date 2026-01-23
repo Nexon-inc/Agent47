@@ -76,7 +76,7 @@ class BrandVoiceService:
                 voice_guidelines = ai_response.text_content if ai_response.success else ""
                 
                 # Create brand voice record
-                brand_voice = BrandVoice(
+                brand_voice = ShakesBrandVoice(
                     user_id=user_id,
                     brand_name=brand_name,
                     brand_description=brand_description,
@@ -142,7 +142,7 @@ class BrandVoiceService:
                 
                 # Get brand voice
                 brand_voice_result = await session.execute(
-                    select(BrandVoice).where(BrandVoice.id == brand_voice_id)
+                    select(ShakesBrandVoice).where(ShakesBrandVoice.id == brand_voice_id)
                 )
                 brand_voice = brand_voice_result.scalar_one_or_none()
                 
@@ -210,7 +210,7 @@ class BrandVoiceService:
                 
                 # Get brand voice
                 brand_voice_result = await session.execute(
-                    select(BrandVoice).where(BrandVoice.id == brand_voice_id)
+                    select(ShakesBrandVoice).where(ShakesBrandVoice.id == brand_voice_id)
                 )
                 brand_voice = brand_voice_result.scalar_one_or_none()
                 
@@ -259,7 +259,7 @@ class BrandVoiceService:
             async with db.get_session() as session:
                 # Get brand voice
                 brand_voice_result = await session.execute(
-                    select(BrandVoice).where(BrandVoice.id == brand_voice_id)
+                    select(ShakesBrandVoice).where(ShakesBrandVoice.id == brand_voice_id)
                 )
                 brand_voice = brand_voice_result.scalar_one_or_none()
                 
@@ -362,7 +362,7 @@ class BrandVoiceService:
         """
     
     def _create_brand_voice_application_prompt(
-        self, content: str, content_type: str, brand_voice: BrandVoice, application_intensity: str
+        self, content: str, content_type: str, brand_voice: ShakesBrandVoice, application_intensity: str
     ) -> str:
         """Create prompt for brand voice application"""
         return f"""

@@ -2,8 +2,9 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 from sqlalchemy import select, and_
-from ..database.models import (
-    User, Subscription, SubscriptionStatus, Payment, PaymentStatus, 
+from ..database.models import User
+from .models import (
+    Subscription, SubscriptionStatus, Payment, PaymentStatus, 
     BillingPlan, BillingTier, Usage
 )
 from ..database.connection import get_database

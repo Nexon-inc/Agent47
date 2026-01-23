@@ -7,7 +7,7 @@ import json
 from ..database import get_db
 from ..services.campaign_calendar_service import CampaignCalendarService
 
-router = APIRouter(prefix="/campaign-calendar", tags=["Campaign Calendar Integration"])
+router = APIRouter(prefix="/campaign-calendar", tags=["JackieCampaign Calendar Integration"])
 from pydantic import BaseModel
 
 

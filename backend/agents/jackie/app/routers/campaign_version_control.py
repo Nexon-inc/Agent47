@@ -3,7 +3,7 @@ from typing import Dict, List, Any
 
 from ..services.campaign_version_control_service import CampaignVersionControlService
 
-router = APIRouter(prefix="/campaign-version-control", tags=["Campaign JackieVersion Control"])
+router = APIRouter(prefix="/campaign-version-control", tags=["JackieCampaign JackieVersion Control"])
 
 @router.post("/create-version")
 async def create_campaign_version(campaign_id: str, version_data: Dict[str, Any], version_notes: str = ""):

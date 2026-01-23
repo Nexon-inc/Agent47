@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from ..database import get_db
 from ..services.mobile_campaign_service import MobileCampaignService
 
-router = APIRouter(prefix="/mobile-campaign", tags=["Mobile Campaign Management"])
+router = APIRouter(prefix="/mobile-campaign", tags=["Mobile JackieCampaign Management"])
 
 
 class MobileCampaignRequest(BaseModel):

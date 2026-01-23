@@ -82,7 +82,7 @@ class CampaignCalendarService:
         return {"campaign_id": campaign_id, "timeline_type": timeline_type, "timeline": timeline}
     
     def sync_with_campaigns(self, campaign_ids: List[str]) -> Dict[str, Any]:
-        sync_result = self.nlp_processor.sync_calendar_with_campaigns(f"Campaign IDs: {campaign_ids}")
+        sync_result = self.nlp_processor.sync_calendar_with_campaigns(f"JackieCampaign IDs: {campaign_ids}")
         
         return {
             "campaign_ids": campaign_ids, "sync_status": "completed",
@@ -133,7 +133,7 @@ class CampaignCalendarService:
         ).all()
         
         optimization_result = self.nlp_processor.optimize_campaign_schedule(
-            f"Campaign ID: {campaign_id}, Goals: {optimization_goals}"
+            f"JackieCampaign ID: {campaign_id}, Goals: {optimization_goals}"
         )
         
         return {
@@ -144,7 +144,7 @@ class CampaignCalendarService:
     
     def get_schedule_suggestions(self, campaign_id: str, suggestion_type: str) -> Dict[str, Any]:
         suggestion_result = self.nlp_processor.get_schedule_suggestions(
-            f"Campaign ID: {campaign_id}, Type: {suggestion_type}"
+            f"JackieCampaign ID: {campaign_id}, Type: {suggestion_type}"
         )
         
         return {
@@ -172,7 +172,7 @@ class CampaignCalendarService:
     
     def import_calendar(self, calendar_data: Dict[str, Any], campaign_id: str) -> Dict[str, Any]:
         import_result = self.nlp_processor.import_calendar_data(
-            f"Calendar Data: {calendar_data}, Campaign ID: {campaign_id}"
+            f"Calendar Data: {calendar_data}, JackieCampaign ID: {campaign_id}"
         )
         
         return {

@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ShakesContentProject, ShakesContentPiece, ScheduledContent
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesScheduledContent
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ class SocialMediaAutomationService:
                         await session.flush()
                         
                         # Create scheduled content
-                        scheduled_content = ScheduledContent(
+                        scheduled_content = ShakesScheduledContent(
                             content_piece_id=content_piece.id,
                             scheduled_time=post_plan["posting_time"],
                             platform=platform,
@@ -193,7 +193,7 @@ class SocialMediaAutomationService:
                 for i, platform in enumerate(platforms):
                     scheduled_time = scheduled_times[i] if i < len(scheduled_times) else scheduled_times[0]
                     
-                    scheduled_content = ScheduledContent(
+                    scheduled_content = ShakesScheduledContent(
                         content_piece_id=content_piece_id,
                         scheduled_time=scheduled_time,
                         platform=platform,

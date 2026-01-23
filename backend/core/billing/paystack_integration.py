@@ -6,7 +6,7 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 from ..config import settings
-from ..database.models import Payment, PaymentStatus, Subscription, SubscriptionStatus
+from .models import Payment, PaymentStatus, Subscription, SubscriptionStatus
 from ..database.connection import get_database
 from sqlalchemy import select
 from ..utils.validation import ValidationUtils

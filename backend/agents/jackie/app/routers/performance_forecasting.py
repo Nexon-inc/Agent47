@@ -5,7 +5,7 @@ from typing import Dict, List, Any
 from ..database import get_db
 from ..services.performance_forecasting_service import PerformanceForecastingService
 
-router = APIRouter(prefix="/performance-forecasting", tags=["Campaign Performance Forecasting"])
+router = APIRouter(prefix="/performance-forecasting", tags=["JackieCampaign Performance Forecasting"])
 
 @router.post("/predict-performance")
 def predict_campaign_performance(campaign_data: Dict[str, Any], forecast_horizon: str = "30d", 

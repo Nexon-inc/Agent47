@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ShakesContentProject, ShakesContentPiece, ContentTemplate
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesContentTemplate
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ class ContentTemplatesService:
                 usage_instructions = ai_response.text_content if ai_response.success else ""
                 
                 # Create template record
-                content_template = ContentTemplate(
+                content_template = ShakesContentTemplate(
                     user_id=user_id,
                     template_name=template_name,
                     template_type=template_type,
@@ -140,7 +140,7 @@ class ContentTemplatesService:
             async with db.get_session() as session:
                 # Get template
                 template_result = await session.execute(
-                    select(ContentTemplate).where(ContentTemplate.id == template_id)
+                    select(ShakesContentTemplate).where(ShakesContentTemplate.id == template_id)
                 )
                 content_template = template_result.scalar_one_or_none()
                 
@@ -220,7 +220,7 @@ class ContentTemplatesService:
             async with db.get_session() as session:
                 # Get original template
                 template_result = await session.execute(
-                    select(ContentTemplate).where(ContentTemplate.id == template_id)
+                    select(ShakesContentTemplate).where(ShakesContentTemplate.id == template_id)
                 )
                 original_template = template_result.scalar_one_or_none()
                 
@@ -238,7 +238,7 @@ class ContentTemplatesService:
                 customized_content = ai_response.text_content if ai_response.success else ""
                 
                 # Create new customized template
-                customized_template = ContentTemplate(
+                customized_template = ShakesContentTemplate(
                     user_id=original_template.user_id,
                     template_name=new_template_name or f"{original_template.template_name} - Customized",
                     template_type=original_template.template_type,
@@ -286,16 +286,16 @@ class ContentTemplatesService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Build query
-                query = select(ContentTemplate).where(
-                    ContentTemplate.template_category == category,
-                    ContentTemplate.is_active == True
+                query = select(ShakesContentTemplate).where(
+                    ShakesContentTemplate.template_category == category,
+                    ShakesContentTemplate.is_active == True
                 )
                 
                 if template_type:
-                    query = query.where(ContentTemplate.template_type == template_type)
+                    query = query.where(ShakesContentTemplate.template_type == template_type)
                 
                 if industry:
-                    query = query.where(ContentTemplate.industry == industry)
+                    query = query.where(ShakesContentTemplate.industry == industry)
                 
                 # Execute query
                 templates_result = await session.execute(query)
@@ -383,7 +383,7 @@ class ContentTemplatesService:
         """
     
     def _create_template_content_prompt(
-        self, content_template: ContentTemplate, template_variables: Dict[str, Any], customization_requests: List[str]
+        self, content_template: ShakesContentTemplate, template_variables: Dict[str, Any], customization_requests: List[str]
     ) -> str:
         """Create prompt for template content generation"""
         return f"""
@@ -411,7 +411,7 @@ class ContentTemplatesService:
         """
     
     def _create_template_customization_prompt(
-        self, original_template: ContentTemplate, customization_requests: List[str]
+        self, original_template: ShakesContentTemplate, customization_requests: List[str]
     ) -> str:
         """Create prompt for template customization"""
         return f"""

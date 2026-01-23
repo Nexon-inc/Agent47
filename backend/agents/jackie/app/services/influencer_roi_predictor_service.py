@@ -19,8 +19,8 @@ class InfluencerROIPredictorService:
         
         prompt = f"""
         JackieInfluencer ID: {influencer_id}
-        Campaign Budget: {campaign_budget}
-        Campaign Type: {campaign_type}
+        JackieCampaign Budget: {campaign_budget}
+        JackieCampaign Type: {campaign_type}
         
         Predict ROI for influencer campaign based on historical data and metrics.
         """

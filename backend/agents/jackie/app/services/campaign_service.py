@@ -117,7 +117,7 @@ class CampaignService:
                 campaign = result.scalar_one_or_none()
                 
                 if not campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
                 
                 return {
                     "success": True,
@@ -167,7 +167,7 @@ class CampaignService:
                 campaign = result.scalar_one_or_none()
                 
                 if not campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
                 
                 update_data = {}
                 if name is not None:
@@ -199,7 +199,7 @@ class CampaignService:
                     }
                 )
                 
-                return {"success": True, "message": "Campaign updated successfully"}
+                return {"success": True, "message": "JackieCampaign updated successfully"}
                 
         except Exception as e:
             logger.error(f"Failed to update campaign: {e}")
@@ -213,7 +213,7 @@ class CampaignService:
                 campaign = result.scalar_one_or_none()
                 
                 if not campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
                 
                 stmt = delete(JackieMarketingCampaign).where(JackieMarketingCampaign.id == campaign_id)
                 await session.execute(stmt)
@@ -227,7 +227,7 @@ class CampaignService:
                     }
                 )
                 
-                return {"success": True, "message": "Campaign deleted successfully"}
+                return {"success": True, "message": "JackieCampaign deleted successfully"}
                 
         except Exception as e:
             logger.error(f"Failed to delete campaign: {e}")
@@ -290,7 +290,7 @@ class CampaignService:
                 campaign = result.scalar_one_or_none()
                 
                 if not campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
                 
                 optimization_result = await self._perform_ai_optimization(campaign)
                 
@@ -368,7 +368,7 @@ class CampaignService:
                 original_campaign = result.scalar_one_or_none()
                 
                 if not original_campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
                 
                 new_campaign_id = f"CAMP_{uuid.uuid4().hex[:8].upper()}"
                 
@@ -421,7 +421,7 @@ class CampaignService:
                 await session.execute(stmt)
                 await session.commit()
                 
-                return {"success": True, "message": "Campaign scheduled successfully"}
+                return {"success": True, "message": "JackieCampaign scheduled successfully"}
                 
         except Exception as e:
             logger.error(f"Failed to schedule campaign: {e}")
@@ -436,7 +436,7 @@ class CampaignService:
                 await session.execute(stmt)
                 await session.commit()
                 
-                return {"success": True, "message": "Campaign paused successfully"}
+                return {"success": True, "message": "JackieCampaign paused successfully"}
                 
         except Exception as e:
             logger.error(f"Failed to pause campaign: {e}")
@@ -451,7 +451,7 @@ class CampaignService:
                 await session.execute(stmt)
                 await session.commit()
                 
-                return {"success": True, "message": "Campaign resumed successfully"}
+                return {"success": True, "message": "JackieCampaign resumed successfully"}
                 
         except Exception as e:
             logger.error(f"Failed to resume campaign: {e}")

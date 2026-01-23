@@ -9,7 +9,7 @@ from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from core.database.models import User
 from ..database import get_db
-from ..models import JoeMarketTrend, JoeCompetitorAnalysis, JoeSentimentAnalysis, KeywordResearch, ResearchType, ResearchStatus
+from ..models import JoeMarketTrend, JoeCompetitorAnalysis, JoeSentimentAnalysis, JoeKeywordResearch, ResearchType, ResearchStatus
 from ..services.market_trend_analysis_service import MarketTrendAnalysisService
 from ..services.competitor_analysis_service import CompetitorAnalysisService
 from ..services.sentiment_tracking_service import SentimentTrackingService

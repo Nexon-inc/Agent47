@@ -19,7 +19,7 @@ class MobileCampaignService:
         campaign_id = str(uuid.uuid4())
         
         prompt = f"""
-        Campaign Data: {campaign_data}
+        JackieCampaign Data: {campaign_data}
         Mobile Platforms: {mobile_platforms}
         Target Devices: {target_devices}
         
@@ -107,7 +107,7 @@ class MobileCampaignService:
             raise Exception("Mobile campaign not found")
         
         prompt = f"""
-        Campaign Data: {campaign.campaign_data}
+        JackieCampaign Data: {campaign.campaign_data}
         Optimization Goals: {optimization_goals}
         
         Optimize the mobile campaign based on the specified goals.
@@ -139,7 +139,7 @@ class MobileCampaignService:
     
     def manage_mobile_budget(self, campaign_id: str, budget_data: Dict[str, Any]) -> Dict[str, Any]:
         prompt = f"""
-        Campaign ID: {campaign_id}
+        JackieCampaign ID: {campaign_id}
         Budget Data: {budget_data}
         
         Manage mobile campaign budget allocation and optimization.

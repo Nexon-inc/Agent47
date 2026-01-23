@@ -40,7 +40,7 @@ class BudgetControlService:
         limit_id = str(uuid.uuid4())
         
         prompt = f"""
-        Campaign ID: {campaign_id}
+        JackieCampaign ID: {campaign_id}
         Limit Amount: {limit_amount}
         Limit Period: {limit_period}
         
@@ -81,7 +81,7 @@ class BudgetControlService:
     
     def monitor_budget_spending(self, campaign_id: str, current_spend: float) -> Dict[str, Any]:
         prompt = f"""
-        Campaign ID: {campaign_id}
+        JackieCampaign ID: {campaign_id}
         Current Spend: {current_spend}
         
         Monitor budget spending and generate alerts if needed.

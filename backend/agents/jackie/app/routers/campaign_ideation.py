@@ -8,7 +8,7 @@ import json
 from ..database import get_db
 from ..services.campaign_ideation_service import CampaignIdeationService
 
-router = APIRouter(prefix="/campaign-ideation", tags=["AI-Powered Campaign Ideation"])
+router = APIRouter(prefix="/campaign-ideation", tags=["AI-Powered JackieCampaign Ideation"])
 
 class IdeationRequest(BaseModel):
     industry: str
@@ -70,7 +70,7 @@ async def get_campaign_idea(idea_id: str, db: Session = Depends(get_db)):
     try:
         result = service.get_campaign_idea(idea_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return CampaignIdeaResponse(
             id=result["id"],
             title=result["title"],
@@ -129,9 +129,9 @@ async def refine_campaign_idea(
     try:
         result = service.refine_campaign_idea(idea_id, refinement_criteria)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return {
-            "message": "Campaign idea refined successfully",
+            "message": "JackieCampaign idea refined successfully",
             "refined_idea": result["refined_idea"]
         }
     except HTTPException:
@@ -150,9 +150,9 @@ async def expand_campaign_idea(
     try:
         result = service.expand_campaign_idea(idea_id, expansion_type, additional_context)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return {
-            "message": "Campaign idea expanded successfully",
+            "message": "JackieCampaign idea expanded successfully",
             "expanded_details": result["expanded_details"]
         }
     except HTTPException:
@@ -170,7 +170,7 @@ async def validate_campaign_idea(
     try:
         result = service.validate_campaign_idea(idea_id, validation_criteria)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return result
     except HTTPException:
         raise
@@ -187,9 +187,9 @@ async def implement_campaign_idea(
     try:
         result = service.implement_campaign_idea(idea_id, implementation_plan)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return {
-            "message": "Campaign idea implementation started",
+            "message": "JackieCampaign idea implementation started",
             "campaign_id": result["campaign_id"],
             "implementation_status": result["implementation_status"]
         }
@@ -340,7 +340,7 @@ async def rate_campaign_idea(
     try:
         result = service.rate_campaign_idea(idea_id, rating, feedback)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return {"message": "Idea rated successfully"}
     except HTTPException:
         raise
@@ -356,7 +356,7 @@ async def get_idea_ratings(
     try:
         ratings = service.get_idea_ratings(idea_id)
         if not ratings:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return {"ratings": ratings}
     except HTTPException:
         raise
@@ -373,7 +373,7 @@ async def favorite_campaign_idea(
     try:
         result = service.favorite_campaign_idea(idea_id, user_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return {"message": "Idea favorited successfully"}
     except HTTPException:
         raise
@@ -404,7 +404,7 @@ async def share_campaign_idea(
     try:
         result = service.share_campaign_idea(idea_id, share_config)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return {
             "message": "Idea shared successfully",
             "share_url": result["share_url"]
@@ -467,7 +467,7 @@ async def duplicate_campaign_idea(
     try:
         result = service.duplicate_campaign_idea(idea_id, customization)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign idea not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign idea not found")
         return {
             "message": "Idea duplicated successfully",
             "new_idea_id": result["new_idea_id"]

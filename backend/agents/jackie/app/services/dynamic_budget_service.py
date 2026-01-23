@@ -18,7 +18,7 @@ class DynamicBudgetService:
         allocation_id = str(uuid.uuid4())
         
         prompt = f"""
-        Campaign ID: {campaign_id}
+        JackieCampaign ID: {campaign_id}
         Total Budget: {total_budget}
         Allocation Rules: {allocation_rules}
         
@@ -41,7 +41,7 @@ class DynamicBudgetService:
         adjustment_id = str(uuid.uuid4())
         
         prompt = f"""
-        Campaign ID: {campaign_id}
+        JackieCampaign ID: {campaign_id}
         Current Performance: {current_performance}
         
         Adjust budget allocation based on real-time performance metrics.

@@ -28,7 +28,7 @@ class OmnichannelService:
     def get_omnichannel_campaign(self, campaign_id: int) -> Optional[Dict[str, Any]]:
         return {
             "id": campaign_id,
-            "name": "Summer Sale Campaign",
+            "name": "Summer Sale JackieCampaign",
             "description": "Multi-channel summer sale campaign",
             "channels": ["email", "social_media", "web", "mobile"],
             "content": {
@@ -53,14 +53,14 @@ class OmnichannelService:
         for i in range(offset, min(offset + limit, 20)):
             campaign = {
                 "id": i + 1,
-                "name": f"Omnichannel Campaign {i + 1}",
+                "name": f"Omnichannel JackieCampaign {i + 1}",
                 "description": f"Multi-channel marketing campaign {i + 1}",
                 "channels": ["email", "social_media", "web", "mobile"],
                 "content": {
-                    "email": {"subject": f"Campaign {i + 1} Subject", "body": f"Campaign {i + 1} content..."},
-                    "social_media": {"post": f"Campaign {i + 1} social post..."},
-                    "web": {"banner": f"Campaign {i + 1} banner"},
-                    "mobile": {"push_notification": f"Campaign {i + 1} notification"}
+                    "email": {"subject": f"JackieCampaign {i + 1} Subject", "body": f"JackieCampaign {i + 1} content..."},
+                    "social_media": {"post": f"JackieCampaign {i + 1} social post..."},
+                    "web": {"banner": f"JackieCampaign {i + 1} banner"},
+                    "mobile": {"push_notification": f"JackieCampaign {i + 1} notification"}
                 },
                 "schedule": {
                     "start_date": datetime.utcnow() + timedelta(days=i),
@@ -375,7 +375,7 @@ class OmnichannelService:
         for i in range(offset, min(offset + limit, 20)):
             sequence = {
                 "id": i + 1,
-                "name": f"Campaign Sequence {i + 1}",
+                "name": f"JackieCampaign Sequence {i + 1}",
                 "description": f"Multi-channel campaign sequence {i + 1}",
                 "steps": [
                     {"step": 1, "channel": "email", "delay": "0 days", "content": "Welcome email"},

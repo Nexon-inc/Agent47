@@ -11,7 +11,7 @@ router = APIRouter(prefix="/compliance-checker", tags=["Compliance Checker"])
 class ComplianceCheckRequest(BaseModel):
     research_type: str = Field(..., description="Type of research to check")
     data_sources: List[str] = Field(..., description="Data sources used")
-    region: str = Field(default="global", description="Region for compliance")
+    region: str = Field(default="global", description="JoeRegion for compliance")
 
 # Dependency
 async def get_compliance_checker_service() -> ComplianceCheckerService:

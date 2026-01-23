@@ -46,7 +46,7 @@ class MultiLanguageService:
                 ml_campaign_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 Target Languages: {target_languages}
                 Source Content: {source_content}
                 
@@ -78,7 +78,7 @@ class MultiLanguageService:
                 translation_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 Content: {content}
                 Target Language: {target_language}
                 
@@ -110,7 +110,7 @@ class MultiLanguageService:
                 adaptation_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 Content: {content}
                 Target Culture: {target_culture}
                 

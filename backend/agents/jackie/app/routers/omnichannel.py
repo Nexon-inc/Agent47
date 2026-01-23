@@ -73,7 +73,7 @@ async def get_omnichannel_campaign(campaign_id: int, db: Session = Depends(get_d
     try:
         result = service.get_omnichannel_campaign(campaign_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign not found")
         return OmnichannelCampaignResponse(
             id=result["id"],
             name=result["name"],
@@ -118,8 +118,8 @@ async def launch_omnichannel_campaign(campaign_id: int, db: Session = Depends(ge
     try:
         result = service.launch_omnichannel_campaign(campaign_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign not found")
-        return {"message": "Campaign launched successfully", "status": result["status"]}
+            raise HTTPException(status_code=404, detail="JackieCampaign not found")
+        return {"message": "JackieCampaign launched successfully", "status": result["status"]}
     except HTTPException:
         raise
     except Exception as e:
@@ -131,8 +131,8 @@ async def pause_omnichannel_campaign(campaign_id: int, db: Session = Depends(get
     try:
         result = service.pause_omnichannel_campaign(campaign_id)
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign not found")
-        return {"message": "Campaign paused successfully", "status": result["status"]}
+            raise HTTPException(status_code=404, detail="JackieCampaign not found")
+        return {"message": "JackieCampaign paused successfully", "status": result["status"]}
     except HTTPException:
         raise
     except Exception as e:
@@ -152,7 +152,7 @@ async def optimize_channel(
             request.parameters
         )
         if not result:
-            raise HTTPException(status_code=404, detail="Campaign not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign not found")
         return {
             "message": "Channel optimization completed",
             "optimization_results": result["optimization_results"]
@@ -168,7 +168,7 @@ async def get_campaign_analytics(campaign_id: int, db: Session = Depends(get_db)
     try:
         analytics = service.get_campaign_analytics(campaign_id)
         if not analytics:
-            raise HTTPException(status_code=404, detail="Campaign not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign not found")
         return analytics
     except HTTPException:
         raise
@@ -291,7 +291,7 @@ async def create_campaign_sequence(
     try:
         result = service.create_campaign_sequence(sequence_data)
         return {
-            "message": "Campaign sequence created successfully",
+            "message": "JackieCampaign sequence created successfully",
             "sequence_id": result["sequence_id"]
         }
     except Exception as e:

@@ -228,8 +228,8 @@ class JackieChatService:
         
         Domain-specific for Jackie (Marketing):
         - Marketing Tools: Mailchimp, ConvertKit, Klaviyo, Marketing automation
-        - Campaign Types: Email campaigns, Ad campaigns, Social campaigns, Content campaigns
-        - Task types: Campaign phases, Marketing strategies, Ad variations, Audience segments
+        - JackieCampaign Types: Email campaigns, Ad campaigns, Social campaigns, Content campaigns
+        - Task types: JackieCampaign phases, Marketing strategies, Ad variations, Audience segments
         """
         import re
         
@@ -295,13 +295,13 @@ class JackieChatService:
         if "automation" in message_lower and "Marketing Automation" not in detected_tools:
             detected_tools.append("Marketing Automation")
         
-        # Campaign Types Detection
+        # JackieCampaign Types Detection
         campaign_types = {
-            "email": "Email Campaign",
-            "ad": "Ad Campaign",
-            "social": "Social Campaign",
-            "content": "Content Campaign",
-            "retargeting": "Retargeting Campaign"
+            "email": "Email JackieCampaign",
+            "ad": "Ad JackieCampaign",
+            "social": "Social JackieCampaign",
+            "content": "Content JackieCampaign",
+            "retargeting": "Retargeting JackieCampaign"
         }
         
         # Detect campaign types mentioned
@@ -554,7 +554,7 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                         "content": f"""You are Jackie, an AI-powered marketing campaign assistant specializing in comprehensive marketing strategy and execution.
 {custom_instructions_text}
                         You help users with marketing tasks including:
-                        - Campaign creation and strategy
+                        - JackieCampaign creation and strategy
                         - Content development and messaging
                         - Ad optimization and performance
                         - Audience targeting and segmentation

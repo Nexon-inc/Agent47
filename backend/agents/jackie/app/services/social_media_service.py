@@ -141,7 +141,7 @@ class SocialMediaService:
                 campaign = result.scalar_one_or_none()
 
                 if not campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
 
                 analytics = await self._generate_social_analytics(campaign)
 

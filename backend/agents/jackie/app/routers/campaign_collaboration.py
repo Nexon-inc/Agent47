@@ -7,7 +7,7 @@ import json
 from ..database import get_db
 from ..services.campaign_collaboration_service import CampaignCollaborationService
 
-router = APIRouter(prefix="/campaign-collaboration", tags=["Campaign Collaboration Tools"])
+router = APIRouter(prefix="/campaign-collaboration", tags=["JackieCampaign Collaboration Tools"])
 from pydantic import BaseModel
 
 

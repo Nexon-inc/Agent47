@@ -9,7 +9,7 @@ from ..services.geo_specific_service import GeoSpecificService
 router = APIRouter(prefix="/geo-specific", tags=["Geo-Specific Research"])
 
 class RegionalAnalysisRequest(BaseModel):
-    region: str = Field(..., description="Region to analyze")
+    region: str = Field(..., description="JoeRegion to analyze")
     industry: str = Field(..., description="Industry to analyze")
     analysis_type: str = Field(default="comprehensive", description="Type of analysis")
 

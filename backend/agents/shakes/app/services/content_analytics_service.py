@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ShakesContentProject, ShakesContentPiece, ContentAnalytics
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesContentAnalytics
 
 logger = logging.getLogger(__name__)
 
@@ -62,10 +62,10 @@ class ContentAnalyticsService:
                 
                 # Create or update analytics record
                 analytics_result = await session.execute(
-                    select(ContentAnalytics).where(
+                    select(ShakesContentAnalytics).where(
                         and_(
-                            ContentAnalytics.content_piece_id == content_piece_id,
-                            ContentAnalytics.platform == platform
+                            ShakesContentAnalytics.content_piece_id == content_piece_id,
+                            ShakesContentAnalytics.platform == platform
                         )
                     )
                 )
@@ -84,7 +84,7 @@ class ContentAnalyticsService:
                     analytics.updated_at = datetime.utcnow()
                 else:
                     # Create new analytics record
-                    analytics = ContentAnalytics(
+                    analytics = ShakesContentAnalytics(
                         content_piece_id=content_piece_id,
                         platform=platform,
                         views=metrics.get("views", 0),
@@ -147,9 +147,9 @@ class ContentAnalyticsService:
             db = await get_shakes_database()
             async with db.get_session() as session:
                 # Build query
-                query = select(ContentAnalytics).where(ContentAnalytics.content_piece_id == content_piece_id)
+                query = select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id == content_piece_id)
                 if platform:
-                    query = query.where(ContentAnalytics.platform == platform)
+                    query = query.where(ShakesContentAnalytics.platform == platform)
                 
                 analytics_result = await session.execute(query)
                 analytics_records = analytics_result.scalars().all()
@@ -221,11 +221,11 @@ class ContentAnalyticsService:
                 content_piece_ids = [piece.id for piece in content_pieces]
                 
                 # Get analytics for content pieces
-                analytics_query = select(ContentAnalytics).where(
-                    ContentAnalytics.content_piece_id.in_(content_piece_ids)
+                analytics_query = select(ShakesContentAnalytics).where(
+                    ShakesContentAnalytics.content_piece_id.in_(content_piece_ids)
                 )
                 if platform:
-                    analytics_query = analytics_query.where(ContentAnalytics.platform == platform)
+                    analytics_query = analytics_query.where(ShakesContentAnalytics.platform == platform)
                 
                 analytics_result = await session.execute(analytics_query)
                 analytics_records = analytics_result.scalars().all()
@@ -299,7 +299,7 @@ class ContentAnalyticsService:
                 
                 # Get analytics for content pieces
                 analytics_result = await session.execute(
-                    select(ContentAnalytics).where(ContentAnalytics.content_piece_id.in_(content_piece_ids))
+                    select(ShakesContentAnalytics).where(ShakesContentAnalytics.content_piece_id.in_(content_piece_ids))
                 )
                 analytics_records = analytics_result.scalars().all()
                 

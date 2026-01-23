@@ -83,7 +83,7 @@ class ShakesContentProject(Base):
     user = relationship("User", backref="content_projects")
     content_pieces = relationship("ShakesContentPiece", back_populates="project", cascade="all, delete-orphan")
     seo_analysis = relationship("ShakesSEOAnalysis", back_populates="project", uselist=False)
-    performance_metrics = relationship("ContentPerformance", back_populates="project", cascade="all, delete-orphan")
+    performance_metrics = relationship("ShakesContentPerformance", back_populates="project", cascade="all, delete-orphan")
 
 class ShakesContentPiece(Base):
     __tablename__ = "shakes_content_pieces"
@@ -112,7 +112,7 @@ class ShakesContentPiece(Base):
     project = relationship("ShakesContentProject", back_populates="content_pieces")
     versions = relationship("ShakesContentVersion", back_populates="content_piece", cascade="all, delete-orphan")
     seo_analysis = relationship("ShakesSEOAnalysis", back_populates="content_piece", uselist=False)
-    performance_metrics = relationship("ContentPerformance", back_populates="content_piece", cascade="all, delete-orphan")
+    performance_metrics = relationship("ShakesContentPerformance", back_populates="content_piece", cascade="all, delete-orphan")
 
 class ShakesContentVersion(Base):
     __tablename__ = "content_versions"
@@ -155,7 +155,7 @@ class ShakesSEOAnalysis(Base):
     project = relationship("ShakesContentProject", back_populates="seo_analysis")
     content_piece = relationship("ShakesContentPiece", back_populates="seo_analysis", foreign_keys=[content_piece_id])
 
-class ContentPerformance(Base):
+class ShakesContentPerformance(Base):
     __tablename__ = "content_performance"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -201,7 +201,7 @@ class ShakesBrandVoice(Base):
     # Relationships
     user = relationship("User", backref="shakes_brand_voices")
 
-class ContentTemplate(Base):
+class ShakesContentTemplate(Base):
     __tablename__ = "content_templates"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -220,7 +220,7 @@ class ContentTemplate(Base):
     # Relationships
     user = relationship("User", backref="content_templates")
 
-class ContentCalendar(Base):
+class ShakesContentCalendar(Base):
     __tablename__ = "content_calendars"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -233,9 +233,9 @@ class ContentCalendar(Base):
     
     # Relationships
     user = relationship("User", backref="content_calendars")
-    scheduled_content = relationship("ScheduledContent", back_populates="calendar", cascade="all, delete-orphan")
+    scheduled_content = relationship("ShakesScheduledContent", back_populates="calendar", cascade="all, delete-orphan")
 
-class ScheduledContent(Base):
+class ShakesScheduledContent(Base):
     __tablename__ = "scheduled_content"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -249,10 +249,10 @@ class ScheduledContent(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relationships
-    calendar = relationship("ContentCalendar", back_populates="scheduled_content")
+    calendar = relationship("ShakesContentCalendar", back_populates="scheduled_content")
     content_piece = relationship("ShakesContentPiece", foreign_keys=[content_piece_id])
 
-class ContentCollaboration(Base):
+class ShakesContentCollaboration(Base):
     __tablename__ = "content_collaboration"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -267,7 +267,7 @@ class ContentCollaboration(Base):
     project = relationship("ShakesContentProject")
     user = relationship("User")
 
-class ContentComment(Base):
+class ShakesContentComment(Base):
     __tablename__ = "content_comments"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -282,10 +282,10 @@ class ContentComment(Base):
     # Relationships
     content_piece = relationship("ShakesContentPiece", foreign_keys=[content_piece_id])
     user = relationship("User", foreign_keys=[user_id])
-    parent_comment = relationship("ContentComment", remote_side=[id], foreign_keys=[parent_comment_id])
-    replies = relationship("ContentComment", back_populates="parent_comment")
+    parent_comment = relationship("ShakesContentComment", remote_side=[id], foreign_keys=[parent_comment_id])
+    replies = relationship("ShakesContentComment", back_populates="parent_comment")
 
-class ContentAnalytics(Base):
+class ShakesContentAnalytics(Base):
     __tablename__ = "content_analytics"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -309,8 +309,8 @@ class ContentAnalytics(Base):
 Index("idx_content_projects_user_status", ShakesContentProject.user_id, ShakesContentProject.status)
 Index("idx_content_pieces_project_status", ShakesContentPiece.project_id, ShakesContentPiece.status)
 Index("idx_seo_analysis_project", ShakesSEOAnalysis.project_id)
-Index("idx_content_performance_piece", ContentPerformance.content_piece_id)
-Index("idx_scheduled_content_time", ScheduledContent.scheduled_time)
-Index("idx_content_collaboration_user", ContentCollaboration.user_id)
-Index("idx_content_comments_piece", ContentComment.content_piece_id)
-Index("idx_content_analytics_date", ContentAnalytics.date)
+Index("idx_content_performance_piece", ShakesContentPerformance.content_piece_id)
+Index("idx_scheduled_content_time", ShakesScheduledContent.scheduled_time)
+Index("idx_content_collaboration_user", ShakesContentCollaboration.user_id)
+Index("idx_content_comments_piece", ShakesContentComment.content_piece_id)
+Index("idx_content_analytics_date", ShakesContentAnalytics.date)

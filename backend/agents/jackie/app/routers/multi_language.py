@@ -3,7 +3,7 @@ from typing import Dict, List, Any
 
 from ..services.multi_language_service import MultiLanguageService
 
-router = APIRouter(prefix="/multi-language", tags=["Multi-Language Campaign Creation"])
+router = APIRouter(prefix="/multi-language", tags=["Multi-Language JackieCampaign Creation"])
 
 @router.post("/create-campaign")
 async def create_multi_language_campaign(campaign_id: str, target_languages: List[str], source_content: Dict[str, Any]):

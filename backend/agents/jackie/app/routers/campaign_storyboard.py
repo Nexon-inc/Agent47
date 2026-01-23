@@ -5,7 +5,7 @@ from typing import Dict, List, Any
 from ..database import get_db
 from ..services.campaign_storyboard_service import CampaignStoryboardService
 
-router = APIRouter(prefix="/campaign-storyboard", tags=["AI Campaign Storyboard"])
+router = APIRouter(prefix="/campaign-storyboard", tags=["AI JackieCampaign Storyboard"])
 
 @router.post("/storyboard")
 def create_campaign_storyboard(campaign_brief: Dict[str, Any], storyboard_type: str = "multi_channel", 

@@ -16,7 +16,7 @@ class CampaignStoryboardService:
         
     def create_campaign_storyboard(self, campaign_brief: Dict[str, Any], storyboard_type: str = "multi_channel") -> Dict[str, Any]:
         storyboard_id = str(uuid.uuid4())
-        storyboard_result = self.nlp_processor.create_campaign_storyboard(f"Campaign Brief: {campaign_brief}")
+        storyboard_result = self.nlp_processor.create_campaign_storyboard(f"JackieCampaign Brief: {campaign_brief}")
         
         storyboard = CampaignStoryboard(
             id=storyboard_id, campaign_brief=json.dumps(campaign_brief), storyboard_type=storyboard_type,

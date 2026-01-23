@@ -11,8 +11,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
 from ..models import (
-    ClaraTicketGroup, ClaraBulkAction, ResolutionTemplate, TicketCluster,
-    ResolutionBatch, ClaraSupportTicket, ClaraSupportAgent, ClaraCustomerInteraction
+    ClaraTicketGroup, ClaraBulkAction, ClaraResolutionTemplate, ClaraTicketCluster,
+    ClaraResolutionBatch, ClaraSupportTicket, ClaraSupportAgent, ClaraCustomerInteraction
 )
 from ..schemas.multi_ticket_resolution import (
     CreateTicketGroupRequest, UpdateTicketGroupRequest,
@@ -239,7 +239,7 @@ class MultiTicketResolutionService:
     ) -> ResolutionTemplateResponse:
         """Create a new resolution template"""
         try:
-            template = ResolutionTemplate(
+            template = ClaraResolutionTemplate(
                 name=request.name,
                 description=request.description,
                 content=request.content,
@@ -276,7 +276,7 @@ class MultiTicketResolutionService:
         template_id: int
     ) -> ResolutionTemplateResponse:
         """Get resolution template by ID"""
-        template = db.query(ResolutionTemplate).filter(ResolutionTemplate.id == template_id).first()
+        template = db.query(ClaraResolutionTemplate).filter(ClaraResolutionTemplate.id == template_id).first()
         if not template:
             raise HTTPException(status_code=404, detail="Resolution template not found")
         
@@ -301,12 +301,12 @@ class MultiTicketResolutionService:
         is_active: Optional[bool] = None
     ) -> List[ResolutionTemplateResponse]:
         """List resolution templates"""
-        query = db.query(ResolutionTemplate)
+        query = db.query(ClaraResolutionTemplate)
         
         if category:
-            query = query.filter(ResolutionTemplate.category == category)
+            query = query.filter(ClaraResolutionTemplate.category == category)
         if is_active is not None:
-            query = query.filter(ResolutionTemplate.is_active == is_active)
+            query = query.filter(ClaraResolutionTemplate.is_active == is_active)
         
         templates = query.offset(skip).limit(limit).all()
         
@@ -331,7 +331,7 @@ class MultiTicketResolutionService:
         request: UpdateResolutionTemplateRequest
     ) -> ResolutionTemplateResponse:
         """Update resolution template"""
-        template = db.query(ResolutionTemplate).filter(ResolutionTemplate.id == template_id).first()
+        template = db.query(ClaraResolutionTemplate).filter(ClaraResolutionTemplate.id == template_id).first()
         if not template:
             raise HTTPException(status_code=404, detail="Resolution template not found")
         
@@ -376,7 +376,7 @@ class MultiTicketResolutionService:
         template_id: int
     ) -> Dict[str, str]:
         """Delete resolution template"""
-        template = db.query(ResolutionTemplate).filter(ResolutionTemplate.id == template_id).first()
+        template = db.query(ClaraResolutionTemplate).filter(ClaraResolutionTemplate.id == template_id).first()
         if not template:
             raise HTTPException(status_code=404, detail="Resolution template not found")
         
@@ -563,7 +563,7 @@ class MultiTicketResolutionService:
                     continue
                 
                 # Create cluster record
-                cluster = TicketCluster(
+                cluster = ClaraTicketCluster(
                     ticket_ids=[t.id for t in cluster_tickets],
                     similarity_score=similarity_threshold,
                     common_category=cluster_tickets[0].category,
@@ -596,7 +596,7 @@ class MultiTicketResolutionService:
         """Create a resolution batch for multiple tickets"""
         try:
             # Verify template exists
-            template = db.query(ResolutionTemplate).filter(ResolutionTemplate.id == template_id).first()
+            template = db.query(ClaraResolutionTemplate).filter(ClaraResolutionTemplate.id == template_id).first()
             if not template:
                 raise HTTPException(status_code=404, detail="Resolution template not found")
             
@@ -609,7 +609,7 @@ class MultiTicketResolutionService:
                 tickets.append(ticket)
             
             # Create resolution batch
-            batch = ResolutionBatch(
+            batch = ClaraResolutionBatch(
                 ticket_ids=ticket_ids,
                 template_id=template_id,
                 variables=variables,
@@ -672,7 +672,7 @@ class MultiTicketResolutionService:
         batch_id: int
     ) -> ResolutionBatchResponse:
         """Get resolution batch by ID"""
-        batch = db.query(ResolutionBatch).filter(ResolutionBatch.id == batch_id).first()
+        batch = db.query(ClaraResolutionBatch).filter(ClaraResolutionBatch.id == batch_id).first()
         if not batch:
             raise HTTPException(status_code=404, detail="Resolution batch not found")
         
@@ -695,12 +695,12 @@ class MultiTicketResolutionService:
         status: Optional[str] = None
     ) -> List[ResolutionBatchResponse]:
         """List resolution batches"""
-        query = db.query(ResolutionBatch)
+        query = db.query(ClaraResolutionBatch)
         
         if status:
-            query = query.filter(ResolutionBatch.status == status)
+            query = query.filter(ClaraResolutionBatch.status == status)
         
-        batches = query.order_by(desc(ResolutionBatch.created_at)).offset(skip).limit(limit).all()
+        batches = query.order_by(desc(ClaraResolutionBatch.created_at)).offset(skip).limit(limit).all()
         
         return [
             ResolutionBatchResponse(
@@ -823,10 +823,10 @@ class MultiTicketResolutionService:
                         })
                 
                 # Get relevant templates
-                templates = db.query(ResolutionTemplate).filter(
+                templates = db.query(ClaraResolutionTemplate).filter(
                     and_(
-                        ResolutionTemplate.category == ticket.category,
-                        ResolutionTemplate.is_active == True
+                        ClaraResolutionTemplate.category == ticket.category,
+                        ClaraResolutionTemplate.is_active == True
                     )
                 ).limit(3).all()
                 
@@ -870,10 +870,10 @@ class MultiTicketResolutionService:
                 )
             ).all()
             
-            resolution_batches = db.query(ResolutionBatch).filter(
+            resolution_batches = db.query(ClaraResolutionBatch).filter(
                 and_(
-                    ResolutionBatch.created_at >= start_date,
-                    ResolutionBatch.created_at <= end_date
+                    ClaraResolutionBatch.created_at >= start_date,
+                    ClaraResolutionBatch.created_at <= end_date
                 )
             ).all()
             
@@ -919,9 +919,9 @@ class MultiTicketResolutionService:
         try:
             db = next(get_db())
             group_count = db.query(ClaraTicketGroup).count()
-            template_count = db.query(ResolutionTemplate).count()
+            template_count = db.query(ClaraResolutionTemplate).count()
             action_count = db.query(ClaraBulkAction).count()
-            batch_count = db.query(ResolutionBatch).count()
+            batch_count = db.query(ClaraResolutionBatch).count()
             
             return {
                 "status": "healthy",

@@ -8,7 +8,7 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    InStoreKiosk, ClaraInStoreInquiry, ClaraInStoreQRCode, ClaraInStoreLocation, ClaraInStoreDevice,
+    ClaraInStoreKiosk, ClaraInStoreInquiry, ClaraInStoreQRCode, ClaraInStoreLocation, ClaraInStoreDevice,
     ClaraSupportTicket, ClaraCustomerInteraction, ClaraSupportAgent
 )
 from ..schemas.in_store_inquiry import (
@@ -63,7 +63,7 @@ class InStoreInquiryService:
     ) -> InStoreKioskResponse:
         """Create a new in-store kiosk"""
         try:
-            kiosk = InStoreKiosk(
+            kiosk = ClaraInStoreKiosk(
                 name=request.name,
                 description=request.description,
                 location_id=request.location_id,
@@ -102,7 +102,7 @@ class InStoreInquiryService:
         kiosk_id: int
     ) -> InStoreKioskResponse:
         """Get in-store kiosk by ID"""
-        kiosk = db.query(InStoreKiosk).filter(InStoreKiosk.id == kiosk_id).first()
+        kiosk = db.query(ClaraInStoreKiosk).filter(ClaraInStoreKiosk.id == kiosk_id).first()
         if not kiosk:
             raise HTTPException(status_code=404, detail="In-store kiosk not found")
         
@@ -129,14 +129,14 @@ class InStoreInquiryService:
         is_active: Optional[bool] = None
     ) -> List[InStoreKioskResponse]:
         """List in-store kiosks"""
-        query = db.query(InStoreKiosk)
+        query = db.query(ClaraInStoreKiosk)
         
         if location_id:
-            query = query.filter(InStoreKiosk.location_id == location_id)
+            query = query.filter(ClaraInStoreKiosk.location_id == location_id)
         if device_type:
-            query = query.filter(InStoreKiosk.device_type == device_type)
+            query = query.filter(ClaraInStoreKiosk.device_type == device_type)
         if is_active is not None:
-            query = query.filter(InStoreKiosk.is_active == is_active)
+            query = query.filter(ClaraInStoreKiosk.is_active == is_active)
         
         kiosks = query.offset(skip).limit(limit).all()
         
@@ -162,7 +162,7 @@ class InStoreInquiryService:
         request: UpdateInStoreKioskRequest
     ) -> InStoreKioskResponse:
         """Update in-store kiosk"""
-        kiosk = db.query(InStoreKiosk).filter(InStoreKiosk.id == kiosk_id).first()
+        kiosk = db.query(ClaraInStoreKiosk).filter(ClaraInStoreKiosk.id == kiosk_id).first()
         if not kiosk:
             raise HTTPException(status_code=404, detail="In-store kiosk not found")
         
@@ -210,7 +210,7 @@ class InStoreInquiryService:
         kiosk_id: int
     ) -> Dict[str, str]:
         """Delete in-store kiosk"""
-        kiosk = db.query(InStoreKiosk).filter(InStoreKiosk.id == kiosk_id).first()
+        kiosk = db.query(ClaraInStoreKiosk).filter(ClaraInStoreKiosk.id == kiosk_id).first()
         if not kiosk:
             raise HTTPException(status_code=404, detail="In-store kiosk not found")
         
@@ -673,7 +673,7 @@ class InStoreInquiryService:
         """Check the health of in-store inquiry system"""
         try:
             db = next(get_db())
-            kiosk_count = db.query(InStoreKiosk).count()
+            kiosk_count = db.query(ClaraInStoreKiosk).count()
             inquiry_count = db.query(ClaraInStoreInquiry).count()
             qr_code_count = db.query(ClaraInStoreQRCode).count()
             location_count = db.query(ClaraInStoreLocation).count()

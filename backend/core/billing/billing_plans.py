@@ -1,7 +1,7 @@
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import logging
-from ..database.models import BillingPlan, BillingTier
+from .models import BillingPlan, BillingTier
 from ..database.connection import get_database
 from sqlalchemy import select
 

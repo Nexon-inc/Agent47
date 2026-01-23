@@ -171,7 +171,7 @@ class OrganicMarketingService:
     def create_user_generated_content_campaign(self, campaign_brief: Dict[str, Any],
                                              target_audience: List[str]) -> Dict[str, Any]:
         prompt = f"""
-        Campaign Brief: {campaign_brief}
+        JackieCampaign Brief: {campaign_brief}
         Target Audience: {target_audience}
         
         Create a user-generated content campaign to build organic brand awareness.

@@ -135,7 +135,7 @@ class EmailMarketingService:
                 campaign = result.scalar_one_or_none()
 
                 if not campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
 
                 analytics = await self._calculate_email_analytics(campaign)
 
@@ -166,10 +166,10 @@ class EmailMarketingService:
                 campaign = result.scalar_one_or_none()
 
                 if not campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
 
                 if campaign.status.value != "draft":
-                    return {"success": False, "error": "Campaign is not in draft status"}
+                    return {"success": False, "error": "JackieCampaign is not in draft status"}
 
                 stmt = update(JackieEmailCampaign).where(JackieEmailCampaign.id == campaign_id).values(
                     status="sent",

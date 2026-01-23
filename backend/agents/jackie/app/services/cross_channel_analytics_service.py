@@ -46,7 +46,7 @@ class CrossChannelAnalyticsService:
                 unified_id = str(uuid.uuid4())
                 
                 prompt = f"""
-                Campaign ID: {campaign_id}
+                JackieCampaign ID: {campaign_id}
                 Channel Data: {channel_data}
                 
                 Unify metrics from multiple channels into a comprehensive analytics view.

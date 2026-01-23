@@ -117,7 +117,7 @@ class LocalizedMarketingService:
     def optimize_regional_campaigns(self, campaign_data: Dict[str, Any], target_regions: List[str],
                                   optimization_strategy: Dict[str, Any]) -> Dict[str, Any]:
         prompt = f"""
-        Campaign Data: {campaign_data}
+        JackieCampaign Data: {campaign_data}
         Target Regions: {target_regions}
         Optimization Strategy: {optimization_strategy}
         

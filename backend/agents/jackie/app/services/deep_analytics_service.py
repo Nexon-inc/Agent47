@@ -19,7 +19,7 @@ class DeepAnalyticsService:
         analysis_id = str(uuid.uuid4())
         
         prompt = f"""
-        Campaign ID: {campaign_id}
+        JackieCampaign ID: {campaign_id}
         Analysis Depth: {analysis_depth}
         Include Sentiment: {include_sentiment}
         
@@ -65,7 +65,7 @@ class DeepAnalyticsService:
         benchmark_id = str(uuid.uuid4())
         
         prompt = f"""
-        Campaign ID: {campaign_id}
+        JackieCampaign ID: {campaign_id}
         Benchmark Metrics: {benchmark_metrics}
         Industry Standard: {industry_standard}
         
@@ -89,7 +89,7 @@ class DeepAnalyticsService:
         insight_id = str(uuid.uuid4())
         
         prompt = f"""
-        Campaign Data: {campaign_data}
+        JackieCampaign Data: {campaign_data}
         Insight Focus: {insight_focus}
         
         Generate actionable insights and recommendations based on campaign data.
@@ -109,7 +109,7 @@ class DeepAnalyticsService:
     def analyze_cross_channel_performance(self, campaign_ids: List[str],
                                         channel_metrics: Dict[str, Any]) -> Dict[str, Any]:
         prompt = f"""
-        Campaign IDs: {campaign_ids}
+        JackieCampaign IDs: {campaign_ids}
         Channel Metrics: {channel_metrics}
         
         Analyze cross-channel performance and identify optimization opportunities.
@@ -125,7 +125,7 @@ class DeepAnalyticsService:
     def generate_performance_report(self, campaign_id: str, report_type: str = "comprehensive",
                                   include_recommendations: bool = True) -> Dict[str, Any]:
         prompt = f"""
-        Campaign ID: {campaign_id}
+        JackieCampaign ID: {campaign_id}
         Report Type: {report_type}
         Include Recommendations: {include_recommendations}
         

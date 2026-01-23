@@ -7,7 +7,7 @@ import json
 import asyncio
 from enum import Enum
 
-from ..models import OnboardingStep, ClaraOnboardingSession, OnboardingTutorial, OnboardingProgress
+from ..models import ClaraOnboardingStep, ClaraOnboardingSession, ClaraOnboardingTutorial, ClaraOnboardingProgress
 from ..database import get_clara_database
 from core.config import settings
 from core.integrations import IntegrationManager
@@ -35,7 +35,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Create a new onboarding step"""
         try:
-            step = OnboardingStep(
+            step = ClaraOnboardingStep(
                 step_name=step_name,
                 step_type=step_type,
                 description=description,
@@ -77,7 +77,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Get onboarding step by ID"""
         try:
-            step = db.query(OnboardingStep).filter(OnboardingStep.id == step_id).first()
+            step = db.query(ClaraOnboardingStep).filter(ClaraOnboardingStep.id == step_id).first()
             if not step:
                 raise HTTPException(status_code=404, detail="Onboarding step not found")
             
@@ -108,14 +108,14 @@ class OnboardingAssistanceService:
     ) -> List[Dict[str, Any]]:
         """List onboarding steps"""
         try:
-            query = db.query(OnboardingStep).filter(OnboardingStep.is_active == True)
+            query = db.query(ClaraOnboardingStep).filter(ClaraOnboardingStep.is_active == True)
             
             if step_type:
-                query = query.filter(OnboardingStep.step_type == step_type)
+                query = query.filter(ClaraOnboardingStep.step_type == step_type)
             if is_required is not None:
-                query = query.filter(OnboardingStep.is_required == is_required)
+                query = query.filter(ClaraOnboardingStep.is_required == is_required)
             
-            steps = query.order_by(OnboardingStep.order_index).offset(skip).limit(limit).all()
+            steps = query.order_by(ClaraOnboardingStep.order_index).offset(skip).limit(limit).all()
             
             return [
                 {
@@ -150,7 +150,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Update onboarding step"""
         try:
-            step = db.query(OnboardingStep).filter(OnboardingStep.id == step_id).first()
+            step = db.query(ClaraOnboardingStep).filter(ClaraOnboardingStep.id == step_id).first()
             if not step:
                 raise HTTPException(status_code=404, detail="Onboarding step not found")
             
@@ -199,7 +199,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, str]:
         """Delete onboarding step"""
         try:
-            step = db.query(OnboardingStep).filter(OnboardingStep.id == step_id).first()
+            step = db.query(ClaraOnboardingStep).filter(ClaraOnboardingStep.id == step_id).first()
             if not step:
                 raise HTTPException(status_code=404, detail="Onboarding step not found")
             
@@ -219,16 +219,16 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Get the next onboarding step"""
         try:
-            current_step = db.query(OnboardingStep).filter(OnboardingStep.id == current_step_id).first()
+            current_step = db.query(ClaraOnboardingStep).filter(ClaraOnboardingStep.id == current_step_id).first()
             if not current_step:
                 raise HTTPException(status_code=404, detail="Current onboarding step not found")
             
-            next_step = db.query(OnboardingStep).filter(
+            next_step = db.query(ClaraOnboardingStep).filter(
                 and_(
-                    OnboardingStep.order_index > current_step.order_index,
-                    OnboardingStep.is_active == True
+                    ClaraOnboardingStep.order_index > current_step.order_index,
+                    ClaraOnboardingStep.is_active == True
                 )
-            ).order_by(OnboardingStep.order_index).first()
+            ).order_by(ClaraOnboardingStep.order_index).first()
             
             if not next_step:
                 return {"message": "No next step available", "step": None}
@@ -423,7 +423,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Create a new onboarding tutorial"""
         try:
-            tutorial = OnboardingTutorial(
+            tutorial = ClaraOnboardingTutorial(
                 title=title,
                 content=content,
                 category=category,
@@ -461,7 +461,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Get onboarding tutorial by ID"""
         try:
-            tutorial = db.query(OnboardingTutorial).filter(OnboardingTutorial.id == tutorial_id).first()
+            tutorial = db.query(ClaraOnboardingTutorial).filter(ClaraOnboardingTutorial.id == tutorial_id).first()
             if not tutorial:
                 raise HTTPException(status_code=404, detail="Onboarding tutorial not found")
             
@@ -490,14 +490,14 @@ class OnboardingAssistanceService:
     ) -> List[Dict[str, Any]]:
         """List onboarding tutorials"""
         try:
-            query = db.query(OnboardingTutorial).filter(OnboardingTutorial.is_active == True)
+            query = db.query(ClaraOnboardingTutorial).filter(ClaraOnboardingTutorial.is_active == True)
             
             if category:
-                query = query.filter(OnboardingTutorial.category == category)
+                query = query.filter(ClaraOnboardingTutorial.category == category)
             if difficulty_level:
-                query = query.filter(OnboardingTutorial.difficulty_level == difficulty_level)
+                query = query.filter(ClaraOnboardingTutorial.difficulty_level == difficulty_level)
             
-            tutorials = query.order_by(desc(OnboardingTutorial.created_at)).offset(skip).limit(limit).all()
+            tutorials = query.order_by(desc(ClaraOnboardingTutorial.created_at)).offset(skip).limit(limit).all()
             
             return [
                 {
@@ -528,7 +528,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, Any]:
         """Update onboarding tutorial"""
         try:
-            tutorial = db.query(OnboardingTutorial).filter(OnboardingTutorial.id == tutorial_id).first()
+            tutorial = db.query(ClaraOnboardingTutorial).filter(ClaraOnboardingTutorial.id == tutorial_id).first()
             if not tutorial:
                 raise HTTPException(status_code=404, detail="Onboarding tutorial not found")
             
@@ -571,7 +571,7 @@ class OnboardingAssistanceService:
     ) -> Dict[str, str]:
         """Delete onboarding tutorial"""
         try:
-            tutorial = db.query(OnboardingTutorial).filter(OnboardingTutorial.id == tutorial_id).first()
+            tutorial = db.query(ClaraOnboardingTutorial).filter(ClaraOnboardingTutorial.id == tutorial_id).first()
             if not tutorial:
                 raise HTTPException(status_code=404, detail="Onboarding tutorial not found")
             
@@ -621,7 +621,7 @@ class OnboardingAssistanceService:
             sessions = db.query(ClaraOnboardingSession).filter(ClaraOnboardingSession.user_id == user_id).all()
             
             # Get all active steps
-            total_steps = db.query(OnboardingStep).filter(OnboardingStep.is_active == True).count()
+            total_steps = db.query(ClaraOnboardingStep).filter(ClaraOnboardingStep.is_active == True).count()
             
             # Calculate completed steps
             completed_sessions = [s for s in sessions if s.status == "completed"]
@@ -640,7 +640,7 @@ class OnboardingAssistanceService:
             
             current_step = None
             if current_session:
-                current_step = db.query(OnboardingStep).filter(OnboardingStep.id == current_session.step_id).first()
+                current_step = db.query(ClaraOnboardingStep).filter(ClaraOnboardingStep.id == current_session.step_id).first()
             
             return {
                 "user_id": user_id,
@@ -680,10 +680,10 @@ class OnboardingAssistanceService:
                 return {"progress_percentage": 0, "completed_steps": 0, "total_steps": 0, "current_step": None}
             
             # Get all steps for this user's onboarding flow
-            steps = db.query(OnboardingStep).filter(
-                OnboardingStep.onboarding_flow_id == session.onboarding_flow_id,
-                OnboardingStep.is_active == True
-            ).order_by(OnboardingStep.step_order).all()
+            steps = db.query(ClaraOnboardingStep).filter(
+                ClaraOnboardingStep.onboarding_flow_id == session.onboarding_flow_id,
+                ClaraOnboardingStep.is_active == True
+            ).order_by(ClaraOnboardingStep.step_order).all()
             
             if not steps:
                 return {"progress_percentage": 0, "completed_steps": 0, "total_steps": 0, "current_step": None}
@@ -769,7 +769,7 @@ class OnboardingAssistanceService:
             # Step completion breakdown
             step_completion = {}
             for session in sessions:
-                step = db.query(OnboardingStep).filter(OnboardingStep.id == session.step_id).first()
+                step = db.query(ClaraOnboardingStep).filter(ClaraOnboardingStep.id == session.step_id).first()
                 if step:
                     step_name = step.step_name
                     if step_name not in step_completion:
@@ -796,9 +796,9 @@ class OnboardingAssistanceService:
         """Check the health of onboarding assistance system"""
         try:
             db = next(get_db())
-            step_count = db.query(OnboardingStep).count()
+            step_count = db.query(ClaraOnboardingStep).count()
             session_count = db.query(ClaraOnboardingSession).count()
-            tutorial_count = db.query(OnboardingTutorial).count()
+            tutorial_count = db.query(ClaraOnboardingTutorial).count()
             
             return {
                 "status": "healthy",

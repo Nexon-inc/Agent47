@@ -113,7 +113,7 @@ class InfluencerMarketingService:
                 campaign = result.scalar_one_or_none()
 
                 if not campaign:
-                    return {"success": False, "error": "Campaign not found"}
+                    return {"success": False, "error": "JackieCampaign not found"}
 
                 performance = await self._calculate_influencer_performance(campaign)
 

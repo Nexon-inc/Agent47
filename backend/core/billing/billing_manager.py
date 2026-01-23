@@ -2,9 +2,10 @@ import logging
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
 from sqlalchemy import select, and_, case
-from ..database.models import (
-    User, Subscription, SubscriptionStatus, Payment, PaymentStatus, 
-    BillingPlan, BillingTier, Usage, BillingRecord
+from ..database.models import User, BillingRecord
+from .models import (
+    Subscription, SubscriptionStatus, Payment, PaymentStatus, 
+    BillingPlan, BillingTier, Usage
 )
 from ..database.connection import get_database
 from .paystack_integration import get_paystack

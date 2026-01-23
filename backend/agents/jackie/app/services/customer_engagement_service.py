@@ -132,7 +132,7 @@ class CustomerEngagementService:
         for i in range(offset, min(offset + limit, 20)):
             campaign = {
                 "id": i + 1,
-                "name": f"Engagement Campaign {i + 1}",
+                "name": f"Engagement JackieCampaign {i + 1}",
                 "target_audience": ["new_customers", "returning_customers"],
                 "engagement_type": engagement_type or "email",
                 "content": {

@@ -22,7 +22,7 @@ class CampaignIdeationService:
         prompt = f"""
         Industry: {industry}
         Target Audience: {target_audience}
-        Campaign Goals: {campaign_goals}
+        JackieCampaign Goals: {campaign_goals}
         Budget Range: {budget_range}
         Timeframe: {timeframe}
         Constraints: {constraints}
@@ -126,7 +126,7 @@ class CampaignIdeationService:
             return None
         
         prompt = f"""
-        Campaign Idea: {idea.title} - {idea.description}
+        JackieCampaign Idea: {idea.title} - {idea.description}
         Expansion Type: {expansion_type}
         Additional Context: {additional_context or {}}
         

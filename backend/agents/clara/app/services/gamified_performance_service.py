@@ -7,7 +7,7 @@ from sqlalchemy import select, and_, func, desc, asc
 from sqlalchemy.orm import selectinload
 from ..database import get_clara_database
 from ..models import (
-    ClaraSupportAgent, ClaraSupportTicket, ClaraCustomerInteraction, CustomerFeedback,
+    ClaraSupportAgent, ClaraSupportTicket, ClaraCustomerInteraction, ClaraCustomerFeedback,
     TicketStatus, TicketPriority, SupportChannel
 )
 

@@ -8,7 +8,7 @@ import asyncio
 from enum import Enum
 
 from ..models import (
-    SetupWizardStep, ClaraSetupWizardSession, SetupWizardConfig, SetupWizardValidation,
+    ClaraSetupWizardStep, ClaraSetupWizardSession, ClaraSetupWizardConfig, ClaraSetupWizardValidation,
     ClaraSupportAgent, CustomerProfile, ClaraSupportTicket
 )
 from ..schemas.setup_wizard import (
@@ -62,7 +62,7 @@ class SetupWizardService:
     ) -> SetupWizardStepResponse:
         """Create a new setup wizard step"""
         try:
-            step = SetupWizardStep(
+            step = ClaraSetupWizardStep(
                 title=request.title,
                 description=request.description,
                 step_type=request.step_type,
@@ -105,7 +105,7 @@ class SetupWizardService:
         step_id: int
     ) -> SetupWizardStepResponse:
         """Get setup wizard step by ID"""
-        step = db.query(SetupWizardStep).filter(SetupWizardStep.id == step_id).first()
+        step = db.query(ClaraSetupWizardStep).filter(ClaraSetupWizardStep.id == step_id).first()
         if not step:
             raise HTTPException(status_code=404, detail="Setup wizard step not found")
         
@@ -133,14 +133,14 @@ class SetupWizardService:
         is_active: Optional[bool] = None
     ) -> List[SetupWizardStepResponse]:
         """List setup wizard steps"""
-        query = db.query(SetupWizardStep)
+        query = db.query(ClaraSetupWizardStep)
         
         if step_type:
-            query = query.filter(SetupWizardStep.step_type == step_type)
+            query = query.filter(ClaraSetupWizardStep.step_type == step_type)
         if is_active is not None:
-            query = query.filter(SetupWizardStep.is_active == is_active)
+            query = query.filter(ClaraSetupWizardStep.is_active == is_active)
         
-        steps = query.order_by(SetupWizardStep.order_index).offset(skip).limit(limit).all()
+        steps = query.order_by(ClaraSetupWizardStep.order_index).offset(skip).limit(limit).all()
         
         return [
             SetupWizardStepResponse(
@@ -166,7 +166,7 @@ class SetupWizardService:
         request: UpdateSetupWizardStepRequest
     ) -> SetupWizardStepResponse:
         """Update setup wizard step"""
-        step = db.query(SetupWizardStep).filter(SetupWizardStep.id == step_id).first()
+        step = db.query(ClaraSetupWizardStep).filter(ClaraSetupWizardStep.id == step_id).first()
         if not step:
             raise HTTPException(status_code=404, detail="Setup wizard step not found")
         
@@ -220,7 +220,7 @@ class SetupWizardService:
         step_id: int
     ) -> Dict[str, str]:
         """Delete setup wizard step"""
-        step = db.query(SetupWizardStep).filter(SetupWizardStep.id == step_id).first()
+        step = db.query(ClaraSetupWizardStep).filter(ClaraSetupWizardStep.id == step_id).first()
         if not step:
             raise HTTPException(status_code=404, detail="Setup wizard step not found")
         
@@ -345,14 +345,14 @@ class SetupWizardService:
             raise HTTPException(status_code=404, detail="Setup wizard session not found")
         
         if session.current_step_id:
-            current_step = db.query(SetupWizardStep).filter(SetupWizardStep.id == session.current_step_id).first()
+            current_step = db.query(ClaraSetupWizardStep).filter(ClaraSetupWizardStep.id == session.current_step_id).first()
             if current_step:
-                next_step = db.query(SetupWizardStep).filter(
+                next_step = db.query(ClaraSetupWizardStep).filter(
                     and_(
-                        SetupWizardStep.order_index > current_step.order_index,
-                        SetupWizardStep.is_active == True
+                        ClaraSetupWizardStep.order_index > current_step.order_index,
+                        ClaraSetupWizardStep.is_active == True
                     )
-                ).order_by(SetupWizardStep.order_index).first()
+                ).order_by(ClaraSetupWizardStep.order_index).first()
                 
                 if next_step:
                     return SetupWizardStepResponse(
@@ -371,9 +371,9 @@ class SetupWizardService:
                     )
         else:
             # Get first step
-            first_step = db.query(SetupWizardStep).filter(
-                SetupWizardStep.is_active == True
-            ).order_by(SetupWizardStep.order_index).first()
+            first_step = db.query(ClaraSetupWizardStep).filter(
+                ClaraSetupWizardStep.is_active == True
+            ).order_by(ClaraSetupWizardStep.order_index).first()
             
             if first_step:
                 return SetupWizardStepResponse(
@@ -401,7 +401,7 @@ class SetupWizardService:
     ) -> List[SetupWizardValidationResponse]:
         """Validate data for a setup wizard step"""
         try:
-            step = db.query(SetupWizardStep).filter(SetupWizardStep.id == step_id).first()
+            step = db.query(ClaraSetupWizardStep).filter(ClaraSetupWizardStep.id == step_id).first()
             if not step:
                 raise HTTPException(status_code=404, detail="Setup wizard step not found")
             
@@ -425,7 +425,7 @@ class SetupWizardService:
     ) -> SetupWizardConfigResponse:
         """Create a new setup wizard configuration"""
         try:
-            config = SetupWizardConfig(
+            config = ClaraSetupWizardConfig(
                 name=request.name,
                 description=request.description,
                 configuration_data=request.configuration_data,
@@ -460,7 +460,7 @@ class SetupWizardService:
         config_id: int
     ) -> SetupWizardConfigResponse:
         """Get setup wizard configuration by ID"""
-        config = db.query(SetupWizardConfig).filter(SetupWizardConfig.id == config_id).first()
+        config = db.query(ClaraSetupWizardConfig).filter(ClaraSetupWizardConfig.id == config_id).first()
         if not config:
             raise HTTPException(status_code=404, detail="Setup wizard configuration not found")
         
@@ -484,12 +484,12 @@ class SetupWizardService:
         is_active: Optional[bool] = None
     ) -> List[SetupWizardConfigResponse]:
         """List setup wizard configurations"""
-        query = db.query(SetupWizardConfig)
+        query = db.query(ClaraSetupWizardConfig)
         
         if user_id:
-            query = query.filter(SetupWizardConfig.user_id == user_id)
+            query = query.filter(ClaraSetupWizardConfig.user_id == user_id)
         if is_active is not None:
-            query = query.filter(SetupWizardConfig.is_active == is_active)
+            query = query.filter(ClaraSetupWizardConfig.is_active == is_active)
         
         configs = query.offset(skip).limit(limit).all()
         
@@ -513,7 +513,7 @@ class SetupWizardService:
         request: UpdateSetupWizardConfigRequest
     ) -> SetupWizardConfigResponse:
         """Update setup wizard configuration"""
-        config = db.query(SetupWizardConfig).filter(SetupWizardConfig.id == config_id).first()
+        config = db.query(ClaraSetupWizardConfig).filter(ClaraSetupWizardConfig.id == config_id).first()
         if not config:
             raise HTTPException(status_code=404, detail="Setup wizard configuration not found")
         
@@ -553,7 +553,7 @@ class SetupWizardService:
         config_id: int
     ) -> Dict[str, str]:
         """Delete setup wizard configuration"""
-        config = db.query(SetupWizardConfig).filter(SetupWizardConfig.id == config_id).first()
+        config = db.query(ClaraSetupWizardConfig).filter(ClaraSetupWizardConfig.id == config_id).first()
         if not config:
             raise HTTPException(status_code=404, detail="Setup wizard configuration not found")
         
@@ -619,7 +619,7 @@ class SetupWizardService:
             
             # Step completion rates
             step_completion_rates = {}
-            steps = db.query(SetupWizardStep).filter(SetupWizardStep.is_active == True).all()
+            steps = db.query(ClaraSetupWizardStep).filter(ClaraSetupWizardStep.is_active == True).all()
             
             for step in steps:
                 step_sessions = [s for s in sessions if s.current_step_id == step.id]
@@ -646,9 +646,9 @@ class SetupWizardService:
         """Check the health of setup wizard system"""
         try:
             db = next(get_db())
-            step_count = db.query(SetupWizardStep).count()
+            step_count = db.query(ClaraSetupWizardStep).count()
             session_count = db.query(ClaraSetupWizardSession).count()
-            config_count = db.query(SetupWizardConfig).count()
+            config_count = db.query(ClaraSetupWizardConfig).count()
             
             return {
                 "status": "healthy",

@@ -6,11 +6,11 @@ from pydantic import BaseModel
 
 from ..database import get_clara_database, get_db
 from ..services.onboarding_assistance_service import OnboardingAssistanceService
-from ..models import OnboardingStep, ClaraOnboardingSession, OnboardingTutorial, OnboardingProgress
+from ..models import ClaraOnboardingStep, ClaraOnboardingSession, ClaraOnboardingTutorial, ClaraOnboardingProgress
 
 
 # Pydantic models for request/response
-class OnboardingStepCreate(BaseModel):
+class ClaraOnboardingStepCreate(BaseModel):
     step_name: str
     step_type: str
     description: Optional[str] = None
@@ -19,7 +19,7 @@ class OnboardingStepCreate(BaseModel):
     is_required: bool = True
     estimated_time_minutes: Optional[int] = None
 
-class OnboardingStepUpdate(BaseModel):
+class ClaraOnboardingStepUpdate(BaseModel):
     step_name: Optional[str] = None
     step_type: Optional[str] = None
     description: Optional[str] = None
@@ -38,14 +38,14 @@ class OnboardingSessionUpdate(BaseModel):
     completed_at: Optional[datetime] = None
     notes: Optional[str] = None
 
-class OnboardingTutorialCreate(BaseModel):
+class ClaraOnboardingTutorialCreate(BaseModel):
     title: str
     content: str
     category: str
     tags: Optional[List[str]] = None
     difficulty_level: str = "beginner"
 
-class OnboardingTutorialUpdate(BaseModel):
+class ClaraOnboardingTutorialUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
     category: Optional[str] = None
@@ -60,7 +60,7 @@ onboarding_service = OnboardingAssistanceService()
 # Onboarding Steps endpoints
 @router.post("/steps", response_model=Dict[str, Any])
 async def create_onboarding_step(
-    step: OnboardingStepCreate,
+    step: ClaraOnboardingStepCreate,
     db: Session = Depends(get_db)
 ):
     """Create a new onboarding step"""
@@ -102,7 +102,7 @@ async def list_onboarding_steps(
 
 @router.put("/steps/{step_id}", response_model=Dict[str, Any])
 async def update_onboarding_step(
-    step: OnboardingStepUpdate,
+    step: ClaraOnboardingStepUpdate,
     step_id: int = Path(..., description="The ID of the onboarding step"),
     db: Session = Depends(get_db)
 ):
@@ -202,7 +202,7 @@ async def delete_onboarding_session(
 # Onboarding Tutorials endpoints
 @router.post("/tutorials", response_model=Dict[str, Any])
 async def create_onboarding_tutorial(
-    tutorial: OnboardingTutorialCreate,
+    tutorial: ClaraOnboardingTutorialCreate,
     db: Session = Depends(get_db)
 ):
     """Create a new onboarding tutorial"""
@@ -242,7 +242,7 @@ async def list_onboarding_tutorials(
 
 @router.put("/tutorials/{tutorial_id}", response_model=Dict[str, Any])
 async def update_onboarding_tutorial(
-    tutorial: OnboardingTutorialUpdate,
+    tutorial: ClaraOnboardingTutorialUpdate,
     tutorial_id: int = Path(..., description="The ID of the onboarding tutorial"),
     db: Session = Depends(get_db)
 ):

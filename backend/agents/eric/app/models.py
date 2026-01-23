@@ -305,7 +305,7 @@ class EricMarketInsight(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
-class SalesTraining(Base):
+class EricSalesTraining(Base):
     __tablename__ = "sales_training"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -319,7 +319,7 @@ class SalesTraining(Base):
     effectiveness_score = Column(Float)
     created_at = Column(DateTime, default=func.now())
 
-class SalesGamification(Base):
+class EricSalesGamification(Base):
     __tablename__ = "sales_gamification"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -335,7 +335,7 @@ class SalesGamification(Base):
     completed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=func.now())
 
-class CustomerProfile(Base):
+class EricCustomerProfile(Base):
     __tablename__ = "customer_profiles"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -366,7 +366,7 @@ class CustomerProfile(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
-class CustomerReview(Base):
+class EricCustomerReview(Base):
     __tablename__ = "customer_reviews"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -384,7 +384,7 @@ class CustomerReview(Base):
     deal = relationship("EricDeal")
 
 
-class TeamPerformanceMetric(Base):
+class EricTeamPerformanceMetric(Base):
     __tablename__ = "team_performance_metrics"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -396,7 +396,7 @@ class TeamPerformanceMetric(Base):
     created_at = Column(DateTime, default=func.now())
 
 
-class EthicalSalesScore(Base):
+class EricEthicalSalesScore(Base):
     __tablename__ = "ethical_sales_scores"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -413,7 +413,7 @@ class EthicalSalesScore(Base):
     date_range = Column(String(50), default="30d")
     created_at = Column(DateTime, default=func.now())
 
-class ObjectionPredictionModel(Base):
+class EricObjectionPredictionModel(Base):
     __tablename__ = "objection_prediction_models"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -453,7 +453,7 @@ class EricPredictionModel(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
-class ClosingSequence(Base):
+class EricClosingSequence(Base):
     __tablename__ = "closing_sequences"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -466,7 +466,7 @@ class ClosingSequence(Base):
     expected_completion = Column(DateTime)
     completed_at = Column(DateTime)
 
-class DealClosing(Base):
+class EricDealClosing(Base):
     __tablename__ = "deal_closings"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -484,7 +484,7 @@ class DealClosing(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
-class DealClosingStage(Base):
+class EricDealClosingStage(Base):
     __tablename__ = "deal_closing_stages"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -497,7 +497,7 @@ class DealClosingStage(Base):
     completed_at = Column(DateTime)
     created_at = Column(DateTime, default=func.now())
 
-class DealClosingStrategy(Base):
+class EricDealClosingStrategy(Base):
     __tablename__ = "deal_closing_strategies"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -510,7 +510,7 @@ class DealClosingStrategy(Base):
     objection_handling = Column(JSON)
     created_at = Column(DateTime, default=func.now())
 
-class DealClosingTemplate(Base):
+class EricDealClosingTemplate(Base):
     __tablename__ = "deal_closing_templates"
     
     id = Column(Integer, primary_key=True, index=True)
@@ -522,7 +522,7 @@ class DealClosingTemplate(Base):
     active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=func.now())
 
-class DealClosingActivity(Base):
+class EricDealClosingActivity(Base):
     __tablename__ = "deal_closing_activities"
     
     id = Column(Integer, primary_key=True, index=True)

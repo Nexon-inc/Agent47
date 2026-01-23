@@ -7,7 +7,7 @@ from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager
 from core.event_bus.kafka_manager import EventBus
 from ..database import get_shakes_database
-from ..models import ShakesContentProject, ShakesContentPiece, ContentCollaboration, ContentComment
+from ..models import ShakesContentProject, ShakesContentPiece, ShakesContentCollaboration, ShakesContentComment
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class ContentCollaborationService:
                     return {"success": False, "error": "Content piece not found"}
                 
                 # Create collaboration session
-                collaboration = ContentCollaboration(
+                collaboration = ShakesContentCollaboration(
                     content_piece_id=content_piece_id,
                     owner_id=user_id,
                     collaboration_type=collaboration_type,
@@ -87,7 +87,7 @@ class ContentCollaborationService:
                 collaboration_guidelines = ai_response.text_content if ai_response.success else ""
                 
                 # Create initial comment
-                initial_comment = ContentComment(
+                initial_comment = ShakesContentComment(
                     collaboration_id=collaboration.id,
                     user_id=user_id,
                     comment_type="guidelines",
@@ -142,7 +142,7 @@ class ContentCollaborationService:
             async with db.get_session() as session:
                 # Get collaboration
                 collaboration_result = await session.execute(
-                    select(ContentCollaboration).where(ContentCollaboration.id == collaboration_id)
+                    select(ShakesContentCollaboration).where(ShakesContentCollaboration.id == collaboration_id)
                 )
                 collaboration = collaboration_result.scalar_one_or_none()
                 
@@ -150,7 +150,7 @@ class ContentCollaborationService:
                     return {"success": False, "error": "Collaboration session not found"}
                 
                 # Create comment
-                comment = ContentComment(
+                comment = ShakesContentComment(
                     collaboration_id=collaboration_id,
                     user_id=user_id,
                     comment_type=comment_type,
@@ -199,7 +199,7 @@ class ContentCollaborationService:
             async with db.get_session() as session:
                 # Get collaboration
                 collaboration_result = await session.execute(
-                    select(ContentCollaboration).where(ContentCollaboration.id == collaboration_id)
+                    select(ShakesContentCollaboration).where(ShakesContentCollaboration.id == collaboration_id)
                 )
                 collaboration = collaboration_result.scalar_one_or_none()
                 
@@ -208,8 +208,8 @@ class ContentCollaborationService:
                 
                 # Get comments
                 comments_result = await session.execute(
-                    select(ContentComment).where(ContentComment.collaboration_id == collaboration_id)
-                    .order_by(ContentComment.created_at)
+                    select(ShakesContentComment).where(ShakesContentComment.collaboration_id == collaboration_id)
+                    .order_by(ShakesContentComment.created_at)
                 )
                 comments = comments_result.scalars().all()
                 
@@ -260,7 +260,7 @@ class ContentCollaborationService:
             async with db.get_session() as session:
                 # Get collaboration
                 collaboration_result = await session.execute(
-                    select(ContentCollaboration).where(ContentCollaboration.id == collaboration_id)
+                    select(ShakesContentCollaboration).where(ShakesContentCollaboration.id == collaboration_id)
                 )
                 collaboration = collaboration_result.scalar_one_or_none()
                 
@@ -274,7 +274,7 @@ class ContentCollaborationService:
                 
                 # Add status update comment if notes provided
                 if status_notes:
-                    status_comment = ContentComment(
+                    status_comment = ShakesContentComment(
                         collaboration_id=collaboration_id,
                         user_id=collaboration.owner_id,
                         comment_type="status_update",
@@ -311,7 +311,7 @@ class ContentCollaborationService:
             async with db.get_session() as session:
                 # Get collaboration and comments
                 collaboration_result = await session.execute(
-                    select(ContentCollaboration).where(ContentCollaboration.id == collaboration_id)
+                    select(ShakesContentCollaboration).where(ShakesContentCollaboration.id == collaboration_id)
                 )
                 collaboration = collaboration_result.scalar_one_or_none()
                 
@@ -319,7 +319,7 @@ class ContentCollaborationService:
                     return {"success": False, "error": "Collaboration session not found"}
                 
                 comments_result = await session.execute(
-                    select(ContentComment).where(ContentComment.collaboration_id == collaboration_id)
+                    select(ShakesContentComment).where(ShakesContentComment.collaboration_id == collaboration_id)
                 )
                 comments = comments_result.scalars().all()
                 
@@ -372,7 +372,7 @@ class ContentCollaborationService:
         """
     
     def _create_summary_prompt(
-        self, collaboration: ContentCollaboration, comments: List[ContentComment]
+        self, collaboration: ShakesContentCollaboration, comments: List[ShakesContentComment]
     ) -> str:
         """Create prompt for collaboration summary"""
         return f"""
@@ -396,7 +396,7 @@ class ContentCollaborationService:
         Format as comprehensive collaboration summary.
         """
     
-    def _format_comments_for_summary(self, comments: List[ContentComment]) -> str:
+    def _format_comments_for_summary(self, comments: List[ShakesContentComment]) -> str:
         """Format comments for summary generation"""
         formatted_comments = []
         for comment in comments:

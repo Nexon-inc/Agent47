@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from ..database import get_db
 from ..services.ethical_guidelines_service import EthicalGuidelinesService
 
-router = APIRouter(prefix="/ethical-guidelines", tags=["Ethical Campaign Guidelines"])
+router = APIRouter(prefix="/ethical-guidelines", tags=["Ethical JackieCampaign Guidelines"])
 
 class ContentReviewRequest(BaseModel):
     content: str

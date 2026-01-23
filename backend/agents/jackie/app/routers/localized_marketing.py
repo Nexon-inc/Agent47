@@ -151,7 +151,7 @@ async def adapt_campaign_for_region(
     try:
         result = service.adapt_campaign_for_region(campaign_id, target_regions, adaptation_type)
         return {
-            "message": "Campaign adapted for regions successfully",
+            "message": "JackieCampaign adapted for regions successfully",
             "adapted_campaigns": result["adapted_campaigns"]
         }
     except Exception as e:

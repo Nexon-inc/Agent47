@@ -72,7 +72,7 @@ class Payment(Base):
     paystack_reference = Column(String(100), unique=True)
     paystack_transaction_id = Column(String(100))
     payment_method = Column(String(50), default="paystack")
-    metadata = Column(JSON)
+    extra_metadata = Column("metadata", JSON)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     

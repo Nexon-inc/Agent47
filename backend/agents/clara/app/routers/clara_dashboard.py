@@ -9,7 +9,7 @@ from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from core.database.models import User
 from ..database import get_db
-from ..models import ClaraSupportTicket, ClaraCustomerInteraction, CustomerFeedback, TicketStatus, TicketPriority, SupportChannel
+from ..models import ClaraSupportTicket, ClaraCustomerInteraction, ClaraCustomerFeedback, TicketStatus, TicketPriority, SupportChannel
 from ..services.support_service import SupportService
 from ..services.analytics_service import AnalyticsService
 from ..services.chatbot_service import ChatbotService

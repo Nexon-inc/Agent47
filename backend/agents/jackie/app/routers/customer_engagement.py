@@ -235,7 +235,7 @@ async def get_campaign_analytics(campaign_id: int, db: Session = Depends(get_db)
     try:
         analytics = service.get_campaign_analytics(campaign_id)
         if not analytics:
-            raise HTTPException(status_code=404, detail="Campaign not found")
+            raise HTTPException(status_code=404, detail="JackieCampaign not found")
         return analytics
     except HTTPException:
         raise
