@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 import enum
 from datetime import datetime
 
-from core.database.models import Base
+from core.database.models import Base, UserProfile as EricCustomerProfile
 
 class LeadStatus(enum.Enum):
     NEW = "new"

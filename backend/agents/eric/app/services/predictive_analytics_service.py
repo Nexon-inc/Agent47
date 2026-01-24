@@ -21,7 +21,7 @@ from core.config import settings
 from ..database import get_eric_database
 from ..models import (
     EricLead, EricDeal, EricSalesActivity, EricSalesCampaign, EricSalesAnalytics,
-    EricSalesForecast, EricSalesTeam, EricSalesRep, CustomerProfile
+    EricSalesForecast, EricSalesTeam, EricSalesRep, EricCustomerProfile as CustomerProfile
 )
 
 logger = logging.getLogger(__name__)

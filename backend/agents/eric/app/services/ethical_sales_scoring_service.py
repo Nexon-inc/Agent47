@@ -8,7 +8,7 @@ from fastapi import HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
 from ..models import (
-    EricSalesRep, EricDeal, EricSalesActivity, EricLead, CustomerProfile,
+    EricSalesRep, EricDeal, EricSalesActivity, EricLead, EricCustomerProfile as CustomerProfile,
     EthicalSalesScore, EricSalesAnalytics, EricSalesForecast
 )
 from ..database import get_eric_database
