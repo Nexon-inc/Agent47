@@ -144,11 +144,8 @@ async def signup(user_data: UserSignupRequest):
                             status_code=status.HTTP_409_CONFLICT,
                             detail=f"Email '{user_data.email}' is already registered. Please login or use a different email."
                         )
-                    if existing_user.username == user_data.username:
-                        raise HTTPException(
-                            status_code=status.HTTP_409_CONFLICT,
-                            detail=f"Username '{user_data.username}' is already taken. Please choose another username."
-                        )
+                    # Username duplication check removed as per user request
+                    # if existing_user.username == user_data.username: ...
         except HTTPException:
             raise
         except Exception as db_err:
@@ -212,11 +209,8 @@ async def signup(user_data: UserSignupRequest):
                             status_code=status.HTTP_409_CONFLICT,
                             detail=f"Email '{user_data.email}' is already registered"
                         )
-                    elif 'username' in error_str:
-                        raise HTTPException(
-                            status_code=status.HTTP_409_CONFLICT,
-                            detail=f"Username '{user_data.username}' is already taken"
-                        )
+                    # Username conflict ignored
+                    # elif 'username' in error_str: ...
                     else:
                         raise HTTPException(
                             status_code=status.HTTP_409_CONFLICT,

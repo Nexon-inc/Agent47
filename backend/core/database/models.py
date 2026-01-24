@@ -127,7 +127,8 @@ class User(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
-    username = Column(String(100), unique=True, index=True, nullable=False)
+    # Username is no longer unique as per user request
+    username = Column(String(100), unique=False, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255))
     tier = Column(Enum(UserTier), nullable=True)  # Changed to nullable
