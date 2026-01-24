@@ -8,8 +8,8 @@ from fastapi import HTTPException, BackgroundTasks
 from pydantic import BaseModel
 
 from ..models import (
-    EricSalesRep, EricDeal, EricSalesActivity, EricLead, CustomerProfile,
-    TeamPerformanceMetric, EricSalesAnalytics, EricSalesForecast
+    EricSalesRep, EricDeal, EricSalesActivity, EricLead, EricCustomerProfile as CustomerProfile,
+    EricTeamPerformanceMetric as TeamPerformanceMetric, EricSalesAnalytics, EricSalesForecast
 )
 from ..database import get_eric_database
 from core.event_bus.kafka_manager import EventBus as KafkaProducer

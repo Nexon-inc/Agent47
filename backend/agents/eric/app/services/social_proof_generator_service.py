@@ -13,7 +13,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.analytics.analytics_manager import AnalyticsManager
 from core.event_bus.kafka_manager import EventBus as KafkaManager
 from core.cache.redis_manager import RedisManager
-from ..models import EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile
+from ..models import EricLead, EricDeal, EricSalesActivity, EricSalesRep, EricCustomerProfile as CustomerProfile
 
 logger = logging.getLogger(__name__)
 
@@ -786,7 +786,7 @@ class SocialProofGeneratorService:
         """Fetch reviews from external platform"""
         try:
             # Query actual review data from database
-            from ..models import CustomerReview, EricDeal, CustomerProfile
+            from ..models import EricCustomerReview as CustomerReview, EricDeal, EricCustomerProfile as CustomerProfile
             
             # Build query based on filters
             query = db.query(CustomerReview)

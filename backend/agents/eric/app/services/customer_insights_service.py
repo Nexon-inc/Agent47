@@ -11,7 +11,7 @@ from core.cache.redis_manager import init_redis
 from core.storage.chroma_manager import ChromaManager
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
-from ..models import EricLead, EricDeal, EricLeadInteraction, LeadStatus, SalesStage, CustomerProfile
+from ..models import EricLead, EricDeal, EricLeadInteraction, LeadStatus, SalesStage, EricCustomerProfile as CustomerProfile
 from ..database import get_eric_database
 
 logger = logging.getLogger(__name__)

@@ -10,7 +10,7 @@ import redis.asyncio as redis
 from kafka import KafkaProducer
 
 from ..database import get_eric_database
-from ..models import EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile, EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
+from ..models import EricLead, EricDeal, EricSalesActivity, EricSalesRep, EricCustomerProfile as CustomerProfile, EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
 from core.utils.nlp_utils import NLPUtils
 from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
@@ -708,7 +708,7 @@ class LocalMarketInsightsService:
         """Analyze competitors in the region"""
         try:
             # Query actual competitor data from deals and activities
-            from ..models import EricDeal, EricSalesActivity, CustomerProfile
+            from ..models import EricDeal, EricSalesActivity, EricCustomerProfile as CustomerProfile
             
             # Get deals in the region/industry
             deals_query = db.query(EricDeal).join(CustomerProfile).filter(
@@ -891,7 +891,7 @@ class LocalMarketInsightsService:
         }
         try:
             # Query actual industry benchmarks from historical data
-            from ..models import EricDeal, EricSalesActivity, CustomerProfile
+            from ..models import EricDeal, EricSalesActivity, EricCustomerProfile as CustomerProfile
 
             # Get historical deals for the industry
             deals_query = db.query(EricDeal).join(CustomerProfile)

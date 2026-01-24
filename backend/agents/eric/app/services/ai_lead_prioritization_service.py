@@ -13,7 +13,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.analytics.analytics_manager import AnalyticsManager
 from core.event_bus.kafka_manager import EventBus as KafkaManager
 from core.cache.redis_manager import RedisManager
-from ..models import EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile
+from ..models import EricLead, EricLeadInteraction, EricDeal, EricSalesActivity, EricSalesRep, EricCustomerProfile as CustomerProfile
 from ..models import LeadSource
 
 logger = logging.getLogger(__name__)

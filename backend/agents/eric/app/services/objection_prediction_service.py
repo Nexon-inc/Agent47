@@ -816,7 +816,7 @@ class ObjectionPredictionService:
         """Store model metadata in database"""
         try:
             # Store model metadata in database
-            from ..models import ObjectionPredictionModel as ModelDB
+            from ..models import EricObjectionPredictionModel as ObjectionPredictionModel as ModelDB
             
             model_record = ModelDB(
                 model_id=model.model_id,
@@ -1021,4 +1021,3 @@ class ObjectionPredictionService:
         """Check if ML model is available"""
         # Simulate model availability check
         return "healthy"
-

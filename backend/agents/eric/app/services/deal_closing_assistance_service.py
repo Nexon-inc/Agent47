@@ -16,7 +16,7 @@ from core.integrations.integration_manager import IntegrationManager
 from core.platforms.platform_manager import PlatformManager
 from core.event_bus.kafka_manager import KafkaManager
 from core.cache.redis_manager import RedisManager
-from ..models import CustomerProfile
+from ..models import EricCustomerProfile as CustomerProfile
 from ..models import EricDeal, SalesStage
 
 logger = logging.getLogger(__name__)

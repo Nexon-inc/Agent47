@@ -274,7 +274,7 @@ class DynamicPricingService:
         """Get analytics for pricing performance"""
         try:
             # Query actual pricing data from database
-            from ..models import EricDeal, EricSalesActivity, CustomerProfile
+            from ..models import EricDeal, EricSalesActivity, EricCustomerProfile as CustomerProfile
             
             # Calculate date range
             end_date = datetime.now()
@@ -450,7 +450,7 @@ class DynamicPricingService:
         """Forecast demand for the product"""
         try:
             # Query historical demand data from database
-            from ..models import EricDeal, EricSalesActivity, CustomerProfile
+            from ..models import EricDeal, EricSalesActivity, EricCustomerProfile as CustomerProfile
             
             # Get historical deals for demand analysis
             end_date = datetime.now()

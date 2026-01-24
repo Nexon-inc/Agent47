@@ -61,7 +61,7 @@ class ObjectionType(enum.Enum):
     FEATURE = "feature"
 
 class EricLead(Base):
-    __tablename__ = "leads"
+    __tablename__ = "eric_leads"
     __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
@@ -94,11 +94,11 @@ class EricLead(Base):
     objections = relationship("EricObjection", back_populates="lead")
 
 class EricLeadInteraction(Base):
-    __tablename__ = "lead_interactions"
+    __tablename__ = "eric_lead_interactions"
     __table_args__ = {'extend_existing': True}
     
     id = Column(Integer, primary_key=True, index=True)
-    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
+    lead_id = Column(Integer, ForeignKey("eric_leads.id"), nullable=False)
     interaction_type = Column(String(50), nullable=False)
     channel = Column(Enum(CommunicationChannel), nullable=False)
     content = Column(Text)
@@ -112,10 +112,10 @@ class EricLeadInteraction(Base):
     lead = relationship("EricLead", back_populates="interactions")
 
 class EricDeal(Base):
-    __tablename__ = "deals"
+    __tablename__ = "eric_deals"
     
     id = Column(Integer, primary_key=True, index=True)
-    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
+    lead_id = Column(Integer, ForeignKey("eric_leads.id"), nullable=False)
     brand_id = Column(Integer, nullable=False, index=True)
     deal_name = Column(String(200), nullable=False)
     deal_value = Column(Float, nullable=False)
@@ -138,10 +138,10 @@ class EricDeal(Base):
     activities = relationship("EricSalesActivity", back_populates="deal")
 
 class EricSalesActivity(Base):
-    __tablename__ = "sales_activities"
+    __tablename__ = "eric_sales_activities"
     
     id = Column(Integer, primary_key=True, index=True)
-    deal_id = Column(Integer, ForeignKey("deals.id"), nullable=False)
+    deal_id = Column(Integer, ForeignKey("eric_deals.id"), nullable=False)
     activity_type = Column(String(50), nullable=False)
     subject = Column(String(200))
     description = Column(Text)
@@ -156,10 +156,10 @@ class EricSalesActivity(Base):
     deal = relationship("EricDeal", back_populates="activities")
 
 class EricObjection(Base):
-    __tablename__ = "objections"
+    __tablename__ = "eric_objections"
     
     id = Column(Integer, primary_key=True, index=True)
-    lead_id = Column(Integer, ForeignKey("leads.id"), nullable=False)
+    lead_id = Column(Integer, ForeignKey("eric_leads.id"), nullable=False)
     objection_type = Column(Enum(ObjectionType), nullable=False)
     objection_text = Column(Text, nullable=False)
     response_text = Column(Text)
@@ -170,7 +170,7 @@ class EricObjection(Base):
     lead = relationship("EricLead", back_populates="objections")
 
 class EricSalesCampaign(Base):
-    __tablename__ = "sales_campaigns"
+    __tablename__ = "eric_sales_campaigns"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -189,10 +189,10 @@ class EricSalesCampaign(Base):
     sequences = relationship("EricEmailSequence", back_populates="campaign")
 
 class EricEmailSequence(Base):
-    __tablename__ = "email_sequences"
+    __tablename__ = "eric_email_sequences"
     
     id = Column(Integer, primary_key=True, index=True)
-    campaign_id = Column(Integer, ForeignKey("sales_campaigns.id"), nullable=False)
+    campaign_id = Column(Integer, ForeignKey("eric_sales_campaigns.id"), nullable=False)
     sequence_name = Column(String(200), nullable=False)
     subject_line = Column(String(200))
     email_content = Column(Text)
@@ -204,7 +204,7 @@ class EricEmailSequence(Base):
     campaign = relationship("EricSalesCampaign", back_populates="sequences")
 
 class EricSalesTeam(Base):
-    __tablename__ = "sales_teams"
+    __tablename__ = "eric_sales_teams"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -216,11 +216,11 @@ class EricSalesTeam(Base):
     created_at = Column(DateTime, default=func.now())
 
 class EricSalesRep(Base):
-    __tablename__ = "sales_reps"
+    __tablename__ = "eric_sales_reps"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
-    team_id = Column(Integer, ForeignKey("sales_teams.id"))
+    team_id = Column(Integer, ForeignKey("eric_sales_teams.id"))
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
     email = Column(String(255), nullable=False, unique=True)
@@ -234,7 +234,7 @@ class EricSalesRep(Base):
     team = relationship("EricSalesTeam")
 
 class EricSalesAnalytics(Base):
-    __tablename__ = "sales_analytics"
+    __tablename__ = "eric_sales_analytics"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -246,7 +246,7 @@ class EricSalesAnalytics(Base):
     created_at = Column(DateTime, default=func.now())
 
 class EricSalesForecast(Base):
-    __tablename__ = "sales_forecasts"
+    __tablename__ = "eric_sales_forecasts"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -306,7 +306,7 @@ class EricMarketInsight(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
 class EricSalesTraining(Base):
-    __tablename__ = "sales_training"
+    __tablename__ = "eric_sales_training"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -320,7 +320,7 @@ class EricSalesTraining(Base):
     created_at = Column(DateTime, default=func.now())
 
 class EricSalesGamification(Base):
-    __tablename__ = "sales_gamification"
+    __tablename__ = "eric_sales_gamification"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -336,7 +336,7 @@ class EricSalesGamification(Base):
     created_at = Column(DateTime, default=func.now())
 
 class EricCustomerProfile(Base):
-    __tablename__ = "customer_profiles"
+    __tablename__ = "eric_customer_profiles"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -367,12 +367,12 @@ class EricCustomerProfile(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
 class EricCustomerReview(Base):
-    __tablename__ = "customer_reviews"
+    __tablename__ = "eric_customer_reviews"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
     customer_id = Column(String(100), nullable=False, index=True)
-    deal_id = Column(Integer, ForeignKey("deals.id"))
+    deal_id = Column(Integer, ForeignKey("eric_deals.id"))
     review_text = Column(Text)
     rating = Column(Integer)  # 1-5 stars
     review_type = Column(String(50))  # testimonial, case_study, reference
@@ -385,7 +385,7 @@ class EricCustomerReview(Base):
 
 
 class EricTeamPerformanceMetric(Base):
-    __tablename__ = "team_performance_metrics"
+    __tablename__ = "eric_team_performance_metrics"
 
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -397,7 +397,7 @@ class EricTeamPerformanceMetric(Base):
 
 
 class EricEthicalSalesScore(Base):
-    __tablename__ = "ethical_sales_scores"
+    __tablename__ = "eric_ethical_sales_scores"
 
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -414,7 +414,7 @@ class EricEthicalSalesScore(Base):
     created_at = Column(DateTime, default=func.now())
 
 class EricObjectionPredictionModel(Base):
-    __tablename__ = "objection_prediction_models"
+    __tablename__ = "eric_objection_prediction_models"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -454,7 +454,7 @@ class EricPredictionModel(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
 class EricClosingSequence(Base):
-    __tablename__ = "closing_sequences"
+    __tablename__ = "eric_closing_sequences"
     
     id = Column(Integer, primary_key=True, index=True)
     deal_id = Column(String(100), nullable=False, index=True)
@@ -467,7 +467,7 @@ class EricClosingSequence(Base):
     completed_at = Column(DateTime)
 
 class EricDealClosing(Base):
-    __tablename__ = "deal_closings"
+    __tablename__ = "eric_deal_closings"
     
     id = Column(Integer, primary_key=True, index=True)
     deal_id = Column(String(100), nullable=False, index=True)
@@ -485,7 +485,7 @@ class EricDealClosing(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
 
 class EricDealClosingStage(Base):
-    __tablename__ = "deal_closing_stages"
+    __tablename__ = "eric_deal_closing_stages"
     
     id = Column(Integer, primary_key=True, index=True)
     deal_id = Column(String(100), nullable=False, index=True)
@@ -498,7 +498,7 @@ class EricDealClosingStage(Base):
     created_at = Column(DateTime, default=func.now())
 
 class EricDealClosingStrategy(Base):
-    __tablename__ = "deal_closing_strategies"
+    __tablename__ = "eric_deal_closing_strategies"
     
     id = Column(Integer, primary_key=True, index=True)
     deal_id = Column(String(100), nullable=False, index=True)
@@ -511,7 +511,7 @@ class EricDealClosingStrategy(Base):
     created_at = Column(DateTime, default=func.now())
 
 class EricDealClosingTemplate(Base):
-    __tablename__ = "deal_closing_templates"
+    __tablename__ = "eric_deal_closing_templates"
     
     id = Column(Integer, primary_key=True, index=True)
     brand_id = Column(Integer, nullable=False, index=True)
@@ -523,7 +523,7 @@ class EricDealClosingTemplate(Base):
     created_at = Column(DateTime, default=func.now())
 
 class EricDealClosingActivity(Base):
-    __tablename__ = "deal_closing_activities"
+    __tablename__ = "eric_deal_closing_activities"
     
     id = Column(Integer, primary_key=True, index=True)
     deal_id = Column(String(100), nullable=False, index=True)

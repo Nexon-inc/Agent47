@@ -11,7 +11,7 @@ import json
 
 from ..database import get_eric_database
 from ..models import (
-    EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile, 
+    EricLead, EricDeal, EricSalesActivity, EricSalesRep, EricCustomerProfile as CustomerProfile, 
     EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
 )
 # NLPUtils removed - not used
