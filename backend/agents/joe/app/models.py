@@ -522,13 +522,13 @@ class JoeLocalMarket(Base):
     __tablename__ = "joe_local_markets"
 
     id = Column(Integer, primary_key=True, index=True)
-    region_id = Column(Integer, ForeignKey("regions.id"), nullable=False, index=True)
+    region_id = Column(Integer, ForeignKey("joe_regions.id"), nullable=False, index=True)
     name = Column(String(200), nullable=False)
     economic_indicators = Column(JSON)
     market_size = Column(String(100))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    region = relationship("Region", foreign_keys=[region_id])
+    region = relationship("JoeRegion", foreign_keys=[region_id])
 
 
 class JoeRegionalTrend(Base):
@@ -536,12 +536,12 @@ class JoeRegionalTrend(Base):
     __table_args__ = {"extend_existing": True}
 
     id = Column(Integer, primary_key=True, index=True)
-    region_id = Column(Integer, ForeignKey("regions.id"), nullable=False, index=True)
+    region_id = Column(Integer, ForeignKey("joe_regions.id"), nullable=False, index=True)
     trend_data = Column(JSON, nullable=False)
     insights = Column(JSON)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    region_rel = relationship("Region", foreign_keys=[region_id])
+    region_rel = relationship("JoeRegion", foreign_keys=[region_id])
 
 
 class JoeGeoSpecificResearch(Base):
@@ -559,5 +559,5 @@ class JoeGeoSpecificResearch(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     user = relationship("User", foreign_keys=[user_id])
-    region_rel = relationship("Region", foreign_keys=[region_id])
+    region_rel = relationship("JoeRegion", foreign_keys=[region_id])
     market_rel = relationship("JoeLocalMarket", foreign_keys=[market_id])

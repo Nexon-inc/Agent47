@@ -198,13 +198,9 @@ export default function AuthPage() {
                     <p className="font-semibold mb-1">📧 Please check your email</p>
                     <p>We've sent a <strong>welcome email</strong> and a <strong>verification link</strong> to <strong>{email}</strong>. Please verify your email to fully activate your account.</p>
                   </div>
-                  <Button
-                    onClick={() => router.push("/onboarding")}
-                    className="w-full bg-[#3B82F6] hover:bg-blue-600"
-                  >
-                    Continue to Onboarding
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                  <p className="text-sm text-gray-500 mt-4">
+                    Click the link in the email to continue to onboarding.
+                  </p>
                 </div>
               ) : (
                 <form onSubmit={handleSignUp} className="space-y-4">
