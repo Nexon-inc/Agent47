@@ -999,7 +999,7 @@ class ClaraInStoreInquiry(Base):
     resolved_at = Column(DateTime(timezone=True))
     
     # Relationships
-    kiosk = relationship("InStoreKiosk")
+    kiosk = relationship("ClaraInStoreKiosk")
 
 class ClaraInStoreQRCode(Base):
     __tablename__ = "clara_in_store_qr_codes"
