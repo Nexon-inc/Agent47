@@ -20,7 +20,7 @@ class ForecastModel(BaseModel):
     id: str
     model_type: str
     training_data: str  # JSON string
-    model_config: str  # JSON string
+    model_configuration: str  # JSON string
     created_at: datetime = datetime.utcnow()
 
 class HistoricalData(BaseModel):
@@ -71,12 +71,12 @@ class PerformanceForecastingService:
         
         model = ForecastModel(
             id=model_id, model_type=model_type, training_data=json.dumps(training_data),
-            model_config=json.dumps(model_result), created_at=datetime.utcnow()
+            model_configuration=json.dumps(model_result), created_at=datetime.utcnow()
         )
         self.db.add(model)
         self.db.commit()
         
-        return {"model_id": model_id, "model_config": model_result}
+        return {"model_id": model_id, "model_configuration": model_result}
     
     def analyze_historical_performance(self, historical_data: List[Dict[str, Any]], analysis_period: str) -> Dict[str, Any]:
         analysis_id = str(uuid.uuid4())
