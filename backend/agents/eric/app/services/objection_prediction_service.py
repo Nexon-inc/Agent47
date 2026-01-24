@@ -11,7 +11,7 @@ from kafka import KafkaProducer
 from pydantic import BaseModel
 
 from ..models import (
-    EricLead, EricDeal, EricSalesActivity, EricSalesRep, CustomerProfile, 
+    EricLead, EricDeal, EricSalesActivity, EricSalesRep, EricCustomerProfile as CustomerProfile, 
     EricSalesCampaign, EricSalesAnalytics, EricSalesForecast
 )
 # NLPUtils removed - not used (duplicate import removed)
