@@ -816,7 +816,7 @@ class ObjectionPredictionService:
         """Store model metadata in database"""
         try:
             # Store model metadata in database
-            from ..models import EricObjectionPredictionModel as ObjectionPredictionModel as ModelDB
+            from ..models import EricObjectionPredictionModel as ModelDB
             
             model_record = ModelDB(
                 model_id=model.model_id,
