@@ -131,7 +131,7 @@ class User(Base):
     username = Column(String(100), unique=False, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255))
-    tier = Column(Enum(UserTier), nullable=True)  # Changed to nullable
+    tier = Column(Enum(UserTier, values_callable=lambda obj: [e.value for e in obj]), nullable=True)  # Changed to nullable
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     # Feature flags
