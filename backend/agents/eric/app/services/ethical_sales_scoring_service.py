@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from ..models import (
     EricSalesRep, EricDeal, EricSalesActivity, EricLead, EricCustomerProfile as CustomerProfile,
-    EthicalSalesScore, EricSalesAnalytics, EricSalesForecast
+    EricEthicalSalesScore as EthicalSalesScore, EricSalesAnalytics, EricSalesForecast
 )
 from ..database import get_eric_database
 from core.event_bus.kafka_manager import EventBus as KafkaProducer
