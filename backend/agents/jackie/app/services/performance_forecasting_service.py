@@ -6,7 +6,29 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import PerformanceForecast, ForecastModel, JackiePredictionResult, HistoricalData
+from ..models import JackiePredictionResult
+from pydantic import BaseModel
+
+class PerformanceForecast(BaseModel):
+    id: str
+    campaign_data: str  # JSON string
+    forecast_horizon: str
+    forecast_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class ForecastModel(BaseModel):
+    id: str
+    model_type: str
+    training_data: str  # JSON string
+    model_config: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class HistoricalData(BaseModel):
+    id: str
+    historical_data: str  # JSON string
+    analysis_period: str
+    analysis_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class PerformanceForecastingService:
     def __init__(self, db: Session):

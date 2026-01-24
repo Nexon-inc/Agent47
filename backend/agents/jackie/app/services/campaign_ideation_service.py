@@ -6,7 +6,33 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import CampaignIdea, JackieTrendAnalysis, JackieCompetitorAnalysis, BrainstormingSession
+from ..models import JackieTrendAnalysis, JackieCompetitorAnalysis
+from pydantic import BaseModel
+
+class CampaignIdea(BaseModel):
+    id: str
+    title: str
+    description: str
+    concept_type: str = "general"
+    target_audience: str  # JSON string
+    estimated_budget: str  # JSON string
+    expected_roi: float = 0.0
+    implementation_timeline: str = ""
+    risk_level: str = "medium"
+    industry: Optional[str] = None
+    rating: Optional[int] = None
+    feedback: Optional[str] = None
+    rated_at: Optional[datetime] = None
+    favorites: Optional[str] = None  # JSON string
+    brainstorming_session_id: Optional[str] = None
+    updated_at: Optional[datetime] = None
+    created_at: datetime = datetime.utcnow()
+
+class BrainstormingSession(BaseModel):
+    id: str
+    config: str  # JSON string
+    status: str = "active"
+    created_at: datetime = datetime.utcnow()
 
 class CampaignIdeationService:
     def __init__(self, db: Session):

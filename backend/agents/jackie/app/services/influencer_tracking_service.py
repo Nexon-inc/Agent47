@@ -6,7 +6,35 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import InfluencerPerformance, PerformanceMetric, ROIAnalysis, ReachTracking
+from pydantic import BaseModel
+
+class InfluencerPerformance(BaseModel):
+    id: str
+    influencer_id: str
+    campaign_id: str
+    performance_data: str  # JSON string
+    tracking_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class PerformanceMetric(BaseModel):
+    id: str
+    metric_name: str
+    metric_value: float
+    created_at: datetime = datetime.utcnow()
+
+class ROIAnalysis(BaseModel):
+    id: str
+    campaign_id: str
+    investment_amount: float
+    revenue_generated: float
+    roi_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class ReachTracking(BaseModel):
+    id: str
+    campaign_id: str
+    reach_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class InfluencerTrackingService:
     def __init__(self, db: Session):

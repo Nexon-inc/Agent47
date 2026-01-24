@@ -6,7 +6,17 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import JackieLocalizedContent, RegionalTrend, JackieCulturalAnalysis, JackieTranslationProject
+from ..models import JackieLocalizedContent, JackieCulturalAnalysis, JackieTranslationProject
+from pydantic import BaseModel
+
+class RegionalTrend(BaseModel):
+    id: str
+    region: str
+    industry: str
+    timeframe: str
+    trend_sources: str  # JSON string
+    trend_analysis: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class LocalizedMarketingService:
     def __init__(self, db: Session):

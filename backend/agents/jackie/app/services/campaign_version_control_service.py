@@ -9,7 +9,15 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import JackieCampaignVersion, VersionChange, JackieCampaignRollback, JackieVersionHistory
+from ..models import JackieCampaignVersion, JackieCampaignRollback, JackieVersionHistory
+from pydantic import BaseModel
+
+class VersionChange(BaseModel):
+    id: str
+    version_id: str
+    changes: str  # JSON string
+    change_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 logger = logging.getLogger(__name__)
 

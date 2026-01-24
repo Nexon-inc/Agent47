@@ -6,7 +6,14 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import JackieCustomerSegment, JackiePersonalizationRule, JackieDynamicContent, CRMIntegration
+from ..models import JackieCustomerSegment, JackiePersonalizationRule, JackieDynamicContent
+from pydantic import BaseModel
+
+class CRMIntegration(BaseModel):
+    id: str
+    crm_type: str
+    integration_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class DynamicPersonalizationService:
     def __init__(self, db: Session):

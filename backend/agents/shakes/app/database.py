@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Import Shakes models
-from .models import Base
+from core.database.models import Base
 
 class ShakesDatabase:
     def __init__(self):

@@ -6,7 +6,27 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import JackieBudgetRule, SpendingLimit, BudgetAlert, PacingRule
+from ..models import JackieBudgetRule
+from pydantic import BaseModel
+
+class SpendingLimit(BaseModel):
+    campaign_id: str
+    limit_amount: float
+    limit_period: str # "daily", "weekly", "monthly", "total"
+    current_spend: float = 0.0
+
+class BudgetAlert(BaseModel):
+    rule_id: str
+    campaign_id: str
+    alert_type: str # "threshold_reached", "limit_exceeded", "projection_warning"
+    message: str
+    timestamp: datetime = datetime.utcnow()
+
+class PacingRule(BaseModel):
+    campaign_id: str
+    target_spend: float
+    time_frame: str
+    pacing_strategy: str # "even", "accelerated", "front_loaded"
 
 class BudgetControlService:
     def __init__(self, db: Session):

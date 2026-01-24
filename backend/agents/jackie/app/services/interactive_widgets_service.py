@@ -9,7 +9,33 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import InteractiveWidget, AdPoll, CallToAction, JackieWidgetAnalytics
+from ..models import JackieWidgetAnalytics
+from pydantic import BaseModel
+
+class InteractiveWidget(BaseModel):
+    id: str
+    widget_type: str
+    widget_config: str  # JSON string
+    ad_id: str
+    widget_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class AdPoll(BaseModel):
+    id: str
+    poll_question: str
+    poll_options: str  # JSON string
+    ad_id: str
+    poll_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class CallToAction(BaseModel):
+    id: str
+    cta_text: str
+    cta_type: str
+    action_url: str
+    ad_id: str
+    cta_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 logger = logging.getLogger(__name__)
 

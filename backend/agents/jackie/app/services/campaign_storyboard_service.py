@@ -6,7 +6,21 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import CampaignStoryboard, JackieStoryboardScene, JackieFlowVisualization, ChannelFlow
+from ..models import JackieStoryboardScene, JackieFlowVisualization
+from pydantic import BaseModel
+
+class CampaignStoryboard(BaseModel):
+    id: str
+    campaign_brief: str  # JSON string
+    storyboard_type: str = "multi_channel"
+    storyboard_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class ChannelFlow(BaseModel):
+    id: str
+    channel: str
+    flow_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class CampaignStoryboardService:
     def __init__(self, db: Session):

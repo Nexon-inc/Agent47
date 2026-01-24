@@ -7,7 +7,7 @@ import json
 
 from ..database import get_db
 from ..services.customer_journey_service import CustomerJourneyService
-from ..models import ClaraCustomerJourney, ClaraJourneyEvent, ClaraJourneyStage, CustomerProfile
+from ..models import ClaraCustomerJourney, ClaraJourneyEvent, ClaraJourneyStage, ClaraCustomerInteraction, ClaraSupportTicket, ClaraCustomerProfile as CustomerProfile
 from ..core.integration_manager import IntegrationManager
 from ..core.event_bus import EventBus
 

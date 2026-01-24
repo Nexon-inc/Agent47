@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Import Clara models
-from .models import Base
+from core.database.models import Base
 
 class ClaraDatabase:
     def __init__(self):

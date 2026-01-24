@@ -6,7 +6,14 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import JackieBudgetAllocation, AllocationRule, JackiePerformanceThreshold, JackieBudgetAdjustment
+from ..models import JackieBudgetAllocation, JackiePerformanceThreshold, JackieBudgetAdjustment
+from pydantic import BaseModel
+
+class AllocationRule(BaseModel):
+    id: str
+    rule_name: str
+    rule_config: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class DynamicBudgetService:
     def __init__(self, db: Session):

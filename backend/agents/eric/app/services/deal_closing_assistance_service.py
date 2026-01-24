@@ -8,8 +8,8 @@ from pydantic import BaseModel
 
 from ..database import get_eric_database
 from ..models import (
-    DealClosing, DealClosingStage, DealClosingStrategy,
-    DealClosingTemplate, DealClosingActivity
+    EricDealClosing as DealClosing, EricDealClosingStage as DealClosingStage, EricDealClosingStrategy as DealClosingStrategy,
+    EricDealClosingTemplate as DealClosingTemplate, EricDealClosingActivity as DealClosingActivity
 )
 from core.ai import get_ai_service_manager, AIServiceManager
 from core.integrations.integration_manager import IntegrationManager

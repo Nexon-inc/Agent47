@@ -9,7 +9,14 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import JackieMultiLanguageCampaign, JackieTranslationData, JackieCulturalAdaptation, LanguageAnalytics
+from ..models import JackieMultiLanguageCampaign, JackieTranslationData, JackieCulturalAdaptation
+from pydantic import BaseModel
+
+class LanguageAnalytics(BaseModel):
+    id: str
+    language: str
+    analytics_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 logger = logging.getLogger(__name__)
 

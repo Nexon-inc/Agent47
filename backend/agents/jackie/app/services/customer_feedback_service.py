@@ -9,7 +9,23 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import JackieCustomerFeedback, JackieSurveyData, JackieFeedbackAnalysis, CampaignRefinement
+from ..models import JackieCustomerFeedback, JackieSurveyData, JackieFeedbackAnalysis
+from pydantic import BaseModel
+
+class CustomerFeedback(BaseModel):
+    id: str
+    campaign_id: str
+    feedback_data: str  # JSON string
+    feedback_type: str = "survey"
+    feedback_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class CampaignRefinement(BaseModel):
+    id: str
+    campaign_id: str
+    feedback_insights: str  # JSON string
+    refinement_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 logger = logging.getLogger(__name__)
 

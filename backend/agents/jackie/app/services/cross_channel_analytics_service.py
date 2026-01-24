@@ -9,7 +9,29 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import JackieCrossChannelAnalytics, UnifiedMetrics, ChannelComparison, PerformanceInsight
+from ..models import JackieCrossChannelAnalytics
+from pydantic import BaseModel
+
+class UnifiedMetrics(BaseModel):
+    id: str
+    campaign_id: str
+    channel_data: str  # JSON string
+    unified_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class ChannelComparison(BaseModel):
+    id: str
+    channels: str  # JSON string
+    comparison_metrics: str  # JSON string
+    comparison_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class PerformanceInsight(BaseModel):
+    id: str
+    analytics_data: str  # JSON string
+    insight_focus: str  # JSON string
+    insight_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 logger = logging.getLogger(__name__)
 

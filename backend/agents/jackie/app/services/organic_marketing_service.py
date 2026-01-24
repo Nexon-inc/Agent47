@@ -6,7 +6,26 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import OrganicStrategy, ContentPiece, JackieSocialPost, CommunityEngagement
+from ..models import OrganicStrategy, JackieSocialPost
+from pydantic import BaseModel
+
+class ContentPiece(BaseModel):
+    id: str
+    topic: str
+    content_type: str
+    target_audience: str  # JSON string
+    seo_keywords: str  # JSON string
+    content: str
+    seo_score: float = 0.0
+    created_at: datetime = datetime.utcnow()
+
+class CommunityEngagement(BaseModel):
+    id: str
+    community_type: str
+    engagement_strategy: str  # JSON string
+    target_members: str  # JSON string
+    engagement_plan: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class OrganicMarketingService:
     def __init__(self, db: Session):

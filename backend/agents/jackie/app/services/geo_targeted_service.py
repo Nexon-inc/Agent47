@@ -7,7 +7,20 @@ from sqlalchemy.orm import Session
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
 from core.services.google_maps_service import get_google_maps_service
-from ..models import JackieGeoTargetedAd, JackieLocalMarket, GeographicData, RegionalStrategy
+from ..models import JackieGeoTargetedAd, JackieLocalMarket
+from pydantic import BaseModel
+
+class GeographicData(BaseModel):
+    id: str
+    location: str
+    geo_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class RegionalStrategy(BaseModel):
+    id: str
+    region: str
+    strategy_data: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class GeoTargetedService:
     def __init__(self, db: Session):

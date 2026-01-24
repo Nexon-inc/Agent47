@@ -6,7 +6,34 @@ from sqlalchemy.orm import Session
 
 from core.utils.nlp_utils import NLPProcessor
 from core.cache.redis_manager import RedisManager
-from ..models import EthicalReview, ComplianceCheck, EthicalGuideline
+from pydantic import BaseModel
+
+class EthicalReview(BaseModel):
+    id: str
+    content: str
+    content_type: str
+    target_audience: str  # JSON string
+    industry: str
+    review_criteria: str  # JSON string
+    review_result: str  # JSON string
+    ethical_score: float = 0.0
+    created_at: datetime = datetime.utcnow()
+
+class ComplianceCheck(BaseModel):
+    id: str
+    content: str
+    compliance_standards: str  # JSON string
+    industry_regulations: str  # JSON string
+    compliance_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class EthicalGuideline(BaseModel):
+    id: str
+    industry: str
+    target_audience: str  # JSON string
+    guideline_type: str
+    guidelines: str  # JSON string
+    created_at: datetime = datetime.utcnow()
 
 class EthicalGuidelinesService:
     def __init__(self, db: Session):

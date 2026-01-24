@@ -9,7 +9,37 @@ from sqlalchemy import select, func
 from core.utils.nlp_utils import NLPUtils
 from core.cache.redis_manager import init_redis
 from ..database import get_jackie_database
-from ..models import EthicalAdScan, ComplianceCheck, AdViolation, EthicalGuideline
+from pydantic import BaseModel
+
+class EthicalAdScan(BaseModel):
+    id: str
+    ad_content: str
+    ad_type: str = "general"
+    platform: str = "all"
+    scan_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class ComplianceCheck(BaseModel):
+    id: str
+    ad_data: str  # JSON string
+    compliance_rules: str  # JSON string
+    compliance_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class AdViolation(BaseModel):
+    id: str
+    ad_id: str
+    violation_type: str
+    violation_details: str  # JSON string
+    violation_result: str  # JSON string
+    created_at: datetime = datetime.utcnow()
+
+class EthicalGuideline(BaseModel):
+    id: str
+    guideline_name: str
+    description: str
+    category: str
+    severity: str = "medium"
 
 logger = logging.getLogger(__name__)
 
