@@ -277,8 +277,8 @@ class GmailAuthService:
     ) -> bool:
         """Send email verification email"""
         try:
-            # Create verification URL
-            verification_url = f"{settings.frontend_url}/verify-email?token={verification_token}"
+            # Create verification URL (Direct to Backend for Magic Link Redirect)
+            verification_url = f"{settings.base_url}/api/v1/auth/verify?token={verification_token}"
             
             # Email subject
             subject = "Verify Your Agent47 Account"

@@ -120,30 +120,30 @@ class EmailVerificationResponse(BaseModel):
     message: str
     user_data: Optional[Dict[str, Any]] = None
 
-@auth_router.get("/auth/verify", response_model=EmailVerificationResponse)
+@auth_router.get("/auth/verify", response_class=Response)
 async def verify_email(token: str):
-    """Verify email with token"""
+    """Verify email with token and redirect to frontend"""
+    from fastapi.responses import RedirectResponse
     try:
+        # Attempt verification
         result = await email_verification_manager.verify_email(token)
+        
+        # Determine redirect target
+        target = f"{settings.frontend_url}/onboarding"
+        
         if result["success"]:
-            return EmailVerificationResponse(
-                success=True, 
-                message="Email verified successfully",
-                user_data=result.get("user")
-            )
+            # Append success query param if needed
+            return RedirectResponse(url=f"{target}?verified=true")
         else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=result["message"]
-            )
-    except HTTPException:
-        raise
+            # If verification failed (e.g. already verified), strictly users might still be allowed to proceed
+            # providing they can login. Or redirect to login.
+            # User asked to go to onboarding.
+            return RedirectResponse(url=f"{target}?error={result['message']}")
+            
     except Exception as e:
         logger.error(f"Verification error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Verification failed"
-        )
+        # Fallback redirect
+        return RedirectResponse(url=f"{settings.frontend_url}/auth/login?error=verification_error")
 
 # Authentication endpoints
 @auth_router.post("/auth/signup", response_model=TokenResponse)
