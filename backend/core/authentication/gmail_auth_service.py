@@ -215,7 +215,8 @@ class GmailAuthService:
                     port=587,
                     username=from_email,
                     password=self.settings.app_password,
-                    use_tls=True
+                    start_tls=True,
+                    use_tls=False
                 )
                 
                 logger.info(f"Email sent successfully via SMTP to {to_email}")
