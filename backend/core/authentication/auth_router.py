@@ -120,6 +120,31 @@ class EmailVerificationResponse(BaseModel):
     message: str
     user_data: Optional[Dict[str, Any]] = None
 
+@auth_router.get("/auth/verify", response_model=EmailVerificationResponse)
+async def verify_email(token: str):
+    """Verify email with token"""
+    try:
+        result = await email_verification_manager.verify_email(token)
+        if result["success"]:
+            return EmailVerificationResponse(
+                success=True, 
+                message="Email verified successfully",
+                user_data=result.get("user")
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=result["message"]
+            )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Verification error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Verification failed"
+        )
+
 # Authentication endpoints
 @auth_router.post("/auth/signup", response_model=TokenResponse)
 async def signup(user_data: UserSignupRequest):

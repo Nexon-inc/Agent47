@@ -38,6 +38,7 @@ from core.user_management.selected_agents_router import router as selected_agent
 from core.user_management.agent_data_router import router as agent_data_router
 from core.ai.nlp_router import router as nlp_router
 from admin.admin_router import router as admin_router
+from core.authentication.system_debug_router import router as system_debug_router
 from core.realtime.websocket_router import router as websocket_router
 
 # Agent routers (now directly under agents/)
@@ -181,6 +182,7 @@ app.include_router(selected_agents_router)
 app.include_router(agent_data_router)
 app.include_router(nlp_router)
 app.include_router(admin_router)
+app.include_router(system_debug_router)
 app.include_router(websocket_router)
 
 # Mount agent applications
