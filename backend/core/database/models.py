@@ -12,7 +12,7 @@ Base = declarative_base()
 class UserTier(enum.Enum):
     FREE = "FREE"
     STARTER = "STARTER"
-    PRO = "PRO"
+    PRO = "pro"
 
 class BillingTier(enum.Enum):
     FREE = "FREE"
