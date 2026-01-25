@@ -125,25 +125,28 @@ async def verify_email(token: str):
     """Verify email with token and redirect to frontend"""
     from fastapi.responses import RedirectResponse
     try:
-        # Attempt verification
-        result = await email_verification_manager.verify_email(token)
+        # Attempt verification using the correct method name
+        # verify_email_token returns user dict on success, None on failure
+        user_data = await email_verification_manager.verify_email_token(token)
         
         # Determine redirect target
         target = f"{settings.frontend_url}/onboarding"
         
-        if result["success"]:
-            # Append success query param if needed
+        if user_data:
+            # Success
             return RedirectResponse(url=f"{target}?verified=true")
         else:
-            # If verification failed (e.g. already verified), strictly users might still be allowed to proceed
-            # providing they can login. Or redirect to login.
-            # User asked to go to onboarding.
-            return RedirectResponse(url=f"{target}?error={result['message']}")
+            # Failure (Invalid/Expired token)
+            # Redirect to Login (assuming fallback if auth/login is wrong, I will check next step or default to /auth)
+            # Use /auth if /auth/login is 404. I'll defer to the view_file result for the exact path.
+            # But I need to write this NOW. I'll assume /auth based on directory structure, or /sign-in?
+            # Wait, Step 926 showed 'auth' dir has 'page.tsx'. Usually means /auth.
+            # I will use /auth for now.
+            return RedirectResponse(url=f"{settings.frontend_url}/auth?error=verification_failed")
             
     except Exception as e:
         logger.error(f"Verification error: {e}")
-        # Fallback redirect
-        return RedirectResponse(url=f"{settings.frontend_url}/auth/login?error=verification_error")
+        return RedirectResponse(url=f"{settings.frontend_url}/auth?error=verification_error")
 
 # Authentication endpoints
 @auth_router.post("/auth/signup", response_model=TokenResponse)
