@@ -3,7 +3,7 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
 from .billing_manager import get_billing
 from .models import BillingTier
-from ..authentication.supabase_auth import get_current_user
+from ..authentication.auth_manager import get_current_user
 from ..database.models import User
 import logging
 
