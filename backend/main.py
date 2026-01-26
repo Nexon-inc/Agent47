@@ -40,6 +40,7 @@ from core.ai.nlp_router import router as nlp_router
 from admin.admin_router import router as admin_router
 from core.authentication.system_debug_router import router as system_debug_router
 from core.realtime.websocket_router import router as websocket_router
+from core.billing.billing_router import router as billing_router
 
 # Agent routers (now directly under agents/)
 from agents.aria.app.main import app as aria_app
@@ -184,6 +185,7 @@ app.include_router(nlp_router)
 app.include_router(admin_router)
 app.include_router(system_debug_router)
 app.include_router(websocket_router)
+app.include_router(billing_router)
 
 # Mount agent applications
 app.mount("/api/agents/aria", aria_app)
