@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Check, X, ChevronRight, ArrowLeft, CreditCard, Shield, Info, Loader2, AlertCircle } from "lucide-react"
+import { Check, X, ChevronRight, ArrowLeft, CreditCard, Shield, Info, Loader2, AlertCircle, Lock } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { apiClient, BillingPlan } from "@/lib/api-client"
@@ -326,16 +326,16 @@ export default function PricingPage() {
       try {
         // Create subscription with Paystack
         console.log("Creating subscription for tier:", selectedTier, "period:", billingPeriod)
-        
+
         const response = await apiClient.createSubscription(
-          selectedTier, 
-          "paystack", 
-          billingPeriod, 
+          selectedTier,
+          "paystack",
+          billingPeriod,
           { suppressRedirect: true }
         )
-        
+
         console.log("Subscription response:", response)
-        
+
         if (response?.payment_url) {
           // Redirect to Paystack payment page
           console.log("Redirecting to Paystack:", response.payment_url)
@@ -356,7 +356,7 @@ export default function PricingPage() {
       } catch (apiError) {
         console.error("API Error creating subscription:", apiError)
         let errorMessage = 'Subscription creation failed'
-        
+
         if (apiError instanceof Error) {
           errorMessage = apiError.message
           // Handle specific error messages
@@ -366,7 +366,7 @@ export default function PricingPage() {
             errorMessage = 'User account not found. Please log in again.'
           }
         }
-        
+
         setError(errorMessage)
         setPaymentStep("error")
       }
@@ -418,7 +418,7 @@ export default function PricingPage() {
               <p className="text-lg text-gray-600 mb-8">
                 Select the plan that best fits your needs. All plans include access to our powerful AI agents.
               </p>
-              
+
               {/* Billing Period Toggle */}
               <div className="flex items-center justify-center mb-8">
                 <span className={`mr-3 ${billingPeriod === "monthly" ? "text-green-600 font-semibold" : "text-gray-500"}`}>
@@ -426,14 +426,12 @@ export default function PricingPage() {
                 </span>
                 <button
                   onClick={() => setBillingPeriod(billingPeriod === "monthly" ? "yearly" : "monthly")}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    billingPeriod === "yearly" ? "bg-green-600" : "bg-gray-300"
-                  }`}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${billingPeriod === "yearly" ? "bg-green-600" : "bg-gray-300"
+                    }`}
                 >
                   <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      billingPeriod === "yearly" ? "translate-x-6" : "translate-x-1"
-                    }`}
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${billingPeriod === "yearly" ? "translate-x-6" : "translate-x-1"
+                      }`}
                   />
                 </button>
                 <span className={`ml-3 ${billingPeriod === "yearly" ? "text-green-600 font-semibold" : "text-gray-500"}`}>
@@ -464,208 +462,208 @@ export default function PricingPage() {
                     billingPlans.map((plan) => {
                       const tier = plan.tier.toLowerCase() as PricingTier
                       const isCurrentPlan = currentSubscription?.tier === plan.tier
-                      const isUpgrade = currentSubscription && 
+                      const isUpgrade = currentSubscription &&
                         (plan.tier === 'pro' && currentSubscription.tier === 'starter') ||
                         (plan.tier === 'starter' && currentSubscription.tier === 'free')
-                      const isDowngrade = currentSubscription && 
+                      const isDowngrade = currentSubscription &&
                         (plan.tier === 'starter' && currentSubscription.tier === 'pro') ||
                         (plan.tier === 'free' && currentSubscription.tier === 'starter')
 
-                    return (
-                      <motion.div
-                        key={tier}
-                        whileHover={{ scale: 1.02 }}
-                        className={cn(
-                          "bg-white rounded-xl overflow-hidden shadow-lg border",
-                          plan.recommended ? "border-[#10B981]" : "border-gray-200",
-                          plan.recommended ? "md:-mt-4" : "",
-                        )}
-                      >
-                        {plan.recommended && (
-                          <div className="bg-[#10B981] text-white text-center py-2 font-medium">Recommended</div>
-                        )}
-
-                        <div className={cn("p-6 text-white bg-gradient-to-r", 
-                          plan.tier === 'free' ? "from-green-400 to-green-600" :
-                          plan.tier === 'starter' ? "from-green-400 to-green-600" :
-                          plan.tier === 'pro' ? "from-green-500 to-green-700" :
-                          "from-green-400 to-green-600"
-                        )}>
-                          <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                          <div className="flex items-baseline">
-                            <span className="text-3xl font-bold">${plan.price_usd}</span>
-                            <span className="ml-2 opacity-80">/{plan.billing_cycle}</span>
-                          </div>
-                          <p className="mt-2 opacity-90">{plan.description}</p>
-                          {isCurrentPlan && (
-                            <div className="mt-2 bg-white/20 rounded px-2 py-1 text-sm">
-                              Current Plan
-                            </div>
+                      return (
+                        <motion.div
+                          key={tier}
+                          whileHover={{ scale: 1.02 }}
+                          className={cn(
+                            "bg-white rounded-xl overflow-hidden shadow-lg border",
+                            plan.recommended ? "border-[#10B981]" : "border-gray-200",
+                            plan.recommended ? "md:-mt-4" : "",
                           )}
-                        </div>
+                        >
+                          {plan.recommended && (
+                            <div className="bg-[#10B981] text-white text-center py-2 font-medium">Recommended</div>
+                          )}
 
-                        <div className="p-6">
-                          <ul className="space-y-3 mb-8">
-                            {plan.features?.agents && (
-                              <li className="flex items-start">
-                                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                                <span>
-                                  {plan.features.agents.max_count ? 
-                                    `${plan.features.agents.max_count} agents` : 
-                                    'Unlimited agents'
-                                  }
-                                </span>
-                              </li>
+                          <div className={cn("p-6 text-white bg-gradient-to-r",
+                            plan.tier === 'free' ? "from-green-400 to-green-600" :
+                              plan.tier === 'starter' ? "from-green-400 to-green-600" :
+                                plan.tier === 'pro' ? "from-green-500 to-green-700" :
+                                  "from-green-400 to-green-600"
+                          )}>
+                            <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                            <div className="flex items-baseline">
+                              <span className="text-3xl font-bold">${plan.price_usd}</span>
+                              <span className="ml-2 opacity-80">/{plan.billing_cycle}</span>
+                            </div>
+                            <p className="mt-2 opacity-90">{plan.description}</p>
+                            {isCurrentPlan && (
+                              <div className="mt-2 bg-white/20 rounded px-2 py-1 text-sm">
+                                Current Plan
+                              </div>
                             )}
-                            {plan.features?.api_access && (
-                              <li className="flex items-start">
-                                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                                <span>
-                                  {plan.features.api_rate_limits ? 
-                                    `${plan.features.api_rate_limits.requests_per_minute} requests/min` : 
-                                    'API access'
-                                  }
-                                </span>
-                              </li>
-                            )}
-                            {plan.features?.storage_limit_mb && (
-                              <li className="flex items-start">
-                                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                                <span>
-                                  {plan.features.storage_limit_mb} MB storage
-                                </span>
-                              </li>
-                            )}
-                            {plan.features?.support && (
-                              <li className="flex items-start">
-                                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                                <span className="capitalize">
-                                  {plan.features.support.replace('_', ' ')} support
-                                </span>
-                              </li>
-                            )}
-                            {plan.features?.custom_integrations && (
-                              <li className="flex items-start">
-                                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                                <span>Custom integrations</span>
-                              </li>
-                            )}
-                            {plan.features?.advanced_analytics && (
-                              <li className="flex items-start">
-                                <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
-                                <span>Advanced analytics</span>
-                              </li>
-                            )}
-                          </ul>
+                          </div>
 
-                          <button
-                            onClick={() => handleSelectTier(tier)}
-                            disabled={isCurrentPlan || loading}
-                            className={cn(
-                              "w-full py-3 rounded-lg font-medium transition-colors",
-                              isCurrentPlan
-                                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                : tier === "free"
-                                  ? "bg-green-500 text-white hover:bg-green-600"
-                                  : "bg-green-600 text-white hover:bg-green-700",
-                            )}
-                          >
-                            {loading ? (
-                              <Loader2 className="w-4 h-4 animate-spin mx-auto" />
-                            ) : isCurrentPlan ? (
-                              "Current Plan"
-                            ) : isUpgrade ? (
-                              "Upgrade"
-                            ) : isDowngrade ? (
-                              "Downgrade"
-                            ) : tier === "free" ? (
-                              "Get Started Free"
-                            ) : (
-                              "Choose Plan"
-                            )}
-                          </button>
-                        </div>
-                      </motion.div>
-                    )
-                  })) : (
+                          <div className="p-6">
+                            <ul className="space-y-3 mb-8">
+                              {plan.features?.agents && (
+                                <li className="flex items-start">
+                                  <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                                  <span>
+                                    {plan.features.agents.max_count ?
+                                      `${plan.features.agents.max_count} agents` :
+                                      'Unlimited agents'
+                                    }
+                                  </span>
+                                </li>
+                              )}
+                              {plan.features?.api_access && (
+                                <li className="flex items-start">
+                                  <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                                  <span>
+                                    {plan.features.api_rate_limits ?
+                                      `${plan.features.api_rate_limits.requests_per_minute} requests/min` :
+                                      'API access'
+                                    }
+                                  </span>
+                                </li>
+                              )}
+                              {plan.features?.storage_limit_mb && (
+                                <li className="flex items-start">
+                                  <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                                  <span>
+                                    {plan.features.storage_limit_mb} MB storage
+                                  </span>
+                                </li>
+                              )}
+                              {plan.features?.support && (
+                                <li className="flex items-start">
+                                  <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                                  <span className="capitalize">
+                                    {plan.features.support.replace('_', ' ')} support
+                                  </span>
+                                </li>
+                              )}
+                              {plan.features?.custom_integrations && (
+                                <li className="flex items-start">
+                                  <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                                  <span>Custom integrations</span>
+                                </li>
+                              )}
+                              {plan.features?.advanced_analytics && (
+                                <li className="flex items-start">
+                                  <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
+                                  <span>Advanced analytics</span>
+                                </li>
+                              )}
+                            </ul>
+
+                            <button
+                              onClick={() => handleSelectTier(tier)}
+                              disabled={isCurrentPlan || loading}
+                              className={cn(
+                                "w-full py-3 rounded-lg font-medium transition-colors",
+                                isCurrentPlan
+                                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                  : tier === "free"
+                                    ? "bg-green-500 text-white hover:bg-green-600"
+                                    : "bg-green-600 text-white hover:bg-green-700",
+                              )}
+                            >
+                              {loading ? (
+                                <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                              ) : isCurrentPlan ? (
+                                "Current Plan"
+                              ) : isUpgrade ? (
+                                "Upgrade"
+                              ) : isDowngrade ? (
+                                "Downgrade"
+                              ) : tier === "free" ? (
+                                "Get Started Free"
+                              ) : (
+                                "Choose Plan"
+                              )}
+                            </button>
+                          </div>
+                        </motion.div>
+                      )
+                    })) : (
                     // Fallback to static plans while loading
                     (Object.keys(PRICING_PLANS) as PricingTier[]).map((tier) => {
                       const plan = PRICING_PLANS[tier]
-                    return (
-                      <motion.div
-                        key={tier}
-                        whileHover={{ scale: 1.03, y: -5 }}
-                        className={cn(
-                          "bg-white rounded-2xl overflow-hidden shadow-xl border-2 transition-all duration-300",
-                          plan.recommended ? "border-green-500 shadow-green-100" : "border-gray-200 hover:border-gray-300",
-                          plan.recommended ? "md:-mt-4 md:mb-4" : "",
-                        )}
-                      >
-                        {plan.recommended && (
-                          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-2.5 font-bold text-sm tracking-wide">
-                            ⭐ MOST POPULAR
-                          </div>
-                        )}
-
-                        <div className={cn("relative p-8 text-white bg-gradient-to-br overflow-hidden", plan.color)}>
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
-                          <div className="relative z-10">
-                            <h3 className="text-3xl font-extrabold mb-3">{plan.name}</h3>
-                            <div className="flex items-baseline mb-2">
-                              <span className="text-5xl font-black">
-                                ${billingPeriod === "yearly" ? plan.yearlyPrice : plan.price}
-                              </span>
-                              <span className="ml-2 text-xl opacity-90">
-                                /{billingPeriod === "yearly" ? "year" : plan.period}
-                              </span>
+                      return (
+                        <motion.div
+                          key={tier}
+                          whileHover={{ scale: 1.03, y: -5 }}
+                          className={cn(
+                            "bg-white rounded-2xl overflow-hidden shadow-xl border-2 transition-all duration-300",
+                            plan.recommended ? "border-green-500 shadow-green-100" : "border-gray-200 hover:border-gray-300",
+                            plan.recommended ? "md:-mt-4 md:mb-4" : "",
+                          )}
+                        >
+                          {plan.recommended && (
+                            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-2.5 font-bold text-sm tracking-wide">
+                              ⭐ MOST POPULAR
                             </div>
-                            {billingPeriod === "yearly" && plan.price > 0 && (
-                              <div className="text-sm opacity-90 mt-2 bg-white/20 px-3 py-1 rounded-full inline-block">
-                                ${(plan.yearlyPrice / 12).toFixed(2)}/month billed yearly
+                          )}
+
+                          <div className={cn("relative p-8 text-white bg-gradient-to-br overflow-hidden", plan.color)}>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                            <div className="relative z-10">
+                              <h3 className="text-3xl font-extrabold mb-3">{plan.name}</h3>
+                              <div className="flex items-baseline mb-2">
+                                <span className="text-5xl font-black">
+                                  ${billingPeriod === "yearly" ? plan.yearlyPrice : plan.price}
+                                </span>
+                                <span className="ml-2 text-xl opacity-90">
+                                  /{billingPeriod === "yearly" ? "year" : plan.period}
+                                </span>
                               </div>
-                            )}
-                            <p className="mt-4 text-lg opacity-95 font-medium">{plan.description}</p>
-                          </div>
-                        </div>
-
-                        <div className="p-8">
-                          <ul className="space-y-4 mb-8">
-                            {plan.features.map((feature, index) => (
-                              <li key={index} className="flex items-start">
-                                <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                                  <Check className="w-4 h-4 text-green-600" />
+                              {billingPeriod === "yearly" && plan.price > 0 && (
+                                <div className="text-sm opacity-90 mt-2 bg-white/20 px-3 py-1 rounded-full inline-block">
+                                  ${(plan.yearlyPrice / 12).toFixed(2)}/month billed yearly
                                 </div>
-                                <span className="text-gray-700 font-medium">{feature}</span>
-                              </li>
-                            ))}
-                          </ul>
+                              )}
+                              <p className="mt-4 text-lg opacity-95 font-medium">{plan.description}</p>
+                            </div>
+                          </div>
 
-                          <button
-                            onClick={() => handleSelectTier(tier)}
-                            disabled={loading}
-                            className={cn(
-                              "w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105",
-                              "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700",
-                              loading && "opacity-70 cursor-not-allowed hover:scale-100"
-                            )}
-                          >
-                            {loading ? (
-                              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                            ) : tier === "free" ? (
-                              "Get Started Free"
-                            ) : (
-                              "Choose Plan"
-                            )}
-                          </button>
-                        </div>
-                      </motion.div>
-                    )
+                          <div className="p-8">
+                            <ul className="space-y-4 mb-8">
+                              {plan.features.map((feature, index) => (
+                                <li key={index} className="flex items-start">
+                                  <div className="flex-shrink-0 w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                                    <Check className="w-4 h-4 text-green-600" />
+                                  </div>
+                                  <span className="text-gray-700 font-medium">{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+
+                            <button
+                              onClick={() => handleSelectTier(tier)}
+                              disabled={loading}
+                              className={cn(
+                                "w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105",
+                                "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700",
+                                loading && "opacity-70 cursor-not-allowed hover:scale-100"
+                              )}
+                            >
+                              {loading ? (
+                                <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                              ) : tier === "free" ? (
+                                "Get Started Free"
+                              ) : (
+                                "Choose Plan"
+                              )}
+                            </button>
+                          </div>
+                        </motion.div>
+                      )
                     })
                   )}
                 </motion.div>
               )}
 
-              {paymentStep === "payment" && selectedTier && (
+              {paymentStep === "payment" && selectedTier && PRICING_PLANS[selectedTier] && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -718,7 +716,7 @@ export default function PricingPage() {
                                     ${billingPeriod === "yearly" ? PRICING_PLANS[selectedTier].yearlyPrice : PRICING_PLANS[selectedTier].price}
                                   </span>
                                 </div>
-                                
+
                                 <div className="space-y-2">
                                   <div className="flex items-start text-sm text-gray-600">
                                     <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -902,8 +900,8 @@ export default function PricingPage() {
                       {selectedTier === "free"
                         ? "Your free plan has been activated. Enjoy your 14-day trial!"
                         : selectedTier === "starter"
-                        ? "Your starter plan has been activated."
-                        : "Your payment has been processed successfully."}
+                          ? "Your starter plan has been activated."
+                          : "Your payment has been processed successfully."}
                     </p>
                     <p className="text-gray-600">Redirecting you to the dashboard...</p>
                   </div>
