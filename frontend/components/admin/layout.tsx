@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import AdminSidebar from "./sidebar"
 import AdminNavbar from "./navbar"
+import { useAdminStore } from "@/lib/stores/admin-store"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [isMounted, setIsMounted] = useState(false)
