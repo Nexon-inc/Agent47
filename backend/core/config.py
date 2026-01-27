@@ -576,7 +576,7 @@ def _parse_backend_cors_origins() -> List[str]:
       - Comma-separated list, e.g. 'https://agent47-eight.vercel.app,http://localhost:3000'
     Falls back to localhost defaults if parsing fails or env is not set.
     """
-    default_origins = ["http://localhost:3000", "http://localhost:8000"]
+    default_origins = ["http://localhost:3000", "http://localhost:8000", "https://agent47-eight.vercel.app"]
     raw = os.getenv("BACKEND_CORS_ORIGINS", "").strip()
     if not raw:
         return default_origins
