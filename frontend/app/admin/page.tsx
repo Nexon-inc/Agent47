@@ -22,7 +22,7 @@ export default function AdminPage() {
   const { currentAdmin, isAuthenticated, fetchCurrentAdmin } = useAdminStore()
   const [stats, setStats] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
-  
+
   useEffect(() => {
     const token = localStorage.getItem("admin_token")
     if (!token) {
@@ -30,12 +30,14 @@ export default function AdminPage() {
       return
     }
 
-    // Fetch current admin and stats
+    // Initial load
     const loadData = async () => {
       try {
         await fetchCurrentAdmin()
-        const health = await adminAPI.getHealth().catch(() => null)
-        const metrics = await adminAPI.getMetrics().catch(() => null)
+        const [health, metrics] = await Promise.all([
+          adminAPI.getHealth().catch(() => null),
+          adminAPI.getMetrics().catch(() => null)
+        ])
         setStats({ health, metrics })
       } catch (error) {
         console.error("Failed to load admin data:", error)
@@ -46,6 +48,26 @@ export default function AdminPage() {
     }
 
     loadData()
+
+    // Setup polling for metrics (every 30 seconds)
+    const pollInterval = setInterval(async () => {
+      try {
+        const [health, metrics] = await Promise.all([
+          adminAPI.getHealth().catch(() => null),
+          adminAPI.getMetrics().catch(() => null)
+        ])
+        if (health || metrics) {
+          setStats((prev: any) => ({
+            health: health || prev?.health,
+            metrics: metrics || prev?.metrics
+          }))
+        }
+      } catch (error) {
+        console.error("Polling error:", error)
+      }
+    }, 30000)
+
+    return () => clearInterval(pollInterval)
   }, [router, fetchCurrentAdmin])
 
   if (isLoading) {

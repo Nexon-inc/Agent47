@@ -6,8 +6,9 @@ interface AdminState {
   currentAdmin: AdminUser | null
   isAuthenticated: boolean
   isLoading: boolean
+  permissionsLoaded: boolean
   error: string | null
-  
+
   // Actions
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
@@ -20,18 +21,20 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   currentAdmin: null,
   isAuthenticated: false,
   isLoading: false,
+  permissionsLoaded: false,
   error: null,
 
   // Login
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null })
-    
+
     try {
       const response = await adminAPI.login(email, password)
-      set({ 
+      set({
         currentAdmin: response.admin_user,
         isAuthenticated: true,
-        isLoading: false 
+        isLoading: false,
+        permissionsLoaded: true
       })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Login failed'
@@ -45,9 +48,10 @@ export const useAdminStore = create<AdminState>((set, get) => ({
     try {
       await adminAPI.logout()
     } finally {
-      set({ 
+      set({
         currentAdmin: null,
         isAuthenticated: false,
+        permissionsLoaded: false,
         error: null
       })
     }
@@ -56,21 +60,23 @@ export const useAdminStore = create<AdminState>((set, get) => ({
   // Fetch current admin
   fetchCurrentAdmin: async () => {
     set({ isLoading: true, error: null })
-    
+
     try {
       const admin = await adminAPI.getCurrentAdmin()
-      set({ 
+      set({
         currentAdmin: admin,
         isAuthenticated: true,
-        isLoading: false 
+        isLoading: false,
+        permissionsLoaded: true
       })
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch admin'
-      set({ 
-        error: errorMessage, 
+      set({
+        error: errorMessage,
         isLoading: false,
         isAuthenticated: false,
-        currentAdmin: null
+        currentAdmin: null,
+        permissionsLoaded: false
       })
     }
   },

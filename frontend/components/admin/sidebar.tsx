@@ -205,7 +205,7 @@ export default function AdminSidebar({ onCollapseChange }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { theme, setTheme } = useTheme()
-  const { currentAdmin, logout } = useAdminStore()
+  const { currentAdmin, logout, permissionsLoaded, isLoading } = useAdminStore()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -313,30 +313,44 @@ export default function AdminSidebar({ onCollapseChange }: AdminSidebarProps) {
 
         {/* Menu */}
         <nav className="flex-1 px-2 py-4 overflow-y-auto scrollbar-hide">
-          <ul className="space-y-1">
-            {visibleMenuItems.map((item) => (
-              <li key={item.name}>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleMenuClick(item.path)
-                  }}
-                  className={cn(
-                    "flex items-center px-3 py-2 rounded-lg transition-colors text-sm cursor-pointer w-full text-left",
-                    "hover:bg-gray-800/50 hover:text-white",
-                    pathname === item.path ? "bg-green-600/20 border-l-2 border-green-500 font-semibold text-green-400" : "text-gray-400",
-                    isCollapsed && "justify-center"
-                  )}
-                  title={isCollapsed ? item.name : undefined}
-                >
-                  <item.icon className={cn("w-5 h-5", !isCollapsed && "mr-3", isCollapsed && "mx-auto")} />
-                  {!isCollapsed && <span>{item.name}</span>}
-                </button>
-              </li>
-            ))}
-          </ul>
+          {isLoading || !permissionsLoaded ? (
+            <div className="flex flex-col items-center justify-center h-32 space-y-2">
+              <div className="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+              {!isCollapsed && <span className="text-xs text-gray-400">Loading permissions...</span>}
+            </div>
+          ) : visibleMenuItems.length === 0 ? (
+            <div className="px-3 py-4 text-center">
+              <Shield className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+              {!isCollapsed && (
+                <p className="text-xs text-gray-500">No clearance level assigned. Contact system admin.</p>
+              )}
+            </div>
+          ) : (
+            <ul className="space-y-1">
+              {visibleMenuItems.map((item) => (
+                <li key={item.name}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleMenuClick(item.path)
+                    }}
+                    className={cn(
+                      "flex items-center px-3 py-2 rounded-lg transition-colors text-sm cursor-pointer w-full text-left",
+                      "hover:bg-gray-800/50 hover:text-white",
+                      pathname === item.path ? "bg-green-600/20 border-l-2 border-green-500 font-semibold text-green-400" : "text-gray-400",
+                      isCollapsed && "justify-center"
+                    )}
+                    title={isCollapsed ? item.name : undefined}
+                  >
+                    <item.icon className={cn("w-5 h-5", !isCollapsed && "mr-3", isCollapsed && "mx-auto")} />
+                    {!isCollapsed && <span>{item.name}</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </nav>
 
         {/* Theme toggle */}
@@ -379,9 +393,9 @@ export default function AdminSidebar({ onCollapseChange }: AdminSidebarProps) {
                 <div className="flex-1 min-w-0 ml-3">
                   <p className="text-sm font-medium truncate">{currentAdmin?.email?.split("@")[0] || "Admin"}</p>
                   <p className="text-xs text-green-400 truncate">
-                    {currentAdmin?.permissions?.includes("super_admin") ? "Super Admin" : 
-                     currentAdmin?.permissions?.includes("system_admin") ? "System Admin" :
-                     currentAdmin?.permissions?.includes("basic_admin") ? "Basic Admin" : "Admin"}
+                    {currentAdmin?.permissions?.includes("super_admin") ? "Super Admin" :
+                      currentAdmin?.permissions?.includes("system_admin") ? "System Admin" :
+                        currentAdmin?.permissions?.includes("basic_admin") ? "Basic Admin" : "Admin"}
                   </p>
                 </div>
                 <ChevronDown className={cn("w-4 h-4 transition-transform", isProfileOpen ? "rotate-180" : "")} />
@@ -406,7 +420,7 @@ export default function AdminSidebar({ onCollapseChange }: AdminSidebarProps) {
                 <FileText className="w-4 h-4 mr-3" />
                 Audit Logs
               </Link>
-              <button 
+              <button
                 onClick={async () => {
                   await logout()
                   router.push("/admin/login")
