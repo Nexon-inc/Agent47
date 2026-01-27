@@ -1165,23 +1165,23 @@ class ApiClient {
   }
 
   async getAgentHealth(): Promise<{ data: any }> {
-    return this.makeRequest('/account/agent-health', { method: 'GET' })
+    return this.makeRequest('/api/v1/account/agent-health', { method: 'GET' })
   }
 
   async getSingleAgentHealth(agentId: string): Promise<{ data: any }> {
-    return this.makeRequest(`/account/agent-health/${agentId}`, { method: 'GET' })
+    return this.makeRequest(`/api/v1/account/agent-health/${agentId}`, { method: 'GET' })
   }
 
   // Intercommunication Management
   async updateIntercommunicationSetting(enabled: boolean): Promise<{ data: any }> {
-    return this.makeRequest('/account/intercommunication', {
-      method: 'POST',
+    return this.makeRequest('/api/v1/intercommunication/intercommunication', {
+      method: 'PUT', // Changed to PUT to match backend router
       body: JSON.stringify({ enabled })
     })
   }
 
   async getIntercommunicationSetting(): Promise<{ data: any }> {
-    return this.makeRequest('/account/intercommunication', { method: 'GET' })
+    return this.makeRequest('/api/v1/intercommunication/intercommunication', { method: 'GET' })
   }
 
   // Generic GET method for backward compatibility
@@ -1193,9 +1193,9 @@ class ApiClient {
 
   // Generic POST method
   async post(endpoint: string, data?: any): Promise<{ data: any }> {
-    // Remove /api/v1 or /api prefix to get the actual endpoint path
-    const cleanEndpoint = endpoint.replace(/^\/api\/v1/, '').replace(/^\/api/, '');
-    const response = await this.makeRequest(cleanEndpoint, {
+    // Use endpoint as-is - makeRequest will handle the full URL
+    // Do NOT strip prefixes, as callers (like home-tab.tsx) provide correct full paths
+    const response = await this.makeRequest(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
     });
@@ -1204,9 +1204,8 @@ class ApiClient {
 
   // Generic PUT method
   async put(endpoint: string, data?: any): Promise<{ data: any }> {
-    // Remove /api/v1 or /api prefix to get the actual endpoint path
-    const cleanEndpoint = endpoint.replace(/^\/api\/v1/, '').replace(/^\/api/, '');
-    const response = await this.makeRequest(cleanEndpoint, {
+    // Use endpoint as-is
+    const response = await this.makeRequest(endpoint, {
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
     });
