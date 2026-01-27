@@ -147,6 +147,15 @@ app = FastAPI(
 )
 
 # Add CORS middleware
+# CORS Middleware will be added last to ensure it runs first
+
+# Add authentication middleware
+app.add_middleware(AuthMiddleware)
+
+# Add tier protection middleware
+app.add_middleware(TierProtectionMiddleware)
+
+# Add CORS middleware (Added last to run first)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.backend_cors_origins,
@@ -154,12 +163,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Add authentication middleware
-app.add_middleware(AuthMiddleware)
-
-# Add tier protection middleware
-app.add_middleware(TierProtectionMiddleware)
 
 # Include API routes
 app.include_router(auth_router)

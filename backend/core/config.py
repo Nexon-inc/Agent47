@@ -577,19 +577,31 @@ def _parse_backend_cors_origins() -> List[str]:
     Falls back to localhost defaults if parsing fails or env is not set.
     """
     default_origins = ["http://localhost:3000", "http://localhost:8000", "https://agent47-eight.vercel.app"]
+    
+    # Always include known Vercel domains regardless of env var
+    forced_origins = ["https://agent47-eight.vercel.app"]
+    
     raw = os.getenv("BACKEND_CORS_ORIGINS", "").strip()
-    if not raw:
-        return default_origins
-    try:
-        if raw.startswith("["):
-            parsed = json.loads(raw)
-            if isinstance(parsed, list) and all(isinstance(o, str) for o in parsed):
-                return parsed
-        # Fallback: comma-separated
-        parts = [o.strip() for o in raw.split(",") if o.strip()]
-        return parts or default_origins
-    except Exception:
-        return default_origins
+    
+    origins = []
+    if raw:
+        try:
+            if raw.startswith("["):
+                parsed = json.loads(raw)
+                if isinstance(parsed, list) and all(isinstance(o, str) for o in parsed):
+                    origins = parsed
+            else:
+                # Fallback: comma-separated
+                origins = [o.strip() for o in raw.split(",") if o.strip()]
+        except Exception:
+            pass
+            
+    if not origins:
+        origins = default_origins
+        
+    # Merge and deduplicate
+    final_origins = list(set(origins + forced_origins))
+    return final_origins
 
 
 class Settings(BaseSettings):
