@@ -160,7 +160,7 @@ interface InboxSettings {
 export default function InboxTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
-  
+
   const [messages, setMessages] = useState<InboxMessage[]>([])
   const [inboxStats, setInboxStats] = useState<InboxStats | null>(null)
   const [inboxSettings, setInboxSettings] = useState<InboxSettings | null>(null)
@@ -173,7 +173,7 @@ export default function InboxTab() {
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const [selectedMessage, setSelectedMessage] = useState<InboxMessage | null>(null)
   const [showMessageDialog, setShowMessageDialog] = useState(false)
-  
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
@@ -190,7 +190,7 @@ export default function InboxTab() {
   // Subscribe to real-time notifications via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     // Ensure WebSocket is connected
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
@@ -212,15 +212,15 @@ export default function InboxTab() {
       setIsLoading(true)
       setIsRefreshing(true)
       setError(null)
-      
+
       // Load inbox data in parallel
       const [messagesResponse, statsResponse] = await Promise.all([
         apiClient.get("/api/inbox/messages").catch(() => ({ data: [] })),
         apiClient.get("/api/inbox/stats").catch(() => ({ data: null }))
       ])
-      
+
       let allMessages = messagesResponse.data || []
-      
+
       // Add welcome message if user just joined and has no messages
       if (allMessages.length === 0 && user) {
         const welcomeMessage: InboxMessage = {
@@ -243,11 +243,11 @@ export default function InboxTab() {
         }
         allMessages = [welcomeMessage, ...allMessages]
       }
-      
+
       setMessages(allMessages)
       setInboxStats(statsResponse.data)
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load inbox data:", error)
       const errorMessage = error instanceof Error ? error.message : "Failed to load inbox messages"
@@ -378,8 +378,8 @@ export default function InboxTab() {
   }
 
   const filteredMessages = messages.filter(message => {
-    const matchesSearch = message.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         message.content.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = (message.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (message.content?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     const matchesType = typeFilter === "all" || message.message_type === typeFilter
     const matchesPriority = priorityFilter === "all" || message.priority === priorityFilter
     const matchesStatus = statusFilter === "all" || message.status === statusFilter
@@ -410,344 +410,344 @@ export default function InboxTab() {
       {/* Content */}
       {!isLoading && !error && (
         <>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Inbox className="h-6 w-6 text-blue-600" />
-          </div>
-        <div>
-            <h2 className="text-2xl font-bold text-gray-900">Inbox</h2>
-            <p className="text-gray-600">System updates, notifications, and important messages</p>
-          </div>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={loadInboxData}
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Inbox Settings</DialogTitle>
-                <DialogDescription>
-                  Configure your inbox preferences and notification settings.
-                </DialogDescription>
-              </DialogHeader>
-              {inboxSettings && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <Switch
-                      id="email-notifications"
-                      checked={inboxSettings.email_notifications}
-                      onCheckedChange={(checked) => 
-                        setInboxSettings({...inboxSettings, email_notifications: checked})
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="push-notifications">Push Notifications</Label>
-                    <Switch
-                      id="push-notifications"
-                      checked={inboxSettings.push_notifications}
-                      onCheckedChange={(checked) => 
-                        setInboxSettings({...inboxSettings, push_notifications: checked})
-                      }
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="digest-frequency">Digest Frequency</Label>
-                    <Select
-                      value={inboxSettings.digest_frequency}
-                      onValueChange={(value) => 
-                        setInboxSettings({...inboxSettings, digest_frequency: value})
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="immediate">Immediate</SelectItem>
-                        <SelectItem value="hourly">Hourly</SelectItem>
-                        <SelectItem value="daily">Daily</SelectItem>
-                        <SelectItem value="weekly">Weekly</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowSettingsDialog(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => inboxSettings && handleUpdateSettings(inboxSettings)}>
-                  Save Settings
-          </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          {lastUpdated && (
-            <span className="text-sm text-gray-500">
-              Last updated: {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Stats Overview */}
-      {inboxStats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-              <div className="flex items-center">
-                <Inbox className="h-8 w-8 text-blue-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Messages</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {inboxStats.total_messages}
-                </p>
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Inbox className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Inbox</h2>
+                <p className="text-gray-600">System updates, notifications, and important messages</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-              <div className="flex items-center">
-                <Bell className="h-8 w-8 text-red-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Unread</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {inboxStats.unread_count}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-              <div className="flex items-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Read</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {inboxStats.by_status.read || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-              <div className="flex items-center">
-                <Archive className="h-8 w-8 text-gray-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Archived</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {inboxStats.by_status.archived || 0}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      )}
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-          <Input
-              placeholder="Search messages..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1"
-            />
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="system">System</SelectItem>
-                <SelectItem value="notification">Notification</SelectItem>
-                <SelectItem value="update">Update</SelectItem>
-                <SelectItem value="alert">Alert</SelectItem>
-                <SelectItem value="task">Task</SelectItem>
-                <SelectItem value="analytics">Analytics</SelectItem>
-                <SelectItem value="calendar">Calendar</SelectItem>
-                <SelectItem value="team">Team</SelectItem>
-                <SelectItem value="billing">Billing</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger className="w-full sm:w-32">
-                <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-                <SelectItem value="all">All Priorities</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-          </SelectContent>
-        </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-32">
-                <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="unread">Unread</SelectItem>
-                <SelectItem value="read">Read</SelectItem>
-                <SelectItem value="archived">Archived</SelectItem>
-          </SelectContent>
-        </Select>
             <div className="flex items-center space-x-2">
-              <Switch
-                id="unread-only"
-                checked={showUnreadOnly}
-                onCheckedChange={setShowUnreadOnly}
-              />
-              <Label htmlFor="unread-only">Unread only</Label>
-      </div>
-      </div>
-        </CardContent>
-      </Card>
-
-      {/* Messages */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Mail className="h-5 w-5" />
-            <span>Messages</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredMessages.length === 0 ? (
-            <EmptyState
-              icon={Inbox}
-              title="No messages found"
-              description={searchTerm || typeFilter !== "all" || priorityFilter !== "all" || statusFilter !== "all" || showUnreadOnly
-                ? "Try adjusting your search or filter criteria."
-                : "Your inbox is empty. Messages from your agents and system will appear here."}
-            />
-          ) : (
-            <div className="space-y-4">
-              {filteredMessages.map((message) => (
-                <div key={message.id} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-3 flex-1">
-                      <div className="flex-shrink-0">
-                        {getMessageTypeIcon(message.message_type)}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadInboxData}
+                disabled={isRefreshing}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Settings
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Inbox Settings</DialogTitle>
+                    <DialogDescription>
+                      Configure your inbox preferences and notification settings.
+                    </DialogDescription>
+                  </DialogHeader>
+                  {inboxSettings && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="email-notifications">Email Notifications</Label>
+                        <Switch
+                          id="email-notifications"
+                          checked={inboxSettings.email_notifications}
+                          onCheckedChange={(checked) =>
+                            setInboxSettings({ ...inboxSettings, email_notifications: checked })
+                          }
+                        />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="font-medium text-gray-900 truncate">
-                            {message.title}
-                          </h3>
-                          <div className="flex items-center space-x-1">
-                            <Badge className={getMessageTypeColor(message.message_type)}>
-                              {message.message_type}
-                            </Badge>
-                            <Badge className={getPriorityColor(message.priority)}>
-                              {message.priority}
-                            </Badge>
-                            <Badge className={getStatusColor(message.status)}>
-                              {message.status}
-                            </Badge>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="push-notifications">Push Notifications</Label>
+                        <Switch
+                          id="push-notifications"
+                          checked={inboxSettings.push_notifications}
+                          onCheckedChange={(checked) =>
+                            setInboxSettings({ ...inboxSettings, push_notifications: checked })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="digest-frequency">Digest Frequency</Label>
+                        <Select
+                          value={inboxSettings.digest_frequency}
+                          onValueChange={(value) =>
+                            setInboxSettings({ ...inboxSettings, digest_frequency: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="immediate">Immediate</SelectItem>
+                            <SelectItem value="hourly">Hourly</SelectItem>
+                            <SelectItem value="daily">Daily</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowSettingsDialog(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={() => inboxSettings && handleUpdateSettings(inboxSettings)}>
+                      Save Settings
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              {lastUpdated && (
+                <span className="text-sm text-gray-500">
+                  Last updated: {lastUpdated.toLocaleTimeString()}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Stats Overview */}
+          {inboxStats && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <Inbox className="h-8 w-8 text-blue-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Total Messages</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {inboxStats.total_messages}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <Bell className="h-8 w-8 text-red-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Unread</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {inboxStats.unread_count}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Read</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {inboxStats.by_status.read || 0}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <Archive className="h-8 w-8 text-gray-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Archived</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {inboxStats.by_status.archived || 0}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Filters */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <Input
+                  placeholder="Search messages..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="flex-1"
+                />
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                    <SelectItem value="notification">Notification</SelectItem>
+                    <SelectItem value="update">Update</SelectItem>
+                    <SelectItem value="alert">Alert</SelectItem>
+                    <SelectItem value="task">Task</SelectItem>
+                    <SelectItem value="analytics">Analytics</SelectItem>
+                    <SelectItem value="calendar">Calendar</SelectItem>
+                    <SelectItem value="team">Team</SelectItem>
+                    <SelectItem value="billing">Billing</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                  <SelectTrigger className="w-full sm:w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="unread">Unread</SelectItem>
+                    <SelectItem value="read">Read</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="unread-only"
+                    checked={showUnreadOnly}
+                    onCheckedChange={setShowUnreadOnly}
+                  />
+                  <Label htmlFor="unread-only">Unread only</Label>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Messages */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Mail className="h-5 w-5" />
+                <span>Messages</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {filteredMessages.length === 0 ? (
+                <EmptyState
+                  icon={Inbox}
+                  title="No messages found"
+                  description={searchTerm || typeFilter !== "all" || priorityFilter !== "all" || statusFilter !== "all" || showUnreadOnly
+                    ? "Try adjusting your search or filter criteria."
+                    : "Your inbox is empty. Messages from your agents and system will appear here."}
+                />
+              ) : (
+                <div className="space-y-4">
+                  {filteredMessages.map((message) => (
+                    <div key={message.id} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-3 flex-1">
+                          <div className="flex-shrink-0">
+                            {getMessageTypeIcon(message.message_type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <h3 className="font-medium text-gray-900 truncate">
+                                {message.title}
+                              </h3>
+                              <div className="flex items-center space-x-1">
+                                <Badge className={getMessageTypeColor(message.message_type)}>
+                                  {message.message_type}
+                                </Badge>
+                                <Badge className={getPriorityColor(message.priority)}>
+                                  {message.priority}
+                                </Badge>
+                                <Badge className={getStatusColor(message.status)}>
+                                  {message.status}
+                                </Badge>
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                              {message.content}
+                            </p>
+                            <div className="flex items-center space-x-4 text-xs text-gray-500">
+                              <span>From: {message.sender_name}</span>
+                              <span>{new Date(message.created_at).toLocaleString()}</span>
+                            </div>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 mb-2 line-clamp-2">
-                          {message.content}
-                        </p>
-                        <div className="flex items-center space-x-4 text-xs text-gray-500">
-                          <span>From: {message.sender_name}</span>
-                          <span>{new Date(message.created_at).toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2 ml-4">
-                      {message.status === "unread" ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleMarkAsRead(message.id)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleMarkAsUnread(message.id)}
-                        >
-                          <EyeOff className="h-4 w-4" />
-                        </Button>
-                      )}
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                          setSelectedMessage(message)
-                          setShowMessageDialog(true)
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleArchiveMessage(message.id)}
-                      >
-                        <Archive className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDeleteMessage(message.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-                  
-                  {/* Message Actions */}
-                  {message.actions && message.actions.length > 0 && (
-                    <div className="mt-3 pt-3 border-t">
-                      <div className="flex items-center space-x-2">
-                        {message.actions.map((action) => (
+                        <div className="flex items-center space-x-2 ml-4">
+                          {message.status === "unread" ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleMarkAsRead(message.id)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleMarkAsUnread(message.id)}
+                            >
+                              <EyeOff className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button
-                            key={action.id}
                             variant="outline"
                             size="sm"
-                            onClick={() => handleExecuteAction(message.id, action)}
+                            onClick={() => {
+                              setSelectedMessage(message)
+                              setShowMessageDialog(true)
+                            }}
                           >
-                            {action.label}
+                            <Eye className="h-4 w-4" />
                           </Button>
-                        ))}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleArchiveMessage(message.id)}
+                          >
+                            <Archive className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteMessage(message.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Message Actions */}
+                      {message.actions && message.actions.length > 0 && (
+                        <div className="mt-3 pt-3 border-t">
+                          <div className="flex items-center space-x-2">
+                            {message.actions.map((action) => (
+                              <Button
+                                key={action.id}
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleExecuteAction(message.id, action)}
+                              >
+                                {action.label}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              )}
+            </CardContent>
+          </Card>
         </>
       )}
 
@@ -762,26 +762,26 @@ export default function InboxTab() {
           </DialogHeader>
           {selectedMessage && (
             <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2">
                 <Badge className={getMessageTypeColor(selectedMessage.message_type)}>
                   {selectedMessage.message_type}
                 </Badge>
                 <Badge className={getPriorityColor(selectedMessage.priority)}>
                   {selectedMessage.priority}
-                            </Badge>
+                </Badge>
                 <Badge className={getStatusColor(selectedMessage.status)}>
                   {selectedMessage.status}
-                            </Badge>
-                      </div>
+                </Badge>
+              </div>
               <div className="prose max-w-none">
                 <p className="text-gray-700 whitespace-pre-wrap">
                   {selectedMessage.content}
-                        </p>
-                  </div>
+                </p>
+              </div>
               {selectedMessage.actions && selectedMessage.actions.length > 0 && (
                 <div className="flex items-center space-x-2">
                   {selectedMessage.actions.map((action) => (
-                        <Button 
+                    <Button
                       key={action.id}
                       variant="outline"
                       onClick={() => handleExecuteAction(selectedMessage.id, action)}
@@ -789,8 +789,8 @@ export default function InboxTab() {
                       {action.label}
                     </Button>
                   ))}
-          </div>
-          )}
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>

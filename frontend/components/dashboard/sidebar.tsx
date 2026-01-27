@@ -28,11 +28,6 @@ const navigationItems = [
     href: "/dashboard?tab=home",
   },
   {
-    title: "Upgrade",
-    icon: TrendingUp,
-    href: "/dashboard?tab=upgrade",
-  },
-  {
     title: "AI Agents",
     icon: Bot,
     href: "/dashboard?tab=agents-overview",
@@ -71,6 +66,11 @@ const navigationItems = [
     title: "Account",
     icon: Settings,
     href: "/dashboard?tab=account-overview",
+  },
+  {
+    title: "Upgrade",
+    icon: TrendingUp,
+    href: "/dashboard?tab=upgrade",
   },
 ]
 

@@ -156,7 +156,7 @@ export default function HomeTab() {
   const { user, isAuthenticated } = useAuthStore()
   const { userPlan } = useUserStore()
   const { toast } = useToast()
-  
+
   // Check if user can use intercommunication based on their plan
   const canUseIntercommunication = userPlan === "starter" || userPlan === "pro"
   const [selectedAgent, setSelectedAgent] = useState<any>(null)
@@ -215,10 +215,10 @@ export default function HomeTab() {
   useEffect(() => {
     // Only make API calls if user is authenticated
     if (user && isAuthenticated) {
-    loadUserTasks()
-    loadTaskSummaries()
-    loadUserAgents()
-    loadIntercommunicationSetting()
+      loadUserTasks()
+      loadTaskSummaries()
+      loadUserAgents()
+      loadIntercommunicationSetting()
     }
   }, [user, isAuthenticated])
 
@@ -227,7 +227,7 @@ export default function HomeTab() {
     if (!user || !isAuthenticated) return
 
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -299,7 +299,7 @@ export default function HomeTab() {
       const response = await apiClient.getSelectedAgents()
       const selectedAgents = response || []
       setUserAgents(selectedAgents)
-      
+
       // Map selected agents to agent templates and set the first active one as selected
       if (selectedAgents.length > 0 && !selectedAgent) {
         const firstActiveAgent = selectedAgents.find(agent => agent.status === "active") || selectedAgents[0]
@@ -324,7 +324,7 @@ export default function HomeTab() {
       return []
     }
     // Only return agents that the user has selected
-    return agents.filter(agent => 
+    return agents.filter(agent =>
       userAgents.some(userAgent => userAgent.agent_id === agent.id && userAgent.status === "active")
     )
   }
@@ -356,7 +356,7 @@ export default function HomeTab() {
           console.error("Failed to save chat history:", error)
         }
       }
-      
+
       // Load conversation for new agent
       setSelectedAgent(agent)
       const newStorageKey = `chat_history_${user?.id}_${agentId}`
@@ -414,7 +414,7 @@ export default function HomeTab() {
     // Validate that the selected agent is in the user's selected agents (tier-based check)
     const availableAgents = getAvailableAgents()
     const isAgentAvailable = availableAgents.some(agent => agent.id === selectedAgent.id)
-    
+
     if (!isAgentAvailable) {
       const errorMessage: ChatMessage = {
         id: Date.now().toString(),
@@ -453,7 +453,7 @@ export default function HomeTab() {
         setIsLoading(false)
         return
       }
-      
+
       if (userAgent.status !== "active") {
         const errorMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -480,7 +480,7 @@ export default function HomeTab() {
       if (response.data?.success) {
         // Check if thinking steps are provided
         const thinkingSteps = response.data.data?.thinking_steps || response.data.thinking_steps
-        
+
         // Show thinking state if thinking steps are provided
         if (thinkingSteps && thinkingSteps.length > 0) {
           const thinkingMessage: ChatMessage = {
@@ -492,14 +492,14 @@ export default function HomeTab() {
             thinkingSteps: thinkingSteps,
           }
           setChatMessages(prev => [...prev, thinkingMessage])
-          
+
           // Wait a bit to show thinking state, then show response
           await new Promise(resolve => setTimeout(resolve, 2000))
-          
+
           // Remove thinking message and add actual response
           setChatMessages(prev => prev.filter(msg => msg.id !== thinkingMessage.id))
         }
-        
+
         // All agents return: { success: true, data: { response: "...", image_url: "..." } }
         const responseText = response.data.data?.response || response.data.data?.message || "I received your message and I'm processing it."
         const imageUrl = response.data.data?.image_url || response.data.image_url  // Extract image URL if present
@@ -533,13 +533,13 @@ export default function HomeTab() {
       }
     } catch (error) {
       console.error("Failed to send message to agent:", error)
-        const errorMessage: ChatMessage = {
+      const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: "agent",
         content: `Sorry, I'm having trouble processing your message right now. Please try again later.`,
-          timestamp: new Date(),
+        timestamp: new Date(),
         agentId: selectedAgent.id,
-        }
+      }
       setChatMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
@@ -597,7 +597,7 @@ export default function HomeTab() {
       console.log("Intercommunication not available for free tier")
       return
     }
-    
+
     try {
       const newValue = !intercommunicationEnabled
       await apiClient.updateIntercommunicationSetting(newValue)
@@ -608,75 +608,33 @@ export default function HomeTab() {
     }
   }
 
-    return (
+  return (
     <div className="p-6 space-y-6 relative">
 
       {/* Beta Disclaimer */}
       <div className="flex justify-center">
         <div className="bg-yellow-50 border border-yellow-200 rounded-full px-6 py-3 animate-pulse">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <AlertCircle className="h-5 w-5 text-yellow-600" />
             <p className="text-sm text-yellow-800">
               This is still in beta, so the AI can make mistakes sometimes.
             </p>
-              </div>
-              </div>
-            </div>
+          </div>
+        </div>
+      </div>
 
 
       {/* Welcome Section */}
-        <div>
+      <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-          {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000 
+          {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
             ? `Welcome, ${user?.username || user?.full_name || "User"}! 👋`
             : `Welcome back, ${user?.username || user?.full_name || "User"}! 👋`
           }
         </h1>
-          </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
-        {isLoading && userAgents.length === 0 ? (
-          <>
-            {[...Array(4)].map((_, i) => (
-              <Card key={i}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-4 w-4 rounded" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-8 w-16 mb-2" />
-                  <Skeleton className="h-3 w-32" />
-                </CardContent>
-              </Card>
-            ))}
-          </>
-        ) : (
-          <>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{userAgents.filter(agent => agent.status === "active").length}</div>
-                <p className="text-xs text-muted-foreground">All systems operational</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">0%</div>
-                <p className="text-xs text-muted-foreground">Task completion rate</p>
-              </CardContent>
-            </Card>
-          </>
-        )}
       </div>
+
+
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 gap-6">
@@ -695,7 +653,7 @@ export default function HomeTab() {
                       <div className="min-w-0 flex-1">
                         <h3 className="text-base sm:text-lg font-bold text-white truncate">{selectedAgent.name}</h3>
                         <div className="text-xs sm:text-sm text-white/90 flex items-center">
-                          <motion.div 
+                          <motion.div
                             className="w-2 h-2 rounded-full bg-white mr-2"
                             animate={{ opacity: [1, 0.5, 1] }}
                             transition={{ duration: 2, repeat: Infinity }}
@@ -725,25 +683,25 @@ export default function HomeTab() {
               </div>
             </div>
             <CardContent className="flex-1 flex flex-col p-0 bg-gray-50/50">
-        {/* Chat Messages */}
+              {/* Chat Messages */}
               <div className="flex-1 overflow-y-auto space-y-4 p-4">
-            {chatMessages.length === 0 ? (
+                {chatMessages.length === 0 ? (
                   <div className="text-center text-gray-500 py-12">
                     <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p className="text-sm">
-                      {selectedAgent 
+                      {selectedAgent
                         ? `Start a conversation with ${selectedAgent.name}`
                         : "Please select an agent to start chatting"
                       }
                     </p>
-              </div>
-            ) : (
+                  </div>
+                ) : (
                   chatMessages.map((msg) => {
                     const agent = msg.agentId ? agents.find(a => a.id === msg.agentId) : null
                     const isUserMessage = msg.type === "user"
                     const isSystemMessage = msg.type === "system"
                     const isThinking = msg.type === "thinking"
-                    
+
                     // Get agent color gradient
                     const getAgentColor = () => {
                       if (!agent) return "from-gray-400 to-gray-600"
@@ -758,7 +716,7 @@ export default function HomeTab() {
                       }
                       return colorMap[agent.color] || "from-gray-400 to-gray-600"
                     }
-                    
+
                     return (
                       <div
                         key={msg.id}
@@ -785,9 +743,8 @@ export default function HomeTab() {
                           <div className={`flex items-end gap-2 max-w-[80%] ${isUserMessage ? "flex-row-reverse" : ""}`}>
                             {/* Avatar */}
                             {(msg.type === "agent" || msg.type === "thinking") && agent && (
-                              <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${getAgentColor()} flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${
-                                isThinking ? "animate-pulse" : ""
-                              }`}>
+                              <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${getAgentColor()} flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${isThinking ? "animate-pulse" : ""
+                                }`}>
                                 {agent.name.slice(0, 2).toUpperCase()}
                               </div>
                             )}
@@ -796,7 +753,7 @@ export default function HomeTab() {
                                 <User className="w-4 h-4" />
                               </div>
                             )}
-                            
+
                             {/* Message Bubble */}
                             <div className="flex flex-col">
                               {(msg.type === "agent" || msg.type === "thinking") && agent && (
@@ -804,7 +761,7 @@ export default function HomeTab() {
                                   {agent.name}
                                 </span>
                               )}
-                              
+
                               {isThinking ? (
                                 <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
                                   <div className="flex items-center gap-2 mb-2">
@@ -813,7 +770,7 @@ export default function HomeTab() {
                                         <motion.div
                                           key={dot}
                                           className="w-1.5 h-1.5 bg-gray-400 rounded-full"
-                                          animate={{ 
+                                          animate={{
                                             opacity: [0.3, 1, 0.3],
                                             scale: [1, 1.2, 1]
                                           }}
@@ -827,7 +784,7 @@ export default function HomeTab() {
                                     </div>
                                     <span className="text-xs text-gray-500 italic">{msg.content}</span>
                                   </div>
-                                  
+
                                   {/* Thinking Steps */}
                                   {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
                                     <div className="space-y-1.5 pt-2 border-t border-gray-100">
@@ -836,7 +793,7 @@ export default function HomeTab() {
                                           key={stepIndex}
                                           className="flex items-start gap-2 text-xs text-gray-600"
                                           initial={{ opacity: 0, x: -10 }}
-                                          animate={{ 
+                                          animate={{
                                             opacity: 1,
                                             x: 0
                                           }}
@@ -859,11 +816,10 @@ export default function HomeTab() {
                               ) : (
                                 <div className="relative group/message">
                                   <div
-                                    className={`rounded-2xl px-4 py-3 shadow-sm ${
-                                      isUserMessage
+                                    className={`rounded-2xl px-4 py-3 shadow-sm ${isUserMessage
                                         ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
                                         : "bg-white border border-gray-200 text-gray-800"
-                                    }`}
+                                      }`}
                                   >
                                     {msg.isVoice && (
                                       <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/20">
@@ -871,7 +827,7 @@ export default function HomeTab() {
                                         <span className="text-xs font-medium opacity-90">Voice Message</span>
                                       </div>
                                     )}
-                                    
+
                                     {/* Message Actions */}
                                     <div className={`absolute ${isUserMessage ? 'left-2' : 'right-2'} -top-2 opacity-0 group-hover/message:opacity-100 transition-opacity z-10`}>
                                       <DropdownMenu>
@@ -889,7 +845,7 @@ export default function HomeTab() {
                                             <Copy className="w-4 h-4 mr-2" />
                                             Copy
                                           </DropdownMenuItem>
-                                          <DropdownMenuItem 
+                                          <DropdownMenuItem
                                             onClick={() => handleDeleteMessage(msg.id)}
                                             className="text-red-600"
                                           >
@@ -939,7 +895,7 @@ export default function HomeTab() {
                                         <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                                       )}
                                     </div>
-                                    
+
                                     {/* Display generated images */}
                                     {msg.imageUrl && (
                                       <div className="mt-3 rounded-lg overflow-hidden border border-gray-300 max-w-md">
@@ -964,12 +920,11 @@ export default function HomeTab() {
                                         </a>
                                       </div>
                                     )}
-                                    
-                                    <p className={`text-xs mt-1.5 ${
-                                      isUserMessage 
-                                        ? "text-white/70" 
+
+                                    <p className={`text-xs mt-1.5 ${isUserMessage
+                                        ? "text-white/70"
                                         : "text-gray-500"
-                                    }`}>
+                                      }`}>
                                       {msg.timestamp.toLocaleTimeString()}
                                     </p>
                                   </div>
@@ -984,16 +939,15 @@ export default function HomeTab() {
                 )}
                 {isLoading && selectedAgent && (
                   <div className="flex justify-start items-center gap-2">
-                    <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${
-                      selectedAgent.color === "bg-orange-500" ? "from-orange-400 to-orange-600" :
-                      selectedAgent.color === "bg-purple-500" ? "from-purple-400 to-purple-600" :
-                      selectedAgent.color === "bg-amber-500" ? "from-amber-400 to-amber-600" :
-                      selectedAgent.color === "bg-pink-500" ? "from-pink-400 to-pink-600" :
-                      selectedAgent.color === "bg-green-500" ? "from-green-400 to-green-600" :
-                      selectedAgent.color === "bg-blue-500" ? "from-blue-400 to-blue-600" :
-                      selectedAgent.color === "bg-indigo-500" ? "from-indigo-400 to-indigo-600" :
-                      "from-green-400 to-green-600"
-                    } flex items-center justify-center text-white text-xs font-bold shadow-md`}>
+                    <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${selectedAgent.color === "bg-orange-500" ? "from-orange-400 to-orange-600" :
+                        selectedAgent.color === "bg-purple-500" ? "from-purple-400 to-purple-600" :
+                          selectedAgent.color === "bg-amber-500" ? "from-amber-400 to-amber-600" :
+                            selectedAgent.color === "bg-pink-500" ? "from-pink-400 to-pink-600" :
+                              selectedAgent.color === "bg-green-500" ? "from-green-400 to-green-600" :
+                                selectedAgent.color === "bg-blue-500" ? "from-blue-400 to-blue-600" :
+                                  selectedAgent.color === "bg-indigo-500" ? "from-indigo-400 to-indigo-600" :
+                                    "from-green-400 to-green-600"
+                      } flex items-center justify-center text-white text-xs font-bold shadow-md`}>
                       {selectedAgent.name.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
@@ -1002,7 +956,7 @@ export default function HomeTab() {
                           <motion.div
                             key={i}
                             className="w-2 h-2 bg-green-500 rounded-full"
-                            animate={{ 
+                            animate={{
                               y: [0, -6, 0],
                               opacity: [0.5, 1, 0.5]
                             }}
@@ -1016,11 +970,11 @@ export default function HomeTab() {
                       </div>
                     </div>
                   </div>
-            )}
-            <div ref={messagesEndRef} />
-        </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
 
-        {/* Chat Input Area */}
+              {/* Chat Input Area */}
               <div className="bg-white border-t border-gray-200 px-4 py-4 space-y-2">
                 <div className="flex items-center gap-2 sm:gap-3">
                   {/* File Upload */}
@@ -1037,7 +991,7 @@ export default function HomeTab() {
                     className="hidden"
                     onChange={handleFileUpload}
                   />
-                  
+
                   {/* Agent Selector */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -1076,7 +1030,7 @@ export default function HomeTab() {
                         </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="flex items-center gap-2 p-3"
                         onClick={() => handleIntercommunicate()}
                         disabled={!canUseIntercommunication}
@@ -1093,7 +1047,7 @@ export default function HomeTab() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  
+
                   {/* Message Input */}
                   <div className="flex-1 relative">
                     <Input
@@ -1118,26 +1072,24 @@ export default function HomeTab() {
                       size="sm"
                       onClick={isRecording ? stopRecording : startRecording}
                       disabled={userAgents.length === 0}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 ${
-                        isRecording 
-                          ? "bg-red-500 text-white hover:bg-red-600" 
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 ${isRecording
+                          ? "bg-red-500 text-white hover:bg-red-600"
                           : "hover:bg-gray-100"
-                      }`}
+                        }`}
                     >
                       {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                     </Button>
                   </div>
-                  
+
                   {/* Send Button */}
                   <motion.button
                     type="button"
                     onClick={handleSendMessage}
                     disabled={isLoading || !message.trim() || userAgents.length === 0}
-                    className={`h-9 px-3 sm:px-4 rounded-xl transition-all duration-300 flex items-center justify-center flex-shrink-0 ${
-                      isRecording
+                    className={`h-9 px-3 sm:px-4 rounded-xl transition-all duration-300 flex items-center justify-center flex-shrink-0 ${isRecording
                         ? "bg-red-500 text-white shadow-lg shadow-red-500/50"
                         : "bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30"
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -1151,7 +1103,7 @@ export default function HomeTab() {
                     )}
                   </motion.button>
                 </div>
-                
+
                 {/* Voice Status Indicator */}
                 {isRecording && (
                   <motion.div
@@ -1169,18 +1121,18 @@ export default function HomeTab() {
                     <span>Recording voice message...</span>
                   </motion.div>
                 )}
-                
+
                 <div className="flex items-center justify-center pt-2">
                   <p className="text-xs text-gray-500 text-center">
                     The AI can make mistakes sometimes
                   </p>
                 </div>
-                </div>
-              </CardContent>
-            </Card>
-      </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-                    </div>
+      </div>
 
       {/* Tasks Section Removed - Chat tab should fill the space fully */}
     </div>

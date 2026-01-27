@@ -130,7 +130,7 @@ export default function PlatformsOverviewTab() {
   // Subscribe to real-time platform updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -150,11 +150,11 @@ export default function PlatformsOverviewTab() {
     const urlParams = new URLSearchParams(window.location.search)
     const success = urlParams.get("success")
     const platform = urlParams.get("platform")
-    
+
     if (success === "platform_connected" && platform) {
       // Refresh platforms data to show newly connected platform
       loadPlatformsData()
-      
+
       // Clean up URL parameters
       const newUrl = window.location.pathname + window.location.search.replace(/[?&]success=[^&]*|[?&]platform=[^&]*/g, '').replace(/^&/, '?')
       if (newUrl !== window.location.pathname) {
@@ -167,20 +167,20 @@ export default function PlatformsOverviewTab() {
     try {
       setIsLoading(true)
       setIsRefreshing(true)
-      
+
       // Load platforms from OAuth router - get ALL available platforms
       try {
         // The API returns arrays directly, not wrapped in {data: ...}
         const platformsResponse = await apiClient.get("/api/v1/platforms/") || [];
         console.log("Platforms API response:", platformsResponse);
-        
+
         const connectionsResponse = await apiClient.get("/api/v1/platforms/connected").catch(() => []);
         const metricsResponse = await apiClient.get("/api/v1/platforms/metrics").catch(() => []);
-        
+
         // Handle both wrapped and unwrapped responses
         let allPlatforms = platformsResponse?.data || platformsResponse || [];
         let connectedPlatformsList = connectionsResponse?.data || connectionsResponse || [];
-        
+
         // Ensure we have arrays
         if (!Array.isArray(allPlatforms)) {
           allPlatforms = allPlatforms?.platforms || [];
@@ -188,15 +188,15 @@ export default function PlatformsOverviewTab() {
         if (!Array.isArray(connectedPlatformsList)) {
           connectedPlatformsList = connectedPlatformsList?.platforms || [];
         }
-        
+
         setAvailablePlatforms(allPlatforms);
         setConnectedPlatforms(connectedPlatformsList);
         setPlatformMetrics(metricsResponse?.data || metricsResponse || []);
         setLastUpdated(new Date());
-        
+
         console.log("Loaded platforms:", allPlatforms.length, allPlatforms);
         console.log("Connected platforms:", connectedPlatformsList.length);
-        
+
         if (allPlatforms.length === 0) {
           console.warn("No platforms loaded - backend may not have platform config initialized");
         }
@@ -207,7 +207,7 @@ export default function PlatformsOverviewTab() {
         setConnectedPlatforms([]);
         setPlatformMetrics([]);
       }
-      
+
     } catch (error) {
       console.error("Failed to load platforms data:", error)
       // Generate fallback data
@@ -231,7 +231,7 @@ export default function PlatformsOverviewTab() {
     try {
       // Get OAuth authorization URL from backend
       const response = await apiClient.get(`/api/v1/platforms/connect/${platform.name}`)
-      
+
       if (response.data?.success && response.data?.auth_url) {
         toast({
           title: "Redirecting...",
@@ -305,7 +305,7 @@ export default function PlatformsOverviewTab() {
     const now = new Date()
     const date = new Date(timestamp)
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-    
+
     if (diffInSeconds < 60) return "Just now"
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
@@ -325,15 +325,16 @@ export default function PlatformsOverviewTab() {
   })
 
   // Calculate stats
-  const connectedCount = connectedPlatforms.filter(p => 
+  const metricsArray = Array.isArray(platformMetrics) ? platformMetrics : []
+  const connectedCount = connectedPlatforms.filter(p =>
     p.status === "connected" || p.status === "active"
   ).length
-  const totalFollowers = platformMetrics.reduce((sum, m) => sum + m.followers_count, 0)
-  const avgEngagement = platformMetrics.length > 0 
-    ? platformMetrics.reduce((sum, m) => sum + m.engagement_rate, 0) / platformMetrics.length 
+  const totalFollowers = metricsArray.reduce((sum, m) => sum + (m.followers_count || 0), 0)
+  const avgEngagement = metricsArray.length > 0
+    ? metricsArray.reduce((sum, m) => sum + (m.engagement_rate || 0), 0) / metricsArray.length
     : 0
-  const avgHealthScore = platformMetrics.length > 0
-    ? platformMetrics.reduce((sum, m) => sum + m.health_score, 0) / platformMetrics.length
+  const avgHealthScore = metricsArray.length > 0
+    ? metricsArray.reduce((sum, m) => sum + (m.health_score || 0), 0) / metricsArray.length
     : 0
 
   const getStatusIcon = (status: string) => {
@@ -398,9 +399,9 @@ export default function PlatformsOverviewTab() {
           </p>
         </div>
         <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={loadPlatformsData}
             disabled={isRefreshing}
           >
@@ -413,7 +414,7 @@ export default function PlatformsOverviewTab() {
           </Button>
           <Dialog open={isConnectDialogOpen} onOpenChange={setIsConnectDialogOpen}>
             <DialogTrigger asChild>
-              <Button 
+              <Button
                 className="bg-green-600 hover:bg-green-700"
                 data-connect-platform
               >
@@ -434,8 +435,8 @@ export default function PlatformsOverviewTab() {
                     <Globe className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                     <p className="text-gray-600">No platforms available</p>
                     <p className="text-sm text-gray-500 mt-2">Loading platforms...</p>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="mt-4"
                       onClick={loadPlatformsData}
                     >
@@ -447,7 +448,7 @@ export default function PlatformsOverviewTab() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {availablePlatforms
                       .filter(platform => {
-                        const connection = connectedPlatforms.find(c => 
+                        const connection = connectedPlatforms.find(c =>
                           c.platform_name === platform.name || c.platform_id === platform.id
                         )
                         return !connection || (connection.status !== "connected" && connection.status !== "active")
@@ -459,8 +460,8 @@ export default function PlatformsOverviewTab() {
                         const displayName = platform.display_name || platform.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 
                         return (
-                          <Card 
-                            key={platform.id} 
+                          <Card
+                            key={platform.id}
                             className="hover:shadow-md transition-shadow cursor-pointer"
                             onClick={() => {
                               setIsConnectDialogOpen(false)
@@ -565,11 +566,10 @@ export default function PlatformsOverviewTab() {
           <button
             key={category}
             onClick={() => setSelectedCategory(category)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-              selectedCategory === category
+            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${selectedCategory === category
                 ? "bg-green-100 text-green-800  "
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200   :bg-slate-700"
-            }`}
+              }`}
           >
             {category}
           </button>
@@ -587,8 +587,8 @@ export default function PlatformsOverviewTab() {
         <EmptyState
           icon={Globe}
           title={EmptyStates.noPlatforms.title}
-          description={selectedCategory !== "All" 
-            ? `No platforms found in ${selectedCategory}. Try selecting a different category.` 
+          description={selectedCategory !== "All"
+            ? `No platforms found in ${selectedCategory}. Try selecting a different category.`
             : EmptyStates.noPlatforms.description}
           action={{
             label: EmptyStates.noPlatforms.actionLabel,
@@ -600,13 +600,13 @@ export default function PlatformsOverviewTab() {
           }}
         />
       ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredPlatforms.map((platform) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPlatforms.map((platform) => {
             const platformNameKey = platform.name.toLowerCase() as keyof typeof platformIcons
             const IconComponent = platformIcons[platformNameKey] || Globe
             const platformColor = platformColors[platformNameKey] || "from-gray-500 to-gray-600"
             // Find connection by platform name (OAuth router uses platform name, not ID)
-            const connection = connectedPlatforms.find(c => 
+            const connection = connectedPlatforms.find(c =>
               c.platform_name === platform.name || c.platform_id === platform.id
             )
             const metrics = getPlatformMetrics(platform.id)
@@ -614,17 +614,17 @@ export default function PlatformsOverviewTab() {
             const hasError = connection?.status === "error" || connection?.status === "disconnected"
             const displayName = platform.display_name || platform.name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
 
-          return (
-            <Card key={platform.id} className="hover:shadow-lg transition-shadow duration-200">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div
+            return (
+              <Card key={platform.id} className="hover:shadow-lg transition-shadow duration-200">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div
                         className={`w-12 h-12 bg-gradient-to-r ${platformColor} rounded-lg flex items-center justify-center shadow-sm`}
-                    >
-                      <IconComponent className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
+                      >
+                        <IconComponent className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
                         <CardTitle className="text-lg text-gray-900">{displayName}</CardTitle>
                         <p className="text-sm text-slate-600 capitalize">
                           {platform.platform_type?.replace('_', ' ') || 'Social Media'}
@@ -632,40 +632,40 @@ export default function PlatformsOverviewTab() {
                       </div>
                     </div>
                     {connection && getStatusBadge(connection.status)}
-                </div>
-              </CardHeader>
+                  </div>
+                </CardHeader>
 
-              <CardContent className="space-y-4">
-                {/* Stats */}
+                <CardContent className="space-y-4">
+                  {/* Stats */}
                   {metrics && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-slate-500 ">Followers</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-slate-500 ">Followers</p>
                         <p className="text-lg font-semibold text-slate-900 ">
                           {(metrics.followers_count / 1000).toFixed(1)}K
                         </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 ">Engagement</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 ">Engagement</p>
                         <p className="text-lg font-semibold text-slate-900 ">
                           {metrics.engagement_rate.toFixed(1)}%
                         </p>
-                  </div>
-                </div>
+                      </div>
+                    </div>
                   )}
 
-                {/* Activity */}
+                  {/* Activity */}
                   {metrics && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-slate-500 ">Posts</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-slate-500 ">Posts</p>
                         <p className="text-sm text-slate-600 ">{metrics.posts_count}</p>
-                  </div>
-                  <div>
+                      </div>
+                      <div>
                         <p className="text-xs text-slate-500 ">Health Score</p>
                         <p className="text-sm text-slate-600 ">{metrics.health_score}%</p>
-                  </div>
-                </div>
+                      </div>
+                    </div>
                   )}
 
                   {/* Connection Info */}
@@ -683,28 +683,28 @@ export default function PlatformsOverviewTab() {
                     </div>
                   )}
 
-                {/* Actions */}
-                <div className="flex space-x-2 pt-2">
+                  {/* Actions */}
+                  <div className="flex space-x-2 pt-2">
                     {isConnected ? (
                       <>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleTestConnection(platform.id)}
                         >
                           <Wifi className="w-4 h-4 mr-1" />
                           Test
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleSyncData(platform.id)}
                         >
                           <RefreshCw className="w-4 h-4 mr-1" />
                           Sync
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleDisconnectPlatform(platform)}
                         >
@@ -714,8 +714,8 @@ export default function PlatformsOverviewTab() {
                       </>
                     ) : hasError ? (
                       <>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           className="flex-1"
                           onClick={() => handleConnectPlatform(platform)}
                           disabled={connectingPlatformId === platform.id}
@@ -732,8 +732,8 @@ export default function PlatformsOverviewTab() {
                             </>
                           )}
                         </Button>
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           variant="outline"
                           onClick={() => handleDisconnectPlatform(platform)}
                         >
@@ -741,8 +741,8 @@ export default function PlatformsOverviewTab() {
                         </Button>
                       </>
                     ) : (
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         className="flex-1"
                         onClick={() => handleConnectPlatform(platform)}
                         disabled={connectingPlatformId === platform.id}
@@ -758,17 +758,17 @@ export default function PlatformsOverviewTab() {
                             Connect
                           </>
                         )}
-                  </Button>
+                      </Button>
                     )}
-                  <Button variant="outline" size="sm">
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+                    <Button variant="outline" size="sm">
+                      <Settings className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       )}
 
     </div>
