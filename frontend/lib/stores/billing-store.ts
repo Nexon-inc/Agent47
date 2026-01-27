@@ -7,11 +7,11 @@ interface BillingState {
   subscription: Subscription | null
   paymentHistory: Payment[]
   usage: UsageData | null
-  
+
   // Loading states
   isLoading: boolean
   error: string | null
-  
+
   // Actions
   fetchBillingPlans: () => Promise<void>
   fetchSubscription: (suppressRedirect?: boolean) => Promise<void>
@@ -80,13 +80,10 @@ export const useBillingStore = create<BillingState>()((set, get) => ({
     }
   },
 
-  createSubscription: async (tier: string, paymentMethod: string, suppressRedirect: boolean = false) => {
+  createSubscription: async (tier: string, paymentMethod: string, billingPeriod: string = "monthly", suppressRedirect: boolean = false) => {
     set({ isLoading: true, error: null })
     try {
-      // If this is a background/invisible call initiated from pricing, the caller
-      // should use apiClient.createSubscription with suppressRedirect. But ensure
-      // we call the API and then refresh subscription data without forcing a redirect.
-      const result = await apiClient.createSubscription(tier, paymentMethod, { suppressRedirect })
+      const result = await apiClient.createSubscription(tier, paymentMethod, billingPeriod, { suppressRedirect })
       // Refresh subscription data but suppress automatic redirect behavior
       await get().fetchSubscription(true)
       return result

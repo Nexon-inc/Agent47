@@ -124,14 +124,8 @@ async def _check_agent_locked(user: User, db: AsyncSession) -> tuple[bool, Optio
             if not _is_trial_active(user):
                 return True, "Your 14-day free trial ended. Agents are locked until you upgrade your plan."
             else:
-                # Trial still active, but agents are locked until trial ends
-                from datetime import timedelta
-                trial_end = user.created_at
-                if trial_end.tzinfo:
-                    trial_end = trial_end.replace(tzinfo=None)
-                trial_end = trial_end.replace(hour=23, minute=59, second=59)
-                trial_end = trial_end + timedelta(days=14)
-                return True, f"Agents are locked until your trial period ends on {trial_end.strftime('%Y-%m-%d')}. Upgrade now to unlock immediately."
+                # Trial still active, allow changes
+                return False, None
         else:
             # For paid tiers (Starter/Pro), check if 1 month has passed since agent selection
             # Get the earliest agent selection date

@@ -26,6 +26,7 @@ import MarketingTab from "@/components/dashboard/tabs/marketing-tab"
 import MyAgentsTab from "@/components/dashboard/tabs/my-agents-tab"
 import ExploreAgentsTab from "@/components/dashboard/tabs/explore-agents-tab"
 import TeamChatTab from "@/components/dashboard/tabs/team-chat-tab"
+import UpgradeTab from "@/components/dashboard/tabs/upgrade-tab"
 
 // Lazy load individual agent tabs (code splitting)
 const AriaTab = lazy(() => import("@/components/dashboard/tabs/aria-tab-new"))
@@ -50,14 +51,14 @@ function DashboardContent() {
     const platform = searchParams.get("platform")
     const error = searchParams.get("error")
     const errorCode = searchParams.get("error_code")
-    
+
     if (success === "platform_connected" && platform) {
       // Show success message
       toast({
         title: "Platform connected",
         description: `Successfully connected to ${platform}. You can now use it in your workflows.`,
       })
-      
+
       // If we're on platforms tab, it will auto-refresh
       // If not, we could redirect to platforms tab
       if (tab !== "platforms-overview") {
@@ -65,7 +66,7 @@ function DashboardContent() {
         // window.location.href = "/dashboard?tab=platforms-overview"
       }
     }
-    
+
     if (error) {
       const errorMessage = searchParams.get("error_message") || errorCode || "Unknown error"
       console.error(`Platform connection error: ${errorMessage}`)
@@ -79,7 +80,7 @@ function DashboardContent() {
 
   // Check if user has selected agents on dashboard load (only once)
   const [hasCheckedAgents, setHasCheckedAgents] = useState(false)
-  
+
   useEffect(() => {
     const checkUserAgents = async () => {
       // Prevent duplicate checks
@@ -88,7 +89,7 @@ function DashboardContent() {
         setIsCheckingAgents(false)
         return
       }
-      
+
       try {
         setIsCheckingAgents(true)
         setHasCheckedAgents(true) // Mark as checked immediately to prevent duplicates
@@ -138,6 +139,8 @@ function DashboardContent() {
         return <ToolsAutomationOverviewTab />
       case "account-overview":
         return <AccountOverviewTab />
+      case "upgrade":
+        return <UpgradeTab />
 
       // Individual agent tabs (lazy loaded)
       case "aria":

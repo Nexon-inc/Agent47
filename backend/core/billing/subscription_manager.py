@@ -51,7 +51,10 @@ class SubscriptionManager:
             # Check if user already has an active subscription
             existing_subscription = await self.get_active_subscription(user_id)
             if existing_subscription:
-                raise ValueError("User already has an active subscription")
+                # If they already have this tier, block it. If it's a different tier, we'll allow the "pending" one to replace it
+                existing_plan_id = existing_subscription.plan_id
+                # (Simple check: we'll allow replacing any active subscription for now to facilitate upgrades)
+                logger.info(f"User {user_id} has existing subscription {existing_subscription.id}. Proceeding with new subscription for tier {tier.value}.")
             
             # Calculate subscription dates based on billing period
             start_date = datetime.utcnow()
@@ -76,8 +79,8 @@ class SubscriptionManager:
             session.add(subscription)
             await session.commit()
             
-            # Create Paystack payment if using Paystack
-            if payment_method == "paystack":
+            # Create Paystack payment if using Paystack AND price > 0
+            if payment_method == "paystack" and price > 0:
                 try:
                     from ..config import settings
                     
@@ -130,8 +133,14 @@ class SubscriptionManager:
                     await session.rollback()
                     raise Exception(f"Failed to initialize payment: {e}")
             
-            # For non-Paystack subscriptions (manual/offline)
+            # For Free tier or non-Paystack subscriptions (manual/offline)
             subscription.status = SubscriptionStatus.ACTIVE
+            
+            # Update user tier directly if it's Free (paid tiers update upon verification)
+            if tier == BillingTier.FREE:
+                user.tier = tier.value
+                session.add(user)
+                
             session.add(subscription)
             await session.commit()
             

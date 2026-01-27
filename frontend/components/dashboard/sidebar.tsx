@@ -19,13 +19,18 @@ import {
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useRouter } from "next/navigation"
 
-import { Home, BarChart3, Globe, Zap, Settings, Inbox, Users, LogOut, Bot, History, UserPlus } from "lucide-react"
+import { Home, BarChart3, Globe, Zap, Settings, Inbox, Users, LogOut, Bot, History, UserPlus, TrendingUp } from "lucide-react"
 
 const navigationItems = [
   {
     title: "Dashboard",
     icon: Home,
     href: "/dashboard?tab=home",
+  },
+  {
+    title: "Upgrade",
+    icon: TrendingUp,
+    href: "/dashboard?tab=upgrade",
   },
   {
     title: "AI Agents",
@@ -132,27 +137,27 @@ export default function DashboardSidebar() {
 
       <SidebarFooter className="border-t p-2">
         <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                tooltip="Sign Out"
-                className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              tooltip="Sign Out"
+              className="flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
+            >
+              <button
+                type="button"
+                onClick={async (e) => {
+                  e.preventDefault()
+                  await logout()
+                  // ensure storage/cookies cleared then navigate to auth
+                  router.push('/auth')
+                }}
+                className="flex items-center w-full text-left"
               >
-                <button
-                  type="button"
-                  onClick={async (e) => {
-                    e.preventDefault()
-                    await logout()
-                    // ensure storage/cookies cleared then navigate to auth
-                    router.push('/auth')
-                  }}
-                  className="flex items-center w-full text-left"
-                >
-                  <LogOut className="h-5 w-5 shrink-0" />
-                  <span className="ml-3 group-data-[collapsible=icon]:hidden">Sign Out</span>
-                </button>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+                <LogOut className="h-5 w-5 shrink-0" />
+                <span className="ml-3 group-data-[collapsible=icon]:hidden">Sign Out</span>
+              </button>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
 
