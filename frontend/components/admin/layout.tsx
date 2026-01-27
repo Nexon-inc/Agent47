@@ -11,12 +11,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isMounted, setIsMounted] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
-  // Prevent hydration mismatch
+  const { fetchCurrentAdmin, isAuthenticated, isLoading } = useAdminStore()
+
+  // Prevent hydration mismatch and load data
   useEffect(() => {
     setIsMounted(true)
     // Force dark mode for admin
     document.documentElement.classList.add("dark")
-  }, [])
+
+    // Fetch admin data if not already authenticated
+    if (!isAuthenticated && !isLoading) {
+      const token = localStorage.getItem("admin_token")
+      if (token) {
+        fetchCurrentAdmin().catch(err => console.error("AdminLayout: Failed to fetch admin:", err))
+      }
+    }
+  }, [fetchCurrentAdmin, isAuthenticated, isLoading])
 
   useEffect(() => {
     // Listen for sidebar collapse state changes
@@ -25,11 +35,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const collapsed = localStorage.getItem('admin_sidebar_collapsed') === 'true'
       setSidebarCollapsed(collapsed)
     }
-    
+
     // Check initial state
     const collapsed = localStorage.getItem('admin_sidebar_collapsed') === 'true'
     setSidebarCollapsed(collapsed)
-    
+
     // Listen for custom event from sidebar
     window.addEventListener('sidebar-collapse', handleStorageChange)
     return () => window.removeEventListener('sidebar-collapse', handleStorageChange)
@@ -43,7 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-gray-950 flex relative overflow-hidden">
       <AdminSidebar onCollapseChange={setSidebarCollapsed} />
 
-      <div 
+      <div
         className={cn(
           "flex-1 flex flex-col min-h-screen relative z-10 transition-all duration-300",
           sidebarCollapsed ? "md:ml-16" : "md:ml-64"

@@ -212,6 +212,28 @@ class SupabaseManager:
                     except Exception as col_error:
                         logger.warning(f"Could not check/add configuration column: {col_error}")
 
+                    # Check if updated_at column exists in user_selected_agents table
+                    try:
+                        result = await conn.execute(text("""
+                            SELECT EXISTS (
+                                SELECT FROM information_schema.columns 
+                                WHERE table_schema = 'public' 
+                                AND table_name = 'user_selected_agents'
+                                AND column_name = 'updated_at'
+                            );
+                        """))
+                        col_updated_at_exists = result.scalar()
+                        
+                        if not col_updated_at_exists:
+                            logger.info("Adding missing updated_at column to user_selected_agents table...")
+                            await conn.execute(text("""
+                                ALTER TABLE user_selected_agents 
+                                ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+                            """))
+                            logger.info("Successfully added updated_at column to user_selected_agents table")
+                    except Exception as col_error:
+                        logger.warning(f"Could not check/add updated_at column: {col_error}")
+
                     return
         except Exception as e:
             logger.warning(f"Could not check if tables exist: {e}")

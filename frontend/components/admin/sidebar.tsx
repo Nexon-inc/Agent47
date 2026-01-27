@@ -205,7 +205,20 @@ export default function AdminSidebar({ onCollapseChange }: AdminSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { theme, setTheme } = useTheme()
-  const { currentAdmin, logout, permissionsLoaded, isLoading } = useAdminStore()
+  const { currentAdmin, logout, permissionsLoaded, isLoading, error } = useAdminStore()
+
+  // Debug logging to help identify why sidebar/updates might be missing
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      console.log("[AdminSidebar] State:", {
+        isLoading,
+        permissionsLoaded,
+        hasAdmin: !!currentAdmin,
+        perms: currentAdmin?.permissions,
+        error: error
+      })
+    }
+  }, [isLoading, permissionsLoaded, currentAdmin, error])
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -313,7 +326,17 @@ export default function AdminSidebar({ onCollapseChange }: AdminSidebarProps) {
 
         {/* Menu */}
         <nav className="flex-1 px-2 py-4 overflow-y-auto scrollbar-hide">
-          {isLoading || !permissionsLoaded ? (
+          {error ? (
+            <div className="px-3 py-4 text-center">
+              <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+              {!isCollapsed && (
+                <div className="space-y-2">
+                  <p className="text-xs text-red-400 font-medium">Failed to load permissions</p>
+                  <p className="text-[10px] text-gray-500 truncate">{error}</p>
+                </div>
+              )}
+            </div>
+          ) : isLoading || !permissionsLoaded ? (
             <div className="flex flex-col items-center justify-center h-32 space-y-2">
               <div className="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
               {!isCollapsed && <span className="text-xs text-gray-400">Loading permissions...</span>}
