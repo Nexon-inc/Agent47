@@ -9,18 +9,10 @@ import { Search, Bell, HelpCircle, ChevronDown, X, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 // Mock alerts data
-const alerts = [
-  { id: 1, message: "High API usage detected", time: "10 minutes ago", read: false },
-  { id: 2, message: "New agent deployment ready", time: "1 hour ago", read: false },
-  { id: 3, message: "Weekly backup completed", time: "5 hours ago", read: true },
-]
+const alerts: any[] = []
 
 // Mock recent users for impersonation
-const recentUsers = [
-  { id: "user1", name: "John Doe", email: "john@example.com" },
-  { id: "user2", name: "Jane Smith", email: "jane@example.com" },
-  { id: "user3", name: "Bob Johnson", email: "bob@example.com" },
-]
+const recentUsers: any[] = []
 
 export default function AdminNavbar() {
   const pathname = usePathname()

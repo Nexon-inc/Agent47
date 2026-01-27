@@ -264,11 +264,12 @@ class FinanceManager(LoggerMixin):
                 return 0.0
 
             async with self.database.get_session() as session:
-                result = await session.execute("""
-                    SELECT COALESCE(SUM(amount), 0)
-                    FROM financial_transactions
-                    WHERE status = 'completed' AND transaction_type IN ('subscription', 'payment')
-                """)
+                # Sum from real payments table
+                result = await session.execute(text("""
+                    SELECT COALESCE(SUM(amount_usd), 0)
+                    FROM payments
+                    WHERE status = 'successful'
+                """))
                 
                 return float(result.scalar() or 0.0)
 
@@ -285,13 +286,12 @@ class FinanceManager(LoggerMixin):
             current_month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
             
             async with self.database.get_session() as session:
-                result = await session.execute("""
-                    SELECT COALESCE(SUM(amount), 0)
-                    FROM financial_transactions
-                    WHERE status = 'completed' 
-                    AND transaction_type = 'subscription'
-                    AND timestamp >= %s
-                """, (current_month_start,))
+                result = await session.execute(text("""
+                    SELECT COALESCE(SUM(amount_usd), 0)
+                    FROM payments
+                    WHERE status = 'successful' 
+                    AND created_at >= :start_date
+                """), {"start_date": current_month_start})
                 
                 return float(result.scalar() or 0.0)
 
@@ -306,15 +306,11 @@ class FinanceManager(LoggerMixin):
 
             async with self.database.get_session() as session:
                 # Total subscriptions
-                result = await session.execute("""
-                    SELECT COUNT(*) FROM subscriptions
-                """)
+                result = await session.execute(text("SELECT COUNT(*) FROM subscriptions"))
                 total_subscriptions = result.scalar() or 0
 
                 # Active subscriptions
-                result = await session.execute("""
-                    SELECT COUNT(*) FROM subscriptions WHERE status = 'active'
-                """)
+                result = await session.execute(text("SELECT COUNT(*) FROM subscriptions WHERE status = 'active'"))
                 active_subscriptions = result.scalar() or 0
 
                 # Calculate churn rate (simplified)
@@ -323,12 +319,12 @@ class FinanceManager(LoggerMixin):
                 else:
                     churn_rate = 0.0
 
-                # Calculate ARPU
-                result = await session.execute("""
-                    SELECT COALESCE(AVG(amount), 0)
-                    FROM financial_transactions
-                    WHERE status = 'completed' AND transaction_type = 'subscription'
-                """)
+                # Calculate ARPU (Average Revenue Per User)
+                result = await session.execute(text("""
+                    SELECT COALESCE(AVG(amount_usd), 0)
+                    FROM payments
+                    WHERE status = 'successful'
+                """))
                 arpu = float(result.scalar() or 0.0)
 
                 return {
@@ -508,11 +504,30 @@ class FinanceManager(LoggerMixin):
 
     async def get_recent_transactions(self, limit: int = 50) -> List[Dict[str, Any]]:
         try:
-            transactions = list(self.financial_transactions.values())
-            transactions.sort(key=lambda x: x.timestamp, reverse=True)
-            transactions = transactions[:limit]
-
-            return [transaction.__dict__ for transaction in transactions]
+            if not self.database:
+                return []
+                
+            async with self.database.get_session() as session:
+                # Fetch recent successful payments
+                result = await session.execute(text("""
+                    SELECT id, amount_usd, currency, status, created_at, 'payment' as type
+                    FROM payments
+                    ORDER BY created_at DESC
+                    LIMIT :limit
+                """), {"limit": limit})
+                
+                payments = []
+                for row in result.fetchall():
+                    payments.append({
+                        "id": str(row[0]),
+                        "amount": float(row[1]),
+                        "currency": row[2],
+                        "status": row[3],
+                        "timestamp": row[4].isoformat() if row[4] else None,
+                        "type": row[5],
+                        "description": f"Payment #{row[0]}"
+                    })
+                return payments
 
         except Exception as e:
             self.logger.error(f"Failed to get recent transactions: {str(e)}")

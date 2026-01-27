@@ -18,7 +18,7 @@ from core.config import get_settings
 
 logger = get_logger(__name__)
 
-class AdminPermission(Enum):
+class AdminPermission(str, Enum):
     READ_ONLY = "read_only"
     BASIC_ADMIN = "basic_admin"
     SYSTEM_ADMIN = "system_admin"
@@ -828,6 +828,37 @@ class AdminCore(LoggerMixin):
 
     async def get_admin_metrics(self) -> Dict[str, Any]:
         metrics = self.admin_metrics.copy()
+        
+        # Fetch real metrics from database
+        try:
+            if self.database:
+                async with self.database.get_session() as session:
+                    # User counts
+                    result = await session.execute(text("SELECT COUNT(*) FROM users"))
+                    metrics["total_users"] = result.scalar() or 0
+                    
+                    # Active user counts
+                    result = await session.execute(text("SELECT COUNT(*) FROM users WHERE is_active = TRUE"))
+                    metrics["active_users"] = result.scalar() or 0
+                    
+                    # Agent counts
+                    result = await session.execute(text("SELECT COUNT(*) FROM agents"))
+                    metrics["total_agents"] = result.scalar() or 0
+                    
+                    # Active agent counts
+                    result = await session.execute(text("SELECT COUNT(*) FROM agents WHERE status = 'active' OR status = 'running'"))
+                    metrics["active_agents"] = result.scalar() or 0
+                    
+                    # Security events (last 24h)
+                    yesterday = datetime.utcnow() - timedelta(days=1)
+                    result = await session.execute(
+                        text("SELECT COUNT(*) FROM admin_actions WHERE timestamp > :yesterday"),
+                        {"yesterday": yesterday}
+                    )
+                    metrics["security_events"] = result.scalar() or 0
+        except Exception as e:
+            self.logger.error(f"Failed to fetch DB metrics: {e}")
+
         metrics.update({
             "active_sessions": len(self.active_sessions),
             "timestamp": datetime.utcnow().isoformat(),

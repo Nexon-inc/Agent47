@@ -152,6 +152,19 @@ async def admin_logout(
             detail="Logout failed"
         )
 
+@router.get("/me")
+async def get_current_admin_info(
+    admin_user: AdminUser = Depends(get_current_admin)
+):
+    """Get current admin information"""
+    return {
+        "user_id": admin_user.user_id,
+        "email": admin_user.email,
+        "permissions": admin_user.permissions,
+        "last_login": admin_user.last_login.isoformat() if admin_user.last_login else None,
+        "is_active": admin_user.is_active
+    }
+
 # =============================================================================
 # SYSTEM HEALTH & MONITORING
 # =============================================================================
