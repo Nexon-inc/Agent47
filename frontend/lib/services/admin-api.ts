@@ -63,7 +63,18 @@ class AdminAPI {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    // Ensure endpoint starts with /api/v1 if it doesn't already
+    let fullEndpoint = endpoint;
+    if (!endpoint.startsWith('/api/v1/')) {
+      // If endpoint starts with /admin/, prepend /api/v1
+      if (endpoint.startsWith('/admin/')) {
+        fullEndpoint = `/api/v1${endpoint}`;
+      } else {
+        fullEndpoint = `/api/v1/admin${endpoint}`;
+      }
+    }
+
+    const url = `${this.baseUrl}${fullEndpoint}`;
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -121,7 +132,7 @@ class AdminAPI {
 
     const data = await response.json();
     this.token = data.access_token;
-    
+
     if (typeof window !== 'undefined') {
       localStorage.setItem('admin_token', data.access_token);
       // Also set a cookie so server-side middleware can detect admin sessions
