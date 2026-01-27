@@ -336,9 +336,15 @@ export interface Payment {
 }
 
 export interface PaymentResponse {
-  success: boolean;
-  message: string;
-  payment_url?: string;
+  success?: boolean;
+  message?: string;
+  subscription_id?: number;
+  status?: string;
+  tier?: string;
+  start_date?: string;
+  end_date?: string;
+  authorization_url?: string;
+  payment_url?: string; // Keep for backward compatibility if any
   reference?: string;
 }
 
@@ -830,6 +836,11 @@ class ApiClient {
     }
   }
 
+  // Alias for getOnboardingData - removed duplicate getAccountData naming to fix lint errors
+  async getAccountOnboardingData(): Promise<OnboardingResponse> {
+    return this.getOnboardingData();
+  }
+
   // Onboarding Methods
   async saveOnboardingData(data: OnboardingData): Promise<OnboardingResponse> {
     return this.makeRequest<OnboardingResponse>('/api/v1/onboarding/save', {
@@ -847,11 +858,6 @@ class ApiClient {
       method: 'PUT',
       body: JSON.stringify(data),
     });
-  }
-
-  // Alias for getOnboardingData - used by account tab
-  async getAccountData(): Promise<any> {
-    return this.makeRequest('/api/v1/onboarding/data');
   }
 
   // Save selected agents
@@ -892,6 +898,10 @@ class ApiClient {
       // forward suppress flag so makeRequest/handleResponse won't auto-redirect
       suppressTierRedirect: !!opts?.suppressRedirect,
     } as any);
+  }
+
+  async verifyPayment(reference: string): Promise<PaymentResponse> {
+    return this.makeRequest<PaymentResponse>(`/api/v1/billing/verify?reference=${reference}`);
   }
 
   async cancelSubscription(reason: string = 'User requested cancellation'): Promise<{ message: string }> {
@@ -1117,12 +1127,7 @@ class ApiClient {
     return this.makeRequest<any>('/health');
   }
 
-  async saveSelectedAgents(agents: string[]): Promise<any> {
-    return this.makeRequest<any>('/api/v1/account/selected-agents', {
-      method: 'POST',
-      body: JSON.stringify({ agents }),
-    });
-  }
+
 
   // Agent Status Management
   async updateAgentStatus(agentId: string, status: "active" | "paused" | "inactive"): Promise<{ data: any }> {
@@ -1160,22 +1165,23 @@ class ApiClient {
   }
 
   async getAgentHealth(): Promise<{ data: any }> {
-    return this.makeRequest('/account/agent-health', 'GET')
+    return this.makeRequest('/account/agent-health', { method: 'GET' })
   }
 
   async getSingleAgentHealth(agentId: string): Promise<{ data: any }> {
-    return this.makeRequest(`/account/agent-health/${agentId}`, 'GET')
+    return this.makeRequest(`/account/agent-health/${agentId}`, { method: 'GET' })
   }
 
   // Intercommunication Management
   async updateIntercommunicationSetting(enabled: boolean): Promise<{ data: any }> {
-    return this.makeRequest('/account/intercommunication', 'POST', {
-      enabled: enabled
+    return this.makeRequest('/account/intercommunication', {
+      method: 'POST',
+      body: JSON.stringify({ enabled })
     })
   }
 
   async getIntercommunicationSetting(): Promise<{ data: any }> {
-    return this.makeRequest('/account/intercommunication', 'GET')
+    return this.makeRequest('/account/intercommunication', { method: 'GET' })
   }
 
   // Generic GET method for backward compatibility

@@ -83,7 +83,7 @@ class SubscriptionManager:
                     
                     # Initialize Paystack transaction to get payment URL
                     reference = f"SUB_{subscription.id}_{int(datetime.utcnow().timestamp())}"
-                    callback_url = f"{settings.billing.webhook_base_url}/billing/webhook/paystack"
+                    callback_url = f"{settings.frontend_url}/billing/verify"
                     
                     # Initialize transaction with Paystack
                     transaction = await paystack.initialize_transaction(

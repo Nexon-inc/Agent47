@@ -244,7 +244,7 @@ export default function PricingPage() {
         }
 
         // Fire-and-forget backend subscription creation so server record exists if possible
-        apiClient.createSubscription("free", "paystack", { suppressRedirect: true }).catch((err) => {
+        apiClient.createSubscription("free", "paystack", "monthly", { suppressRedirect: true }).catch((err) => {
           console.warn('Background free subscription creation failed:', err)
         })
 
@@ -264,8 +264,26 @@ export default function PricingPage() {
           window.location.href = "/dashboard"
         }, 800)
       } else {
-        // For paid tiers, show payment form
-        setPaymentStep("payment")
+        // For paid tiers, call backend to get Paystack authorization URL
+        setPaymentStep("payment") // Show processing state
+
+        try {
+          // Trigger subscription creation which returns authorization_url
+          const result = await useBillingStore.getState().createSubscription(tier, "paystack")
+
+          if (result?.authorization_url) {
+            // Redirect to Paystack checkout page
+            window.location.href = result.authorization_url
+          } else {
+            console.error("No authorization_url in response:", result)
+            setError("Failed to generate payment link. Please try again.")
+            setPaymentStep("error")
+          }
+        } catch (err: any) {
+          console.error("Failed to create subscription:", err)
+          setError(err?.message || "Failed to initiate payment. Please try again.")
+          setPaymentStep("error")
+        }
       }
     } catch (err: any) {
       console.error("Error in handleSelectTier:", err)

@@ -95,6 +95,20 @@ async def get_usage(current_user: User = Depends(get_current_user)):
         logger.error(f"Error fetching usage: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/verify")
+async def verify_payment(
+    reference: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Verify a payment using its reference"""
+    try:
+        billing = await get_billing()
+        result = await billing.verify_payment(reference)
+        return result
+    except Exception as e:
+        logger.error(f"Error verifying payment {reference}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/webhook/paystack")
 async def paystack_webhook(request: Request, response: Response):
     """Handle Paystack webhooks"""
