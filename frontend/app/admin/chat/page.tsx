@@ -1267,7 +1267,7 @@ Execution completed in ${Date.now()}ms.
 
   return (
     <AdminLayout>
-      <div className="flex h-screen bg-gray-900">
+      <div className="flex h-[calc(100vh-140px)] bg-gray-900 rounded-xl overflow-hidden shadow-2xl relative">
         {/* Main Chat Interface */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
@@ -1321,7 +1321,7 @@ Execution completed in ${Date.now()}ms.
           </div>
 
           {/* Chat Messages */}
-          <ScrollArea className="flex-1 p-4 bg-gray-900/50">
+          <div className="flex-1 p-4 bg-gray-900/50 overflow-y-auto min-h-0 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
             <div className="space-y-4">
               {messages.map((message) => {
                 const isUserMessage = message.type === 'user'
@@ -1408,7 +1408,7 @@ Execution completed in ${Date.now()}ms.
               )}
               <div ref={messagesEndRef} />
             </div>
-          </ScrollArea>
+          </div>
 
           {/* Voice & Suggestions */}
           <div className="p-4 space-y-3 bg-gray-800/30 backdrop-blur-sm border-t border-gray-700/50">
