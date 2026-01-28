@@ -16,14 +16,19 @@ router = APIRouter(prefix="/shakes-chat", tags=["Shakes Chat Interface"])
 shakes_chat_service = ShakesChatService()
 
 
+from pydantic import BaseModel
+
+class ChatMessageRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
 @router.post("/message")
 async def process_chat_message(
-    message: str,
-    session_id: Optional[str] = None,
+    request: ChatMessageRequest,
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    """Process a chat message from the user and get Shakes' response"""
+    """Process a chat message from the user and get Shakes's response"""
     try:
         # Enforce per-agent pause/automation guard for Shakes
         core_db = await get_supabase()
@@ -42,8 +47,8 @@ async def process_chat_message(
 
         result = await shakes_chat_service.process_chat_message(
             user_id=current_user.id,
-            message=message,
-            session_id=session_id,
+            message=request.message,
+            session_id=request.session_id,
             db=db
         )
         

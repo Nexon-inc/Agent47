@@ -16,10 +16,15 @@ router = APIRouter(prefix="/aria-chat", tags=["Aria Chat Interface"])
 aria_chat_service = AriaChatService()
 
 
+from pydantic import BaseModel
+
+class ChatMessageRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
 @router.post("/message")
 async def process_chat_message(
-    message: str,
-    session_id: Optional[str] = None,
+    request: ChatMessageRequest,
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
@@ -42,8 +47,8 @@ async def process_chat_message(
 
         result = await aria_chat_service.process_chat_message(
             user_id=current_user.id,
-            message=message,
-            session_id=session_id,
+            message=request.message,
+            session_id=request.session_id,
             db=db
         )
         

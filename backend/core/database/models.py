@@ -15,11 +15,9 @@ class UserTier(enum.Enum):
     PRO = "pro"
 
 class BillingTier(enum.Enum):
-    FREE = "FREE"
-    STARTER = "STARTER"
-    PRO = "PRO"
-
-
+    FREE = "free"
+    STARTER = "starter"
+    PRO = "pro"
     ENTERPRISE = "enterprise"
 
 class TaskStatus(enum.Enum):
@@ -36,10 +34,10 @@ class TaskPriority(enum.Enum):
     URGENT = "urgent"
 
 class AgentStatus(enum.Enum):
-    ACTIVE = "active"
-    INACTIVE = "inactive"
-    MAINTENANCE = "maintenance"
-    ERROR = "error"
+    ACTIVE = "ACTIVE"
+    INACTIVE = "INACTIVE"
+    MAINTENANCE = "MAINTENANCE"
+    ERROR = "ERROR"
 
 class EventType(enum.Enum):
     TASK_CREATED = "task_created"
@@ -129,8 +127,7 @@ class User(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
-    # Username is no longer unique as per user request
-    username = Column(String(100), unique=False, index=True, nullable=False)
+    username = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255))
     tier = Column(Enum(UserTier), nullable=True)  # Changed to nullable

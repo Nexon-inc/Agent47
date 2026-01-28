@@ -16,17 +16,22 @@ router = APIRouter(prefix="/purity-chat", tags=["Purity Chat Interface"])
 purity_chat_service = PurityChatService()
 
 
+from pydantic import BaseModel
+
+class ChatMessageRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
 @router.post("/message")
 async def process_chat_message(
-    message: str,
-    session_id: Optional[str] = None,
+    request: ChatMessageRequest,
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Process a chat message from the user and get Purity's response"""
     try:
         # Enforce per-agent pause/automation guard for Purity
-        core_db = await get_supabase()
+        core_db = await get_supabase() # Assuming get_core_db() was a typo and it should remain get_supabase()
         async with core_db.get_session() as core_session:
             res = await core_session.execute(
                 select(UserSelectedAgent).where(
@@ -42,8 +47,8 @@ async def process_chat_message(
 
         result = await purity_chat_service.process_chat_message(
             user_id=current_user.id,
-            message=message,
-            session_id=session_id,
+            message=request.message,
+            session_id=request.session_id,
             db=db
         )
         

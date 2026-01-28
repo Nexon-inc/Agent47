@@ -16,17 +16,22 @@ router = APIRouter(prefix="/jackie-chat", tags=["Jackie Chat Interface"])
 jackie_chat_service = JackieChatService()
 
 
+from pydantic import BaseModel
+
+class ChatMessageRequest(BaseModel):
+    message: str
+    session_id: Optional[str] = None
+
 @router.post("/message")
 async def process_chat_message(
-    message: str,
-    session_id: Optional[str] = None,
+    request: ChatMessageRequest,
     db: AsyncSession = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Process a chat message from the user and get Jackie's response"""
     try:
         # Enforce per-agent pause/automation guard for Jackie
-        core_db = await get_supabase()
+        core_db = get_core_db()
         async with core_db.get_session() as core_session:
             res = await core_session.execute(
                 select(UserSelectedAgent).where(
@@ -42,8 +47,8 @@ async def process_chat_message(
 
         result = await jackie_chat_service.process_chat_message(
             user_id=current_user.id,
-            message=message,
-            session_id=session_id,
+            message=request.message,
+            session_id=request.session_id,
             db=db
         )
         
