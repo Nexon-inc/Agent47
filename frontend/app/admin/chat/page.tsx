@@ -1265,8 +1265,6 @@ Execution completed in ${Date.now()}ms.
     }
   }
 
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-
   return (
     <AdminLayout>
       <div className="flex h-screen bg-gray-900">
