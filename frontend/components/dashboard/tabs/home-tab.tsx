@@ -172,15 +172,55 @@ export default function HomeTab() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
 
-  // Load chat history from localStorage on mount
+  const loadChatHistory = useCallback(async () => {
+    if (!user || !isAuthenticated || !selectedAgent) return
+
+    try {
+      const endpoint = `/api/agents/${selectedAgent.id}/${selectedAgent.id}-chat/history/${user.id}`
+      const response = await apiClient.get<any>(endpoint)
+
+      if (response && response.success && response.data) {
+        let historyMessages: any[] = []
+
+        // Handle different response structures
+        if (Array.isArray(response.data)) {
+          historyMessages = response.data
+        } else if (response.data.messages && Array.isArray(response.data.messages)) {
+          historyMessages = response.data.messages
+        } else if (response.data.history && Array.isArray(response.data.history)) {
+          historyMessages = response.data.history
+        }
+
+        const parsedMessages: ChatMessage[] = historyMessages.map((msg: any) => ({
+          id: msg.id ? String(msg.id) : (Date.now() + Math.random()).toString(),
+          type: msg.role === 'user' ? 'user' : 'agent',
+          content: msg.content,
+          timestamp: new Date(msg.created_at || Date.now()),
+          agentId: msg.role === 'assistant' || msg.role === 'agent' ? selectedAgent.id : undefined,
+          imageUrl: msg.image_url
+        }))
+
+        // Sort by timestamp
+        parsedMessages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+
+        if (parsedMessages.length > 0) {
+          setChatMessages(parsedMessages)
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load chat history from backend:", error)
+    }
+  }, [user, isAuthenticated, selectedAgent])
+
+  // Load chat history on mount or agent switch
   useEffect(() => {
-    if (user && isAuthenticated) {
-      const storageKey = `chat_history_${user.id}_${selectedAgent?.id || 'all'}`
+    if (user && isAuthenticated && selectedAgent) {
+      // 1. Try to load from LocalStorage first for immediate display
+      const storageKey = `chat_history_${user.id}_${selectedAgent.id}`
       try {
         const savedMessages = localStorage.getItem(storageKey)
         if (savedMessages) {
           const parsed = JSON.parse(savedMessages)
-          // Convert timestamp strings back to Date objects
           const messagesWithDates = parsed.map((msg: any) => ({
             ...msg,
             timestamp: new Date(msg.timestamp)
@@ -188,10 +228,13 @@ export default function HomeTab() {
           setChatMessages(messagesWithDates)
         }
       } catch (error) {
-        console.error("Failed to load chat history:", error)
+        console.error("Failed to load chat history from local storage:", error)
       }
+
+      // 2. Fetch fresh history from Backend (silent update)
+      loadChatHistory()
     }
-  }, [user, isAuthenticated, selectedAgent?.id])
+  }, [user, isAuthenticated, selectedAgent?.id, loadChatHistory])
 
   // Save chat messages to localStorage whenever they change
   useEffect(() => {
@@ -817,8 +860,8 @@ export default function HomeTab() {
                                 <div className="relative group/message">
                                   <div
                                     className={`rounded-2xl px-4 py-3 shadow-sm ${isUserMessage
-                                        ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
-                                        : "bg-white border border-gray-200 text-gray-800"
+                                      ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
+                                      : "bg-white border border-gray-200 text-gray-800"
                                       }`}
                                   >
                                     {msg.isVoice && (
@@ -922,8 +965,8 @@ export default function HomeTab() {
                                     )}
 
                                     <p className={`text-xs mt-1.5 ${isUserMessage
-                                        ? "text-white/70"
-                                        : "text-gray-500"
+                                      ? "text-white/70"
+                                      : "text-gray-500"
                                       }`}>
                                       {msg.timestamp.toLocaleTimeString()}
                                     </p>
@@ -940,13 +983,13 @@ export default function HomeTab() {
                 {isLoading && selectedAgent && (
                   <div className="flex justify-start items-center gap-2">
                     <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${selectedAgent.color === "bg-orange-500" ? "from-orange-400 to-orange-600" :
-                        selectedAgent.color === "bg-purple-500" ? "from-purple-400 to-purple-600" :
-                          selectedAgent.color === "bg-amber-500" ? "from-amber-400 to-amber-600" :
-                            selectedAgent.color === "bg-pink-500" ? "from-pink-400 to-pink-600" :
-                              selectedAgent.color === "bg-green-500" ? "from-green-400 to-green-600" :
-                                selectedAgent.color === "bg-blue-500" ? "from-blue-400 to-blue-600" :
-                                  selectedAgent.color === "bg-indigo-500" ? "from-indigo-400 to-indigo-600" :
-                                    "from-green-400 to-green-600"
+                      selectedAgent.color === "bg-purple-500" ? "from-purple-400 to-purple-600" :
+                        selectedAgent.color === "bg-amber-500" ? "from-amber-400 to-amber-600" :
+                          selectedAgent.color === "bg-pink-500" ? "from-pink-400 to-pink-600" :
+                            selectedAgent.color === "bg-green-500" ? "from-green-400 to-green-600" :
+                              selectedAgent.color === "bg-blue-500" ? "from-blue-400 to-blue-600" :
+                                selectedAgent.color === "bg-indigo-500" ? "from-indigo-400 to-indigo-600" :
+                                  "from-green-400 to-green-600"
                       } flex items-center justify-center text-white text-xs font-bold shadow-md`}>
                       {selectedAgent.name.slice(0, 2).toUpperCase()}
                     </div>
@@ -1073,8 +1116,8 @@ export default function HomeTab() {
                       onClick={isRecording ? stopRecording : startRecording}
                       disabled={userAgents.length === 0}
                       className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 ${isRecording
-                          ? "bg-red-500 text-white hover:bg-red-600"
-                          : "hover:bg-gray-100"
+                        ? "bg-red-500 text-white hover:bg-red-600"
+                        : "hover:bg-gray-100"
                         }`}
                     >
                       {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -1087,8 +1130,8 @@ export default function HomeTab() {
                     onClick={handleSendMessage}
                     disabled={isLoading || !message.trim() || userAgents.length === 0}
                     className={`h-9 px-3 sm:px-4 rounded-xl transition-all duration-300 flex items-center justify-center flex-shrink-0 ${isRecording
-                        ? "bg-red-500 text-white shadow-lg shadow-red-500/50"
-                        : "bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30"
+                      ? "bg-red-500 text-white shadow-lg shadow-red-500/50"
+                      : "bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30"
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
