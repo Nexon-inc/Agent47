@@ -4,10 +4,10 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Plus, 
-  RefreshCw, 
-  Settings, 
+import {
+  Plus,
+  RefreshCw,
+  Settings,
   AlertCircle,
   CheckCircle,
   ExternalLink,
@@ -33,7 +33,7 @@ export default function PlatformsPage() {
   const loadConnectedPlatforms = async () => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const platforms = await platformOAuthService.getConnectedPlatforms()
       setConnectedPlatforms(platforms)
@@ -49,10 +49,10 @@ export default function PlatformsPage() {
     setIsConnecting(true)
     setError(null)
     setSuccessMessage(null)
-    
+
     try {
       const result = await platformOAuthService.initiateConnection(platformName)
-      
+
       if (result.success && result.auth_url) {
         // Redirect to OAuth URL
         platformOAuthService.redirectToOAuth(result.auth_url)
@@ -70,7 +70,7 @@ export default function PlatformsPage() {
   const handleDisconnect = async (platformName: string) => {
     try {
       const result = await platformOAuthService.disconnectPlatform(platformName)
-      
+
       if (result.success) {
         setSuccessMessage(`Successfully disconnected from ${platformName}`)
         await loadConnectedPlatforms()
@@ -86,7 +86,7 @@ export default function PlatformsPage() {
   const handleRefresh = async (platformName: string) => {
     try {
       const result = await platformOAuthService.refreshTokens(platformName)
-      
+
       if (result.success) {
         setSuccessMessage(`Successfully refreshed tokens for ${platformName}`)
         await loadConnectedPlatforms()
@@ -104,10 +104,11 @@ export default function PlatformsPage() {
   }
 
   const getStats = () => {
-    const total = connectedPlatforms.length
-    const active = connectedPlatforms.filter(p => p.status === 'active' && p.is_active).length
-    const expired = connectedPlatforms.filter(p => p.status === 'expired').length
-    const needsAttention = connectedPlatforms.filter(p => 
+    const platforms = Array.isArray(connectedPlatforms) ? connectedPlatforms : []
+    const total = platforms.length
+    const active = platforms.filter(p => p.status === 'active' && p.is_active).length
+    const expired = platforms.filter(p => p.status === 'expired').length
+    const needsAttention = platforms.filter(p =>
       p.status === 'revoked' || p.status === 'invalid'
     ).length
 
@@ -159,7 +160,7 @@ export default function PlatformsPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
@@ -171,7 +172,7 @@ export default function PlatformsPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
@@ -183,7 +184,7 @@ export default function PlatformsPage() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
@@ -229,7 +230,7 @@ export default function PlatformsPage() {
         )}
 
         {/* Connected Platforms */}
-        {connectedPlatforms.length === 0 ? (
+        {(!Array.isArray(connectedPlatforms) || connectedPlatforms.length === 0) ? (
           <Card>
             <CardContent className="p-8 text-center">
               <ExternalLink className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -262,7 +263,7 @@ export default function PlatformsPage() {
           isOpen={showConnectModal}
           onClose={() => setShowConnectModal(false)}
           onConnect={handleConnect}
-          connectedPlatforms={connectedPlatforms.map(p => p.platform_name)}
+          connectedPlatforms={Array.isArray(connectedPlatforms) ? connectedPlatforms.map(p => p.platform_name) : []}
         />
       </div>
     </div>

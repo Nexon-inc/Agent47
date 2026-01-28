@@ -124,26 +124,31 @@ export default function TeamChatTab() {
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    if (messages.length > 0) {
+      // Use requestAnimationFrame to ensure the DOM has updated before scrolling
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+      })
+    }
   }, [messages])
 
   // Load initial messages and setup WebSocket
   useEffect(() => {
     loadMessages()
-    
+
     // Subscribe to team chat messages via WebSocket
     const unsubscribe = websocketService.subscribe('team_chat_message', (message) => {
       // Reload messages when new team chat message is received
       setTimeout(loadMessages, 300) // Small delay to ensure DB is updated
     })
-    
+
     unsubscribeRef.current = unsubscribe
-    
+
     // Ensure WebSocket is connected
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
-    
+
     return () => {
       if (unsubscribeRef.current) {
         unsubscribeRef.current()
@@ -157,14 +162,14 @@ export default function TeamChatTab() {
       const query = inputMessage.slice(1).toLowerCase()
       setAutocompleteQuery(query)
       setShowAgentAutocomplete(true)
-      
+
       // Filter agents based on query
       const filtered = AVAILABLE_AGENTS.filter(
         (agent) =>
           agent.key.toLowerCase().startsWith(query) ||
           agent.name.toLowerCase().startsWith(query)
       )
-      
+
       if (filtered.length === 0) {
         setShowAgentAutocomplete(false)
       } else {
@@ -264,7 +269,7 @@ export default function TeamChatTab() {
 
       setInputMessage("")
       setShowAgentAutocomplete(false)
-      
+
       // Reload messages to show new one
       setTimeout(loadMessages, 500)
     } catch (error: any) {
@@ -427,7 +432,7 @@ export default function TeamChatTab() {
             const isAgent = !!message.agent_key
             const agentInfo = getAgentInfo(message.agent_key)
             const isSameUser = index > 0 && messages[index - 1].user_id === message.user_id
-            const isSameAgent = index > 0 && 
+            const isSameAgent = index > 0 &&
               messages[index - 1].agent_key === message.agent_key &&
               messages[index - 1].agent_key !== null
 
@@ -485,9 +490,9 @@ export default function TeamChatTab() {
                   {message.file_url && (
                     <div className="mt-3">
                       {/* Check if it's an image URL */}
-                      {message.file_url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) || 
-                       message.file_url.includes('storage') || 
-                       message.file_url.includes('supabase') ? (
+                      {message.file_url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) ||
+                        message.file_url.includes('storage') ||
+                        message.file_url.includes('supabase') ? (
                         <div className="rounded-lg overflow-hidden border border-gray-600 max-w-md">
                           <img
                             src={message.file_url}

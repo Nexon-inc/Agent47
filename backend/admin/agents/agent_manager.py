@@ -213,6 +213,7 @@ class AgentManager(LoggerMixin):
             self.kafka = await get_kafka()
             
             await self._setup_agent_tables()
+            await self._ensure_default_agents_exist()
             await self._load_agents_from_database()
             
             # Initialize agent coordinator for communication
@@ -315,6 +316,37 @@ class AgentManager(LoggerMixin):
         except Exception as e:
             self.logger.error(f"Failed to setup agent tables: {str(e)}")
             raise
+
+    async def _ensure_default_agents_exist(self):
+        if not self.database:
+            return
+
+        try:
+            async with self.database.get_session() as session:
+                for name, data in self.default_agents.items():
+                    # Check if agent exists by name
+                    result = await session.execute(
+                        "SELECT id FROM agents WHERE name = %s", (name,)
+                    )
+                    if not result.fetchone():
+                        agent_id = str(uuid.uuid4())
+                        agent = Agent(
+                            id=agent_id,
+                            name=name,
+                            agent_type=data["type"],
+                            status=AgentStatus.OFFLINE,
+                            capabilities=data["capabilities"],
+                            config=data["config"],
+                            metrics=AgentMetrics(),
+                            description=data["description"]
+                        )
+                        await self._save_agent_to_database(agent)
+                        self.logger.info(f"Created default agent: {name}")
+                    else:
+                        self.logger.debug(f"Default agent already exists: {name}")
+
+        except Exception as e:
+            self.logger.error(f"Failed to ensure default agents exist: {str(e)}")
 
     async def _load_agents_from_database(self):
         if not self.database:

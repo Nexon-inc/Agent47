@@ -339,8 +339,57 @@ async def get_database_status(
 ):
     """Get database status and metrics"""
     try:
-        status = await db_manager.get_database_status()
-        return status
+        # Get base status
+        status_data = await db_manager.get_database_status()
+        
+        # Get table information
+        from .database.database_manager import get_database_admin_manager
+        db_admin = await get_database_admin_manager()
+        tables = await db_admin.get_table_info()
+        
+        # Get size information
+        size_info = await db_admin.get_database_size()
+        
+        # Flatten and align with frontend expectations
+        metrics = status_data.get("metrics", {})
+        
+        return {
+            "status": status_data.get("status", "unknown"),
+            "timestamp": status_data.get("timestamp"),
+            "active_connections": metrics.get("active_queries", 0),
+            "total_connections": metrics.get("connection_count", 0),
+            "queries_per_second": metrics.get("total_queries", 0) / max(metrics.get("uptime_seconds", 1), 1),
+            "cache_hit_rate": metrics.get("cache_hit_ratio", 0.0),
+            "disk_usage": metrics.get("disk_usage_percent", 0.0),
+            "memory_usage": metrics.get("memory_usage_percent", 0.0),
+            "cpu_usage": metrics.get("cpu_usage_percent", 0.0),
+            "uptime": f"{metrics.get('uptime_seconds', 0) // 3600}h { (metrics.get('uptime_seconds', 0) % 3600) // 60}m",
+            "table_count": len(tables),
+            "total_size": size_info.get("total_size_pretty", "0 GB"),
+            "tables": [
+                {
+                    "name": t.name,
+                    "size": f"{t.size_bytes / (1024*1024):.1f} MB",
+                    "rows": t.row_count,
+                    "status": "active"
+                } for t in tables
+            ],
+            "performance": {
+                "qps": metrics.get("total_queries", 0) / max(metrics.get("uptime_seconds", 1), 1),
+                "cache_hit": metrics.get("cache_hit_ratio", 0.0)
+            },
+            "storage": {
+                "usage_percent": metrics.get("disk_usage_percent", 0.0)
+            },
+            "resources": {
+                "cpu": metrics.get("cpu_usage_percent", 0.0),
+                "memory": metrics.get("memory_usage_percent", 0.0)
+            },
+            "connections": {
+                "active": metrics.get("active_queries", 0),
+                "total": metrics.get("connection_count", 0)
+            }
+        }
         
     except Exception as e:
         logger.error(f"Failed to get database status: {str(e)}")
@@ -1973,13 +2022,26 @@ async def get_code_health(
         health = await code_manager.analyze_code_health(directory_path=directory_path)
         return {
             "total_files": health.total_files,
-            "error_count": health.error_count,
+            "total_errors": health.error_count,
             "warning_count": health.warning_count,
             "test_coverage": health.test_coverage,
             "complexity_score": health.complexity_score,
             "maintainability_index": health.maintainability_index,
             "health_status": health.health_status.value,
-            "last_updated": health.last_updated.isoformat()
+            "last_updated": health.last_updated.isoformat(),
+            # Frontend specific fields
+            "health_score": health.test_coverage if health.test_coverage > 0 else (100 - min(100, health.complexity_score)),
+            "code_quality": health.health_status.value,
+            "error_summary": {
+                "Critical": health.error_count if health.health_status.value == "critical" else 0,
+                "Warnings": health.warning_count
+            },
+            "metrics": {
+                "Complexity": f"{health.complexity_score:.1f}",
+                "Maintainability": f"{health.maintainability_index:.1f}",
+                "Coverage": f"{health.test_coverage:.1f}%",
+                "Files": str(health.total_files)
+            }
         }
         
     except Exception as e:

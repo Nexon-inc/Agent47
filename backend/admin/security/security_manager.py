@@ -815,6 +815,58 @@ class SecurityManager(LoggerMixin):
             self.logger.error(f"Failed to get security statistics: {str(e)}")
             return {}
 
+    async def get_audit_logs(self, page: int = 1, limit: int = 50) -> List[Dict[str, Any]]:
+        """Get security audit logs"""
+        if not self.database:
+            return []
+
+        try:
+            offset = (page - 1) * limit
+            async with self.database.get_session() as session:
+                result = await session.execute("""
+                    SELECT id, event_type, user_id, source_ip, user_agent, event_data, timestamp
+                    FROM security_events
+                    ORDER BY timestamp DESC
+                    LIMIT %s OFFSET %s
+                """, (limit, offset))
+
+                logs = []
+                for row in result.fetchall():
+                    logs.append({
+                        "id": row[0],
+                        "action_type": row[1],
+                        "action": row[1].replace('_', ' ').title(),
+                        "user_id": row[2],
+                        "ip_address": row[3],
+                        "user_agent": row[4],
+                        "details": row[5] if row[5] else {},
+                        "timestamp": row[6].isoformat()
+                    })
+                return logs
+        except Exception as e:
+            self.logger.error(f"Failed to get audit logs: {str(e)}")
+            return []
+
+    async def get_security_threats(self) -> List[Dict[str, Any]]:
+        """Get active security threats"""
+        try:
+            alerts = await self.get_security_alerts(resolved=False)
+            threats = []
+            for alert in alerts:
+                threats.append({
+                    "id": alert.id,
+                    "type": alert.threat_type.value,
+                    "severity": alert.security_level.value,
+                    "description": alert.description,
+                    "source_ip": alert.source_ip,
+                    "timestamp": alert.timestamp.isoformat(),
+                    "metadata": alert.metadata
+                })
+            return threats
+        except Exception as e:
+            self.logger.error(f"Failed to get security threats: {str(e)}")
+            return []
+
     async def close(self):
         self.logger.info("Closing SecurityManager...")
         if self.database:

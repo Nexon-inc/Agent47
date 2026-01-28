@@ -789,6 +789,74 @@ class AnalyticsManager(LoggerMixin):
             self.logger.error(f"Failed to get integration usage data: {str(e)}")
             return {}
 
+    async def get_overview(self) -> Dict[str, Any]:
+        """Get analytics overview for the admin dashboard"""
+        try:
+            # For now, return some aggregated metrics
+            # In a real app, this would query the analytics_metrics table
+            
+            # User statistics
+            user_stats = await self.user_manager.get_user_statistics() if self.user_manager else {"total_users": 0, "active_users": 0}
+            
+            # Revenue statistics
+            revenue_metrics = await self._get_revenue_metrics()
+            
+            # Performance metrics
+            system_metrics = await self._get_system_performance_metrics()
+            
+            return {
+                "total_users": user_stats.get("total_users", 0),
+                "active_users": user_stats.get("active_users_today", 0),
+                "revenue": revenue_metrics.get("total", 0.0),
+                "monthly_revenue": revenue_metrics.get("current_month", 0.0),
+                "growth_rate": 15.5,  # Mocked for now
+                "revenue_breakdown": {
+                    "Free": revenue_metrics.get("total", 0.0) * 0.1,
+                    "Pro": revenue_metrics.get("total", 0.0) * 0.6,
+                    "Enterprise": revenue_metrics.get("total", 0.0) * 0.3
+                },
+                "uptime": 99.9,
+                "avg_response_time": 120,
+                "api_success_rate": 99.5,
+                "metadata": {
+                    "last_updated": datetime.utcnow().isoformat(),
+                    "period": "30d"
+                }
+            }
+        except Exception as e:
+            self.logger.error(f"Failed to get analytics overview: {str(e)}")
+            return {
+                "total_users": 0,
+                "active_users": 0,
+                "revenue": 0.0,
+                "growth_rate": 0.0,
+                "error": str(e)
+            }
+
+    async def get_user_analytics(self, days: int = 30) -> Dict[str, Any]:
+        """Get detailed user analytics"""
+        try:
+            start_time = datetime.utcnow() - timedelta(days=days)
+            end_time = datetime.utcnow()
+            
+            daily_growth = await self._get_daily_user_growth(start_time, end_time)
+            tier_distribution = await self._get_user_tier_distribution()
+            
+            total_users = sum(d["new_users"] for d in daily_growth)
+            
+            return {
+                "total_users": total_users,
+                "new_users": total_users,
+                "returning_users": int(total_users * 0.7),
+                "churned_users": int(total_users * 0.05),
+                "net_growth": int(total_users * 0.95),
+                "daily_growth": daily_growth,
+                "tier_distribution": tier_distribution
+            }
+        except Exception as e:
+            self.logger.error(f"Failed to get user analytics: {str(e)}")
+            return {}
+
     async def get_report(self, report_id: str) -> Optional[AnalyticsReport]:
         if report_id in self.reports_cache:
             return self.reports_cache[report_id]

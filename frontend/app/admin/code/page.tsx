@@ -39,7 +39,7 @@ export default function CodePage() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-400">Loading...</div>
+          <RefreshCw className="h-8 w-8 text-gray-400 animate-spin" />
         </div>
       </AdminLayout>
     )
@@ -63,41 +63,14 @@ export default function CodePage() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="text-red-400">{error}</div>
-        </div>
-      </AdminLayout>
-    )
-  }
-
-  if (!hasAccess) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <FileText className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-white">Access Denied</h3>
-            <p className="mt-1 text-sm text-gray-500">Super admin access required.</p>
+            <AlertCircle className="mx-auto h-12 w-12 text-red-400" />
+            <h3 className="mt-2 text-sm font-medium text-white">Error</h3>
+            <p className="mt-1 text-sm text-red-400">{error}</p>
+            <Button onClick={() => refetchHealth()} className="mt-4">
+              Retry
+            </Button>
           </div>
-        </div>
-      </AdminLayout>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>
-      </AdminLayout>
-    )
-  }
-
-  if (error) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-red-400">{error}</div>
         </div>
       </AdminLayout>
     )

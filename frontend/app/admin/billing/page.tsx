@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { 
-  DollarSign, 
+import {
+  DollarSign,
   TrendingUp,
   TrendingDown,
   Users,
@@ -17,7 +17,7 @@ import {
   Download,
   Eye
 } from "lucide-react"
-import { useAuthStore } from "@/lib/stores/auth-store"
+import { useAdminStore } from "@/lib/stores/admin-store"
 import { adminAPI } from "@/lib/services/admin-api"
 import { Loader2, AlertCircle } from "lucide-react"
 import AdminLayout from "@/components/admin/layout"
@@ -86,7 +86,7 @@ export default function AdminBillingPage() {
     const fetchBillingData = async () => {
       setIsLoading(true)
       setError(null)
-      
+
       try {
         const [subscriptionsData, activityData, analyticsData, revenueData] = await Promise.all([
           adminAPI.getBillingSubscriptions(),
@@ -94,7 +94,7 @@ export default function AdminBillingPage() {
           adminAPI.getBillingAnalytics(),
           adminAPI.getBillingRevenue()
         ])
-        
+
         setSubscriptions(subscriptionsData.subscriptions || [])
         setRecentActivity(activityData.activities || [])
         setAnalytics(analyticsData)
@@ -113,27 +113,38 @@ export default function AdminBillingPage() {
   // Filter subscriptions based on search and filters
   const filteredSubscriptions = subscriptions.filter(subscription => {
     const matchesSearch = subscription.user_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         subscription.plan.toLowerCase().includes(searchQuery.toLowerCase())
+      subscription.plan.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = filterStatus === "all" || subscription.status === filterStatus
     const matchesPlan = filterPlan === "all" || subscription.plan.toLowerCase() === filterPlan.toLowerCase()
-    
+
     return matchesSearch && matchesStatus && matchesPlan
   })
-  
-  const { user } = useAuthStore()
+
+  const { currentAdmin } = useAdminStore()
+  const { isLoading: adminLoading } = useAdminStore()
 
   useEffect(() => {
-    if (user && user.tier === 'enterprise') {
+    if (currentAdmin) {
       // Initialize data
     }
-  }, [user])
+  }, [currentAdmin])
 
   const handleExportData = () => {
     // Export billing data
     console.log("Exporting billing data")
   }
 
-  if (!user || user.tier !== 'enterprise') {
+  if (adminLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      </AdminLayout>
+    )
+  }
+
+  if (!currentAdmin) {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-64">
@@ -169,21 +180,19 @@ export default function AdminBillingPage() {
           <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
             <button
               onClick={() => setBillingPeriod("monthly")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                billingPeriod === "monthly"
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${billingPeriod === "monthly"
                   ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+                }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setBillingPeriod("yearly")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                billingPeriod === "yearly"
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${billingPeriod === "yearly"
                   ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+                }`}
             >
               Yearly
             </button>
@@ -220,7 +229,7 @@ export default function AdminBillingPage() {
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
@@ -247,7 +256,7 @@ export default function AdminBillingPage() {
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Churn Rate</CardTitle>
@@ -274,7 +283,7 @@ export default function AdminBillingPage() {
               </p>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Average Revenue</CardTitle>
@@ -314,11 +323,10 @@ export default function AdminBillingPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeTab === tab.id
+              className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${activeTab === tab.id
                   ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
                   : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-              }`}
+                }`}
             >
               <tab.icon className="h-4 w-4 mr-2" />
               {tab.name}
@@ -374,7 +382,7 @@ export default function AdminBillingPage() {
                         <div className="flex justify-between items-center">
                           <span className="text-sm font-medium">Total Revenue</span>
                           <span className="font-bold">
-                            ${billingPeriod === "monthly" 
+                            ${billingPeriod === "monthly"
                               ? revenueData?.monthly_recurring_revenue.toLocaleString() || "0"
                               : revenueData?.annual_recurring_revenue.toLocaleString() || "0"
                             }
@@ -405,16 +413,16 @@ export default function AdminBillingPage() {
                     </div>
                   ) : (
                     recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">{activity.action}</p>
-                        <p className="text-sm text-gray-500">{activity.user}</p>
+                      <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">{activity.action}</p>
+                          <p className="text-sm text-gray-500">{activity.user}</p>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-medium text-gray-900 dark:text-white">{activity.amount}</span>
+                          <p className="text-sm text-gray-500">{activity.time}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <span className="font-medium text-gray-900 dark:text-white">{activity.amount}</span>
-                        <p className="text-sm text-gray-500">{activity.time}</p>
-                      </div>
-                    </div>
                     ))
                   )}
                 </div>
@@ -485,28 +493,28 @@ export default function AdminBillingPage() {
                     </div>
                   ) : (
                     filteredSubscriptions.map((subscription) => (
-                    <div key={subscription.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
-                      <div>
-                        <h3 className="font-medium text-gray-900 dark:text-white">{subscription.user_email}</h3>
-                        <p className="text-sm text-gray-500">
-                          {subscription.plan} Plan • Created {subscription.created_at}
-                        </p>
+                      <div key={subscription.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                        <div>
+                          <h3 className="font-medium text-gray-900 dark:text-white">{subscription.user_email}</h3>
+                          <p className="text-sm text-gray-500">
+                            {subscription.plan} Plan • Created {subscription.created_at}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={
+                            subscription.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                              subscription.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                                'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                          }>
+                            {subscription.status}
+                          </Badge>
+                          <span className="font-medium">${subscription.amount}</span>
+                          <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={
-                          subscription.status === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                          subscription.status === 'cancelled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
-                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-                        }>
-                          {subscription.status}
-                        </Badge>
-                        <span className="font-medium">${subscription.amount}</span>
-                        <Button variant="outline" size="sm">
-                          <Eye className="h-4 w-4 mr-1" />
-                          View
-                        </Button>
-                      </div>
-                    </div>
                     ))
                   )}
                 </div>
@@ -553,8 +561,8 @@ export default function AdminBillingPage() {
                       <div className="flex items-center gap-2">
                         <Badge className={
                           activity.status === 'completed' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
-                          activity.status === 'failed' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
-                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+                            activity.status === 'failed' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300' :
+                              'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
                         }>
                           {activity.status || 'completed'}
                         </Badge>

@@ -12,14 +12,14 @@ import { adminAPI } from '@/lib/services/admin-api'
 import { useAdminStore } from '@/lib/stores/admin-store'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { 
-  Send, 
-  Bot, 
-  User, 
-  Settings, 
-  Zap, 
-  Activity, 
-  Server, 
+import {
+  Send,
+  Bot,
+  User,
+  Settings,
+  Zap,
+  Activity,
+  Server,
   Database,
   Users,
   BarChart3,
@@ -346,99 +346,99 @@ export default function AdminChatPage() {
       category: 'integration',
       permissions: ['superadmin']
     },
-         {
-       name: 'integration.sync',
-       description: 'Synchronize data with external services',
-       syntax: 'integration.sync [service] [data_type] [force]',
-       examples: ['integration.sync paystack payments', 'integration.sync email contacts force'],
-       category: 'integration',
-       permissions: ['superadmin', 'admin']
-     },
+    {
+      name: 'integration.sync',
+      description: 'Synchronize data with external services',
+      syntax: 'integration.sync [service] [data_type] [force]',
+      examples: ['integration.sync paystack payments', 'integration.sync email contacts force'],
+      category: 'integration',
+      permissions: ['superadmin', 'admin']
+    },
 
-     // AI Commands
-     {
-       name: 'ai.assist',
-       description: 'Get AI-powered recommendations and assistance',
-       syntax: 'ai.assist [query]',
-       examples: ['ai.assist system health', 'ai.assist optimize performance'],
-       category: 'system',
-       permissions: ['superadmin', 'admin']
-     },
-     {
-       name: 'ai.optimize',
-       description: 'AI-powered system optimization and recommendations',
-       syntax: 'ai.optimize [type]',
-       examples: ['ai.optimize', 'ai.optimize performance'],
-       category: 'system',
-       permissions: ['superadmin']
-     },
-     {
-       name: 'ai.predict',
-       description: 'Run predictive analytics and forecasting',
-       syntax: 'ai.predict [type] [timeframe]',
-       examples: ['ai.predict revenue 30d', 'ai.predict users 7d'],
-       category: 'analytics',
-       permissions: ['superadmin', 'admin', 'analytics']
-     },
-           {
-        name: 'ai.automate',
-        description: 'Setup AI automation and monitoring',
-        syntax: 'ai.automate [type]',
-        examples: ['ai.automate monitoring', 'ai.automate alerts'],
-        category: 'system',
-        permissions: ['superadmin']
-      },
+    // AI Commands
+    {
+      name: 'ai.assist',
+      description: 'Get AI-powered recommendations and assistance',
+      syntax: 'ai.assist [query]',
+      examples: ['ai.assist system health', 'ai.assist optimize performance'],
+      category: 'system',
+      permissions: ['superadmin', 'admin']
+    },
+    {
+      name: 'ai.optimize',
+      description: 'AI-powered system optimization and recommendations',
+      syntax: 'ai.optimize [type]',
+      examples: ['ai.optimize', 'ai.optimize performance'],
+      category: 'system',
+      permissions: ['superadmin']
+    },
+    {
+      name: 'ai.predict',
+      description: 'Run predictive analytics and forecasting',
+      syntax: 'ai.predict [type] [timeframe]',
+      examples: ['ai.predict revenue 30d', 'ai.predict users 7d'],
+      category: 'analytics',
+      permissions: ['superadmin', 'admin', 'analytics']
+    },
+    {
+      name: 'ai.automate',
+      description: 'Setup AI automation and monitoring',
+      syntax: 'ai.automate [type]',
+      examples: ['ai.automate monitoring', 'ai.automate alerts'],
+      category: 'system',
+      permissions: ['superadmin']
+    },
 
-      // Agent Automation Commands
-      {
-        name: 'agent.execute',
-        description: 'Execute a task with a specific agent',
-        syntax: 'agent.execute [agent_id] [task_type] [parameters]',
-        examples: ['agent.execute aria create_post "AI automation benefits"', 'agent.execute joe market_research "competitor analysis"'],
-        category: 'agents',
-        permissions: ['superadmin', 'admin']
-      },
-      {
-        name: 'agent.workflow',
-        description: 'Create and execute agent workflows',
-        syntax: 'agent.workflow [action] [workflow_id] [parameters]',
-        examples: ['agent.workflow create "marketing_campaign"', 'agent.workflow execute workflow_123'],
-        category: 'agents',
-        permissions: ['superadmin', 'admin']
-      },
-      {
-        name: 'agent.communicate',
-        description: 'Send messages between agents',
-        syntax: 'agent.communicate [sender] [receiver] [message_type] [content]',
-        examples: ['agent.communicate aria joe "data_request" "market insights"'],
-        category: 'agents',
-        permissions: ['superadmin', 'admin']
-      },
-      {
-        name: 'agent.monitor',
-        description: 'Monitor agent performance and tasks',
-        syntax: 'agent.monitor [agent_id] [metrics]',
-        examples: ['agent.monitor aria performance', 'agent.monitor all tasks'],
-        category: 'agents',
-        permissions: ['superadmin', 'admin']
-      },
-      {
-        name: 'agent.optimize',
-        description: 'Optimize agent performance and configurations',
-        syntax: 'agent.optimize [agent_id] [parameter] [value]',
-        examples: ['agent.optimize aria memory_limit 2GB', 'agent.optimize all performance'],
-        category: 'agents',
-        permissions: ['superadmin']
-      },
-      {
-        name: 'agent.deploy',
-        description: 'Deploy new agents or update existing ones',
-        syntax: 'agent.deploy [agent_id] [version] [config]',
-        examples: ['agent.deploy new_agent v1.0.0', 'agent.deploy aria v2.0.0'],
-        category: 'agents',
-        permissions: ['superadmin']
-      }
-    ]
+    // Agent Automation Commands
+    {
+      name: 'agent.execute',
+      description: 'Execute a task with a specific agent',
+      syntax: 'agent.execute [agent_id] [task_type] [parameters]',
+      examples: ['agent.execute aria create_post "AI automation benefits"', 'agent.execute joe market_research "competitor analysis"'],
+      category: 'agents',
+      permissions: ['superadmin', 'admin']
+    },
+    {
+      name: 'agent.workflow',
+      description: 'Create and execute agent workflows',
+      syntax: 'agent.workflow [action] [workflow_id] [parameters]',
+      examples: ['agent.workflow create "marketing_campaign"', 'agent.workflow execute workflow_123'],
+      category: 'agents',
+      permissions: ['superadmin', 'admin']
+    },
+    {
+      name: 'agent.communicate',
+      description: 'Send messages between agents',
+      syntax: 'agent.communicate [sender] [receiver] [message_type] [content]',
+      examples: ['agent.communicate aria joe "data_request" "market insights"'],
+      category: 'agents',
+      permissions: ['superadmin', 'admin']
+    },
+    {
+      name: 'agent.monitor',
+      description: 'Monitor agent performance and tasks',
+      syntax: 'agent.monitor [agent_id] [metrics]',
+      examples: ['agent.monitor aria performance', 'agent.monitor all tasks'],
+      category: 'agents',
+      permissions: ['superadmin', 'admin']
+    },
+    {
+      name: 'agent.optimize',
+      description: 'Optimize agent performance and configurations',
+      syntax: 'agent.optimize [agent_id] [parameter] [value]',
+      examples: ['agent.optimize aria memory_limit 2GB', 'agent.optimize all performance'],
+      category: 'agents',
+      permissions: ['superadmin']
+    },
+    {
+      name: 'agent.deploy',
+      description: 'Deploy new agents or update existing ones',
+      syntax: 'agent.deploy [agent_id] [version] [config]',
+      examples: ['agent.deploy new_agent v1.0.0', 'agent.deploy aria v2.0.0'],
+      category: 'agents',
+      permissions: ['superadmin']
+    }
+  ]
 
   useEffect(() => {
     // Initialize chat with welcome message
@@ -477,7 +477,7 @@ export default function AdminChatPage() {
           transcript += event.results[i][0].transcript
         }
         setVoiceTranscript(transcript)
-        
+
         if (event.results[event.results.length - 1].isFinal) {
           const finalTranscript = transcript.trim()
           if (finalTranscript) {
@@ -485,7 +485,7 @@ export default function AdminChatPage() {
             setVoiceTranscript('')
             setIsListening(false)
             recognition.stop()
-            
+
             // Generate AI suggestions based on voice input
             generateAiSuggestions(finalTranscript)
           }
@@ -516,13 +516,13 @@ export default function AdminChatPage() {
       try {
         await agentServiceManager.initialize()
         setIsAgentManagerInitialized(true)
-        
+
         const agents = await agentServiceManager.getAllAgents()
         const workflows = await agentServiceManager.getWorkflows()
-        
+
         setAgentServices(agents)
         setAgentWorkflows(workflows)
-        
+
         addMessage({
           type: 'system',
           content: `🤖 Agent Service Manager initialized with ${agents.length} agents and ${workflows.length} workflows`,
@@ -571,27 +571,27 @@ export default function AdminChatPage() {
     if (lowerInput.includes('system') || lowerInput.includes('status') || lowerInput.includes('health')) {
       suggestions.push('system.status', 'system.status detailed', 'system.restart')
     }
-    
+
     if (lowerInput.includes('agent') || lowerInput.includes('bot') || lowerInput.includes('ai')) {
       suggestions.push('agents.list', 'agents.status', 'agents.restart aria')
     }
-    
+
     if (lowerInput.includes('user') || lowerInput.includes('customer') || lowerInput.includes('people')) {
       suggestions.push('users.list', 'users.list active', 'users.details 123')
     }
-    
+
     if (lowerInput.includes('money') || lowerInput.includes('billing') || lowerInput.includes('payment')) {
       suggestions.push('billing.overview', 'billing.subscriptions list', 'billing.refund 456 29.99')
     }
-    
+
     if (lowerInput.includes('security') || lowerInput.includes('audit') || lowerInput.includes('safe')) {
       suggestions.push('security.audit', 'security.logs', 'security.block 192.168.1.1')
     }
-    
+
     if (lowerInput.includes('analytics') || lowerInput.includes('report') || lowerInput.includes('data')) {
       suggestions.push('analytics.overview', 'analytics.report revenue pdf', 'analytics.predict revenue 30d')
     }
-    
+
     if (lowerInput.includes('integration') || lowerInput.includes('service') || lowerInput.includes('api')) {
       suggestions.push('integration.status', 'integration.test paystack', 'integration.configure paystack api_key')
     }
@@ -600,39 +600,39 @@ export default function AdminChatPage() {
     if (lowerInput.includes('execute') || lowerInput.includes('run') || lowerInput.includes('task')) {
       suggestions.push('agent.execute aria create_post "AI automation benefits"', 'agent.execute joe market_research "competitor analysis"', 'agent.execute clara resolve_ticket "user support"')
     }
-    
+
     if (lowerInput.includes('workflow') || lowerInput.includes('automate') || lowerInput.includes('pipeline')) {
       suggestions.push('agent.workflow create "marketing_campaign"', 'agent.workflow list', 'agent.workflow execute workflow_123')
     }
-    
+
     if (lowerInput.includes('communicate') || lowerInput.includes('message') || lowerInput.includes('send')) {
       suggestions.push('agent.communicate aria joe "data_request" "market insights"', 'agent.communicate clara eric "lead_qualification" "new prospect"')
     }
-    
+
     if (lowerInput.includes('monitor') || lowerInput.includes('performance') || lowerInput.includes('track')) {
       suggestions.push('agent.monitor aria performance', 'agent.monitor all tasks', 'agent.monitor joe')
     }
-    
+
     if (lowerInput.includes('social') || lowerInput.includes('media') || lowerInput.includes('post')) {
       suggestions.push('agent.execute aria create_post "AI automation benefits"', 'agent.execute aria analyze_trends', 'agent.execute aria engage_audience')
     }
-    
+
     if (lowerInput.includes('research') || lowerInput.includes('market') || lowerInput.includes('analysis')) {
       suggestions.push('agent.execute joe market_research "competitor analysis"', 'agent.execute joe competitor_analysis', 'agent.execute joe data_analysis')
     }
-    
+
     if (lowerInput.includes('support') || lowerInput.includes('help') || lowerInput.includes('ticket')) {
       suggestions.push('agent.execute clara resolve_ticket "user support request"', 'agent.execute clara analyze_sentiment', 'agent.execute clara generate_response')
     }
-    
+
     if (lowerInput.includes('sales') || lowerInput.includes('lead') || lowerInput.includes('proposal')) {
       suggestions.push('agent.execute eric qualify_lead "new prospect"', 'agent.execute eric generate_proposal', 'agent.execute eric follow_up')
     }
-    
+
     if (lowerInput.includes('marketing') || lowerInput.includes('campaign') || lowerInput.includes('promote')) {
       suggestions.push('agent.execute jackie create_campaign "email campaign"', 'agent.execute jackie optimize_performance', 'agent.execute jackie analyze_market')
     }
-    
+
     if (lowerInput.includes('content') || lowerInput.includes('write') || lowerInput.includes('create')) {
       suggestions.push('agent.execute shakes create_content "blog post"', 'agent.execute shakes optimize_seo', 'agent.execute shakes generate_ideas')
     }
@@ -667,7 +667,7 @@ export default function AdminChatPage() {
 
   const parseTaskParameters = (params: string): Record<string, any> => {
     const parameters: Record<string, any> = {}
-    
+
     // Parse key-value pairs
     const pairs = params.match(/(\w+):\s*([^,\s]+)/g)
     if (pairs) {
@@ -676,25 +676,25 @@ export default function AdminChatPage() {
         parameters[key] = value
       })
     }
-    
+
     // Parse quoted content as main content
     const contentMatch = params.match(/"([^"]+)"/)
     if (contentMatch) {
       parameters.content = contentMatch[1]
     }
-    
+
     // Parse action if present
     const actionMatch = params.match(/(create_post|analyze_trends|engage_audience|resolve_ticket|analyze_sentiment|generate_response|market_research|competitor_analysis|data_analysis|qualify_lead|generate_proposal|follow_up|create_campaign|optimize_performance|analyze_market|create_content|optimize_seo|generate_ideas)/)
     if (actionMatch) {
       parameters.action = actionMatch[1]
     }
-    
+
     return parameters
   }
 
   const generateWorkflowSteps = (workflowName: string) => {
     const steps = []
-    
+
     switch (workflowName.toLowerCase()) {
       case 'marketing_campaign':
         steps.push(
@@ -727,7 +727,7 @@ export default function AdminChatPage() {
           }
         )
         break
-      
+
       case 'lead_qualification':
         steps.push(
           {
@@ -750,7 +750,7 @@ export default function AdminChatPage() {
           }
         )
         break
-      
+
       default:
         steps.push(
           {
@@ -764,7 +764,7 @@ export default function AdminChatPage() {
           }
         )
     }
-    
+
     return steps
   }
 
@@ -791,7 +791,7 @@ export default function AdminChatPage() {
       // Execute command via API
       const result = await adminAPI.executeChatCommand(cmd, args)
       const actualExecutionTime = Date.now() - startTime
-      
+
       const response = result.output || result.result || result.message || 'Command executed successfully'
 
       addMessage({
@@ -806,7 +806,7 @@ export default function AdminChatPage() {
       })
 
       saveCommandToHistory(command)
-      
+
       // Generate AI suggestions after command execution
       generateAiSuggestions(command)
     } catch (error) {
@@ -838,17 +838,17 @@ Type "help [category]" for category-specific help.`
 
       case 'commands':
         const category = args[0]
-        const filteredCommands = category 
+        const filteredCommands = category
           ? commands.filter(c => c.category === category)
           : commands
-        
-        return filteredCommands.map(cmd => 
+
+        return filteredCommands.map(cmd =>
           `${cmd.name} - ${cmd.description}\n  Syntax: ${cmd.syntax}`
         ).join('\n\n')
 
       case 'system.status':
         const detailed = args.includes('detailed')
-        return detailed 
+        return detailed
           ? `System Status: ${systemStatus.toUpperCase()}
 • CPU Usage: 45.2% (4 cores)
 • Memory Usage: 68.5% (8GB/12GB)
@@ -1005,11 +1005,11 @@ Next Check: 5 minutes`
         if (!isAgentManagerInitialized) {
           return `❌ Agent Service Manager not initialized. Please wait for initialization to complete.`
         }
-        
+
         const agentId = args[0]
         const taskType = args[1]
         const taskParams = args.slice(2).join(' ')
-        
+
         if (!agentId || !taskType) {
           return `❌ Usage: agent.execute [agent_id] [task_type] [parameters]
 Examples:
@@ -1017,16 +1017,16 @@ Examples:
 • agent.execute joe market_research "competitor analysis"
 • agent.execute clara resolve_ticket "user support request"`
         }
-        
+
         try {
           const agent = agentServices.find(a => a.id === agentId || a.name.toLowerCase() === agentId.toLowerCase())
           if (!agent) {
             return `❌ Agent "${agentId}" not found. Available agents: ${agentServices.map(a => a.name).join(', ')}`
           }
-          
+
           const parameters = this.parseTaskParameters(taskParams)
           const task = await agentServiceManager.executeAgentTask(agent.id, taskType, parameters)
-          
+
           return `✅ Task executed successfully!
 Agent: ${agent.name} (${agent.type})
 Task: ${taskType}
@@ -1040,10 +1040,10 @@ Result: ${JSON.stringify(task.result, null, 2)}`
         if (!isAgentManagerInitialized) {
           return `❌ Agent Service Manager not initialized. Please wait for initialization to complete.`
         }
-        
+
         const workflowAction = args[0]
         const workflowId = args[1]
-        
+
         if (!workflowAction) {
           return `❌ Usage: agent.workflow [action] [workflow_id] [parameters]
 Actions: create, execute, list, status
@@ -1052,7 +1052,7 @@ Examples:
 • agent.workflow execute workflow_123
 • agent.workflow list`
         }
-        
+
         switch (workflowAction) {
           case 'create':
             const workflowName = args[1] || 'New Workflow'
@@ -1063,7 +1063,7 @@ Examples:
 ID: ${newWorkflow.id}
 Name: ${newWorkflow.name}
 Steps: ${newWorkflow.steps.length}`
-          
+
           case 'execute':
             if (!workflowId) {
               return `❌ Please specify workflow ID: agent.workflow execute [workflow_id]`
@@ -1077,11 +1077,11 @@ Steps: ${newWorkflow.steps.length}`
 Workflow: ${workflow.name}
 Status: ${workflowResult.status}
 Steps: ${workflowResult.successful_steps}/${workflowResult.total_steps} completed`
-          
+
           case 'list':
             return `📋 Available Workflows:
 ${agentWorkflows.map(w => `• ${w.id}: ${w.name} (${w.status})`).join('\n')}`
-          
+
           default:
             return `❌ Unknown workflow action: ${workflowAction}. Use: create, execute, list, status`
         }
@@ -1090,19 +1090,19 @@ ${agentWorkflows.map(w => `• ${w.id}: ${w.name} (${w.status})`).join('\n')}`
         if (!isAgentManagerInitialized) {
           return `❌ Agent Service Manager not initialized. Please wait for initialization to complete.`
         }
-        
+
         const senderId = args[0]
         const receiverId = args[1]
         const messageType = args[2]
         const messageContent = args.slice(3).join(' ')
-        
+
         if (!senderId || !receiverId || !messageType) {
           return `❌ Usage: agent.communicate [sender] [receiver] [message_type] [content]
 Examples:
 • agent.communicate aria joe "data_request" "market insights"
 • agent.communicate clara eric "lead_qualification" "new prospect"`
         }
-        
+
         try {
           const communication = await agentServiceManager.sendAgentMessage(senderId, receiverId, messageType, messageContent)
           return `✅ Message sent successfully!
@@ -1119,10 +1119,10 @@ Message ID: ${communication.id}`
         if (!isAgentManagerInitialized) {
           return `❌ Agent Service Manager not initialized. Please wait for initialization to complete.`
         }
-        
+
         const monitorAgentId = args[0] || 'all'
         const monitorMetrics = args[1] || 'performance'
-        
+
         if (monitorAgentId === 'all') {
           const allTasks = await agentServiceManager.getAgentTasks()
           const performanceSummary = agentServices.map(agent => {
@@ -1135,7 +1135,7 @@ Message ID: ${communication.id}`
               success_rate: agent.performance_metrics.success_rate
             }
           })
-          
+
           return `📊 Agent Performance Summary:
 ${performanceSummary.map(a => `• ${a.name}: ${a.status} | ${a.tasks_completed} completed, ${a.tasks_failed} failed | ${a.success_rate}% success rate`).join('\n')}`
         } else {
@@ -1143,7 +1143,7 @@ ${performanceSummary.map(a => `• ${a.name}: ${a.status} | ${a.tasks_completed}
           if (!agent) {
             return `❌ Agent "${monitorAgentId}" not found.`
           }
-          
+
           const agentTasks = await agentServiceManager.getAgentTasks(agent.id)
           return `📊 Agent Monitor: ${agent.name}
 Status: ${agent.status}
@@ -1249,7 +1249,7 @@ Execution completed in ${Date.now()}ms.
               <div>
                 <h1 className="text-xl font-bold text-white">Admin Command Center</h1>
                 <div className="text-sm text-white/90 flex items-center">
-                  <motion.div 
+                  <motion.div
                     className="w-2 h-2 rounded-full bg-white mr-2"
                     animate={{ opacity: [1, 0.5, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
@@ -1270,14 +1270,14 @@ Execution completed in ${Date.now()}ms.
                 <Command className="h-4 w-4 mr-2" />
                 Commands
               </Button>
-                             <Button
-                 variant="outline"
-                 size="sm"
-                 onClick={handleVoiceToggle}
-                 className={isListening ? 'bg-red-500 hover:bg-red-600' : ''}
-               >
-                 {isListening ? <Mic className="h-4 w-4 animate-pulse" /> : <Mic className="h-4 w-4" />}
-               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleVoiceToggle}
+                className={isListening ? 'bg-red-500 hover:bg-red-600' : ''}
+              >
+                {isListening ? <Mic className="h-4 w-4 animate-pulse" /> : <Mic className="h-4 w-4" />}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -1296,7 +1296,7 @@ Execution completed in ${Date.now()}ms.
               const isUserMessage = message.type === 'user'
               const isSystemMessage = message.type === 'system'
               const isThinking = message.type === 'thinking'
-              
+
               return (
                 <div key={message.id} className={`flex ${isUserMessage ? "justify-end" : isSystemMessage ? "justify-center" : "justify-start"} group`}>
                   {isSystemMessage ? (
@@ -1319,164 +1319,55 @@ Execution completed in ${Date.now()}ms.
                   ) : (
                     <div className={`flex items-end gap-2 max-w-[80%] ${isUserMessage ? "flex-row-reverse" : ""}`}>
                       {/* Avatar */}
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${
-                        isUserMessage 
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${isUserMessage
                           ? "bg-gradient-to-r from-green-400 to-green-600"
                           : isThinking
                             ? "bg-gradient-to-r from-green-400 to-green-600 animate-pulse"
                             : getMessageColor(message.type)
-                      }`}>
+                        }`}>
                         {isThinking ? <Terminal className="w-4 h-4" /> : getMessageIcon(message.type)}
                       </div>
-                      
-                      {/* Message Bubble */}
-                      <div className="flex flex-col">
-                        {!isUserMessage && !isThinking && (
-                          <span className="text-xs font-semibold mb-1 px-1 text-gray-400">
-                            {message.type === 'agent' ? 'Agent' : message.type === 'error' ? 'Error' : message.type === 'success' ? 'Success' : 'System'}
-                          </span>
-                        )}
-                        {isThinking ? (
-                          <div className="bg-gray-800 border border-gray-700 rounded-2xl px-4 py-3 shadow-sm">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="flex space-x-1">
-                                {[0, 1, 2].map((dot) => (
-                                  <motion.div
-                                    key={dot}
-                                    className="w-1.5 h-1.5 bg-gray-400 rounded-full"
-                                    animate={{ 
-                                      opacity: [0.3, 1, 0.3],
-                                      scale: [1, 1.2, 1]
-                                    }}
-                                    transition={{
-                                      duration: 1.5,
-                                      repeat: Infinity,
-                                      delay: dot * 0.2,
-                                    }}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-xs text-gray-400 italic">{message.content}</span>
+
+                      <div className={`flex flex-col ${message.type === 'user' ? 'items-end' : 'items-start'}`}>
+                        <div className={`px-4 py-2.5 rounded-2xl text-sm shadow-xl ${message.type === 'user' ? 'bg-green-500 text-white rounded-tr-none' :
+                            message.type === 'error' ? 'bg-red-500/10 text-red-200 border border-red-500/20 rounded-tl-none' :
+                              message.type === 'success' ? 'bg-green-500/10 text-green-200 border border-green-500/20 rounded-tl-none' :
+                                'bg-gray-800/80 backdrop-blur-md text-gray-200 border border-gray-700/50 rounded-tl-none'
+                          }`}>
+                          {message.type === 'thinking' ? (
+                            <div className="flex items-center gap-2 text-gray-400 italic">
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                              <span>Processing command...</span>
                             </div>
-                            
-                            {/* Thinking Steps */}
-                            {message.metadata?.thinking_steps && message.metadata.thinking_steps.length > 0 && (
-                              <div className="space-y-1.5 pt-2 border-t border-gray-700/50">
-                                {message.metadata.thinking_steps.map((step: string, stepIndex: number) => (
-                                  <motion.div
-                                    key={stepIndex}
-                                    className="flex items-start gap-2 text-xs text-gray-300"
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ 
-                                      opacity: 1,
-                                      x: 0
-                                    }}
-                                    transition={{ duration: 0.3, delay: stepIndex * 0.4 }}
-                                  >
-                                    <motion.div
-                                      className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0"
-                                      animate={{
-                                        scale: [1, 1.3, 1],
-                                        opacity: [0.5, 1, 0.5]
-                                      }}
-                                      transition={{ duration: 1, repeat: Infinity }}
-                                    />
-                                    <span className="leading-relaxed">{step}</span>
-                                  </motion.div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="relative group/message">
-                            <div className={`rounded-2xl px-4 py-3 shadow-sm ${
-                              isUserMessage
-                                ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
-                                : "bg-gray-800 border border-gray-700 text-gray-100"
-                            }`}>
-                              {/* Message Content - Use ReactMarkdown for system/agent messages, plain text for user commands */}
-                              {isUserMessage ? (
-                                <div className="text-sm whitespace-pre-wrap font-mono">
-                                  {message.content}
-                                </div>
-                              ) : (
-                                <div className="prose prose-sm prose-invert max-w-none dark:prose-invert">
-                                  <ReactMarkdown
-                                    remarkPlugins={[remarkGfm]}
-                                    className="text-sm"
-                                    components={{
-                                      p: ({ children }) => <p className="mb-2 last:mb-0 text-gray-100">{children}</p>,
-                                      ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1 text-gray-100">{children}</ul>,
-                                      ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1 text-gray-100">{children}</ol>,
-                                      li: ({ children }) => <li className="ml-2 text-gray-100">{children}</li>,
-                                      code: ({ children, className }) => {
-                                        const isInline = !className
-                                        return isInline ? (
-                                          <code className="bg-gray-700/50 px-1.5 py-0.5 rounded text-xs text-green-400 font-mono">{children}</code>
-                                        ) : (
-                                          <code className="block bg-gray-900/50 p-2 rounded text-xs text-green-400 font-mono overflow-x-auto mb-2 border border-gray-700">{children}</code>
-                                        )
-                                      },
-                                      pre: ({ children }) => <pre className="bg-gray-900/50 p-2 rounded text-xs text-green-400 font-mono overflow-x-auto mb-2 border border-gray-700">{children}</pre>,
-                                      a: ({ children, href }) => (
-                                        <a href={href} target="_blank" rel="noopener noreferrer" className="underline text-green-400 hover:text-green-300">
-                                          {children}
-                                        </a>
-                                      ),
-                                      strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-                                      em: ({ children }) => <em className="italic text-gray-200">{children}</em>,
-                                      h1: ({ children }) => <h1 className="text-lg font-bold text-white mb-2">{children}</h1>,
-                                      h2: ({ children }) => <h2 className="text-base font-bold text-white mb-2">{children}</h2>,
-                                      h3: ({ children }) => <h3 className="text-sm font-bold text-white mb-1">{children}</h3>,
-                                      blockquote: ({ children }) => <blockquote className="border-l-4 border-green-500 pl-3 italic text-gray-300 my-2">{children}</blockquote>,
-                                    }}
-                                  >
-                                    {message.content}
-                                  </ReactMarkdown>
-                                </div>
-                              )}
-                              {message.metadata && (
-                                <div className="mt-2 pt-2 border-t border-gray-700/50">
-                                  <div className="flex items-center justify-between text-xs text-gray-400">
-                                    <span>{new Date(message.timestamp).toLocaleTimeString()}</span>
-                                    {message.metadata.execution_time && (
-                                      <span>Execution: {message.metadata.execution_time}ms</span>
-                                    )}
-                                    {message.metadata.command && (
-                                      <span>Command: {message.metadata.command}</span>
-                                    )}
-                                  </div>
-                                </div>
-                              )}
+                          ) : (
+                            <div className="prose prose-sm prose-invert max-w-none">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {message.content}
+                              </ReactMarkdown>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
+                        <span className="text-[10px] text-gray-500 mt-1 px-1">
+                          {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
               )
             })}
             {isProcessing && (
-              <div className="flex justify-start items-center gap-2">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center text-white shadow-md">
-                  <Terminal className="w-4 h-4" />
+              <div className="flex justify-start items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400">
+                  <Terminal className="w-4 h-4 animate-pulse text-green-500" />
                 </div>
-                <div className="bg-gray-800 border border-gray-700 rounded-2xl px-4 py-3 shadow-sm">
+                <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl px-4 py-3">
                   <div className="flex space-x-1.5">
                     {[0, 1, 2].map((i) => (
                       <motion.div
                         key={i}
-                        className="w-2 h-2 bg-green-500 rounded-full"
-                        animate={{ 
-                          y: [0, -6, 0],
-                          opacity: [0.5, 1, 0.5]
-                        }}
-                        transition={{
-                          duration: 1.2,
-                          repeat: Infinity,
-                          delay: i * 0.15,
-                        }}
+                        className="w-1.5 h-1.5 bg-green-500/60 rounded-full"
+                        animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
+                        transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }}
                       />
                     ))}
                   </div>
@@ -1487,30 +1378,16 @@ Execution completed in ${Date.now()}ms.
           </div>
         </ScrollArea>
 
-        {/* Voice Transcript Display */}
-        {isListening && voiceTranscript && (
-          <div className="bg-gray-800 border-t border-gray-700 p-3">
-            <div className="flex items-center space-x-2 text-green-400">
-              <Mic className="h-4 w-4 animate-pulse" />
-              <span className="text-sm font-mono">{voiceTranscript}</span>
+        {/* Voice & Suggestions */}
+        <div className="p-4 space-y-3 bg-gray-800/30 backdrop-blur-sm border-t border-gray-700/50">
+          {isListening && voiceTranscript && (
+            <div className="flex items-center space-x-2 text-green-400 px-2 py-1 bg-green-500/5 rounded-lg border border-green-500/20">
+              <Mic className="h-3 w-3 animate-pulse" />
+              <span className="text-xs font-mono">{voiceTranscript}</span>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* AI Suggestions */}
-        {showSuggestions && aiSuggestions.length > 0 && (
-          <div className="bg-gray-800 border-t border-gray-700 p-3">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-400">🤖 AI Suggestions:</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowSuggestions(false)}
-                className="text-gray-400 hover:text-white"
-              >
-                ×
-              </Button>
-            </div>
+          {showSuggestions && aiSuggestions.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {aiSuggestions.map((suggestion, index) => (
                 <Button
@@ -1522,56 +1399,59 @@ Execution completed in ${Date.now()}ms.
                     setShowSuggestions(false)
                     inputRef.current?.focus()
                   }}
-                  className="text-xs font-mono bg-gray-700 border-gray-600 hover:bg-gray-600"
+                  className="text-[10px] h-7 px-3 font-mono bg-gray-800/50 border-gray-700 hover:bg-gray-700 text-gray-400 hover:text-white rounded-full transition-all"
                 >
                   {suggestion}
                 </Button>
               ))}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Command Input */}
-        <div className="bg-gray-800 border-t border-gray-700 p-4">
+          {/* Final Input Form */}
           <form onSubmit={handleSubmit} className="flex items-center gap-2">
-            <div className="flex-1 relative">
+            <div className="flex-1 relative group">
               <Input
                 ref={inputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Enter command (type 'help' for available commands)..."
-                className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 font-mono rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Enter command (e.g. system.status)..."
+                className="h-11 bg-gray-900/80 border-gray-700 text-white placeholder-gray-500 font-mono rounded-xl focus:ring-1 focus:ring-green-500 focus:border-green-500/50 transition-all pl-10"
                 disabled={isProcessing}
               />
+              <Command className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-hover:text-green-500/60 transition-colors" />
               {commandHistory.length > 0 && (
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs">
-                  ↑↓ history
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <kbd className="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-800 text-[10px] text-gray-500">↑</kbd>
+                  <kbd className="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-800 text-[10px] text-gray-500">↓</kbd>
                 </div>
               )}
             </div>
-            <motion.button
+            <Button
               type="submit"
               disabled={isProcessing || !inputValue.trim()}
-              className="h-9 px-4 rounded-xl bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              className="h-11 w-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30 disabled:opacity-50 disabled:grayscale transition-all"
             >
-              <Send className="h-4 w-4" />
-            </motion.button>
+              <Send className="h-4.5 w-4.5" />
+            </Button>
           </form>
         </div>
       </div>
 
-      {/* Commands Panel */}
+      {/* Commands Panel - Right Side */}
       {showCommands && (
-        <div className="w-96 bg-gray-800 border-l border-gray-700 flex flex-col">
-          <div className="p-4 border-b border-gray-700">
-            <h2 className="text-lg font-semibold text-white">Available Commands</h2>
-            <p className="text-sm text-gray-400">Click to insert command</p>
+        <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-l border-gray-700 flex flex-col hidden xl:flex">
+          <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-white flex items-center gap-2">
+              <Play className="w-3.5 h-3.5 text-green-500" />
+              Quick Commands
+            </h2>
+            <Button variant="ghost" size="icon" onClick={() => setShowCommands(false)} className="h-6 w-6 text-gray-500 hover:text-white">
+              <XCircle className="h-4 w-4" />
+            </Button>
           </div>
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
+          <ScrollArea className="flex-1">
+            <div className="p-3 space-y-6">
               {Object.entries(
                 commands.reduce((acc, cmd) => {
                   if (!acc[cmd.category]) acc[cmd.category] = []
@@ -1580,22 +1460,21 @@ Execution completed in ${Date.now()}ms.
                 }, {} as Record<string, CommandDefinition[]>)
               ).map(([category, categoryCommands]) => (
                 <div key={category}>
-                  <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-2">
+                  <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3 px-1">
                     {category}
                   </h3>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {categoryCommands.map((cmd) => (
                       <div
                         key={cmd.name}
-                        className="bg-gray-700 rounded p-3 cursor-pointer hover:bg-gray-600 transition-colors"
+                        className="group bg-transparent hover:bg-gray-700/50 rounded-lg p-2.5 cursor-pointer transition-all border border-transparent hover:border-gray-700"
                         onClick={() => {
                           setInputValue(cmd.name)
                           inputRef.current?.focus()
                         }}
                       >
-                        <div className="text-white font-mono text-sm">{cmd.name}</div>
-                        <div className="text-gray-400 text-xs mt-1">{cmd.description}</div>
-                        <div className="text-gray-500 text-xs mt-1">Syntax: {cmd.syntax}</div>
+                        <div className="text-gray-300 group-hover:text-green-400 font-mono text-xs mb-1">{cmd.name}</div>
+                        <div className="text-[10px] text-gray-500 leading-relaxed line-clamp-2">{cmd.description}</div>
                       </div>
                     ))}
                   </div>
@@ -1606,5 +1485,6 @@ Execution completed in ${Date.now()}ms.
         </div>
       )}
     </div>
+    </AdminLayout >
   )
 }

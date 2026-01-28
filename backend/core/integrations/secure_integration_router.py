@@ -12,7 +12,7 @@ from ..authentication.auth_manager import get_auth
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/integrations", tags=["integrations"])
+router = APIRouter(prefix="/api/v1/integrations", tags=["integrations"])
 
 async def get_current_user_id(request: Request) -> int:
     """Extract user ID from JWT token"""

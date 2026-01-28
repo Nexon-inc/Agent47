@@ -15,8 +15,8 @@ export default function FeaturesPage() {
   const { currentAdmin } = useAdminStore()
   const [error, setError] = useState<string | null>(null)
 
-  const hasAccess = currentAdmin?.permissions?.includes("super_admin") || 
-                    currentAdmin?.permissions?.includes("system_admin")
+  const hasAccess = currentAdmin?.permissions?.includes("super_admin") ||
+    currentAdmin?.permissions?.includes("system_admin")
 
   const { data: featuresData, isLoading, error: featuresError, refetch } = usePolling({
     fetchFn: async () => {
@@ -73,13 +73,13 @@ export default function FeaturesPage() {
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Feature Flags</h1>
-          <p className="text-gray-400">Manage feature toggles and rollouts</p>
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-2">Feature Flags</h1>
+            <p className="text-gray-400">Manage feature toggles and rollouts</p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              onClick={() => refetch()} 
+            <Button
+              onClick={() => refetch()}
               disabled={isLoading}
               className="bg-gray-800 hover:bg-gray-700"
             >
@@ -107,9 +107,10 @@ export default function FeaturesPage() {
             description="Feature flags will appear here once created."
           />
         ) : (
-          <div className="space-y-3">
-            {features.map((feature: any) => (
-              <Card key={feature.key || feature.name} className="bg-gray-900/50 border-gray-800">
+          // Features List
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(featuresData && (Array.isArray(featuresData.features) ? featuresData.features : (Array.isArray(featuresData) ? featuresData : []))).map((feature: any) => (
+              <Card key={feature.key || feature.id || feature.name} className="bg-gray-900/50 border-gray-800">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -145,9 +146,9 @@ export default function FeaturesPage() {
                         )}
                       </Button>
                     </div>
-          </div>
+                  </div>
                 </CardContent>
-        </Card>
+              </Card>
             ))}
           </div>
         )}
