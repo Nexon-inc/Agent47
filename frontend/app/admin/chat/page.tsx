@@ -12,6 +12,8 @@ import { adminAPI } from '@/lib/services/admin-api'
 import { useAdminStore } from '@/lib/stores/admin-store'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import AdminLayout from "@/components/admin/layout"
+import { agentServiceManager, type AgentService, type AgentTask, type AgentWorkflow, type AgentCommunication } from '@/lib/agent-services'
 import {
   Send,
   Bot,
@@ -779,6 +781,17 @@ export default function AdminChatPage() {
       const commandDef = commands.find((c: CommandDefinition) => c.name === cmd)
 
       if (!commandDef) {
+        // Handle help and commands which might not be in commandDef but are handled locally
+        if (cmd === 'help' || cmd === 'commands') {
+          const response = await processCommand(cmd, args)
+          addMessage({
+            type: 'system',
+            content: response,
+            timestamp: new Date().toISOString()
+          })
+          return
+        }
+
         addMessage({
           type: 'error',
           content: `Command not found: ${cmd}. Type "help" for available commands.`,
@@ -788,7 +801,25 @@ export default function AdminChatPage() {
         return
       }
 
-      // Execute command via API
+      // Execute some commands locally if they are not yet implemented in backend
+      if (['ai.assist', 'ai.optimize', 'ai.predict', 'ai.automate', 'agent.execute', 'agent.workflow', 'agent.communicate', 'agent.monitor'].includes(cmd) || cmd.startsWith('system.') || cmd.startsWith('agents.') || cmd.startsWith('analytics.') || cmd.startsWith('billing.') || cmd.startsWith('security.') || cmd.startsWith('integration.')) {
+        const response = await processCommand(cmd, args)
+        addMessage({
+          type: 'system',
+          content: response,
+          timestamp: new Date().toISOString(),
+          metadata: {
+            command: cmd,
+            execution_time: Date.now() - startTime,
+            status: 'success'
+          }
+        })
+        saveCommandToHistory(command)
+        generateAiSuggestions(command)
+        return
+      }
+
+      // Execute command via API for others
       const result = await adminAPI.executeChatCommand(cmd, args)
       const actualExecutionTime = Date.now() - startTime
 
@@ -1024,7 +1055,7 @@ Examples:
             return `❌ Agent "${agentId}" not found. Available agents: ${agentServices.map(a => a.name).join(', ')}`
           }
 
-          const parameters = this.parseTaskParameters(taskParams)
+          const parameters = parseTaskParameters(taskParams)
           const task = await agentServiceManager.executeAgentTask(agent.id, taskType, parameters)
 
           return `✅ Task executed successfully!
@@ -1056,7 +1087,7 @@ Examples:
         switch (workflowAction) {
           case 'create':
             const workflowName = args[1] || 'New Workflow'
-            const workflowSteps = this.generateWorkflowSteps(workflowName)
+            const workflowSteps = generateWorkflowSteps(workflowName)
             const newWorkflow = await agentServiceManager.createWorkflow(workflowName, `Automated ${workflowName}`, workflowSteps)
             setAgentWorkflows(prev => [...prev, newWorkflow])
             return `✅ Workflow created successfully!
@@ -1091,12 +1122,12 @@ ${agentWorkflows.map(w => `• ${w.id}: ${w.name} (${w.status})`).join('\n')}`
           return `❌ Agent Service Manager not initialized. Please wait for initialization to complete.`
         }
 
-        const senderId = args[0]
-        const receiverId = args[1]
-        const messageType = args[2]
-        const messageContent = args.slice(3).join(' ')
+        const senderIdArg = args[0]
+        const receiverIdArg = args[1]
+        const messageTypeArg = args[2]
+        const messageContentArg = args.slice(3).join(' ')
 
-        if (!senderId || !receiverId || !messageType) {
+        if (!senderIdArg || !receiverIdArg || !messageTypeArg) {
           return `❌ Usage: agent.communicate [sender] [receiver] [message_type] [content]
 Examples:
 • agent.communicate aria joe "data_request" "market insights"
@@ -1104,11 +1135,11 @@ Examples:
         }
 
         try {
-          const communication = await agentServiceManager.sendAgentMessage(senderId, receiverId, messageType, messageContent)
+          const communication = await agentServiceManager.sendAgentMessage(senderIdArg, receiverIdArg, messageTypeArg, messageContentArg)
           return `✅ Message sent successfully!
-From: ${senderId}
-To: ${receiverId}
-Type: ${messageType}
+From: ${senderIdArg}
+To: ${receiverIdArg}
+Type: ${messageTypeArg}
 Status: ${communication.status}
 Message ID: ${communication.id}`
         } catch (error) {
@@ -1121,7 +1152,6 @@ Message ID: ${communication.id}`
         }
 
         const monitorAgentId = args[0] || 'all'
-        const monitorMetrics = args[1] || 'performance'
 
         if (monitorAgentId === 'all') {
           const allTasks = await agentServiceManager.getAgentTasks()
@@ -1150,7 +1180,7 @@ Status: ${agent.status}
 Performance Metrics:
 • Success Rate: ${agent.performance_metrics.success_rate}%
 • Response Time: ${agent.performance_metrics.response_time}ms
-• Tasks Completed: ${agent.performance_metrics.tasks_completed}
+• Tasks Completed: ${agent.performance_metrics.performance_metrics?.tasks_completed || 0}
 • Memory Usage: ${agent.performance_metrics.memory_usage}%
 • CPU Usage: ${agent.performance_metrics.cpu_usage}%
 
@@ -1235,256 +1265,260 @@ Execution completed in ${Date.now()}ms.
     }
   }
 
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
   return (
-    <div className="flex h-screen bg-gray-900">
-      {/* Main Chat Interface */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-green-400 to-green-600 p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
-                <Terminal className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">Admin Command Center</h1>
-                <div className="text-sm text-white/90 flex items-center">
-                  <motion.div
-                    className="w-2 h-2 rounded-full bg-white mr-2"
-                    animate={{ opacity: [1, 0.5, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                  Advanced system control and monitoring
+    <AdminLayout>
+      <div className="flex h-screen bg-gray-900">
+        {/* Main Chat Interface */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-green-400 to-green-600 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30">
+                  <Terminal className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-white">Admin Command Center</h1>
+                  <div className="text-sm text-white/90 flex items-center">
+                    <motion.div
+                      className="w-2 h-2 rounded-full bg-white mr-2"
+                      animate={{ opacity: [1, 0.5, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                    Advanced system control and monitoring
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant={systemStatus === 'online' ? 'default' : 'destructive'}>
-                {systemStatus.toUpperCase()}
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowCommands(!showCommands)}
-              >
-                <Command className="h-4 w-4 mr-2" />
-                Commands
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleVoiceToggle}
-                className={isListening ? 'bg-red-500 hover:bg-red-600' : ''}
-              >
-                {isListening ? <Mic className="h-4 w-4 animate-pulse" /> : <Mic className="h-4 w-4" />}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsMuted(!isMuted)}
-              >
-                {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Badge variant={systemStatus === 'online' ? 'default' : 'destructive'}>
+                  {systemStatus.toUpperCase()}
+                </Badge>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCommands(!showCommands)}
+                >
+                  <Command className="h-4 w-4 mr-2" />
+                  Commands
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleVoiceToggle}
+                  className={isListening ? 'bg-red-500 hover:bg-red-600' : ''}
+                >
+                  {isListening ? <Mic className="h-4 w-4 animate-pulse" /> : <Mic className="h-4 w-4" />}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsMuted(!isMuted)}
+                >
+                  {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Chat Messages */}
-        <ScrollArea className="flex-1 p-4 bg-gray-900/50">
-          <div className="space-y-4">
-            {messages.map((message) => {
-              const isUserMessage = message.type === 'user'
-              const isSystemMessage = message.type === 'system'
-              const isThinking = message.type === 'thinking'
+          {/* Chat Messages */}
+          <ScrollArea className="flex-1 p-4 bg-gray-900/50">
+            <div className="space-y-4">
+              {messages.map((message) => {
+                const isUserMessage = message.type === 'user'
+                const isSystemMessage = message.type === 'system'
+                const isThinking = message.type === 'thinking'
 
-              return (
-                <div key={message.id} className={`flex ${isUserMessage ? "justify-end" : isSystemMessage ? "justify-center" : "justify-start"} group`}>
-                  {isSystemMessage ? (
-                    <div className="bg-green-900/30 border border-green-700/50 rounded-xl px-4 py-2.5 text-sm text-green-400 max-w-[85%] shadow-sm">
-                      <div className="prose prose-sm prose-invert max-w-none dark:prose-invert text-center">
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          className="text-sm"
-                          components={{
-                            p: ({ children }) => <p className="mb-1 last:mb-0 text-green-400">{children}</p>,
-                            strong: ({ children }) => <strong className="font-semibold text-green-300">{children}</strong>,
-                            em: ({ children }) => <em className="italic text-green-300">{children}</em>,
-                            code: ({ children }) => <code className="bg-green-900/50 px-1.5 py-0.5 rounded text-xs text-green-300 font-mono">{children}</code>,
-                          }}
-                        >
-                          {message.content}
-                        </ReactMarkdown>
+                return (
+                  <div key={message.id} className={`flex ${isUserMessage ? "justify-end" : isSystemMessage ? "justify-center" : "justify-start"} group`}>
+                    {isSystemMessage ? (
+                      <div className="bg-green-900/30 border border-green-700/50 rounded-xl px-4 py-2.5 text-sm text-green-400 max-w-[85%] shadow-sm">
+                        <div className="prose prose-sm prose-invert max-w-none dark:prose-invert text-center">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            className="text-sm"
+                            components={{
+                              p: ({ children }) => <p className="mb-1 last:mb-0 text-green-400">{children}</p>,
+                              strong: ({ children }) => <strong className="font-semibold text-green-300">{children}</strong>,
+                              em: ({ children }) => <em className="italic text-green-300">{children}</em>,
+                              code: ({ children }) => <code className="bg-green-900/50 px-1.5 py-0.5 rounded text-xs text-green-300 font-mono">{children}</code>,
+                            }}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className={`flex items-end gap-2 max-w-[80%] ${isUserMessage ? "flex-row-reverse" : ""}`}>
-                      {/* Avatar */}
-                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${isUserMessage
+                    ) : (
+                      <div className={`flex items-end gap-2 max-w-[80%] ${isUserMessage ? "flex-row-reverse" : ""}`}>
+                        {/* Avatar */}
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${isUserMessage
                           ? "bg-gradient-to-r from-green-400 to-green-600"
                           : isThinking
                             ? "bg-gradient-to-r from-green-400 to-green-600 animate-pulse"
                             : getMessageColor(message.type)
-                        }`}>
-                        {isThinking ? <Terminal className="w-4 h-4" /> : getMessageIcon(message.type)}
-                      </div>
+                          }`}>
+                          {isThinking ? <Terminal className="w-4 h-4" /> : getMessageIcon(message.type)}
+                        </div>
 
-                      <div className={`flex flex-col ${message.type === 'user' ? 'items-end' : 'items-start'}`}>
-                        <div className={`px-4 py-2.5 rounded-2xl text-sm shadow-xl ${message.type === 'user' ? 'bg-green-500 text-white rounded-tr-none' :
+                        <div className={`flex flex-col ${message.type === 'user' ? 'items-end' : 'items-start'}`}>
+                          <div className={`px-4 py-2.5 rounded-2xl text-sm shadow-xl ${message.type === 'user' ? 'bg-green-500 text-white rounded-tr-none' :
                             message.type === 'error' ? 'bg-red-500/10 text-red-200 border border-red-500/20 rounded-tl-none' :
                               message.type === 'success' ? 'bg-green-500/10 text-green-200 border border-green-500/20 rounded-tl-none' :
                                 'bg-gray-800/80 backdrop-blur-md text-gray-200 border border-gray-700/50 rounded-tl-none'
-                          }`}>
-                          {message.type === 'thinking' ? (
-                            <div className="flex items-center gap-2 text-gray-400 italic">
-                              <RefreshCw className="w-3 h-3 animate-spin" />
-                              <span>Processing command...</span>
-                            </div>
-                          ) : (
-                            <div className="prose prose-sm prose-invert max-w-none">
-                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {message.content}
-                              </ReactMarkdown>
-                            </div>
-                          )}
+                            }`}>
+                            {message.type === 'thinking' ? (
+                              <div className="flex items-center gap-2 text-gray-400 italic">
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                                <span>Processing command...</span>
+                              </div>
+                            ) : (
+                              <div className="prose prose-sm prose-invert max-w-none">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                  {message.content}
+                                </ReactMarkdown>
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-gray-500 mt-1 px-1">
+                            {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </div>
-                        <span className="text-[10px] text-gray-500 mt-1 px-1">
-                          {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
                       </div>
+                    )}
+                  </div>
+                )
+              })}
+              {isProcessing && (
+                <div className="flex justify-start items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400">
+                    <Terminal className="w-4 h-4 animate-pulse text-green-500" />
+                  </div>
+                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl px-4 py-3">
+                    <div className="flex space-x-1.5">
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="w-1.5 h-1.5 bg-green-500/60 rounded-full"
+                          animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
+                          transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }}
+                        />
+                      ))}
                     </div>
                   </div>
-              )
-            })}
-            {isProcessing && (
-              <div className="flex justify-start items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-400">
-                  <Terminal className="w-4 h-4 animate-pulse text-green-500" />
-                </div>
-                <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl px-4 py-3">
-                  <div className="flex space-x-1.5">
-                    {[0, 1, 2].map((i) => (
-                      <motion.div
-                        key={i}
-                        className="w-1.5 h-1.5 bg-green-500/60 rounded-full"
-                        animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: i * 0.15 }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </ScrollArea>
-
-        {/* Voice & Suggestions */}
-        <div className="p-4 space-y-3 bg-gray-800/30 backdrop-blur-sm border-t border-gray-700/50">
-          {isListening && voiceTranscript && (
-            <div className="flex items-center space-x-2 text-green-400 px-2 py-1 bg-green-500/5 rounded-lg border border-green-500/20">
-              <Mic className="h-3 w-3 animate-pulse" />
-              <span className="text-xs font-mono">{voiceTranscript}</span>
-            </div>
-          )}
-
-          {showSuggestions && aiSuggestions.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {aiSuggestions.map((suggestion, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setInputValue(suggestion)
-                    setShowSuggestions(false)
-                    inputRef.current?.focus()
-                  }}
-                  className="text-[10px] h-7 px-3 font-mono bg-gray-800/50 border-gray-700 hover:bg-gray-700 text-gray-400 hover:text-white rounded-full transition-all"
-                >
-                  {suggestion}
-                </Button>
-              ))}
-            </div>
-          )}
-
-          {/* Final Input Form */}
-          <form onSubmit={handleSubmit} className="flex items-center gap-2">
-            <div className="flex-1 relative group">
-              <Input
-                ref={inputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Enter command (e.g. system.status)..."
-                className="h-11 bg-gray-900/80 border-gray-700 text-white placeholder-gray-500 font-mono rounded-xl focus:ring-1 focus:ring-green-500 focus:border-green-500/50 transition-all pl-10"
-                disabled={isProcessing}
-              />
-              <Command className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-hover:text-green-500/60 transition-colors" />
-              {commandHistory.length > 0 && (
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <kbd className="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-800 text-[10px] text-gray-500">↑</kbd>
-                  <kbd className="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-800 text-[10px] text-gray-500">↓</kbd>
                 </div>
               )}
-            </div>
-            <Button
-              type="submit"
-              disabled={isProcessing || !inputValue.trim()}
-              className="h-11 w-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30 disabled:opacity-50 disabled:grayscale transition-all"
-            >
-              <Send className="h-4.5 w-4.5" />
-            </Button>
-          </form>
-        </div>
-      </div>
-
-      {/* Commands Panel - Right Side */}
-      {showCommands && (
-        <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-l border-gray-700 flex flex-col hidden xl:flex">
-          <div className="p-4 border-b border-gray-700 flex items-center justify-between">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Play className="w-3.5 h-3.5 text-green-500" />
-              Quick Commands
-            </h2>
-            <Button variant="ghost" size="icon" onClick={() => setShowCommands(false)} className="h-6 w-6 text-gray-500 hover:text-white">
-              <XCircle className="h-4 w-4" />
-            </Button>
-          </div>
-          <ScrollArea className="flex-1">
-            <div className="p-3 space-y-6">
-              {Object.entries(
-                commands.reduce((acc, cmd) => {
-                  if (!acc[cmd.category]) acc[cmd.category] = []
-                  acc[cmd.category].push(cmd)
-                  return acc
-                }, {} as Record<string, CommandDefinition[]>)
-              ).map(([category, categoryCommands]) => (
-                <div key={category}>
-                  <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3 px-1">
-                    {category}
-                  </h3>
-                  <div className="space-y-1">
-                    {categoryCommands.map((cmd) => (
-                      <div
-                        key={cmd.name}
-                        className="group bg-transparent hover:bg-gray-700/50 rounded-lg p-2.5 cursor-pointer transition-all border border-transparent hover:border-gray-700"
-                        onClick={() => {
-                          setInputValue(cmd.name)
-                          inputRef.current?.focus()
-                        }}
-                      >
-                        <div className="text-gray-300 group-hover:text-green-400 font-mono text-xs mb-1">{cmd.name}</div>
-                        <div className="text-[10px] text-gray-500 leading-relaxed line-clamp-2">{cmd.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              <div ref={messagesEndRef} />
             </div>
           </ScrollArea>
+
+          {/* Voice & Suggestions */}
+          <div className="p-4 space-y-3 bg-gray-800/30 backdrop-blur-sm border-t border-gray-700/50">
+            {isListening && voiceTranscript && (
+              <div className="flex items-center space-x-2 text-green-400 px-2 py-1 bg-green-500/5 rounded-lg border border-green-500/20">
+                <Mic className="h-3 w-3 animate-pulse" />
+                <span className="text-xs font-mono">{voiceTranscript}</span>
+              </div>
+            )}
+
+            {showSuggestions && aiSuggestions.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {aiSuggestions.map((suggestion, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setInputValue(suggestion)
+                      setShowSuggestions(false)
+                      inputRef.current?.focus()
+                    }}
+                    className="text-[10px] h-7 px-3 font-mono bg-gray-800/50 border-gray-700 hover:bg-gray-700 text-gray-400 hover:text-white rounded-full transition-all"
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Final Input Form */}
+            <form onSubmit={handleSubmit} className="flex items-center gap-2">
+              <div className="flex-1 relative group">
+                <Input
+                  ref={inputRef}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Enter command (e.g. system.status)..."
+                  className="h-11 bg-gray-900/80 border-gray-700 text-white placeholder-gray-500 font-mono rounded-xl focus:ring-1 focus:ring-green-500 focus:border-green-500/50 transition-all pl-10"
+                  disabled={isProcessing}
+                />
+                <Command className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-hover:text-green-500/60 transition-colors" />
+                {commandHistory.length > 0 && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <kbd className="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-800 text-[10px] text-gray-500">↑</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded border border-gray-700 bg-gray-800 text-[10px] text-gray-500">↓</kbd>
+                  </div>
+                )}
+              </div>
+              <Button
+                type="submit"
+                disabled={isProcessing || !inputValue.trim()}
+                className="h-11 w-11 rounded-xl bg-gradient-to-br from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30 disabled:opacity-50 disabled:grayscale transition-all"
+              >
+                <Send className="h-4.5 w-4.5" />
+              </Button>
+            </form>
+          </div>
         </div>
-      )}
-    </div>
-    </AdminLayout >
+
+        {/* Commands Panel - Right Side */}
+        {showCommands && (
+          <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-l border-gray-700 flex flex-col hidden xl:flex">
+            <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <Play className="w-3.5 h-3.5 text-green-500" />
+                Quick Commands
+              </h2>
+              <Button variant="ghost" size="icon" onClick={() => setShowCommands(false)} className="h-6 w-6 text-gray-500 hover:text-white">
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </div>
+            <ScrollArea className="flex-1">
+              <div className="p-3 space-y-6">
+                {Object.entries(
+                  commands.reduce((acc, cmd) => {
+                    if (!acc[cmd.category]) acc[cmd.category] = []
+                    acc[cmd.category].push(cmd)
+                    return acc
+                  }, {} as Record<string, CommandDefinition[]>)
+                ).map(([category, categoryCommands]) => (
+                  <div key={category}>
+                    <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3 px-1">
+                      {category}
+                    </h3>
+                    <div className="space-y-1">
+                      {categoryCommands.map((cmd) => (
+                        <div
+                          key={cmd.name}
+                          className="group bg-transparent hover:bg-gray-700/50 rounded-lg p-2.5 cursor-pointer transition-all border border-transparent hover:border-gray-700"
+                          onClick={() => {
+                            setInputValue(cmd.name)
+                            inputRef.current?.focus()
+                          }}
+                        >
+                          <div className="text-gray-300 group-hover:text-green-400 font-mono text-xs mb-1">{cmd.name}</div>
+                          <div className="text-[10px] text-gray-500 leading-relaxed line-clamp-2">{cmd.description}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+      </div>
+    </AdminLayout>
   )
 }
