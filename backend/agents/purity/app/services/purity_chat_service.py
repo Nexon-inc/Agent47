@@ -50,6 +50,9 @@ from .sustainability_planner_service import SustainabilityPlannerService
 from .task_automation_service import TaskAutomationService
 from .tax_planning_service import TaxPlanningService
 from core.services.media_service import MediaService
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -102,49 +105,49 @@ class PurityChatService:
         # Common user intents and responses for business development
         self.intent_responses = {
             "greeting": [
-                "Hello! I'm Purity, your AI-powered business development assistant. I'm here to help you build, grow, and scale your business successfully.",
-                "Hi there! I'm Purity, ready to help you develop your business idea, create strategies, and achieve your entrepreneurial goals.",
-                "Welcome! I'm Purity, your dedicated business partner. Let's turn your vision into a thriving, profitable business!"
+                "Hello! 👋 I'm Purity, your AI-powered business development assistant. I'm here to help you build, grow, and scale your business successfully. 💼",
+                "Hi there! ✨ I'm Purity, ready to help you develop your business idea, create strategies, and achieve your entrepreneurial goals. 📈",
+                "Welcome! 🌟 I'm Purity, your dedicated business partner. Let's turn your vision into a thriving, profitable business! 🚀"
             ],
             "help": [
-                "I can help you with: business planning, market research, financial planning, investment strategies, growth planning, and much more. What would you like to work on?",
-                "I'm here to assist with: business ideation, market validation, financial modeling, strategic planning, and scaling operations. What do you need help with?",
-                "I offer comprehensive business support including: business model development, funding strategies, market analysis, and growth optimization. How can I assist you today?"
+                "I can help you with: business planning 📊, market research 🔍, financial planning 💰, investment strategies 🎯, growth planning 📈, and much more. What would you like to work on?",
+                "I'm here to assist with: business ideation 💡, market validation ✅, financial modeling 📉, strategic planning 📋, and scaling operations 🚀. What do you need help with?",
+                "I offer comprehensive business support including: business model development 🏗️, funding strategies 💵, market analysis 📋, and growth optimization 📈. How can I assist you today?"
             ],
             "business_planning": [
-                "I'll help you create a comprehensive business plan that outlines your vision, strategy, and path to success.",
-                "Let me guide you through developing a solid business plan with market analysis, financial projections, and operational strategies.",
-                "I'll help you structure your business idea into a professional plan that investors and stakeholders will understand and support."
+                "I'll help you create a comprehensive business plan that outlines your vision, strategy, and path to success. 📋",
+                "Let me guide you through developing a solid business plan with market analysis, financial projections, and operational strategies. 📊",
+                "I'll help you structure your business idea into a professional plan that investors and stakeholders will understand and support. ✨"
             ],
             "market_research": [
-                "I'll help you conduct thorough market research to understand your industry, competitors, and target customers.",
-                "Let me analyze market trends, customer needs, and competitive landscape to validate your business opportunity.",
-                "I'll help you gather market intelligence that informs your business strategy and positioning decisions."
+                "I'll help you conduct thorough market research to understand your industry, competitors, and target customers. 🔍",
+                "Let me analyze market trends, customer needs, and competitive landscape to validate your business opportunity. 💡",
+                "I'll help you gather market intelligence that informs your business strategy and positioning decisions. 📊"
             ],
             "financial_planning": [
-                "I'll help you create financial projections, budgets, and funding strategies for your business.",
-                "Let me guide you through financial planning including revenue models, cost structures, and investment requirements.",
-                "I'll help you develop a solid financial foundation that supports your business growth and sustainability."
+                "I'll help you create financial projections, budgets, and funding strategies for your business. 💰",
+                "Let me guide you through financial planning including revenue models, cost structures, and investment requirements. 📉",
+                "I'll help you develop a solid financial foundation that supports your business growth and sustainability. ✅"
             ],
             "investment_strategy": [
-                "I'll help you prepare for investment opportunities and create compelling pitches for investors.",
-                "Let me guide you through the funding process and help you identify the right investors for your business.",
-                "I'll help you develop investment strategies and prepare materials that attract funding and support."
+                "I'll help you prepare for investment opportunities and create compelling pitches for investors. 🎯",
+                "Let me guide you through the funding process and help you identify the right investors for your business. 💵",
+                "I'll help you develop investment strategies and prepare materials that attract funding and support. ✨"
             ],
             "growth_planning": [
-                "I'll help you plan and execute strategies for scaling your business and expanding into new markets.",
-                "Let me guide you through growth planning including market expansion, team building, and operational scaling.",
-                "I'll help you develop a roadmap for sustainable growth that maximizes your business potential."
+                "I'll help you plan and execute strategies for scaling your business and expanding into new markets. 📈",
+                "Let me guide you through growth planning including market expansion, team building, and operational scaling. 🚀",
+                "I'll help you develop a roadmap for sustainable growth that maximizes your business potential. ✅"
             ],
             "business_model": [
-                "I'll help you design and refine your business model to ensure profitability and sustainability.",
-                "Let me guide you through business model development including value proposition, revenue streams, and cost structure.",
-                "I'll help you create a business model that delivers value to customers while generating sustainable profits."
+                "I'll help you design and refine your business model to ensure profitability and sustainability. 🏗️",
+                "Let me guide you through business model development including value proposition, revenue streams, and cost structure. 💰",
+                "I'll help you create a business model that delivers value to customers while generating sustainable profits. ✨"
             ],
             "general": [
-                "I'm here to help you build a successful business. What challenge are you facing?",
-                "Let's work together to grow your business. What's your goal?",
-                "I can help with any business development task. What do you need assistance with?"
+                "I'm here to help you build a successful business. What challenge are you facing? 🤔",
+                "Let's work together to grow your business. What's your goal? ✨",
+                "I can help with any business development task. What do you need assistance with? 🚀"
             ]
         }
     
@@ -215,8 +218,6 @@ class PurityChatService:
                 user_connected_integrations = [i.get("integration_name") for i in user_resources.get("integrations", []) if i.get("status") == "connected"]
                 user_website = user_resources.get("profile", {}).get("website_url", "")
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning(f"Could not fetch user resources: {e}")
         
         # Dynamically load ALL available platforms and integrations
@@ -345,49 +346,49 @@ class PurityChatService:
         """Get fallback response for detected intent"""
         responses = {
             "greeting": [
-                "Hello! I'm Purity, your AI business assistant. How can I help you build your business today?",
-                "Hi there! I'm Purity, ready to help you grow your business. What's your goal?",
-                "Welcome! I'm Purity, your business partner. Let's build something amazing!"
+                "Hello! 👋 I'm Purity, your AI business assistant. How can I help you build your business today?",
+                "Hi there! ✨ I'm Purity, ready to help you grow your business. What's your goal?",
+                "Welcome! 🌟 I'm Purity, your business partner. Let's build something amazing! 🚀"
             ],
             "help": [
-                "I can help you with business planning, market research, financial planning, and more. What do you need?",
-                "I'm here to assist with all your business needs. What challenge are you facing?",
-                "I offer comprehensive business support. How can I help you succeed today?"
+                "I can help you with business planning 📊, market research 🔍, financial planning 💰, and more. What do you need?",
+                "I'm here to assist with all your business needs. What challenge are you facing? 🤔",
+                "I offer comprehensive business support. How can I help you succeed today? ✨"
             ],
             "business_planning": [
-                "I'll help you create a business plan. What's your business idea?",
-                "Let me guide you through business planning. What's your vision?",
-                "I'll help you develop a strategy. What's your business goal?"
+                "I'll help you create a business plan 📋. What's your business idea?",
+                "Let me guide you through business planning 📊. What's your vision?",
+                "I'll help you develop a strategy ✨. What's your business goal?"
             ],
             "market_research": [
-                "I'll help you research your market. What industry are you in?",
-                "Let me analyze your market. What's your target audience?",
-                "I'll help you understand your market. What's your business focus?"
+                "I'll help you research your market 🔍. What industry are you in?",
+                "Let me analyze your market 💡. What's your target audience?",
+                "I'll help you understand your market 📊. What's your business focus?"
             ],
             "financial_planning": [
-                "I'll help you with financial planning. What's your budget?",
-                "Let me guide you through finances. What are your funding needs?",
-                "I'll help you plan your finances. What's your revenue goal?"
+                "I'll help you with financial planning 💰. What's your budget?",
+                "Let me guide you through finances 📉. What are your funding needs?",
+                "I'll help you plan your finances ✅. What's your revenue goal?"
             ],
             "investment_strategy": [
-                "I'll help you with investment strategy. What's your funding goal?",
-                "Let me guide you through funding. What type of investment do you need?",
-                "I'll help you attract investors. What's your business stage?"
+                "I'll help you with investment strategy 🎯. What's your funding goal?",
+                "Let me guide you through funding 💵. What type of investment do you need?",
+                "I'll help you attract investors ✨. What's your business stage?"
             ],
             "growth_planning": [
-                "I'll help you plan for growth. What's your current stage?",
-                "Let me guide you through scaling. What's your growth goal?",
-                "I'll help you expand your business. What's your target market?"
+                "I'll help you plan for growth 📈. What's your current stage?",
+                "Let me guide you through scaling 🚀. What's your growth goal?",
+                "I'll help you expand your business ✅. What's your target market?"
             ],
             "business_model": [
-                "I'll help you design your business model. What's your value proposition?",
-                "Let me guide you through business modeling. What's your revenue model?",
-                "I'll help you refine your business model. What's your competitive advantage?"
+                "I'll help you design your business model 🏗️. What's your value proposition?",
+                "Let me guide you through business modeling 💰. What's your revenue model?",
+                "I'll help you refine your business model ✨. What's your competitive advantage?"
             ],
             "general": [
-                "I'm here to help with business development. What do you need assistance with?",
-                "Let's work together to grow your business. What's your goal?",
-                "I can help with any business task. What's on your mind?"
+                "I'm here to help with business development. What do you need assistance with? 🤔",
+                "Let's work together to grow your business. What's your goal? ✨",
+                "I can help with any business task. What's on your mind? 🚀"
             ]
         }
         
@@ -507,8 +508,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
 **CRITICAL:** You MUST strictly follow the custom instructions above. These are user-specific tweaks that override default behavior. Apply them to ALL your responses and actions.
 """
                 except Exception as e:
-                    import logging
-                    logger = logging.getLogger(__name__)
                     logger.warning(f"Could not fetch agent configuration: {e}")
                 
                 # Prepare messages for AI processing
@@ -551,8 +550,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                         if user:
                             user_tier = user.tier
                     except Exception as e:
-                        import logging
-                        logger = logging.getLogger(__name__)
                         logger.warning(f"Failed to get user tier: {e}")
                     
                     # Extract image generation prompt or use context

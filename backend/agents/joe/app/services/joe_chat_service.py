@@ -69,6 +69,9 @@ from .trend_forecasting_service import TrendForecastingService
 from .voice_queries_service import VoiceQueriesService
 from .voice_research_service import VoiceResearchService
 from core.services.media_service import MediaService
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Import Joe's actual services
 from .market_trend_analysis_service import MarketTrendAnalysisService
@@ -151,49 +154,49 @@ class JoeChatService:
         # Common user intents and responses for research
         self.intent_responses = {
             "greeting": [
-                "Hello! I'm Joe, your AI-powered research assistant. I'm here to help you gather market intelligence, analyze trends, and make data-driven decisions.",
-                "Hi there! I'm Joe, ready to help you research markets, competitors, and opportunities for your business.",
-                "Welcome! I'm Joe, your dedicated research partner. Let's uncover insights that drive your business forward!"
+                "Hello! 👋 I'm Joe, your AI-powered research assistant. I'm here to help you gather market intelligence, analyze trends, and make data-driven decisions. 📊",
+                "Hi there! ✨ I'm Joe, ready to help you research markets, competitors, and opportunities for your business. 🔍",
+                "Welcome! 🌟 I'm Joe, your dedicated research partner. Let's uncover insights that drive your business forward! 🚀"
             ],
             "help": [
-                "I can help you with: market research, competitor analysis, trend forecasting, sentiment analysis, keyword research, and much more. What would you like to explore?",
-                "I'm here to assist with: gathering market intelligence, analyzing industry trends, tracking competitors, and finding business opportunities. What do you need to research?",
-                "I offer comprehensive research support including: market analysis, competitive intelligence, trend prediction, and strategic insights. How can I help you today?"
+                "I can help you with: market research 🔍, competitor analysis 🏢, trend forecasting 📈, sentiment analysis 💬, keyword research 🔑, and much more. What would you like to explore?",
+                "I'm here to assist with: gathering market intelligence 💡, analyzing industry trends 📊, tracking competitors 🕵️‍♂️, and finding business opportunities 🚀. What do you need to research?",
+                "I offer comprehensive research support including: market analysis 📋, competitive intelligence 🔍, trend prediction 📉, and strategic insights ✨. How can I help you today?"
             ],
             "market_research": [
-                "I'll help you conduct comprehensive market research to understand your industry, target audience, and market opportunities.",
-                "Let me analyze market data, industry reports, and consumer trends to provide you with actionable market insights.",
-                "I'll examine market size, growth rates, and key players to help you make informed business decisions."
+                "I'll help you conduct comprehensive market research to understand your industry, target audience, and market opportunities. 📋",
+                "Let me analyze market data, industry reports, and consumer trends to provide you with actionable market insights. 💡",
+                "I'll examine market size, growth rates, and key players to help you make informed business decisions. 📊"
             ],
             "competitor_analysis": [
-                "I'll analyze your competitors' strategies, strengths, weaknesses, and market positioning to help you stay competitive.",
-                "Let me research your competitors' products, pricing, marketing, and business models to identify opportunities.",
-                "I'll track competitor activities and provide insights to help you differentiate and win in the market."
+                "I'll analyze your competitors' strategies, strengths, weaknesses, and market positioning to help you stay competitive. 🏢",
+                "Let me research your competitors' products, pricing, marketing, and business models to identify opportunities. 🔍",
+                "I'll track competitor activities and provide insights to help you differentiate and win in the market. 🏆"
             ],
             "trend_analysis": [
-                "I'll identify and analyze emerging trends in your industry to help you stay ahead of the curve.",
-                "Let me track market trends, consumer behavior, and technological developments that could impact your business.",
-                "I'll forecast future trends and help you prepare for upcoming changes in your market."
+                "I'll identify and analyze emerging trends in your industry to help you stay ahead of the curve. 📈",
+                "Let me track market trends, consumer behavior, and technological developments that could impact your business. 📉",
+                "I'll forecast future trends and help you prepare for upcoming changes in your market. 🚀"
             ],
             "sentiment_analysis": [
-                "I'll analyze customer sentiment, reviews, and social media mentions to understand how people feel about your brand.",
-                "Let me track brand sentiment across different channels and identify areas for improvement.",
-                "I'll monitor public opinion and help you manage your brand reputation effectively."
+                "I'll analyze customer sentiment, reviews, and social media mentions to understand how people feel about your brand. 💬",
+                "Let me track brand sentiment across different channels and identify areas for improvement. ✨",
+                "I'll monitor public opinion and help you manage your brand reputation effectively. 🛡️"
             ],
             "keyword_research": [
-                "I'll help you find the right keywords to improve your SEO and reach your target audience.",
-                "Let me research high-value keywords, search volumes, and competition levels for your content strategy.",
-                "I'll identify keyword opportunities and help you optimize your content for better search visibility."
+                "I'll help you find the right keywords to improve your SEO and reach your target audience. 🔑",
+                "Let me research high-value keywords, search volumes, and competition levels for your content strategy. 📈",
+                "I'll identify keyword opportunities and help you optimize your content for better search visibility. ✅"
             ],
             "data_analysis": [
-                "I'll help you analyze research data, identify patterns, and extract meaningful insights for your business.",
-                "Let me process your data and create visualizations that make complex information easy to understand.",
-                "I'll turn raw data into actionable intelligence that drives your decision-making process."
+                "I'll help you analyze research data, identify patterns, and extract meaningful insights for your business. 📊",
+                "Let me process your data and create visualizations that make complex information easy to understand. 📉",
+                "I'll turn raw data into actionable intelligence that drives your decision-making process. 💡"
             ],
             "general": [
-                "I'm here to help you with all your research needs. What information are you looking for?",
-                "Let's dive deep into research and find the insights you need. What's your research goal?",
-                "I can help with any research task. What do you need to know?"
+                "I'm here to help you with all your research needs. What information are you looking for? 🤔",
+                "Let's dive deep into research and find the insights you need. What's your research goal? ✨",
+                "I can help with any research task. What do you need to know? 🚀"
             ]
         }
     
@@ -264,8 +267,6 @@ class JoeChatService:
                 user_connected_integrations = [i.get("integration_name") for i in user_resources.get("integrations", []) if i.get("status") == "connected"]
                 user_website = user_resources.get("profile", {}).get("website_url", "")
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning(f"Could not fetch user resources: {e}")
         
         # Dynamically load ALL available platforms and integrations
@@ -386,49 +387,49 @@ class JoeChatService:
         """Get fallback response for detected intent"""
         responses = {
             "greeting": [
-                "Hello! I'm Joe, your AI research assistant. How can I help you gather insights today?",
-                "Hi there! I'm Joe, ready to help you research and analyze. What's your research goal?",
-                "Welcome! I'm Joe, your research partner. Let's uncover valuable insights together!"
+                "Hello! 👋 I'm Joe, your AI research assistant. How can I help you gather insights today?",
+                "Hi there! ✨ I'm Joe, ready to help you research and analyze. What's your research goal?",
+                "Welcome! 🌟 I'm Joe, your research partner. Let's uncover valuable insights together! 🚀"
             ],
             "help": [
-                "I can help you with market research, competitor analysis, trend forecasting, and more. What do you need to research?",
-                "I'm here to assist with all your research needs. What information are you looking for?",
-                "I offer comprehensive research support. How can I help you gather intelligence today?"
+                "I can help you with market research 🔍, competitor analysis 🏢, trend forecasting 📈, and more. What do you need to research?",
+                "I'm here to assist with all your research needs. What information are you looking for? 🤔",
+                "I offer comprehensive research support. How can I help you gather intelligence today? ✨"
             ],
             "market_research": [
-                "I'll help you research your market. What industry or sector are you interested in?",
-                "Let me analyze market data for you. What specific market information do you need?",
-                "I'll conduct market research. What's your target market or industry?"
+                "I'll help you research your market 📋. What industry or sector are you interested in?",
+                "Let me analyze market data for you 📊. What specific market information do you need?",
+                "I'll conduct market research 🔍. What's your target market or industry?"
             ],
             "competitor_analysis": [
-                "I'll help you analyze your competitors. Who are your main competitors?",
-                "Let me research your competition. What companies should I analyze?",
-                "I'll conduct competitor analysis. What industry are you in?"
+                "I'll help you analyze your competitors 🏢. Who are your main competitors?",
+                "Let me research your competition 🕵️‍♂️. What companies should I analyze?",
+                "I'll conduct competitor analysis 🔍. What industry are you in?"
             ],
             "trend_analysis": [
-                "I'll help you identify trends. What industry or topic are you interested in?",
-                "Let me analyze trends for you. What trends are you looking to track?",
-                "I'll forecast trends. What market or industry should I focus on?"
+                "I'll help you identify trends 📈. What industry or topic are you interested in?",
+                "Let me analyze trends for you 📉. What trends are you looking to track?",
+                "I'll forecast trends 🚀. What market or industry should I focus on?"
             ],
             "sentiment_analysis": [
-                "I'll help you analyze sentiment. What brand or topic should I analyze?",
-                "Let me track sentiment for you. What are you looking to monitor?",
-                "I'll conduct sentiment analysis. What brand or product should I research?"
+                "I'll help you analyze sentiment 💬. What brand or topic should I analyze?",
+                "Let me track sentiment for you ✨. What are you looking to monitor?",
+                "I'll conduct sentiment analysis 🛡️. What brand or product should I research?"
             ],
             "keyword_research": [
-                "I'll help you with keyword research. What's your business or content topic?",
-                "Let me find keywords for you. What industry or niche are you in?",
-                "I'll research keywords. What content or products are you promoting?"
+                "I'll help you with keyword research 🔑. What's your business or content topic?",
+                "Let me find keywords for you 📈. What industry or niche are you in?",
+                "I'll research keywords ✅. What content or products are you promoting?"
             ],
             "data_analysis": [
-                "I'll help you analyze data. What data do you have or need to analyze?",
-                "Let me process your data. What insights are you looking for?",
-                "I'll turn your data into insights. What information do you have?"
+                "I'll help you analyze data 📊. What data do you have or need to analyze?",
+                "Let me process your data 📉. What insights are you looking for?",
+                "I'll turn your data into insights 💡. What information do you have?"
             ],
             "general": [
-                "I'm here to help you with all your research needs. What information are you looking for?",
-                "Let's research together. What information are you looking for?",
-                "I can help with any research task. What's your goal?"
+                "I'm here to help you with all your research needs. What information are you looking for? 🤔",
+                "Let's research together ✨. What information are you looking for?",
+                "I can help with any research task. What's your goal? 🚀"
             ]
         }
         
@@ -590,8 +591,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                         if user:
                             user_tier = user.tier
                     except Exception as e:
-                        import logging
-                        logger = logging.getLogger(__name__)
                         logger.warning(f"Failed to get user tier: {e}")
                     
                     # Extract image generation prompt or use context

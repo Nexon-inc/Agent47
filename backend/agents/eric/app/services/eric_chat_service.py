@@ -5,6 +5,8 @@ from sqlalchemy import select, and_, func
 from sqlalchemy.orm import selectinload
 import logging
 
+logger = logging.getLogger(__name__)
+
 from ..models import EricLead, EricDeal, EricLeadInteraction, CommunicationChannel
 from ..database import get_db
 from core.ai import get_ai_service_manager, AIServiceManager
@@ -128,44 +130,44 @@ class EricChatService:
         # Common user intents and responses for sales
         self.intent_responses = {
             "greeting": [
-                "Hello! I'm Eric, your AI-powered sales assistant. I'm here to help you generate leads, close deals, and grow your sales revenue.",
-                "Hi there! I'm Eric, ready to help you boost your sales performance and achieve your revenue goals.",
-                "Welcome! I'm Eric, your dedicated sales partner. Let's turn prospects into customers and grow your business!"
+                "Hello! 👋 I'm Eric, your AI-powered sales assistant. I'm here to help you generate leads, close deals, and grow your sales revenue. 🚀",
+                "Hi there! ✨ I'm Eric, ready to help you boost your sales performance and achieve your revenue goals. 💰",
+                "Welcome! 🌟 I'm Eric, your dedicated sales partner. Let's turn prospects into customers and grow your business! 📈"
             ],
             "help": [
-                "I can help you with: lead generation, CRM automation, sales outreach, deal closing, forecasting, customer insights, and much more. What would you like to work on?",
-                "I'm here to assist with: finding new prospects, nurturing leads, closing deals, analyzing sales performance, and optimizing your sales process. What do you need help with?",
-                "I offer comprehensive sales support including: lead qualification, sales forecasting, customer segmentation, objection handling, and revenue optimization. How can I assist you today?"
+                "I can help you with: lead generation 🎯, CRM automation 🤖, sales outreach ✉️, deal closing 🤝, forecasting 📊, customer insights 💡, and much more. What would you like to work on?",
+                "I'm here to assist with: finding new prospects 🔍, nurturing leads 🌱, closing deals ✅, analyzing sales performance 📈, and optimizing your sales process. What do you need help with?",
+                "I offer comprehensive sales support including: lead qualification ✅, sales forecasting 📉, customer segmentation 👥, objection handling 🛡️, and revenue optimization 🚀. How can I assist you today?"
             ],
             "lead_generation": [
-                "I'll help you identify and generate high-quality leads for your business. Let me analyze your target market and create a lead generation strategy.",
-                "Let me scan your CRM and market data to find new prospect opportunities and create targeted outreach campaigns.",
-                "I'll examine your current lead sources and develop new strategies to attract qualified prospects to your sales funnel."
+                "I'll help you identify and generate high-quality leads for your business. Let me analyze your target market and create a lead generation strategy. 🎯",
+                "Let me scan your CRM and market data to find new prospect opportunities and create targeted outreach campaigns. 🔍",
+                "I'll examine your current lead sources and develop new strategies to attract qualified prospects to your sales funnel. 🚀"
             ],
             "deal_closing": [
-                "I'll analyze your open deals and provide strategies to move them through the sales pipeline and close more deals.",
-                "Let me review your deal stages and identify bottlenecks or opportunities to accelerate the closing process.",
-                "I'll help you overcome objections and create compelling proposals that convert prospects into customers."
+                "I'll analyze your open deals and provide strategies to move them through the sales pipeline and close more deals. 🤝",
+                "Let me review your deal stages and identify bottlenecks or opportunities to accelerate the closing process. ✅",
+                "I'll help you overcome objections and create compelling proposals that convert prospects into customers. ✨"
             ],
             "sales_forecasting": [
-                "I'll analyze your sales data and market trends to provide accurate revenue forecasts and help you plan for the future.",
-                "Let me examine your pipeline and historical performance to predict your sales outcomes and identify growth opportunities.",
-                "I'll create detailed sales projections based on your current deals, market conditions, and team performance."
+                "I'll analyze your sales data and market trends to provide accurate revenue forecasts and help you plan for the future. 📊",
+                "Let me examine your pipeline and historical performance to predict your sales outcomes and identify growth opportunities. 📉",
+                "I'll create detailed sales projections based on your current deals, market conditions, and team performance. 🚀"
             ],
             "crm_automation": [
-                "I'll help you automate your CRM processes to save time and improve your sales efficiency.",
-                "Let me set up automated workflows for lead nurturing, follow-ups, and deal progression in your CRM system.",
-                "I'll optimize your CRM data management and create automated reports to track your sales performance."
+                "I'll help you automate your CRM processes to save time and improve your sales efficiency. 🤖",
+                "Let me set up automated workflows for lead nurturing, follow-ups, and deal progression in your CRM system. ⚙️",
+                "I'll optimize your CRM data management and create automated reports to track your sales performance. 📊"
             ],
             "objection_handling": [
-                "I'll help you prepare responses to common sales objections and improve your closing techniques.",
-                "Let me analyze your past objections and create a comprehensive objection handling playbook for your team.",
-                "I'll provide you with proven strategies to overcome price, timing, and authority objections in your sales conversations."
+                "I'll help you prepare responses to common sales objections and improve your closing techniques. 🛡️",
+                "Let me analyze your past objections and create a comprehensive objection handling playbook for your team. 📖",
+                "I'll provide you with proven strategies to overcome price, timing, and authority objections in your sales conversations. ✨"
             ],
             "general": [
-                "I'm here to help you succeed in sales. What specific challenge are you facing today?",
-                "Let's work together to improve your sales performance. What would you like to focus on?",
-                "I can help you with any sales-related task. What do you need assistance with?"
+                "I'm here to help you provide excellent customer support. What challenge are you facing? 🤔",
+                "Let's work together to improve your customer service. What do you need assistance with? ✨",
+                "I can help with any customer support task. What's your goal today? 🚀"
             ]
         }
     
@@ -175,7 +177,6 @@ class EricChatService:
             return
         
         try:
-            logger = logging.getLogger(__name__)
             logger.info("Initializing all Eric services...")
             
             # Initialize AI service manager
@@ -351,44 +352,44 @@ class EricChatService:
         """Get fallback response for detected intent"""
         responses = {
             "greeting": [
-                "Hello! I'm Eric, your AI sales assistant. How can I help you grow your business today?",
-                "Hi there! I'm Eric, ready to help you boost your sales performance. What's your goal?",
-                "Welcome! I'm Eric, your sales partner. Let's turn prospects into customers!"
+                "Hello! 👋 I'm Eric, your AI sales assistant. How can I help you grow your business today?",
+                "Hi there! ✨ I'm Eric, ready to help you boost your sales performance. What's your goal?",
+                "Welcome! 🌟 I'm Eric, your sales partner. Let's turn prospects into customers! 📈"
             ],
             "help": [
-                "I can help you with lead generation, deal closing, sales forecasting, CRM automation, and more. What do you need?",
-                "I'm here to assist with all your sales needs. What challenge are you facing?",
-                "I offer comprehensive sales support. How can I help you succeed today?"
+                "I can help you with lead generation 🎯, deal closing 🤝, sales forecasting 📊, CRM automation 🤖, and more. What do you need?",
+                "I'm here to assist with all your sales needs. What challenge are you facing? 🤔",
+                "I offer comprehensive sales support. How can I help you succeed today? 🚀"
             ],
             "lead_generation": [
-                "I'll help you find and qualify new prospects. What's your target market?",
-                "Let me create a lead generation strategy for you. What industry are you in?",
-                "I'll analyze your market and find new opportunities. Tell me about your ideal customer."
+                "I'll help you find and qualify new prospects. What's your target market? 🔍",
+                "Let me create a lead generation strategy for you. What industry are you in? 🎯",
+                "I'll analyze your market and find new opportunities. Tell me about your ideal customer. 🚀"
             ],
             "deal_closing": [
-                "I'll help you close more deals. What stage are your prospects in?",
-                "Let me analyze your pipeline and identify closing opportunities.",
-                "I'll provide strategies to move deals through your sales funnel."
+                "I'll help you close more deals. What stage are your prospects in? 🤝",
+                "Let me analyze your pipeline and identify closing opportunities. ✅",
+                "I'll provide strategies to move deals through your sales funnel. 📈"
             ],
             "sales_forecasting": [
-                "I'll create accurate sales forecasts for you. What's your current pipeline?",
-                "Let me analyze your sales data and predict future revenue.",
-                "I'll help you plan for growth. What's your sales history?"
+                "I'll create accurate sales forecasts for you. What's your current pipeline? 📊",
+                "Let me analyze your sales data and predict future revenue. 📉",
+                "I'll help you plan for growth. What's your sales history? 🚀"
             ],
             "crm_automation": [
-                "I'll help you automate your sales processes. What CRM do you use?",
-                "Let me optimize your sales workflow and save you time.",
-                "I'll set up automated follow-ups and lead nurturing for you."
+                "I'll help you automate your sales processes. What CRM do you use? 🤖",
+                "Let me optimize your sales workflow and save you time. ⚙️",
+                "I'll set up automated follow-ups and lead nurturing for you. ✨"
             ],
             "objection_handling": [
-                "I'll help you overcome sales objections. What objections do you face?",
-                "Let me create objection handling strategies for your team.",
-                "I'll prepare you for difficult sales conversations."
+                "I'll help you overcome sales objections. What objections do you face? 🛡️",
+                "Let me create objection handling strategies for your team. 📖",
+                "I'll prepare you for difficult sales conversations. ✨"
             ],
             "general": [
-                "I'm here to help you succeed in sales. What do you need?",
-                "Let's work together to improve your sales performance.",
-                "I can help with any sales challenge. What's on your mind?"
+                "I'm here to help you succeed in sales. What do you need assistance with? 🤔",
+                "Let's work together to improve your sales performance. What's your goal? ✨",
+                "I can help with any sales challenge. What's on your mind? 🚀"
             ]
         }
         
@@ -665,7 +666,6 @@ class EricChatService:
             session["message_count"] += 1
             
             # Detect intent first to determine if we need to call services
-            logger = logging.getLogger(__name__)
             detected_intent = self._detect_intent_simple(message)
             logger.info(f"Eric: Detected intent: {detected_intent} for message: {message[:50]}...")
             

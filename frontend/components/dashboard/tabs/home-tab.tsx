@@ -725,7 +725,7 @@ export default function HomeTab() {
                 )}
               </div>
             </div>
-            <CardContent className="flex-1 flex flex-col p-0 bg-gray-50/50">
+            <CardContent className="flex-1 flex flex-col p-0 bg-gray-50/50 min-h-0">
               {/* Chat Messages */}
               <div className="flex-1 overflow-y-auto space-y-4 p-4">
                 {chatMessages.length === 0 ? (

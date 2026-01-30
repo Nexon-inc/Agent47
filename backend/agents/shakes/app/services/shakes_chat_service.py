@@ -52,6 +52,9 @@ from .video_scripting_service import VideoScriptingService
 from .voiceover_integration_service import VoiceoverIntegrationService
 from .website_content_service import WebsiteContentService
 from core.services.media_service import MediaService
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Import Shakes' actual services
 from .blog_writing_service import BlogWritingService
@@ -94,54 +97,54 @@ class ShakesChatService:
         # Common user intents and responses for content creation
         self.intent_responses = {
             "greeting": [
-                "Hello! I'm Shakes, your AI-powered content creation assistant. I'm here to help you create engaging, high-quality content that captivates your audience.",
-                "Hi there! I'm Shakes, ready to help you craft compelling content across all platforms and formats.",
-                "Welcome! I'm Shakes, your dedicated content partner. Let's create content that tells your story and drives engagement!"
+                "Hello! 👋 I'm Shakes, your AI-powered content creation assistant. I'm here to help you create engaging, high-quality content that captivates your audience. ✍️",
+                "Hi there! ✨ I'm Shakes, ready to help you craft compelling content across all platforms and formats. 📝",
+                "Welcome! 🌟 I'm Shakes, your dedicated content partner. Let's create content that tells your story and drives engagement! 🚀"
             ],
             "help": [
-                "I can help you with: blog writing, social media content, video scripts, email campaigns, SEO optimization, and much more. What would you like to create?",
-                "I'm here to assist with: content strategy, creative writing, copywriting, content optimization, and multi-format content creation. What do you need help with?",
-                "I offer comprehensive content support including: ideation, writing, editing, formatting, and performance optimization. How can I assist you today?"
+                "I can help you with: blog writing 📝, social media content 📱, video scripts 🎬, email campaigns 📧, SEO optimization 🔍, and much more. What would you like to create?",
+                "I'm here to assist with: content strategy 📋, creative writing ✨, copywriting ✍️, content optimization ⚡, and multi-format content creation 🔄. What do you need help with?",
+                "I offer comprehensive content support including: ideation 💡, writing ✍️, editing 📝, formatting 📋, and performance optimization 📊. How can I assist you today?"
             ],
             "blog_writing": [
-                "I'll help you create engaging blog posts that inform, entertain, and convert your readers.",
-                "Let me craft compelling blog content that ranks well in search engines and keeps readers engaged.",
-                "I'll develop blog post ideas, write the content, and optimize it for both readers and search engines."
+                "I'll help you create engaging blog posts that inform, entertain, and convert your readers. 📝",
+                "Let me craft compelling blog content that ranks well in search engines and keeps readers engaged. 🔍",
+                "I'll develop blog post ideas, write the content, and optimize it for both readers and search engines. ✨"
             ],
             "social_media": [
-                "I'll help you create social media content that builds your brand and engages your audience across all platforms.",
-                "Let me craft posts, captions, and stories that drive engagement and grow your social media presence.",
-                "I'll develop a social media content strategy and create posts that resonate with your target audience."
+                "I'll help you create social media content that builds your brand and engages your audience across all platforms. 📱",
+                "Let me craft posts, captions, and stories that drive engagement and grow your social media presence. 🌟",
+                "I'll develop a social media content strategy and create posts that resonate with your target audience. 🎯"
             ],
             "video_content": [
-                "I'll help you create video scripts, storyboards, and content that captivates viewers and drives action.",
-                "Let me develop video content ideas and scripts that tell your story effectively and engage your audience.",
-                "I'll help you plan, script, and optimize video content for maximum impact and engagement."
+                "I'll help you create video scripts, storyboards, and content that captivates viewers and drives action. 🎬",
+                "Let me develop video content ideas and scripts that tell your story effectively and engage your audience. ✨",
+                "I'll help you plan, script, and optimize video content for maximum impact and engagement. 🚀"
             ],
             "email_marketing": [
-                "I'll help you create email campaigns that nurture leads and convert subscribers into customers.",
-                "Let me craft compelling email content that drives opens, clicks, and conversions.",
-                "I'll develop email sequences and content that builds relationships and drives sales."
+                "I'll help you create email campaigns that nurture leads and convert subscribers into customers. 📧",
+                "Let me craft compelling email content that drives opens, clicks, and conversions. 📈",
+                "I'll develop email sequences and content that builds relationships and drives sales. 🤝"
             ],
             "seo_optimization": [
-                "I'll help you optimize your content for search engines to improve visibility and organic traffic.",
-                "Let me research keywords and optimize your content to rank higher in search results.",
-                "I'll help you create SEO-friendly content that attracts and converts your target audience."
+                "I'll help you optimize your content for search engines to improve visibility and organic traffic. 🔍",
+                "Let me research keywords and optimize your content to rank higher in search results. ⚡",
+                "I'll help you create SEO-friendly content that attracts and converts your target audience. ✅"
             ],
             "content_strategy": [
-                "I'll help you develop a comprehensive content strategy that aligns with your business goals.",
-                "Let me create a content calendar and plan that keeps your audience engaged and coming back for more.",
-                "I'll help you plan content across all channels to maintain consistent messaging and brand voice."
+                "I'll help you develop a comprehensive content strategy that aligns with your business goals. 📋",
+                "Let me create a content calendar and plan that keeps your audience engaged and coming back for more. 📅",
+                "I'll help you plan content across all channels to maintain consistent messaging and brand voice. 🎯"
             ],
             "copywriting": [
-                "I'll help you write persuasive copy that converts visitors into customers and drives sales.",
-                "Let me craft compelling headlines, descriptions, and calls-to-action that motivate action.",
-                "I'll help you create copy that speaks to your audience's needs and drives them to take action."
+                "I'll help you write persuasive copy that converts visitors into customers and drives sales. ✍️",
+                "Let me craft compelling headlines, descriptions, and calls-to-action that motivate action. 💥",
+                "I'll help you create copy that speaks to your audience's needs and drives them to take action. ✨"
             ],
             "general": [
-                "I'm here to help you create amazing content. What type of content do you need?",
-                "Let's work together to craft compelling content. What's your goal?",
-                "I can help with any content creation task. What's on your mind?"
+                "I'm here to help you create amazing content. What type of content do you need? 🤔",
+                "Let's work together to craft compelling content. What's your goal? ✨",
+                "I can help with any content creation task. What's on your mind? 🚀"
             ]
         }
     
@@ -214,8 +217,6 @@ class ShakesChatService:
                 user_connected_integrations = [i.get("integration_name") for i in user_resources.get("integrations", []) if i.get("status") == "connected"]
                 user_website = user_resources.get("profile", {}).get("website_url", "")
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning(f"Could not fetch user resources: {e}")
         
         # Dynamically load ALL available platforms and integrations
@@ -342,54 +343,54 @@ class ShakesChatService:
         """Get fallback response for detected intent"""
         responses = {
             "greeting": [
-                "Hello! I'm Shakes, your AI content assistant. How can I help you create amazing content today?",
-                "Hi there! I'm Shakes, ready to help you craft compelling content. What's your goal?",
-                "Welcome! I'm Shakes, your content partner. Let's create something amazing!"
+                "Hello! 👋 I'm Shakes, your AI content assistant. How can I help you create amazing content today?",
+                "Hi there! ✨ I'm Shakes, ready to help you craft compelling content. What's your goal?",
+                "Welcome! 🌟 I'm Shakes, your content partner. Let's create something amazing! 🚀"
             ],
             "help": [
-                "I can help you with blog writing, social media, video scripts, email marketing, and more. What do you need?",
-                "I'm here to assist with all your content needs. What type of content are you creating?",
-                "I offer comprehensive content support. How can I help you create today?"
+                "I can help you with blog writing 📝, social media 📱, video scripts 🎬, email marketing 📧, and more. What do you need?",
+                "I'm here to assist with all your content needs. What type of content are you creating? 🤔",
+                "I offer comprehensive content support. How can I help you create today? ✨"
             ],
             "blog_writing": [
-                "I'll help you write a blog post. What topic are you covering?",
-                "Let me create blog content for you. What's your target audience?",
-                "I'll help you craft an engaging blog post. What's your main message?"
+                "I'll help you write a blog post 📝. What topic are you covering?",
+                "Let me create blog content for you ✨. What's your target audience?",
+                "I'll help you craft an engaging blog post ✅. What's your main message?"
             ],
             "social_media": [
-                "I'll help you create social media content. What platform are you posting on?",
-                "Let me craft social posts for you. What's your brand message?",
-                "I'll help you engage your audience. What type of content do you need?"
+                "I'll help you create social media content 📱. What platform are you posting on?",
+                "Let me craft social posts for you 🌟. What's your brand message?",
+                "I'll help you engage your audience 🎯. What type of content do you need?"
             ],
             "video_content": [
-                "I'll help you create video content. What type of video are you making?",
-                "Let me write a video script for you. What's your video about?",
-                "I'll help you plan video content. What's your goal?"
+                "I'll help you create video content 🎬. What type of video are you making?",
+                "Let me write a video script for you ✨. What's your video about?",
+                "I'll help you plan video content 🚀. What's your goal?"
             ],
             "email_marketing": [
-                "I'll help you create email content. What's your campaign goal?",
-                "Let me craft email copy for you. What's your message?",
-                "I'll help you write compelling emails. What's your objective?"
+                "I'll help you create email content 📧. What's your campaign goal?",
+                "Let me craft email copy for you 📈. What's your message?",
+                "I'll help you write compelling emails 🤝. What's your objective?"
             ],
             "seo_optimization": [
-                "I'll help you optimize content for SEO. What keywords are you targeting?",
-                "Let me improve your content's search ranking. What's your topic?",
-                "I'll help you create SEO-friendly content. What's your focus?"
+                "I'll help you optimize content for SEO 🔍. What keywords are you targeting?",
+                "Let me improve your content's search ranking ⚡. What's your topic?",
+                "I'll help you create SEO-friendly content ✅. What's your focus?"
             ],
             "content_strategy": [
-                "I'll help you develop a content strategy. What's your business goal?",
-                "Let me create a content plan for you. What's your brand message?",
-                "I'll help you plan content. What platforms are you using?"
+                "I'll help you develop a content strategy 📋. What's your business goal?",
+                "Let me create a content plan for you 📅. What's your brand message?",
+                "I'll help you plan content 🎯. What platforms are you using?"
             ],
             "copywriting": [
-                "I'll help you write persuasive copy that converts visitors into customers and drives sales.",
-                "Let me craft compelling headlines, descriptions, and calls-to-action that motivate action.",
-                "I'll help you create copy that speaks to your audience's needs and drives them to take action."
+                "I'll help you write persuasive copy that converts visitors into customers and drives sales. ✍️",
+                "Let me craft compelling headlines, descriptions, and calls-to-action that motivate action. 💥",
+                "I'll help you create copy that speaks to your audience's needs and drives them to take action. ✨"
             ],
             "general": [
-                "I'm here to help with content creation. What do you need assistance with?",
-                "Let's work together to craft compelling content. What's your goal?",
-                "I can help with any content task. What's on your mind?"
+                "I'm here to help with content creation. What do you need assistance with? 🤔",
+                "Let's work together to craft compelling content. What's your goal? ✨",
+                "I can help with any content task. What's on your mind? 🚀"
             ]
         }
         
@@ -509,8 +510,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
 **CRITICAL:** You MUST strictly follow the custom instructions above. These are user-specific tweaks that override default behavior. Apply them to ALL your responses and actions.
 """
                 except Exception as e:
-                    import logging
-                    logger = logging.getLogger(__name__)
                     logger.warning(f"Could not fetch agent configuration: {e}")
                 
                 # Prepare messages for AI processing
@@ -553,8 +552,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                         if user:
                             user_tier = user.tier
                     except Exception as e:
-                        import logging
-                        logger = logging.getLogger(__name__)
                         logger.warning(f"Failed to get user tier: {e}")
                     
                     # Extract image generation prompt or use context

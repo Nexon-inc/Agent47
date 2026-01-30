@@ -18,8 +18,12 @@ from core.utils.platform_integration_loader import (
     detect_platforms_in_message,
     detect_integrations_in_message,
     get_platforms_by_type,
+    get_platforms_by_type,
     get_integrations_by_type
 )
+from core.utils.agent_user_data import get_all_user_resources_for_agent
+
+logger = logging.getLogger(__name__)
 
 # Import ALL Aria services with correct class names
 from .ab_testing_service import ABTestingService
@@ -88,49 +92,49 @@ class AriaChatService:
         # Common user intents and responses
         self.intent_responses = {
             "greeting": [
-                "Hello! I'm Aria, your AI-powered social media management assistant. I'm here to help you manage your social media presence effectively.",
-                "Hi there! I'm Aria, ready to help you optimize your social media strategy and grow your brand online.",
-                "Welcome! I'm Aria, your dedicated social media management partner. Let's make your social media presence shine!"
+                "Hello! 👋 I'm Aria, your AI-powered social media management assistant. I'm here to help you manage your social media presence effectively. 🚀",
+                "Hi there! ✨ I'm Aria, ready to help you optimize your social media strategy and grow your brand online. 📈",
+                "Welcome! 🌟 I'm Aria, your dedicated social media management partner. Let's make your social media presence shine! ✨"
             ],
             "help": [
-                "I can help you with: account analysis, content creation, scheduling, analytics, trend monitoring, ad management, and much more. What would you like to work on?",
-                "I'm here to assist with: managing multiple social accounts, creating engaging content, scheduling posts, analyzing performance, and optimizing your strategy. What do you need help with?",
-                "I offer comprehensive social media management including: content creation, scheduling, analytics, trend monitoring, competitor analysis, and strategic planning. How can I assist you today?"
+                "I can help you with: account analysis 📊, content creation ✍️, scheduling 📅, analytics 📈, trend monitoring 🔥, ad management 📢, and much more. What would you like to work on?",
+                "I'm here to assist with: managing multiple social accounts 📱, creating engaging content ✨, scheduling posts 🗓️, analyzing performance 📊, and optimizing your strategy. What do you need help with?",
+                "I offer comprehensive social media management including: content creation 🎨, scheduling ⏰, analytics 📉, trend monitoring 🚀, competitor analysis 🕵️‍♀️, and strategic planning. How can I assist you today?"
             ],
             "account_management": [
-                "I'll analyze your connected social media accounts and provide detailed insights and recommendations for improvement.",
-                "Let me scan your accounts to understand your current performance and identify opportunities for growth.",
-                "I'll examine your social media presence across all platforms and give you actionable insights to optimize your strategy."
+                "I'll analyze your connected social media accounts and provide detailed insights and recommendations for improvement. 🕵️‍♂️",
+                "Let me scan your accounts to understand your current performance and identify opportunities for growth. 🚀",
+                "I'll examine your social media presence across all platforms and give you actionable insights to optimize your strategy. 📊"
             ],
             "content_creation": [
-                "I can help you create engaging content with AI-generated captions, hashtags, and even generate images. What type of content would you like to create?",
-                "Let's create some amazing content! I can generate captions, suggest hashtags, create images, and help you adapt content for different platforms.",
-                "I'm here to help with content creation! I can generate captions, hashtags, images, and help you repurpose content across platforms."
+                "I can help you create engaging content with AI-generated captions ✍️, hashtags #️⃣, and even generate images 🖼️. What type of content would you like to create?",
+                "Let's create some amazing content! 🎨 I can generate captions, suggest hashtags, create images, and help you adapt content for different platforms.",
+                "I'm here to help with content creation! ✨ I can generate captions, hashtags, images, and help you repurpose content across platforms."
             ],
             "scheduling": [
-                "I can help you schedule posts across all your connected platforms with optimal timing for maximum engagement.",
-                "Let's get your content scheduled! I'll analyze the best posting times for each platform and schedule your posts accordingly.",
-                "I'll help you schedule your content at the perfect times across all platforms to maximize reach and engagement."
+                "I can help you schedule posts across all your connected platforms with optimal timing for maximum engagement. ⏰",
+                "Let's get your content scheduled! 🗓️ I'll analyze the best posting times for each platform and schedule your posts accordingly.",
+                "I'll help you schedule your content at the perfect times across all platforms to maximize reach and engagement. 🚀"
             ],
             "analytics": [
-                "I'll provide comprehensive analytics on your social media performance, including engagement rates, audience insights, and growth trends.",
-                "Let me analyze your performance data and show you detailed insights about your audience, content performance, and growth opportunities.",
-                "I'll give you deep insights into your social media performance, helping you understand what's working and where to improve."
+                "I'll provide comprehensive analytics on your social media performance, including engagement rates, audience insights, and growth trends. 📉",
+                "Let me analyze your performance data and show you detailed insights about your audience, content performance, and growth opportunities. 📊",
+                "I'll give you deep insights into your social media performance, helping you understand what's working and where to improve. 💡"
             ],
             "trends": [
-                "I'll monitor trending topics, hashtags, and conversations relevant to your brand and suggest content ideas.",
-                "Let me keep you updated on the latest trends and help you create timely, relevant content that resonates with your audience.",
-                "I'll track trending topics and conversations to help you stay current and create content that's relevant and engaging."
+                "I'll monitor trending topics, hashtags, and conversations relevant to your brand and suggest content ideas. 🔥",
+                "Let me keep you updated on the latest trends and help you create timely, relevant content that resonates with your audience. 📈",
+                "I'll track trending topics and conversations to help you stay current and create content that's relevant and engaging. 🚀"
             ],
             "ads": [
-                "I can help you create and manage advertising campaigns on Instagram, LinkedIn, and other platforms to boost your reach.",
-                "Let's set up effective ad campaigns! I can help you create targeted ads, set budgets, and monitor performance across platforms.",
-                "I'll help you create strategic ad campaigns that target your ideal audience and drive results for your business."
+                "I can help you create and manage advertising campaigns on Instagram, LinkedIn, and other platforms to boost your reach. 💰",
+                "Let's set up effective ad campaigns! 📢 I'll help you create targeted ads, set budgets, and monitor performance across platforms.",
+                "I'll help you create strategic ad campaigns that target your ideal audience and drive results for your business. 💸"
             ],
             "geo_campaigns": [
-                "I can help you create location-specific campaigns targeting specific regions, including African countries and cities like Kenya, Nairobi, and many more.",
-                "Let's create geo-targeted campaigns! I can help you design campaigns for specific regions, including popular African locations and global markets.",
-                "I'll help you create campaigns that resonate with specific geographic audiences, from local markets to international regions."
+                "I can help you create location-specific campaigns targeting specific regions, including African countries and cities like Kenya, Nairobi, and many more. 🌍",
+                "Let's create geo-targeted campaigns! 📍 I can help you design campaigns for specific regions, including popular African locations and global markets.",
+                "I'll help you create campaigns that resonate with specific geographic audiences, from local markets to international regions. 🌎"
             ]
         }
     
@@ -389,49 +393,49 @@ class AriaChatService:
         """Generate simple responses based on intent"""
         responses = {
             "greeting": [
-                "Hello! I'm Aria, your AI-powered social media management assistant. I'm here to help you manage your social media presence effectively.",
-                "Hi there! I'm Aria, ready to help you optimize your social media strategy and grow your brand online.",
-                "Welcome! I'm Aria, your dedicated social media management partner. Let's make your social media presence shine!"
+                "Hello! 👋 I'm Aria, your AI-powered social media management assistant. I'm here to help you manage your social media presence effectively. 🚀",
+                "Hi there! ✨ I'm Aria, ready to help you optimize your social media strategy and grow your brand online. 📈",
+                "Welcome! 🌟 I'm Aria, your dedicated social media management partner. Let's make your social media presence shine! ✨"
             ],
             "help": [
-                "I can help you with: account analysis, content creation, scheduling, analytics, trend monitoring, ad management, and much more. What would you like to work on?",
-                "I'm here to assist with: managing multiple social accounts, creating engaging content, scheduling posts, analyzing performance, and optimizing your strategy. What do you need help with?",
-                "I offer comprehensive social media management including: content creation, scheduling, analytics, trend monitoring, competitor analysis, and strategic planning. How can I assist you today?"
+                "I can help you with: account analysis 📊, content creation ✍️, scheduling 📅, analytics 📈, trend monitoring 🔥, ad management 📢, and much more. What would you like to work on?",
+                "I'm here to assist with: managing multiple social accounts 📱, creating engaging content ✨, scheduling posts 🗓️, analyzing performance 📊, and optimizing your strategy. What do you need help with?",
+                "I offer comprehensive social media management including: content creation 🎨, scheduling ⏰, analytics 📉, trend monitoring 🚀, competitor analysis 🕵️‍♀️, and strategic planning. How can I assist you today?"
             ],
             "account_management": [
-                "I'll analyze your connected social media accounts and provide detailed insights and recommendations for improvement.",
-                "Let me scan your accounts to understand your current performance and identify opportunities for growth.",
-                "I'll examine your social media presence across all platforms and give you actionable insights to optimize your strategy."
+                "I'll analyze your connected social media accounts and provide detailed insights and recommendations for improvement. 🕵️‍♂️",
+                "Let me scan your accounts to understand your current performance and identify opportunities for growth. 🚀",
+                "I'll examine your social media presence across all platforms and give you actionable insights to optimize your strategy. 📊"
             ],
             "content_creation": [
-                "I can help you create engaging content with AI-generated captions, hashtags, and even generate images. What type of content would you like to create?",
-                "Let's create some amazing content! I can generate captions, suggest hashtags, create images, and help you adapt content for different platforms.",
-                "I'm here to help with content creation! I can generate captions, hashtags, images, and help you repurpose content across platforms."
+                "I can help you create engaging content with AI-generated captions ✍️, hashtags #️⃣, and even generate images 🖼️. What type of content would you like to create?",
+                "Let's create some amazing content! 🎨 I can generate captions, suggest hashtags, create images, and help you adapt content for different platforms.",
+                "I'm here to help with content creation! ✨ I can generate captions, hashtags, images, and help you repurpose content across platforms."
             ],
             "scheduling": [
-                "I can help you schedule posts across all your connected platforms with optimal timing for maximum engagement.",
-                "Let's get your content scheduled! I'll analyze the best posting times for each platform and schedule your posts accordingly.",
-                "I'll help you schedule your content at the perfect times across all platforms to maximize reach and engagement."
+                "I can help you schedule posts across all your connected platforms with optimal timing for maximum engagement. ⏰",
+                "Let's get your content scheduled! 🗓️ I'll analyze the best posting times for each platform and schedule your posts accordingly.",
+                "I'll help you schedule your content at the perfect times across all platforms to maximize reach and engagement. 🚀"
             ],
             "analytics": [
-                "I'll provide comprehensive analytics on your social media performance, including engagement rates, audience insights, and growth trends.",
-                "Let me analyze your performance data and show you detailed insights about your audience, content performance, and growth opportunities.",
-                "I'll give you deep insights into your social media performance, helping you understand what's working and where to improve."
+                "I'll provide comprehensive analytics on your social media performance, including engagement rates, audience insights, and growth trends. 📉",
+                "Let me analyze your performance data and show you detailed insights about your audience, content performance, and growth opportunities. 📊",
+                "I'll give you deep insights into your social media performance, helping you understand what's working and where to improve. 💡"
             ],
             "trends": [
-                "I'll monitor trending topics and hashtags relevant to your industry and help you create content that capitalizes on current trends.",
-                "Let me track what's trending in your niche and suggest ways to incorporate trending topics into your content strategy.",
-                "I'll keep you updated on trending topics and help you create timely, relevant content that resonates with your audience."
+                "I'll monitor trending topics and hashtags relevant to your industry and help you create content that capitalizes on current trends. 🔥",
+                "Let me track what's trending in your niche and suggest ways to incorporate trending topics into your content strategy. 📈",
+                "I'll keep you updated on trending topics and help you create timely, relevant content that resonates with your audience. 🚀"
             ],
             "ads": [
-                "I can help you create and manage advertising campaigns across multiple platforms, optimize targeting, and track performance.",
-                "Let's set up effective ad campaigns! I'll help you create compelling ad copy, target the right audience, and optimize for better results.",
-                "I'll assist you with ad campaign management, from creation to optimization, helping you get the best ROI on your advertising spend."
+                "I can help you create and manage advertising campaigns across multiple platforms, optimize targeting, and track performance. 💰",
+                "Let's set up effective ad campaigns! 📢 I'll help you create compelling ad copy, target the right audience, and optimize for better results.",
+                "I'll assist you with ad campaign management, from creation to optimization, helping you get the best ROI on your advertising spend. 💸"
             ],
             "general": [
-                "I'm here to help with all aspects of social media management. Feel free to ask me about content creation, scheduling, analytics, or any other social media needs!",
-                "How can I assist you with your social media strategy today? I'm ready to help with content, scheduling, analytics, or any other aspect of social media management.",
-                "I'm Aria, your social media management assistant. What would you like to work on today?"
+                "I'm here to help with all aspects of social media management. Feel free to ask me about content creation ✍️, scheduling 📅, analytics 📊, or any other social media needs!",
+                "How can I assist you with your social media strategy today? 🤔 I'm ready to help with content, scheduling, analytics, or any other aspect of social media management.",
+                "I'm Aria, your social media management assistant. What would you like to work on today? ✨"
             ]
         }
         
@@ -471,7 +475,6 @@ class AriaChatService:
             session["message_count"] += 1
             
             # Detect intent first to determine if we need to call services
-            logger = logging.getLogger(__name__)
             detected_intent = self._detect_intent_simple(message)
             logger.info(f"Aria: Detected intent: {detected_intent} for message: {message[:50]}...")
             

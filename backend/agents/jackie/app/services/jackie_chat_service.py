@@ -69,6 +69,9 @@ from .social_media_service import SocialMediaService
 from .voice_ad_generator_service import VoiceAdGeneratorService
 from .voice_video_marketing_service import VoiceVideoMarketingService
 from core.services.media_service import MediaService
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -90,49 +93,49 @@ class JackieChatService:
         # Common user intents and responses for marketing campaigns
         self.intent_responses = {
             "greeting": [
-                "Hello! I'm Jackie, your AI-powered marketing campaign assistant. I'm here to help you create, manage, and optimize marketing campaigns that drive results.",
-                "Hi there! I'm Jackie, ready to help you launch successful marketing campaigns and grow your brand awareness.",
-                "Welcome! I'm Jackie, your dedicated marketing partner. Let's create campaigns that captivate your audience and boost your business!"
+                "Hello! 👋 I'm Jackie, your AI-powered marketing campaign assistant. I'm here to help you create, manage, and optimize marketing campaigns that drive results. 📈",
+                "Hi there! ✨ I'm Jackie, ready to help you launch successful marketing campaigns and grow your brand awareness. 🎯",
+                "Welcome! 🌟 I'm Jackie, your dedicated marketing partner. Let's create campaigns that captivate your audience and boost your business! 🚀"
             ],
             "help": [
-                "I can help you with: campaign creation, content strategy, ad optimization, audience targeting, performance analytics, and much more. What would you like to work on?",
-                "I'm here to assist with: designing marketing campaigns, creating compelling content, managing ad spend, and analyzing campaign performance. What do you need help with?",
-                "I offer comprehensive marketing support including: campaign planning, creative development, audience research, and ROI optimization. How can I assist you today?"
+                "I can help you with: campaign creation 📈, content strategy 🎨, ad optimization 🎯, audience targeting 👥, performance analytics 📊, and much more. What would you like to work on?",
+                "I'm here to assist with: designing marketing campaigns 📋, creating compelling content ✍️, managing ad spend 💰, and analyzing campaign performance ✅. What do you need help with?",
+                "I offer comprehensive marketing support including: campaign planning 📅, creative development 🎨, audience research 🔍, and ROI optimization 📈. How can I assist you today?"
             ],
             "campaign_creation": [
-                "I'll help you create comprehensive marketing campaigns that align with your business goals and target audience.",
-                "Let me design a multi-channel campaign strategy that maximizes your reach and engagement across all platforms.",
-                "I'll develop a complete campaign plan including messaging, creative direction, and execution timeline."
+                "I'll help you create comprehensive marketing campaigns that align with your business goals and target audience. 📋",
+                "Let me design a multi-channel campaign strategy that maximizes your reach and engagement across all platforms. 🔀",
+                "I'll develop a complete campaign plan including messaging, creative direction, and execution timeline. 📅"
             ],
             "content_strategy": [
-                "I'll help you develop a content strategy that resonates with your audience and supports your marketing goals.",
-                "Let me create compelling content ideas and messaging that drives engagement and conversions.",
-                "I'll help you plan content across all channels to maintain consistent brand voice and messaging."
+                "I'll help you develop a content strategy that resonates with your audience and supports your marketing goals. 🎨",
+                "Let me create compelling content ideas and messaging that drives engagement and conversions. ✍️",
+                "I'll help you plan content across all channels to maintain consistent brand voice and messaging. ✨"
             ],
             "ad_optimization": [
-                "I'll help you optimize your advertising campaigns for better performance and higher ROI.",
-                "Let me analyze your ad performance and suggest improvements to increase click-through rates and conversions.",
-                "I'll help you A/B test different ad variations and optimize your targeting for better results."
+                "I'll help you optimize your advertising campaigns for better performance and higher ROI. 🎯",
+                "Let me analyze your ad performance and suggest improvements to increase click-through rates and conversions. 📈",
+                "I'll help you A/B test different ad variations and optimize your targeting for better results. ✅"
             ],
             "audience_targeting": [
-                "I'll help you identify and target the right audience for your marketing campaigns.",
-                "Let me analyze your customer data and create detailed buyer personas for better targeting.",
-                "I'll help you segment your audience and create personalized campaigns for each group."
+                "I'll help you identify and target the right audience for your marketing campaigns. 👥",
+                "Let me analyze your customer data and create detailed buyer personas for better targeting. 🔍",
+                "I'll help you segment your audience and create personalized campaigns for each group. ✨"
             ],
             "performance_analytics": [
-                "I'll help you track and analyze your campaign performance to identify what's working and what needs improvement.",
-                "Let me create comprehensive reports that show your campaign ROI and key performance metrics.",
-                "I'll help you set up tracking and measurement systems to monitor your marketing success."
+                "I'll help you track and analyze your campaign performance to identify what's working and what needs improvement. 📊",
+                "Let me create comprehensive reports that show your campaign ROI and key performance metrics. 📉",
+                "I'll help you set up tracking and measurement systems to monitor your marketing success. ✅"
             ],
             "budget_management": [
-                "I'll help you allocate your marketing budget effectively across different channels and campaigns.",
-                "Let me create a budget plan that maximizes your ROI and ensures optimal spend distribution.",
-                "I'll help you track spending and adjust budgets based on performance data."
+                "I'll help you allocate your marketing budget effectively across different channels and campaigns. 💰",
+                "Let me create a budget plan that maximizes your ROI and ensures optimal spend distribution. 📉",
+                "I'll help you track spending and adjust budgets based on performance data. ⚙️"
             ],
             "general": [
-                "I'm here to help you succeed in marketing. What campaign challenge are you facing?",
-                "Let's work together to create amazing marketing campaigns. What's your goal?",
-                "I can help with any marketing task. What do you need assistance with?"
+                "I'm here to help you succeed in marketing. What campaign challenge are you facing? 🤔",
+                "Let's work together to create amazing marketing campaigns. What's your goal? ✨",
+                "I can help with any marketing task. What do you need assistance with? 🚀"
             ]
         }
     
@@ -258,8 +261,6 @@ class JackieChatService:
                 user_connected_integrations = [i.get("integration_name") for i in user_resources.get("integrations", []) if i.get("status") == "connected"]
                 user_website = user_resources.get("profile", {}).get("website_url", "")
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning(f"Could not fetch user resources: {e}")
         
         # Dynamically load ALL available platforms and integrations
@@ -381,49 +382,49 @@ class JackieChatService:
         """Get fallback response for detected intent"""
         responses = {
             "greeting": [
-                "Hello! I'm Jackie, your AI marketing assistant. How can I help you create amazing campaigns today?",
-                "Hi there! I'm Jackie, ready to help you boost your marketing. What's your campaign goal?",
-                "Welcome! I'm Jackie, your marketing partner. Let's create campaigns that convert!"
+                "Hello! 👋 I'm Jackie, your AI marketing assistant. How can I help you create amazing campaigns today?",
+                "Hi there! ✨ I'm Jackie, ready to help you boost your marketing. What's your campaign goal?",
+                "Welcome! 🌟 I'm Jackie, your marketing partner. Let's create campaigns that convert! 🚀"
             ],
             "help": [
-                "I can help you with campaign creation, content strategy, ad optimization, and more. What do you need?",
-                "I'm here to assist with all your marketing needs. What challenge are you facing?",
-                "I offer comprehensive marketing support. How can I help you succeed today?"
+                "I can help you with campaign creation 📈, content strategy 🎨, ad optimization 🎯, and more. What do you need?",
+                "I'm here to assist with all your marketing needs. What challenge are you facing? 🤔",
+                "I offer comprehensive marketing support. How can I help you succeed today? ✨"
             ],
             "campaign_creation": [
-                "I'll help you create a marketing campaign. What's your business goal?",
-                "Let me design a campaign for you. What product or service are you promoting?",
-                "I'll help you launch a successful campaign. What's your target audience?"
+                "I'll help you create a marketing campaign 📋. What's your business goal?",
+                "Let me design a campaign for you 📊. What product or service are you promoting?",
+                "I'll help you launch a successful campaign 🚀. What's your target audience?"
             ],
             "content_strategy": [
-                "I'll help you develop content strategy. What type of content do you need?",
-                "Let me create content ideas for you. What's your brand message?",
-                "I'll help you plan content. What platforms are you using?"
+                "I'll help you develop content strategy 🎨. What type of content do you need?",
+                "Let me create content ideas for you ✍️. What's your brand message?",
+                "I'll help you plan content ✨. What platforms are you using?"
             ],
             "ad_optimization": [
-                "I'll help you optimize your ads. What platform are you advertising on?",
-                "Let me improve your ad performance. What's your current CTR?",
-                "I'll help you boost ad results. What's your campaign objective?"
+                "I'll help you optimize your ads 🎯. What platform are you advertising on?",
+                "Let me improve your ad performance 📈. What's your current CTR?",
+                "I'll help you boost ad results ✅. What's your campaign objective?"
             ],
             "audience_targeting": [
-                "I'll help you target the right audience. What's your ideal customer?",
-                "Let me create buyer personas for you. What industry are you in?",
-                "I'll help you segment your audience. What data do you have?"
+                "I'll help you target the right audience 👥. What's your ideal customer?",
+                "Let me create buyer personas for you 🔍. What industry are you in?",
+                "I'll help you segment your audience ✨. What data do you have?"
             ],
             "performance_analytics": [
-                "I'll help you analyze campaign performance. What metrics are you tracking?",
-                "Let me create reports for you. What data do you have available?",
-                "I'll help you measure success. What's your campaign goal?"
+                "I'll help you analyze campaign performance 📊. What metrics are you tracking?",
+                "Let me create reports for you 📉. What data do you have available?",
+                "I'll help you measure success ✅. What's your campaign goal?"
             ],
             "budget_management": [
-                "I'll help you manage your marketing budget. What's your total budget?",
-                "Let me optimize your spend allocation. What channels are you using?",
-                "I'll help you maximize ROI. What's your current spend?"
+                "I'll help you manage your marketing budget 💰. What's your total budget?",
+                "Let me optimize your spend allocation 📉. What channels are you using?",
+                "I'll help you maximize ROI 🚀. What's your current spend?"
             ],
             "general": [
-                "I'm here to help with marketing. What do you need assistance with?",
-                "Let's work together on your marketing. What's your goal?",
-                "I can help with any marketing task. What's on your mind?"
+                "I'm here to help with marketing. What do you need assistance with? 🤔",
+                "Let's work together on your marketing. What's your goal? ✨",
+                "I can help with any marketing task. What's on your mind? 🚀"
             ]
         }
         
@@ -543,8 +544,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
 **CRITICAL:** You MUST strictly follow the custom instructions above. These are user-specific tweaks that override default behavior. Apply them to ALL your responses and actions.
 """
                 except Exception as e:
-                    import logging
-                    logger = logging.getLogger(__name__)
                     logger.warning(f"Could not fetch agent configuration: {e}")
                 
                 # Prepare messages for AI processing
@@ -587,8 +586,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                         if user:
                             user_tier = user.tier
                     except Exception as e:
-                        import logging
-                        logger = logging.getLogger(__name__)
                         logger.warning(f"Failed to get user tier: {e}")
                     
                     # Extract image generation prompt or use context

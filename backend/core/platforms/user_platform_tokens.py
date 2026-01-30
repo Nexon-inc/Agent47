@@ -83,7 +83,6 @@ class UserPlatformTokenManager:
                     existing_token.workspace_id = workspace_id
                     existing_token.workspace_name = workspace_name
                     existing_token.status = TokenStatus.ACTIVE
-                    existing_token.is_active = True
                     existing_token.last_refreshed = datetime.utcnow()
                     
                     # Set expiration if provided
@@ -105,8 +104,7 @@ class UserPlatformTokenManager:
                         scopes=scopes or [],
                         workspace_id=workspace_id,
                         workspace_name=workspace_name,
-                        status=TokenStatus.ACTIVE,
-                        is_active=True
+                        status=TokenStatus.ACTIVE
                     )
                     
                     # Set expiration if provided
@@ -148,7 +146,6 @@ class UserPlatformTokenManager:
                     and_(
                         UserPlatformToken.user_id == user_id,
                         UserPlatformToken.platform_name == platform_name,
-                        UserPlatformToken.is_active == True,
                         UserPlatformToken.status == TokenStatus.ACTIVE
                     )
                 )
@@ -211,7 +208,7 @@ class UserPlatformTokenManager:
                     and_(
                         UserPlatformToken.user_id == user_id,
                         UserPlatformToken.platform_name == platform_name,
-                        UserPlatformToken.is_active == True
+                        UserPlatformToken.status == TokenStatus.ACTIVE
                     )
                 )
                 result = await session.execute(query)
@@ -293,7 +290,6 @@ class UserPlatformTokenManager:
                 
                 if token_record:
                     token_record.status = TokenStatus.REVOKED
-                    token_record.is_active = False
                     await session.commit()
                     
                     logger.info(f"Revoked tokens for user {user_id}, platform {platform_name}")
@@ -320,7 +316,7 @@ class UserPlatformTokenManager:
                 query = select(UserPlatformToken).where(
                     and_(
                         UserPlatformToken.user_id == user_id,
-                        UserPlatformToken.is_active == True
+                        UserPlatformToken.status == TokenStatus.ACTIVE
                     )
                 )
                 result = await session.execute(query)

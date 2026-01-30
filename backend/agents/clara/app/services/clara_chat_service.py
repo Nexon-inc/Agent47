@@ -23,6 +23,9 @@ from .chatbot_service import ChatbotService
 from .knowledge_service import KnowledgeService
 from .analytics_service import AnalyticsService
 from core.services.media_service import MediaService
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -48,49 +51,49 @@ class ClaraChatService:
         # Common user intents and responses for customer support
         self.intent_responses = {
             "greeting": [
-                "Hello! I'm Clara, your AI-powered customer support assistant. I'm here to help you provide excellent customer service and resolve issues quickly.",
-                "Hi there! I'm Clara, ready to help you manage customer inquiries, resolve tickets, and improve customer satisfaction.",
-                "Welcome! I'm Clara, your dedicated customer support partner. Let's deliver exceptional service to your customers!"
+                "Hello! 👋 I'm Clara, your AI-powered customer support assistant. I'm here to help you provide excellent customer service and resolve issues quickly. 🎫",
+                "Hi there! ✨ I'm Clara, ready to help you manage customer inquiries, resolve tickets, and improve customer satisfaction. 📞",
+                "Welcome! 🌟 I'm Clara, your dedicated customer support partner. Let's deliver exceptional service to your customers! 🤝"
             ],
             "help": [
-                "I can help you with: ticket management, customer inquiries, knowledge base, live chat, support analytics, and much more. What would you like to work on?",
-                "I'm here to assist with: resolving customer issues, managing support tickets, improving response times, and enhancing customer experience. What do you need help with?",
-                "I offer comprehensive customer support including: ticket routing, automated responses, customer insights, and support optimization. How can I assist you today?"
+                "I can help you with: ticket management 🎫, customer inquiries 📞, knowledge base 📚, live chat 💬, support analytics 📊, and much more. What would you like to work on?",
+                "I'm here to assist with: resolving customer issues ✅, managing support tickets 📋, improving response times ⏰, and enhancing customer experience 👥. What do you need help with?",
+                "I offer comprehensive customer support including: ticket routing 🔀, automated responses 🤖, customer insights 💡, and support optimization 🚀. How can I assist you today?"
             ],
             "ticket_management": [
-                "I'll help you manage support tickets efficiently, prioritize issues, and ensure timely resolution for your customers.",
-                "Let me organize your support queue, categorize tickets, and help you respond to customer inquiries faster.",
-                "I'll streamline your ticket workflow and help you track resolution progress for better customer satisfaction."
+                "I'll help you manage support tickets efficiently, prioritize issues, and ensure timely resolution for your customers. 📋",
+                "Let me organize your support queue, categorize tickets, and help you respond to customer inquiries faster. 🗂️",
+                "I'll streamline your ticket workflow and help you track resolution progress for better customer satisfaction. ✅"
             ],
             "customer_inquiry": [
-                "I'll help you handle customer inquiries professionally and provide accurate, helpful responses to common questions.",
-                "Let me assist you in responding to customer questions with empathy and expertise to resolve their concerns.",
-                "I'll help you craft responses that address customer needs and maintain positive relationships."
+                "I'll help you handle customer inquiries professionally and provide accurate, helpful responses to common questions. 📞",
+                "Let me assist you in responding to customer questions with empathy and expertise to resolve their concerns. 🤝",
+                "I'll help you craft responses that address customer needs and maintain positive relationships. ✨"
             ],
             "knowledge_base": [
-                "I'll help you build and maintain a comprehensive knowledge base with answers to frequently asked questions.",
-                "Let me organize your support documentation and create helpful resources for both customers and support agents.",
-                "I'll help you create searchable knowledge articles that reduce support ticket volume and improve self-service."
+                "I'll help you build and maintain a comprehensive knowledge base with answers to frequently asked questions. 📚",
+                "Let me organize your support documentation and create helpful resources for both customers and support agents. 🔍",
+                "I'll help you create searchable knowledge articles that reduce support ticket volume and improve self-service. 📖"
             ],
             "live_chat": [
-                "I'll help you manage live chat interactions, provide real-time support, and ensure quick response times.",
-                "Let me assist you in handling live chat conversations and routing complex issues to the right team members.",
-                "I'll help you provide instant support through live chat and improve customer engagement."
+                "I'll help you manage live chat interactions, provide real-time support, and ensure quick response times. 💬",
+                "Let me assist you in handling live chat conversations and routing complex issues to the right team members. 🔀",
+                "I'll help you provide instant support through live chat and improve customer engagement. ✨"
             ],
             "support_analytics": [
-                "I'll analyze your support metrics, identify trends, and help you improve your customer service performance.",
-                "Let me track response times, resolution rates, and customer satisfaction to optimize your support operations.",
-                "I'll provide insights into support performance and help you make data-driven improvements."
+                "I'll analyze your support metrics, identify trends, and help you improve your customer service performance. 📊",
+                "Let me track response times, resolution rates, and customer satisfaction to optimize your support operations. 📈",
+                "I'll provide insights into support performance and help you make data-driven improvements. 💡"
             ],
             "escalation": [
-                "I'll help you identify when to escalate issues to senior support staff or specialized teams.",
-                "Let me assist you in determining escalation criteria and routing complex problems to the right experts.",
-                "I'll help you manage escalations effectively to ensure critical issues get proper attention."
+                "I'll help you identify when to escalate issues to senior support staff or specialized teams. ⚠️",
+                "Let me assist you in determining escalation criteria and routing complex problems to the right experts. 🔀",
+                "I'll help you manage escalations effectively to ensure critical issues get proper attention. 🚨"
             ],
             "general": [
-                "I'm here to help you provide excellent customer support. What challenge are you facing?",
-                "Let's work together to improve your customer service. What do you need assistance with?",
-                "I can help with any customer support task. What's your goal today?"
+                "I'm here to help you provide excellent customer support. What challenge are you facing? 🤔",
+                "Let's work together to improve your customer service. What do you need assistance with? ✨",
+                "I can help with any customer support task. What's your goal today? 🚀"
             ]
         }
     
@@ -161,8 +164,6 @@ class ClaraChatService:
                 user_connected_integrations = [i.get("integration_name") for i in user_resources.get("integrations", []) if i.get("status") == "connected"]
                 user_website = user_resources.get("profile", {}).get("website_url", "")
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
             logger.warning(f"Could not fetch user resources: {e}")
         
         # Dynamically load ALL available platforms and integrations
@@ -352,49 +353,49 @@ class ClaraChatService:
         """Get fallback response for detected intent"""
         responses = {
             "greeting": [
-                "Hello! I'm Clara, your AI customer support assistant. How can I help you serve your customers today?",
-                "Hi there! I'm Clara, ready to help you provide excellent customer service. What's your goal?",
-                "Welcome! I'm Clara, your support partner. Let's deliver great customer experiences!"
+                "Hello! 👋 I'm Clara, your AI customer support assistant. How can I help you serve your customers today?",
+                "Hi there! ✨ I'm Clara, ready to help you provide excellent customer service. What's your goal?",
+                "Welcome! 🌟 I'm Clara, your support partner. Let's deliver great customer experiences!"
             ],
             "help": [
-                "I can help you with ticket management, customer inquiries, knowledge base, and more. What do you need?",
-                "I'm here to assist with all your customer support needs. What challenge are you facing?",
-                "I offer comprehensive support tools. How can I help you improve customer service today?"
+                "I can help you with ticket management 🎫, customer inquiries 📞, knowledge base 📚, and more. What do you need?",
+                "I'm here to assist with all your customer support needs. What challenge are you facing? 🤔",
+                "I offer comprehensive support tools. How can I help you improve customer service today? 🚀"
             ],
             "ticket_management": [
-                "I'll help you manage support tickets. What type of issues are you dealing with?",
-                "Let me assist with ticket organization. How many tickets do you have pending?",
-                "I'll help streamline your ticket workflow. What's your current process?"
+                "I'll help you manage support tickets 📋. What type of issues are you dealing with?",
+                "Let me assist with ticket organization 🗂️. How many tickets do you have pending?",
+                "I'll help streamline your ticket workflow ✅. What's your current process?"
             ],
             "customer_inquiry": [
-                "I'll help you handle customer inquiries. What questions are customers asking?",
-                "Let me assist with customer responses. What type of inquiry are you dealing with?",
-                "I'll help you provide great customer service. What's the customer's concern?"
+                "I'll help you handle customer inquiries 📞. What questions are customers asking?",
+                "Let me assist with customer responses 🤝. What type of inquiry are you dealing with?",
+                "I'll help you provide great customer service ✨. What's the customer's concern?"
             ],
             "knowledge_base": [
-                "I'll help you build a knowledge base. What topics do customers ask about most?",
-                "Let me assist with documentation. What information do customers need?",
-                "I'll help create helpful resources. What questions should I help answer?"
+                "I'll help you build a knowledge base 📚. What topics do customers ask about most?",
+                "Let me assist with documentation 🔍. What information do customers need?",
+                "I'll help create helpful resources 📖. What questions should I help answer?"
             ],
             "live_chat": [
-                "I'll help you manage live chat. What chat platform are you using?",
-                "Let me assist with real-time support. How many concurrent chats do you handle?",
-                "I'll help improve chat responses. What challenges are you facing?"
+                "I'll help you manage live chat 💬. What chat platform are you using?",
+                "Let me assist with real-time support ⏰. How many concurrent chats do you handle?",
+                "I'll help improve chat responses ✨. What challenges are you facing?"
             ],
             "support_analytics": [
-                "I'll help you analyze support metrics. What data do you want to track?",
-                "Let me assist with performance analysis. What metrics are important to you?",
-                "I'll help you measure success. What KPIs do you want to improve?"
+                "I'll help you analyze support metrics 📊. What data do you want to track?",
+                "Let me assist with performance analysis 📈. What metrics are important to you?",
+                "I'll help you measure success 💡. What KPIs do you want to improve?"
             ],
             "escalation": [
-                "I'll help you manage escalations. What criteria do you use for escalation?",
-                "Let me assist with issue routing. What types of problems need escalation?",
-                "I'll help you handle complex issues. What's your escalation process?"
+                "I'll help you manage escalations ⚠️. What criteria do you use for escalation?",
+                "Let me assist with issue routing 🔀. What types of problems need escalation?",
+                "I'll help you handle complex issues 🚨. What's your escalation process?"
             ],
             "general": [
-                "I'm here to help with customer support. What do you need assistance with?",
-                "Let's work together to improve customer service. What's your goal?",
-                "I can help with any support task. What's on your mind?"
+                "I'm here to help with customer support. What do you need assistance with? 🤔",
+                "Let's work together to improve customer service. What's your goal? ✨",
+                "I can help with any support task. What's on your mind? 🚀"
             ]
         }
         
@@ -487,8 +488,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
 **CRITICAL:** You MUST strictly follow the custom instructions above. These are user-specific tweaks that override default behavior. Apply them to ALL your responses and actions.
 """
                 except Exception as e:
-                    import logging
-                    logger = logging.getLogger(__name__)
                     logger.warning(f"Could not fetch agent configuration: {e}")
                 
                 # Prepare messages for AI processing
@@ -531,8 +530,6 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                         if user:
                             user_tier = user.tier
                     except Exception as e:
-                        import logging
-                        logger = logging.getLogger(__name__)
                         logger.warning(f"Failed to get user tier: {e}")
                     
                     # Extract image generation prompt or use context
