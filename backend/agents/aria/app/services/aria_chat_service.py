@@ -1069,7 +1069,6 @@ Current intent detected: {detected_intent}
                     
             except Exception as ai_error:
                 # Fallback to simple response if AI service fails
-                logger = logging.getLogger(__name__)
                 logger.error(f"Aria: LLM exception occurred: {ai_error}", exc_info=True)
                 detected_intent = self._detect_intent_simple(message)
                 confidence = 0.8

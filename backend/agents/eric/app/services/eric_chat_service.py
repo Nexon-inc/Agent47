@@ -967,7 +967,6 @@ Current intent detected: {detected_intent}
                     
             except Exception as ai_error:
                 # Fallback to simple response if AI service fails
-                logger = logging.getLogger(__name__)
                 logger.error(f"Eric: LLM exception occurred: {ai_error}", exc_info=True)
                 detected_intent = self._detect_intent_simple(message)
                 confidence = 0.8
@@ -1013,7 +1012,6 @@ Current intent detected: {detected_intent}
             return result
             
         except Exception as e:
-            logger = logging.getLogger(__name__)
             logger.error(f"Eric: Error in process_chat_message: {e}", exc_info=True)
             return {
                 "success": False,
@@ -1085,7 +1083,6 @@ Technique: {service_result.get('technique', 'N/A')}"""
                 return f"Service Result: {str(service_result)[:500]}"
                 
         except Exception as e:
-            logger = logging.getLogger(__name__)
             logger.warning(f"Eric: Failed to format service results: {e}")
             return f"Service completed: {service_result.get('message', 'Operation successful')}"
     
