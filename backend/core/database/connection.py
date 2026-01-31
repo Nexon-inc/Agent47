@@ -234,6 +234,35 @@ class SupabaseManager:
                     except Exception as col_error:
                         logger.warning(f"Could not check/add updated_at column: {col_error}")
 
+                    # Check if billing_plans columns exist
+                    try:
+                        billing_cols = [
+                            ("price_usd", "FLOAT"),
+                            ("yearly_price_usd", "FLOAT"),
+                            ("billing_cycle", "VARCHAR(20)"),
+                            ("max_agents", "INTEGER"),
+                            ("max_api_calls_per_month", "INTEGER")
+                        ]
+                        
+                        for col_name, col_type in billing_cols:
+                            result = await conn.execute(text(f"""
+                                SELECT EXISTS (
+                                    SELECT FROM information_schema.columns 
+                                    WHERE table_schema = 'public' 
+                                    AND table_name = 'billing_plans'
+                                    AND column_name = '{col_name}'
+                                );
+                            """))
+                            if not result.scalar():
+                                logger.info(f"Adding missing {col_name} column to billing_plans table...")
+                                await conn.execute(text(f"""
+                                    ALTER TABLE billing_plans 
+                                    ADD COLUMN IF NOT EXISTS {col_name} {col_type};
+                                """))
+                                logger.info(f"Successfully added {col_name} column to billing_plans table")
+                    except Exception as billing_err:
+                        logger.warning(f"Could not check/add billing_plans columns: {billing_err}")
+
                     return
         except Exception as e:
             logger.warning(f"Could not check if tables exist: {e}")

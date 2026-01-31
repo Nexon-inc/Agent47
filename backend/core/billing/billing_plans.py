@@ -35,14 +35,12 @@ class BillingPlans:
                     "name": plan_data.get("name"),
                     "description": plan_data.get("description"),
                     "tier": plan_data.get("tier"),
-                    "price": plan_data.get("price_usd") or plan_data.get("price") or 0.0,
-                    "currency": plan_data.get("currency", "USD"),
-                    "billing_interval": plan_data.get("billing_cycle", "monthly"),
+                    "price_usd": plan_data.get("price_usd", 0.0),
+                    "yearly_price_usd": plan_data.get("yearly_price_usd"),
+                    "billing_cycle": plan_data.get("billing_cycle", "monthly"),
                     "features": plan_data.get("features", {}),
-                    "limits": {
-                        "max_agents": plan_data.get("max_agents"),
-                        "max_api_calls_per_month": plan_data.get("max_api_calls_per_month")
-                    },
+                    "max_agents": plan_data.get("max_agents", 0),
+                    "max_api_calls_per_month": plan_data.get("max_api_calls_per_month", 0),
                     "is_active": plan_data.get("is_active", True)
                 }
                 plan = BillingPlan(**bp)
