@@ -546,8 +546,8 @@ export default function TeamChatTab() {
         <div ref={messagesEndRef} className="h-24" />
       </div>
 
-      {/* Floating Input Area */}
-      <div className="sticky bottom-[-16px] md:bottom-[-24px] z-20 pb-8 pt-4 -mx-4 md:-mx-6 px-4 pointer-events-none">
+      {/* Floating Sticky Input Area */}
+      <div className="sticky bottom-4 md:bottom-6 z-50 pb-8 pt-4 -mx-4 md:-mx-6 px-4 pointer-events-none">
         <div className="max-w-3xl mx-auto">
           {/* Agent Autocomplete */}
           {showAgentAutocomplete && filteredAgents.length > 0 && (

@@ -1159,8 +1159,8 @@ export default function HomeTab() {
         </div>
       </div>
 
-      {/* Sticky Action Bar */}
-      <div className="sticky bottom-[-16px] md:bottom-[-24px] z-40 -mx-4 md:-mx-6 px-4 md:px-6 py-6 pointer-events-none">
+      {/* Floating Sticky Action Bar */}
+      <div className="sticky bottom-4 md:bottom-6 z-50 -mx-4 md:-mx-6 px-4 md:px-6 pb-4 pointer-events-none">
         <div className="max-w-3xl mx-auto relative pointer-events-auto">
           {/* Action Buttons Container */}
           <div className="bg-white/95 backdrop-blur-3xl border border-slate-200 rounded-xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300 hover:border-slate-300 focus-within:border-indigo-500/40 focus-within:shadow-[0_0_50px_rgba(79,70,229,0.05)]">
