@@ -55,6 +55,7 @@ import {
   Shield,
   PlusCircle,
   History,
+  Pencil,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth-store"
@@ -901,57 +902,61 @@ export default function HomeTab() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-transparent text-slate-900 font-sans selection:bg-indigo-500/30 relative">
-      {/* Sticky Header - Improved Sticky behavior */}
-      <div className="sticky top-0 z-50 bg-slate-100/95 backdrop-blur-xl border-b border-slate-200/60 -mx-4 md:-mx-6 px-6 py-4 mb-4 shadow-sm">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="flex items-center space-x-2">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">Beta</span>
-            </div>
-            {/* Agent Info Removed as requested */}
-            <div className="flex items-center space-x-3">
+    <div className="flex flex-col min-h-screen bg-slate-50/50 text-slate-900 font-sans selection:bg-indigo-500/30 relative">
+      {/* Fixed Header - Changed from sticky to fixed for reliability */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-3 shadow-sm transition-all duration-200">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          {/* Left: Brand/Nav Placeholder */}
+          <div className="flex items-center space-x-2">
+            <span className="font-bold text-lg tracking-tight text-slate-900">Agent47</span>
+          </div>
+
+          {/* Right: Consolidated Controls */}
+          <div className="flex items-center space-x-4">
+            {/* Beta Badge */}
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100">Beta</span>
+
+            {/* Action Icons Group */}
+            <div className="flex items-center space-x-1 pl-4 border-l border-slate-200">
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleClearChat}
-                className="h-9 w-9 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-white shadow-sm border border-transparent hover:border-slate-200 transition-all"
+                className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-all"
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-4.5 w-4.5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-white shadow-sm border border-transparent hover:border-slate-200 transition-all"
+                className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-all"
               >
-                <History className="h-5 w-5" />
+                <History className="h-4.5 w-4.5" />
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Premium Beta Badge Removed from here, moved to header */}
-
-      {/* Main Chat Content Area */}
-      <div className="flex-1 max-w-4xl mx-auto w-full px-2 sm:px-6 pb-32">
+      {/* Main Chat Content Area - Added top padding to account for fixed header */}
+      <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-24 pb-40">
         {/* Welcome Title */}
-        <div className="mt-12 mb-8">
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight text-center">
+        <div className="mt-8 mb-12 text-center space-y-4">
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
             {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
               ? `Welcome, ${user?.username || user?.full_name || "User"}.`
               : `Welcome back, ${user?.username || user?.full_name || "User"}.`
             }
           </h1>
-          <p className="text-slate-500 text-center mt-4 text-lg">How can I help you today?</p>
+          <p className="text-slate-500 text-lg font-medium">How can I help you today?</p>
         </div>
 
         {/* Chat Area */}
-        <div className="space-y-10">
+        <div className="space-y-8">
           {chatMessages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="h-20 w-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center border border-slate-200 mb-8 shadow-sm">
-                <Sparkles className="h-10 w-10 text-indigo-500" />
+            <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-700">
+              <div className="h-24 w-24 bg-white rounded-3xl flex items-center justify-center border border-slate-200 mb-8 shadow-xl shadow-indigo-500/5">
+                <Sparkles className="h-12 w-12 text-indigo-500" />
               </div>
               <h3 className="text-2xl font-black text-slate-900 mb-3">Ready for launch.</h3>
               <p className="text-slate-500 max-w-sm text-lg leading-relaxed">
@@ -970,25 +975,25 @@ export default function HomeTab() {
                 <div
                   key={msg.id}
                   className={cn(
-                    "flex w-full mb-10 animate-in fade-in slide-in-from-bottom-2 duration-500",
+                    "flex w-full mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500",
                     isUserMessage ? "justify-end" : "justify-start"
                   )}
                 >
                   <div className={cn(
-                    "flex items-start max-w-[85%] sm:max-w-[75%] space-x-4",
+                    "flex items-start max-w-[90%] sm:max-w-[80%] lg:max-w-[70%] space-x-4",
                     isUserMessage && "flex-row-reverse space-x-reverse"
                   )}>
                     {/* Avatar */}
                     <div className="flex-shrink-0 mt-1">
                       {agent ? (
                         <div className={cn(
-                          "h-10 w-10 rounded-2xl flex items-center justify-center border border-slate-200 shadow-sm bg-white transition-transform hover:scale-110",
-                          isThinking && "animate-pulse"
+                          "h-10 w-10 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm bg-white transition-transform hover:scale-105",
+                          isThinking && "animate-pulse ring-2 ring-indigo-100"
                         )}>
                           <agent.icon className={cn("h-5 w-5", agent.color.replace('bg-', 'text-'))} />
                         </div>
                       ) : isUserMessage ? (
-                        <div className="h-10 w-10 rounded-2xl bg-indigo-600 flex items-center justify-center border border-indigo-500 shadow-sm transition-transform hover:scale-110 overflow-hidden">
+                        <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center border border-indigo-500 shadow-md shadow-indigo-600/20 transition-transform hover:scale-105 overflow-hidden">
                           {user?.avatar_url ? (
                             <img src={user.avatar_url} alt={user.username} className="h-full w-full object-cover" />
                           ) : (
@@ -996,53 +1001,47 @@ export default function HomeTab() {
                           )}
                         </div>
                       ) : isSystemMessage ? (
-                        <div className="h-10 w-10 rounded-2xl bg-amber-50 flex items-center justify-center border border-amber-200">
-                          <AlertCircle className="h-5 w-5 text-amber-600" />
+                        <div className="h-9 w-9 rounded-xl bg-amber-50 flex items-center justify-center border border-amber-200">
+                          <AlertCircle className="h-4 w-4 text-amber-600" />
                         </div>
                       ) : null}
                     </div>
 
                     {/* Bubble & Content */}
                     <div className={cn(
-                      "flex flex-col",
+                      "flex flex-col group",
                       isUserMessage ? "items-end" : "items-start"
                     )}>
                       {!isSameAuthor && (
                         <div className="flex items-center space-x-2 mb-2 px-1">
                           <span className={cn(
-                            "text-sm font-bold tracking-tight",
-                            agent ? "text-slate-900" : "text-slate-500"
+                            "text-xs font-bold tracking-tight uppercase opacity-80",
+                            agent ? "text-slate-700" : "text-slate-500"
                           )}>
                             {agent ? agent.name : isUserMessage ? (user?.username || "You") : "System"}
                           </span>
-                          {/* Removed Assistant badge as requested */}
                         </div>
                       )}
 
                       <div className={cn(
-                        "px-6 py-4 rounded-3xl text-[16px] leading-relaxed transition-all duration-300 shadow-sm",
+                        "px-6 py-4 text-[15px] leading-relaxed shadow-sm backdrop-blur-sm border",
                         isUserMessage
-                          ? "bg-slate-100 text-slate-900 border border-slate-200/50 rounded-tr-none"
+                          ? "bg-white text-slate-800 border-slate-200 rounded-2xl rounded-tr-sm"
                           : isSystemMessage
-                            ? "bg-amber-50 text-amber-800 border border-amber-200 rounded-tl-none italic text-sm"
-                            : "bg-transparent text-slate-800 rounded-tl-none border-0"
+                            ? "bg-amber-50 text-amber-800 border-amber-200 rounded-2xl rounded-tl-sm italic text-sm"
+                            : "bg-white text-slate-800 border-slate-200 rounded-2xl rounded-tl-sm"
                       )}>
                         {isThinking ? (
-                          <div className="space-y-6 py-6 px-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm relative overflow-hidden">
-                            <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center space-x-3 text-slate-400">
+                          <div className="space-y-4 min-w-[300px]">
+                            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                              <div className="flex items-center space-x-2.5 text-indigo-600">
                                 <Loader2 className="h-4 w-4 animate-spin" />
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">{msg.content}</span>
-                              </div>
-                              <div className="flex space-x-1">
-                                <div className="h-1 w-1 bg-slate-200 rounded-full" />
-                                <div className="h-1 w-1 bg-slate-200 rounded-full" />
-                                <div className="h-1 w-1 bg-slate-200 rounded-full" />
+                                <span className="text-[11px] font-black uppercase tracking-wider">{msg.content}</span>
                               </div>
                             </div>
 
                             {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
-                              <div className="space-y-4">
+                              <div className="space-y-3 pt-1">
                                 {msg.thinkingSteps.map((step: string, i: number) => {
                                   const isLast = i === msg.thinkingSteps.length - 1
                                   const getIcon = (text: string) => {
@@ -1055,37 +1054,34 @@ export default function HomeTab() {
                                   return (
                                     <motion.div
                                       key={i}
-                                      initial={{ opacity: 0, y: 5 }}
-                                      animate={{ opacity: 1, y: 0 }}
-                                      transition={{ delay: i * 0.15 }}
-                                      className={cn(
-                                        "flex items-start space-x-4 group",
-                                        !isLast && "pb-4 border-l-2 border-slate-50 ml-1.5 pl-6"
-                                      )}
+                                      initial={{ opacity: 0, x: -10 }}
+                                      animate={{ opacity: 1, x: 0 }}
+                                      transition={{ delay: i * 0.1 }}
+                                      className="flex items-start space-x-3"
                                     >
                                       <div className={cn(
-                                        "h-7 w-7 rounded-lg flex items-center justify-center transition-all",
-                                        isLast ? "bg-indigo-50 text-indigo-600 shadow-sm" : "bg-slate-50 text-slate-400"
+                                        "h-6 w-6 rounded flex items-center justify-center flex-shrink-0 mt-0.5",
+                                        isLast ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-400"
                                       )}>
                                         {getIcon(step)}
                                       </div>
                                       <div className="flex-1">
                                         <p className={cn(
-                                          "text-xs leading-relaxed transition-colors",
-                                          isLast ? "text-slate-900 font-bold" : "text-slate-500 font-medium"
+                                          "text-xs",
+                                          isLast ? "text-slate-900 font-semibold" : "text-slate-500 font-medium"
                                         )}>
                                           {step}
                                         </p>
                                         {isLast && (
                                           <motion.div
-                                            initial={{ width: 0 }}
+                                            initial={{ width: "0%" }}
                                             animate={{ width: "100%" }}
-                                            className="h-0.5 bg-indigo-500/10 mt-2 rounded-full overflow-hidden"
+                                            className="h-1 bg-indigo-100 mt-2 rounded-full overflow-hidden"
                                           >
                                             <motion.div
+                                              className="h-full bg-indigo-500"
                                               animate={{ x: ["-100%", "100%"] }}
-                                              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
-                                              className="h-full w-1/3 bg-indigo-500"
+                                              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
                                             />
                                           </motion.div>
                                         )}
@@ -1097,7 +1093,7 @@ export default function HomeTab() {
                             )}
                           </div>
                         ) : (
-                          <div className="prose prose-slate max-w-none prose-p:leading-relaxed prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
+                          <div className="prose prose-slate prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200 prose-pre:rounded-xl">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {msg.content}
                             </ReactMarkdown>
@@ -1106,28 +1102,28 @@ export default function HomeTab() {
 
                         {/* Image Preview */}
                         {msg.imageUrl && (
-                          <div className="mt-5 rounded-[2rem] overflow-hidden border border-slate-200 max-w-md shadow-lg group relative">
-                            <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto transition-transform duration-500 group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center border-0">
-                              <Button variant="outline" size="sm" asChild className="rounded-full bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/40">
-                                <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">View Original</a>
+                          <div className="mt-4 rounded-xl overflow-hidden border border-slate-200 shadow-md group relative max-w-sm">
+                            <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto" />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Button variant="secondary" size="sm" asChild className="rounded-full">
+                                <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">View Full Size</a>
                               </Button>
                             </div>
                           </div>
                         )}
                       </div>
 
-                      <div className="mt-2 px-1 flex items-center space-x-4">
-                        <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+                      <div className="mt-2 px-1 flex items-center space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <span className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">
                           {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <div className="flex items-center space-x-1">
-                          <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-indigo-600 hover:bg-slate-200/50 rounded-lg" onClick={() => handleCopyMessage(msg.content)}>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-indigo-600 hover:bg-white rounded" onClick={() => handleCopyMessage(msg.content)}>
                             <Copy className="h-3 w-3" />
                           </Button>
                           {isUserMessage && (
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-indigo-600 hover:bg-slate-200/50 rounded-lg" onClick={() => handleEditMessage(msg)}>
-                              <Trash2 className="h-3 w-3 rotate-45" /> {/* Using Trash as Edit icon or could use Pen but let's stick to requested functionality */}
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-indigo-600 hover:bg-white rounded" onClick={() => handleEditMessage(msg)}>
+                              <Pencil className="h-3 w-3" />
                             </Button>
                           )}
                         </div>
@@ -1139,105 +1135,92 @@ export default function HomeTab() {
             })
           )}
           {isLoading && !chatMessages.some((m: any) => m.type === "thinking") && (
-            <div className="flex justify-start mb-10 pl-1">
-              <div className="h-10 w-10 rounded-2xl flex items-center justify-center border border-slate-200 bg-white shadow-sm animate-pulse">
-                <Bot className="h-5 w-5 text-indigo-500" />
-              </div>
-              <div className="ml-4 flex items-center space-x-1.5">
-                {[0, 1, 2].map(i => (
-                  <motion.div
-                    key={i}
-                    className="w-1.5 h-1.5 bg-indigo-500/20 rounded-full"
-                    animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-                  />
-                ))}
+            <div className="flex justify-start mb-8 pl-1">
+              <div className="h-10 w-10 rounded-xl flex items-center justify-center border border-slate-200 bg-white shadow-sm">
+                <Bot className="h-5 w-5 text-indigo-500 animate-pulse" />
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} className="h-10" />
+          <div ref={messagesEndRef} className="h-4" />
         </div>
       </div>
 
-      {/* Floating Sticky Action Bar */}
-      <div className="sticky bottom-4 md:bottom-6 z-50 -mx-4 md:-mx-6 px-4 md:px-6 pb-4 pointer-events-none">
-        <div className="max-w-3xl mx-auto relative pointer-events-auto">
-          {/* Action Buttons Container */}
-          <div className="bg-white/95 backdrop-blur-3xl border border-slate-200 rounded-xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300 hover:border-slate-300 focus-within:border-indigo-500/40 focus-within:shadow-[0_0_50px_rgba(79,70,229,0.05)]">
-            <div className="flex items-center space-x-3">
+      {/* Floating Action Bar - Fixed Bottom Position without sticky issues */}
+      <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none">
+        <div className="max-w-3xl mx-auto w-full pointer-events-auto">
+          <div className="bg-white/90 backdrop-blur-2xl border border-slate-200/80 rounded-2xl p-2.5 shadow-2xl shadow-indigo-500/10 ring-1 ring-slate-900/5 transition-all duration-300 focus-within:ring-indigo-500/50 focus-within:shadow-indigo-500/20">
+            <div className="flex items-center gap-2">
               {/* Agent Quick Select */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-[#00FF41] hover:text-[#00FF41]/80 hover:bg-[#00FF41]/5 rounded-[2rem] h-12 w-12 flex-shrink-0 transition-all active:scale-95 group">
-                    <PlusCircle className="h-6 w-6 transition-transform group-hover:rotate-90" />
+                  <Button variant="ghost" size="icon" className="h-10 w-10 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl flex-shrink-0 transition-colors">
+                    <PlusCircle className="h-6 w-6" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" side="top" sideOffset={15} className="w-72 bg-white border border-slate-200 text-slate-900 p-2 rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                  <DropdownMenuLabel className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black px-4 py-3 border-b border-slate-100 mb-2">Neural Link: Select Unit</DropdownMenuLabel>
-                  <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                <DropdownMenuContent align="start" side="top" sideOffset={20} className="w-80 bg-white border border-slate-200 p-2 rounded-2xl shadow-xl">
+                  <DropdownMenuLabel className="text-[10px] uppercase tracking-wider font-bold text-slate-400 px-3 py-2">Select Processor</DropdownMenuLabel>
+                  <div className="max-h-[300px] overflow-y-auto custom-scrollbar space-y-1">
                     {userAgents.map((ua: any) => {
                       const a = agents.find(ag => ag.id === ua.agent_id)
                       if (!a) return null
                       const isSelected = selectedAgent?.id === a.id
                       return (
                         <DropdownMenuItem key={a.id} onClick={() => handleAgentSwitch(a.id)} className={cn(
-                          "rounded-2xl flex items-center space-x-4 p-3 mb-1 cursor-pointer transition-all",
-                          isSelected ? "bg-indigo-50 border border-indigo-100" : "hover:bg-slate-50 border border-transparent"
+                          "rounded-xl flex items-center gap-3 p-2.5 cursor-pointer focus:bg-slate-50",
+                          isSelected && "bg-indigo-50/80"
                         )}>
-                          <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center bg-slate-50 border border-slate-100", isSelected && "border-indigo-200")}>
-                            <a.icon className={cn("h-5 w-5", isSelected ? "text-indigo-600" : "text-slate-400")} />
+                          <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center bg-white border border-slate-200", isSelected && "border-indigo-200 text-indigo-600")}>
+                            <a.icon className="h-4 w-4" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={cn("font-bold text-sm truncate", isSelected ? "text-slate-900" : "text-slate-600")}>{a.name}</p>
-                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{a.title}</p>
+                            <p className={cn("font-semibold text-sm", isSelected ? "text-indigo-900" : "text-slate-700")}>{a.name}</p>
+                            <p className="text-[10px] text-slate-400 font-medium truncate">{a.title}</p>
                           </div>
-                          {isSelected && <div className="h-2 w-2 rounded-full bg-indigo-600 ring-4 ring-indigo-50" />}
+                          {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />}
                         </DropdownMenuItem>
                       )
                     })}
                   </div>
-                  <DropdownMenuSeparator className="bg-slate-100 my-2" />
-                  <DropdownMenuItem onClick={() => handleIntercommunicate()} className="rounded-xl flex items-center space-x-3 p-3 hover:bg-indigo-50 text-indigo-600 border border-transparent hover:border-indigo-100">
+                  <DropdownMenuSeparator className="my-2" />
+                  <DropdownMenuItem onClick={() => handleIntercommunicate()} className="rounded-xl p-2.5 flex items-center gap-3 text-indigo-600 focus:bg-indigo-50 hover:bg-indigo-50">
                     <Network className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Inter-Unit Link</span>
-                    {intercommunicationEnabled && (
-                      <div className="ml-auto bg-indigo-600 text-white text-[10px] px-2.5 py-0.5 rounded-full font-semibold">
-                        Active
-                      </div>
-                    )}
+                    <span className="text-xs font-bold uppercase tracking-wider flex-1">Neural Link</span>
+                    {intercommunicationEnabled && <span className="h-2 w-2 bg-indigo-600 rounded-full animate-pulse" />}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
               {/* Message Input */}
-              <div className="flex-1 relative">
+              <div className="flex-1">
                 <Input
+                  id="chat-input-home"
                   value={message}
                   onChange={(e: any) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={isRecording ? "Listening..." : "How can I help you?"}
-                  className="bg-transparent border-0 focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 h-12 text-lg px-2 font-medium"
+                  placeholder={isRecording ? "Listening..." : "Type a message..."}
+                  className="bg-transparent border-0 focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 h-10 text-[16px] px-2 font-medium"
                 />
               </div>
 
               {/* Actions */}
-              <div className="flex items-center space-x-2 pr-1">
+              <div className="flex items-center gap-1">
+                {/* Voice */}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={isRecording ? stopRecording : startRecording}
                   className={cn(
-                    "text-[#00FF41] hover:text-[#00FF41]/80 hover:bg-[#00FF41]/5 rounded-[2rem] h-12 w-12 transition-all active:scale-90",
-                    isRecording && "text-red-600 bg-red-50 animate-pulse"
+                    "h-10 w-10 rounded-xl transition-all",
+                    isRecording ? "text-red-500 bg-red-50 animate-pulse" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                   )}
                 >
-                  <Mic className="h-6 w-6" />
+                  <Mic className="h-5 w-5" />
                 </Button>
 
-                {/* File Upload Label/Button Integration */}
+                {/* File Upload */}
                 <label htmlFor="file-upload-home" className="cursor-pointer">
-                  <div className="text-[#00FF41] hover:text-[#00FF41]/80 hover:bg-[#00FF41]/5 rounded-[2rem] h-12 w-12 flex items-center justify-center transition-all active:scale-95">
-                    <Paperclip className="h-6 w-6" />
+                  <div className="h-10 w-10 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
+                    <Paperclip className="h-5 w-5" />
                   </div>
                   <input
                     id="file-upload-home"
@@ -1247,10 +1230,11 @@ export default function HomeTab() {
                   />
                 </label>
 
+                {/* Send */}
                 <Button
                   onClick={editingMessageId ? handleUpdateMessage : handleSendMessage}
                   disabled={isLoading || !message.trim()}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-12 px-6 shadow-lg shadow-indigo-600/20 transition-all active:scale-95 flex items-center justify-center min-w-[3rem]"
+                  className="h-10 w-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 flex items-center justify-center transition-all active:scale-95 disabled:opacity-50 disabled:shadow-none ml-2"
                 >
                   {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                 </Button>
