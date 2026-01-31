@@ -904,46 +904,57 @@ export default function HomeTab() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-100 text-slate-900 font-sans selection:bg-indigo-500/30 relative">
 
-      {/* Main Chat Content Area */}
-      <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-6 pb-40">
+      {/* Sticky Header Section */}
+      <div className="sticky top-[-24px] md:top-[-24px] z-40 bg-slate-100/95 backdrop-blur-md pt-8 pb-4 mb-2 -mx-4 sm:-mx-6 px-4 sm:px-6 border-b border-slate-200/50">
+        <div className="max-w-5xl mx-auto relative px-4 sm:px-6">
+          <div className="flex flex-col items-center text-center space-y-6">
+            {/* Beta Large Title */}
+            <div className="flex flex-col items-center">
+              <span className="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-indigo-600 mb-1">Beta.</span>
+              <p className="text-[11px] sm:text-xs text-slate-500 font-bold max-w-sm leading-tight px-4 uppercase tracking-wider">
+                Agent47 is currently in active development; features and intelligence are being refined daily.
+              </p>
+            </div>
 
-        {/* Header Elements: Beta & Icons (Vertical Layout) */}
-        <div className="flex flex-col items-center justify-center space-y-3 mb-8">
-          {/* Beta Badge */}
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100">Beta</span>
+            {/* Welcome Message */}
+            <div className="space-y-2 pb-2">
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+                {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
+                  ? `Welcome, ${user?.username || user?.full_name || "User"}.`
+                  : `Welcome back, ${user?.username || user?.full_name || "User"}.`
+                }
+              </h1>
+              {chatMessages.length === 0 && (
+                <p className="text-slate-500 text-lg font-medium italic">How can I help you today?</p>
+              )}
+            </div>
+          </div>
 
-          {/* Action Icons Group */}
-          <div className="flex items-center space-x-2">
+          {/* Action Icons - Positioned at the top of the chat area rectangle */}
+          <div className="absolute bottom-[-14px] right-4 sm:right-6 flex items-center space-x-2.5 z-50">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleClearChat}
-              className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-white transition-all"
+              className="h-11 w-11 rounded-2xl text-[#22c55e] hover:text-emerald-600 hover:bg-white transition-all shadow-xl shadow-slate-200 border border-slate-200 bg-white"
               title="New Chat"
             >
-              <Plus className="h-4.5 w-4.5" />
+              <Plus className="h-5.5 w-5.5 stroke-[3px]" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-white transition-all"
+              className="h-11 w-11 rounded-2xl text-[#22c55e] hover:text-emerald-600 hover:bg-white transition-all shadow-xl shadow-slate-200 border border-slate-200 bg-white"
               title="History"
             >
-              <History className="h-4.5 w-4.5" />
+              <History className="h-5.5 w-5.5 stroke-[3px]" />
             </Button>
           </div>
         </div>
+      </div>
 
-        {/* Welcome Title */}
-        <div className="mb-8 text-center space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
-              ? `Welcome, ${user?.username || user?.full_name || "User"}.`
-              : `Welcome back, ${user?.username || user?.full_name || "User"}.`
-            }
-          </h1>
-          <p className="text-slate-500 text-lg font-medium">How can I help you today?</p>
-        </div>
+      {/* Main Chat Content Area */}
+      <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-2 pb-40">
 
         {/* Chat Area Container */}
         <div className="space-y-8 border border-slate-300 rounded-3xl bg-white shadow-sm min-h-[60vh] p-4 sm:p-6 mb-8 relative overflow-hidden">

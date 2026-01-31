@@ -40,14 +40,14 @@ export default function DashboardNavbar() {
   const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
   const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
   const seconds = Math.floor((remaining % (1000 * 60)) / 1000)
-  
+
   const isFreeTier = user?.subscription_plan === 'free' || !user?.subscription_plan
   const showUpgradeBanner = isFreeTier && remaining < 48 * 60 * 60 * 1000 // Show when less than 48 hours left
 
   const unreadCount = notifications.filter((n) => n.unread).length
 
   return (
-    <header className="flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-white px-2 sm:px-4">
+    <header className="sticky top-0 z-50 flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-white/95 backdrop-blur-md px-2 sm:px-4">
       <SidebarTrigger className="-ml-1" />
 
       <div className="flex flex-1 items-center justify-between min-w-0">
@@ -59,7 +59,7 @@ export default function DashboardNavbar() {
           {/* Free Tier Countdown */}
           {isFreeTier && remaining > 0 && (
             <div className="flex items-center gap-1 sm:gap-2">
-              <Badge 
+              <Badge
                 variant="outline"
                 className="bg-green-500 text-white border-green-500 text-xs"
               >
