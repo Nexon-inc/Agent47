@@ -657,14 +657,14 @@ export default function HomeTab() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#0b0d11] text-gray-100 font-sans selection:bg-indigo-500/30 overflow-y-auto">
+    <div className="flex flex-col h-full bg-white text-slate-900 font-sans selection:bg-indigo-500/30 overflow-y-auto">
       {/* Premium Beta Badge */}
       <div className="flex justify-center mt-6">
-        <div className="bg-white/5 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md">
+        <div className="bg-slate-50 border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-            <p className="text-[11px] uppercase tracking-widest font-bold text-gray-400">
-              Agent47 Intelligence <span className="text-white/20 mx-1">|</span> Beta v2.0
+            <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+            <p className="text-[11px] uppercase tracking-widest font-bold text-slate-500">
+              Agent47 Intelligence <span className="text-slate-200 mx-1">|</span> Beta v2.0
             </p>
           </div>
         </div>
@@ -674,13 +674,13 @@ export default function HomeTab() {
       {/* Welcome Section */}
       {/* Welcome Title */}
       <div className="max-w-4xl mx-auto w-full px-6 mt-12 mb-8">
-        <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight text-center">
+        <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight text-center">
           {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
             ? `Welcome, ${user?.username || user?.full_name || "User"}.`
             : `Welcome back, ${user?.username || user?.full_name || "User"}.`
           }
         </h1>
-        <p className="text-gray-500 text-center mt-4 text-lg">How can I help you today?</p>
+        <p className="text-slate-500 text-center mt-4 text-lg">How can I help you today?</p>
       </div>
 
 
@@ -690,11 +690,11 @@ export default function HomeTab() {
         <div className="space-y-10">
           {chatMessages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="h-20 w-20 bg-white/5 rounded-[2.5rem] flex items-center justify-center border border-white/10 mb-8 shadow-2xl">
-                <Sparkles className="h-10 w-10 text-indigo-400" />
+              <div className="h-20 w-20 bg-slate-50 rounded-[2.5rem] flex items-center justify-center border border-slate-200 mb-8 shadow-sm">
+                <Sparkles className="h-10 w-10 text-indigo-500" />
               </div>
-              <h3 className="text-2xl font-black text-white mb-3">Ready for launch.</h3>
-              <p className="text-gray-500 max-w-sm text-lg leading-relaxed">
+              <h3 className="text-2xl font-black text-slate-900 mb-3">Ready for launch.</h3>
+              <p className="text-slate-500 max-w-sm text-lg leading-relaxed">
                 Choose an assistant or start typing to begin your next session.
               </p>
             </div>
@@ -722,18 +722,18 @@ export default function HomeTab() {
                     <div className="flex-shrink-0 mt-1">
                       {agent ? (
                         <div className={cn(
-                          "h-10 w-10 rounded-2xl flex items-center justify-center border border-white/10 shadow-xl bg-[#16171d] transition-transform hover:scale-110",
+                          "h-10 w-10 rounded-2xl flex items-center justify-center border border-slate-200 shadow-sm bg-white transition-transform hover:scale-110",
                           isThinking && "animate-pulse"
                         )}>
-                          <agent.icon className="h-5 w-5 text-indigo-400" />
+                          <agent.icon className={cn("h-5 w-5", agent.color.replace('bg-', 'text-'))} />
                         </div>
                       ) : isUserMessage ? (
-                        <div className="h-10 w-10 rounded-2xl bg-indigo-600 flex items-center justify-center border border-white/10 shadow-xl transition-transform hover:scale-110">
+                        <div className="h-10 w-10 rounded-2xl bg-indigo-600 flex items-center justify-center border border-indigo-500 shadow-sm transition-transform hover:scale-110">
                           <User className="h-5 w-5 text-white" />
                         </div>
                       ) : isSystemMessage ? (
-                        <div className="h-10 w-10 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
-                          <AlertCircle className="h-5 w-5 text-amber-500" />
+                        <div className="h-10 w-10 rounded-2xl bg-amber-50 flex items-center justify-center border border-amber-200">
+                          <AlertCircle className="h-5 w-5 text-amber-600" />
                         </div>
                       ) : null}
                     </div>
@@ -747,35 +747,35 @@ export default function HomeTab() {
                         <div className="flex items-center space-x-2 mb-2 px-1">
                           <span className={cn(
                             "text-sm font-bold tracking-tight",
-                            agent ? "text-white" : "text-gray-300"
+                            agent ? "text-slate-900" : "text-slate-500"
                           )}>
                             {agent ? agent.name : isUserMessage ? "You" : "System"}
                           </span>
                           {agent && (
-                            <div className="flex items-center space-x-1 bg-white/5 border border-white/10 px-2 py-0.5 rounded-lg shadow-sm">
-                              <Bot className="h-3 w-3 text-indigo-400" />
-                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Assistant</span>
+                            <div className="flex items-center space-x-1 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg shadow-sm">
+                              <Bot className={cn("h-3 w-3", agent.color.replace('bg-', 'text-'))} />
+                              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Assistant</span>
                             </div>
                           )}
                         </div>
                       )}
 
                       <div className={cn(
-                        "px-6 py-4 rounded-3xl text-[16px] leading-relaxed transition-all duration-300 shadow-2xl",
+                        "px-6 py-4 rounded-3xl text-[16px] leading-relaxed transition-all duration-300 shadow-sm",
                         isUserMessage
-                          ? "bg-[#1d1e24] text-gray-100 border border-white/5 rounded-tr-none"
+                          ? "bg-slate-100 text-slate-900 border border-slate-200/50 rounded-tr-none"
                           : isSystemMessage
-                            ? "bg-amber-500/5 text-amber-200 border border-amber-500/10 rounded-tl-none italic text-sm"
-                            : "bg-transparent text-gray-200 rounded-tl-none border-0"
+                            ? "bg-amber-50 text-amber-800 border border-amber-200 rounded-tl-none italic text-sm"
+                            : "bg-transparent text-slate-800 rounded-tl-none border-0"
                       )}>
                         {isThinking ? (
                           <div className="space-y-4 py-2">
-                            <div className="flex items-center space-x-3 text-indigo-400">
+                            <div className={cn("flex items-center space-x-3", agent ? agent.color.replace('bg-', 'text-') : "text-indigo-600")}>
                               <Loader2 className="h-5 w-5 animate-spin" />
                               <span className="text-sm font-black animate-pulse tracking-[0.1em] uppercase">{msg.content}</span>
                             </div>
                             {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
-                              <div className="space-y-3 border-l-2 border-indigo-500/20 pl-5 py-1">
+                              <div className={cn("space-y-3 border-l-2 pl-5 py-1", agent ? agent.color.replace('bg-', 'border-').replace('text-', 'border-') + "/20" : "border-indigo-500/20")}>
                                 {msg.thinkingSteps.map((step: string, i: number) => (
                                   <motion.div
                                     key={i}
@@ -792,7 +792,7 @@ export default function HomeTab() {
                             )}
                           </div>
                         ) : (
-                          <div className="prose prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-[#16171d] prose-pre:border prose-pre:border-white/5">
+                          <div className="prose prose-slate max-w-none prose-p:leading-relaxed prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {msg.content}
                             </ReactMarkdown>
@@ -801,10 +801,10 @@ export default function HomeTab() {
 
                         {/* Image Preview */}
                         {msg.imageUrl && (
-                          <div className="mt-5 rounded-[2rem] overflow-hidden border border-white/10 max-w-md shadow-2xl group relative">
+                          <div className="mt-5 rounded-[2rem] overflow-hidden border border-slate-200 max-w-md shadow-lg group relative">
                             <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto transition-transform duration-500 group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Button variant="outline" size="sm" asChild className="rounded-full bg-white/10 backdrop-blur-md border-white/20 text-white">
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center border-0">
+                              <Button variant="outline" size="sm" asChild className="rounded-full bg-white/20 backdrop-blur-md border-white/30 text-white hover:bg-white/40">
                                 <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">View Original</a>
                               </Button>
                             </div>
@@ -813,11 +813,11 @@ export default function HomeTab() {
                       </div>
 
                       <div className="mt-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-2">
-                        <span className="text-[10px] text-white/10 font-bold tracking-widest uppercase">
+                        <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
                           {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <div className="flex items-center space-x-1">
-                          <Button variant="ghost" size="icon" className="h-6 w-6 text-white/10 hover:text-indigo-400 hover:bg-transparent" onClick={() => handleCopyMessage(msg.content)}>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-300 hover:text-indigo-600 hover:bg-transparent" onClick={() => handleCopyMessage(msg.content)}>
                             <Copy className="h-3 w-3" />
                           </Button>
                         </div>
@@ -830,14 +830,14 @@ export default function HomeTab() {
           )}
           {isLoading && !chatMessages.some((m: any) => m.type === "thinking") && (
             <div className="flex justify-start mb-10 pl-1">
-              <div className="h-10 w-10 rounded-2xl flex items-center justify-center border border-white/10 bg-[#16171d] animate-pulse">
-                <Bot className="h-5 w-5 text-indigo-400" />
+              <div className="h-10 w-10 rounded-2xl flex items-center justify-center border border-slate-200 bg-white shadow-sm animate-pulse">
+                <Bot className="h-5 w-5 text-indigo-500" />
               </div>
               <div className="ml-4 flex items-center space-x-1.5">
                 {[0, 1, 2].map(i => (
                   <motion.div
                     key={i}
-                    className="w-1.5 h-1.5 bg-indigo-500/40 rounded-full"
+                    className="w-1.5 h-1.5 bg-indigo-500/20 rounded-full"
                     animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
                   />
@@ -853,17 +853,17 @@ export default function HomeTab() {
       <div className="fixed bottom-10 left-0 right-0 z-50 px-6">
         <div className="max-w-3xl mx-auto relative">
           {/* Action Buttons Container */}
-          <div className="bg-[#16171d]/90 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-3 shadow-[0_30px_60px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-white/20 focus-within:border-indigo-500/40 focus-within:shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+          <div className="bg-white/95 backdrop-blur-3xl border border-slate-200 rounded-[2.5rem] p-3 shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-300 hover:border-slate-300 focus-within:border-indigo-500/40 focus-within:shadow-[0_0_50px_rgba(79,70,229,0.05)]">
             <div className="flex items-center space-x-3">
               {/* Agent Quick Select */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white/30 hover:text-white/70 hover:bg-white/5 rounded-[2rem] h-12 w-12 flex-shrink-0 transition-all active:scale-95 group">
+                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-[2rem] h-12 w-12 flex-shrink-0 transition-all active:scale-95 group">
                     <PlusCircle className="h-6 w-6 transition-transform group-hover:rotate-90" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" side="top" sideOffset={15} className="w-72 bg-[#16171d]/95 backdrop-blur-xl border-white/10 text-white p-2 rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
-                  <DropdownMenuLabel className="text-gray-500 text-[10px] uppercase tracking-[0.2em] font-black px-4 py-3 border-b border-white/5 mb-2">Neural Link: Select Unit</DropdownMenuLabel>
+                <DropdownMenuContent align="start" side="top" sideOffset={15} className="w-72 bg-white border border-slate-200 text-slate-900 p-2 rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                  <DropdownMenuLabel className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black px-4 py-3 border-b border-slate-100 mb-2">Neural Link: Select Unit</DropdownMenuLabel>
                   <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                     {userAgents.map((ua: any) => {
                       const a = agents.find(ag => ag.id === ua.agent_id)
@@ -872,26 +872,26 @@ export default function HomeTab() {
                       return (
                         <DropdownMenuItem key={a.id} onClick={() => handleAgentSwitch(a.id)} className={cn(
                           "rounded-2xl flex items-center space-x-4 p-3 mb-1 cursor-pointer transition-all",
-                          isSelected ? "bg-indigo-600/10 border border-indigo-500/20" : "hover:bg-white/5 border border-transparent"
+                          isSelected ? "bg-indigo-50 border border-indigo-100" : "hover:bg-slate-50 border border-transparent"
                         )}>
-                          <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/10", isSelected && "border-indigo-500/30")}>
-                            <a.icon className={cn("h-5 w-5", isSelected ? "text-indigo-400" : "text-gray-400")} />
+                          <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center bg-slate-50 border border-slate-100", isSelected && "border-indigo-200")}>
+                            <a.icon className={cn("h-5 w-5", isSelected ? "text-indigo-600" : "text-slate-400")} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={cn("font-bold text-sm truncate", isSelected ? "text-white" : "text-gray-300")}>{a.name}</p>
-                            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">{a.title}</p>
+                            <p className={cn("font-bold text-sm truncate", isSelected ? "text-slate-900" : "text-slate-600")}>{a.name}</p>
+                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{a.title}</p>
                           </div>
-                          {isSelected && <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse ring-4 ring-indigo-500/10" />}
+                          {isSelected && <div className="h-2 w-2 rounded-full bg-indigo-600 ring-4 ring-indigo-50" />}
                         </DropdownMenuItem>
                       )
                     })}
                   </div>
-                  <DropdownMenuSeparator className="bg-white/5 my-2" />
-                  <DropdownMenuItem onClick={() => handleIntercommunicate()} className="rounded-xl flex items-center space-x-3 p-3 hover:bg-indigo-600/10 text-indigo-400 border border-transparent hover:border-indigo-500/20">
+                  <DropdownMenuSeparator className="bg-slate-100 my-2" />
+                  <DropdownMenuItem onClick={() => handleIntercommunicate()} className="rounded-xl flex items-center space-x-3 p-3 hover:bg-indigo-50 text-indigo-600 border border-transparent hover:border-indigo-100">
                     <Network className="h-4 w-4" />
                     <span className="text-xs font-bold uppercase tracking-wider">Inter-Unit Link</span>
                     {intercommunicationEnabled && (
-                      <div className="ml-auto bg-indigo-500 text-white text-[10px] px-2.5 py-0.5 rounded-full font-semibold">
+                      <div className="ml-auto bg-indigo-600 text-white text-[10px] px-2.5 py-0.5 rounded-full font-semibold">
                         Active
                       </div>
                     )}
@@ -906,7 +906,7 @@ export default function HomeTab() {
                   onChange={(e: any) => setMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder={isRecording ? "Listening..." : "How can I help you?"}
-                  className="bg-transparent border-0 focus-visible:ring-0 text-white placeholder:text-white/20 h-12 text-lg px-2 font-medium"
+                  className="bg-transparent border-0 focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 h-12 text-lg px-2 font-medium"
                 />
               </div>
 
@@ -917,8 +917,8 @@ export default function HomeTab() {
                   size="icon"
                   onClick={isRecording ? stopRecording : startRecording}
                   className={cn(
-                    "text-white/30 hover:text-white/70 hover:bg-white/5 rounded-[2rem] h-12 w-12 transition-all active:scale-90",
-                    isRecording && "text-red-500 bg-red-500/10 animate-pulse"
+                    "text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-[2rem] h-12 w-12 transition-all active:scale-90",
+                    isRecording && "text-red-600 bg-red-50 animate-pulse"
                   )}
                 >
                   <Mic className="h-6 w-6" />
@@ -926,7 +926,7 @@ export default function HomeTab() {
 
                 {/* File Upload Label/Button Integration */}
                 <label htmlFor="file-upload-home" className="cursor-pointer">
-                  <div className="text-white/30 hover:text-white/70 hover:bg-white/5 rounded-[2rem] h-12 w-12 flex items-center justify-center transition-all active:scale-95">
+                  <div className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-[2rem] h-12 w-12 flex items-center justify-center transition-all active:scale-95">
                     <Paperclip className="h-6 w-6" />
                   </div>
                   <input
@@ -940,7 +940,7 @@ export default function HomeTab() {
                 <Button
                   onClick={handleSendMessage}
                   disabled={isLoading || !message.trim()}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-[1.8rem] h-12 px-8 shadow-xl shadow-indigo-600/30 transition-all active:scale-95 font-black uppercase tracking-widest text-xs"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.8rem] h-12 px-8 shadow-lg shadow-indigo-600/20 transition-all active:scale-95 font-black uppercase tracking-widest text-xs"
                 >
                   {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Dispatch"}
                 </Button>
@@ -949,8 +949,8 @@ export default function HomeTab() {
           </div>
 
           {/* Subtle Disclaimer Footer */}
-          <div className="mt-6 flex justify-center opacity-30 select-none">
-            <span className="text-[9px] uppercase tracking-[0.4em] font-black text-white flex items-center space-x-3">
+          <div className="mt-6 flex justify-center opacity-60 select-none">
+            <span className="text-[9px] uppercase tracking-[0.4em] font-black text-slate-400 flex items-center space-x-3">
               <Shield className="h-3 w-3" />
               <span>Agent47 Neural Processor : : Version 2.0.47</span>
             </span>

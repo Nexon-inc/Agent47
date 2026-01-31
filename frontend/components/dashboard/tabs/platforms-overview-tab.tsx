@@ -315,6 +315,7 @@ export default function PlatformsOverviewTab() {
 
   // Get platform metrics for a specific platform
   const getPlatformMetrics = (platformId: number): PlatformMetrics | undefined => {
+    if (!Array.isArray(platformMetrics)) return undefined
     return platformMetrics.find(m => m.platform_id === platformId)
   }
 
@@ -567,8 +568,8 @@ export default function PlatformsOverviewTab() {
             key={category}
             onClick={() => setSelectedCategory(category)}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${selectedCategory === category
-                ? "bg-green-100 text-green-800  "
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200   :bg-slate-700"
+              ? "bg-green-100 text-green-800  "
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200   :bg-slate-700"
               }`}
           >
             {category}
