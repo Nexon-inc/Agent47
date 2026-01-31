@@ -902,24 +902,14 @@ export default function HomeTab() {
 
   return (
     <div className="flex flex-col min-h-screen bg-transparent text-slate-900 font-sans selection:bg-indigo-500/30 relative">
-      {/* Sticky Header - Adjusted to integrate with DashboardLayout */}
-      <div className="sticky top-[-16px] md:top-[-24px] z-40 bg-slate-100/90 backdrop-blur-xl border-b border-slate-200/60 -mx-4 md:-mx-6 px-4 md:px-6 py-4 mb-4">
+      {/* Sticky Header - Improved Sticky behavior */}
+      <div className="sticky top-0 z-50 bg-slate-100/95 backdrop-blur-xl border-b border-slate-200/60 -mx-4 md:-mx-6 px-6 py-4 mb-4 shadow-sm">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">Beta</span>
             </div>
-            {selectedAgent && (
-              <div className="flex items-center space-x-3">
-                <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm bg-white")}>
-                  <selectedAgent.icon className={cn("h-4 w-4", selectedAgent.color.replace('bg-', 'text-'))} />
-                </div>
-                <div>
-                  <h2 className="text-sm font-black text-slate-900 leading-none">{selectedAgent.name}</h2>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Active Unit</p>
-                </div>
-              </div>
-            )}
+            {/* Agent Info Removed as requested */}
             <div className="flex items-center space-x-3">
               <Button
                 variant="ghost"

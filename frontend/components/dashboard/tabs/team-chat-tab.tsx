@@ -387,8 +387,8 @@ export default function TeamChatTab() {
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-8rem)] bg-white text-slate-900 font-sans selection:bg-indigo-500/30 relative">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/80 backdrop-blur-md sticky top-[-16px] md:top-[-24px] z-10 -mx-4 md:-mx-6">
+      {/* Header - Fixed Sticky behavior */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/95 backdrop-blur-xl sticky top-0 z-50 -mx-4 md:-mx-6 shadow-sm">
         <div className="flex items-center space-x-2">
           <Hash className="h-5 w-5 text-slate-400" />
           <h2 className="text-lg font-semibold text-slate-900">team-chat</h2>
