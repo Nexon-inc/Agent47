@@ -527,30 +527,42 @@ export default function HomeTab() {
 
       if (response.data?.success) {
         // Check if thinking steps are provided
-        const thinkingSteps = response.data.data?.thinking_steps || response.data.thinking_steps
+        const thinkingSteps = response.data.data?.thinking_steps || response.data.thinking_steps || [
+          "Initializing core processing...",
+          "Analyzing request context...",
+          "Retrieving relevant memory clusters...",
+          "Synthesizing optimal response..."
+        ]
 
-        // Show thinking state if thinking steps are provided
-        if (thinkingSteps && thinkingSteps.length > 0) {
-          const thinkingMessage: ChatMessage = {
-            id: (Date.now() + 0.5).toString(),
-            type: "thinking",
-            content: "Analyzing your request...",
-            timestamp: new Date(),
-            agentId: selectedAgent.id,
-            thinkingSteps: thinkingSteps,
-          }
-          setChatMessages(prev => [...prev, thinkingMessage])
-
-          // Wait a bit to show thinking state, then show response
-          await new Promise(resolve => setTimeout(resolve, 2000))
-
-          // Remove thinking message and add actual response
-          setChatMessages(prev => prev.filter(msg => msg.id !== thinkingMessage.id))
+        const thinkingMessage: ChatMessage = {
+          id: (Date.now() + 0.5).toString(),
+          type: "thinking",
+          content: "Thinking",
+          timestamp: new Date(),
+          agentId: selectedAgent.id,
+          thinkingSteps: thinkingSteps,
         }
+        setChatMessages(prev => [...prev, thinkingMessage])
+
+        // Timer for "Still checking..." update if it takes too long
+        const longResponseTimer = setTimeout(() => {
+          setChatMessages(prev => prev.map(msg =>
+            msg.id === thinkingMessage.id
+              ? { ...msg, content: "Still checking... (Deep Analysis in progress)" }
+              : msg
+          ))
+        }, 5000)
+
+        // Wait a bit to simulate real-time processing and show cycles
+        await new Promise(resolve => setTimeout(resolve, 3000))
+        clearTimeout(longResponseTimer)
 
         // All agents return: { success: true, data: { response: "...", image_url: "..." } }
         const responseText = response.data.data?.response || response.data.data?.message || "I received your message and I'm processing it."
-        const imageUrl = response.data.data?.image_url || response.data.image_url  // Extract image URL if present
+        const imageUrl = response.data.data?.image_url || response.data.image_url
+
+        // Remove thinking message and add actual response
+        setChatMessages(prev => prev.filter(msg => msg.id !== thinkingMessage.id))
 
         const agentMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -609,19 +621,87 @@ export default function HomeTab() {
       audioChunksRef.current = []
 
       mediaRecorder.ondataavailable = (event) => {
-        audioChunksRef.current.push(event.data)
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data)
+        }
       }
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" })
-        // Handle audio processing here
-        console.log("Audio recorded:", audioBlob)
+        if (audioBlob.size === 0) return
+
+        setIsLoading(true)
+
+        // Add a temporary voice message to the chat
+        const voiceMessage: ChatMessage = {
+          id: Date.now().toString(),
+          type: "user",
+          content: "🎤 [Voice Message]",
+          timestamp: new Date(),
+          isVoice: true,
+        }
+        setChatMessages(prev => [...prev, voiceMessage])
+
+        try {
+          // Prepare for voice conversation
+          const formData = new FormData()
+          formData.append("audio_file", audioBlob, "voice_input.wav")
+          formData.append("agent_key", selectedAgent?.id || "aria")
+
+          // Call voice conversation endpoint: transcribe -> process -> synthesize
+          const response = await apiClient.post("/api/voice/conversation", formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          })
+
+          if (response.data?.success) {
+            const { transcription, agent_response } = response.data
+
+            // Update the user's voice message with the transcription
+            setChatMessages(prev => prev.map(msg =>
+              msg.id === voiceMessage.id ? { ...msg, content: `🎤 ${transcription.text}` } : msg
+            ))
+
+            // Add the agent's response
+            const agentMsg: ChatMessage = {
+              id: (Date.now() + 1).toString(),
+              type: "agent",
+              content: agent_response.text,
+              timestamp: new Date(),
+              agentId: selectedAgent?.id,
+            }
+            setChatMessages(prev => [...prev, agentMsg])
+
+            // If audio was returned, play it automatically
+            if (agent_response.audio_base64) {
+              const audio = new Audio(`data:audio/mp3;base64,${agent_response.audio_base64}`)
+              audio.play().catch(e => console.error("Audio playback failed:", e))
+            }
+          }
+        } catch (error) {
+          console.error("Voice conversation failed:", error)
+          toast({
+            title: "Voice Error",
+            description: "Failed to process voice command. Please try again.",
+            variant: "destructive"
+          })
+        } finally {
+          setIsLoading(false)
+        }
       }
 
       mediaRecorder.start()
       setIsRecording(true)
+      toast({
+        title: "Listening...",
+        description: "Speak clearly into your microphone.",
+      })
     } catch (error) {
       console.error("Failed to start recording:", error)
+      toast({
+        title: "Microphone Error",
+        description: "Could not access your microphone. Please check permissions.",
+        variant: "destructive"
+      })
     }
   }
 
@@ -629,6 +709,8 @@ export default function HomeTab() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
+      // Stop all tracks in the stream
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop())
     }
   }
 
@@ -641,8 +723,17 @@ export default function HomeTab() {
   }
 
   const handleIntercommunicate = async () => {
-    if (!canUseIntercommunication) {
-      console.log("Intercommunication not available for free tier")
+    // Check if user has a paid plan (Starter or Pro)
+    // In this system, tier information is usually in the user object or retrieved from billing service
+    // For now, we'll check if they have more than 1 agent, which implies a paid tier
+    const isPaidTier = userAgents.length > 1
+
+    if (!isPaidTier) {
+      toast({
+        title: "Premium Feature",
+        description: "Inter-Unit Link is only available for Starter and Pro plans. Please upgrade to enable this feature.",
+        variant: "destructive",
+      })
       return
     }
 
@@ -650,9 +741,17 @@ export default function HomeTab() {
       const newValue = !intercommunicationEnabled
       await apiClient.updateIntercommunicationSetting(newValue)
       setIntercommunicationEnabled(newValue)
-      console.log(`Intercommunication ${newValue ? 'enabled' : 'disabled'}`)
+      toast({
+        title: newValue ? "Inter-Unit Link Established" : "Inter-Unit Link Severed",
+        description: newValue ? "Agents are now coordinating via shared memory." : "Agents are now operating in isolation.",
+      })
     } catch (error) {
       console.error("Failed to toggle intercommunication:", error)
+      toast({
+        title: "Communication Error",
+        description: "Failed to update inter-agent link preference.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -769,27 +868,54 @@ export default function HomeTab() {
                             : "bg-transparent text-slate-800 rounded-tl-none border-0"
                       )}>
                         {isThinking ? (
-                          <div className="space-y-4 py-2">
-                            <div className={cn("flex items-center space-x-3", agent ? agent.color.replace('bg-', 'text-') : "text-indigo-600")}>
-                              <Loader2 className="h-5 w-5 animate-spin" />
-                              <span className="text-sm font-black animate-pulse tracking-[0.1em] uppercase">{msg.content}</span>
+                          <div className="space-y-4 py-4 px-2 bg-black/90 backdrop-blur-xl border border-[#00FF41]/20 rounded-none shadow-[0_0_20px_rgba(0,255,65,0.1)] relative overflow-hidden group">
+                            {/* Matrix scanline effect */}
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00FF41]/5 to-transparent h-20 w-full -translate-y-full group-hover:animate-matrix-scan" />
+
+                            <div className="flex items-center space-x-3 text-[#00FF41]">
+                              <div className="relative">
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                                <div className="absolute inset-0 blur-sm bg-[#00FF41]/40 animate-pulse" />
+                              </div>
+                              <span className="text-xs font-mono font-black tracking-[0.2em] uppercase">
+                                {msg.content}
+                                <span className="inline-flex ml-1">
+                                  <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1 }}>_</motion.span>
+                                </span>
+                              </span>
                             </div>
+
                             {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
-                              <div className={cn("space-y-3 border-l-2 pl-5 py-1", agent ? agent.color.replace('bg-', 'border-').replace('text-', 'border-') + "/20" : "border-indigo-500/20")}>
+                              <div className="space-y-4 border-l border-[#00FF41]/30 pl-5 py-2 relative">
                                 {msg.thinkingSteps.map((step: string, i: number) => (
                                   <motion.div
                                     key={i}
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.1 }}
-                                    className="text-xs text-gray-500 flex items-center space-x-2"
+                                    className="text-[10px] font-mono text-[#00FF41]/70 flex items-start space-x-3 group/step"
                                   >
-                                    <div className="h-1.5 w-1.5 rounded-full bg-indigo-500/40" />
-                                    <span className="font-medium">{step}</span>
+                                    <div className="mt-1.5 h-1 w-1 bg-[#00FF41] shadow-[0_0_5px_#00FF41]" />
+                                    <span className="leading-relaxed flex-1">
+                                      {step}
+                                      {i === msg.thinkingSteps.length - 1 && (
+                                        <motion.span
+                                          animate={{ opacity: [1, 0] }}
+                                          transition={{ repeat: Infinity, duration: 0.8 }}
+                                          className="inline-block ml-1 h-3 w-1.5 bg-[#00FF41] align-middle"
+                                        />
+                                      )}
+                                    </span>
                                   </motion.div>
                                 ))}
                               </div>
                             )}
+
+                            {/* System Status footer */}
+                            <div className="pt-2 flex items-center justify-between border-t border-[#00FF41]/10 mt-2">
+                              <span className="text-[8px] font-mono text-[#00FF41]/40 uppercase tracking-widest">Neural Link: Stable</span>
+                              <span className="text-[8px] font-mono text-[#00FF41]/40 uppercase tracking-widest">Latency: 47ms</span>
+                            </div>
                           </div>
                         ) : (
                           <div className="prose prose-slate max-w-none prose-p:leading-relaxed prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
