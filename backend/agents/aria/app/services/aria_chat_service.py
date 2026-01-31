@@ -476,664 +476,203 @@ class AriaChatService:
             session = self.active_sessions[session_id]
             session["message_count"] += 1
             
-            # Detect intent first to determine if we need to call services
-            detected_intent = self._detect_intent_simple(message)
-            logger.info(f"Aria: Detected intent: {detected_intent} for message: {message[:50]}...")
+
+            # Detect intent solely for guiding the system prompt, but let LLM drive the conversation
+            simple_intent = self._detect_intent_simple(message)
             
-            # Generate thinking steps based on intent and message
-            thinking_steps = self._generate_thinking_steps(detected_intent, message, user_id, db)
+    def _generate_thinking_steps(self, intent: str, message: str, user_id: int, db: AsyncSession = None) -> List[str]:
+        """Generate thinking steps based on creative/brand intent"""
+        steps = []
+        
+        if intent == "content_creation":
+            steps = [
+                "Analyzing brand voice parameters...",
+                "Scanning current design trends...",
+                "Drafting copy variations...",
+                "Optimizing for platform engagement..."
+            ]
+        elif intent == "brand":
+            steps = [
+                "Auditing visual identity consistency...",
+                "Checking sentiment alignment...",
+                "Reviewing core brand values...",
+                "Formulating brand strategy recommendations..."
+            ]
+        elif intent == "scheduling":
+            steps = [
+                "Analyzing audience activity heatmaps...",
+                "Calculating optimal post velocity...",
+                "Mapping content distribution...",
+                "Finalizing publication timeline..."
+            ]
+        elif intent == "analytics":
+            steps = [
+                "Aggregating engagement metrics...",
+                "Calculating conversion rates...",
+                "Identifying top-performing assets...",
+                "Generating growth insights..."
+            ]
+        else:
+            steps = [
+                "Analyzing creative creative brief...",
+                "Reviewing brand guidelines...",
+                "Checking active campaigns...",
+                "Formulating strategic response..."
+            ]
+        
+        return steps
+
+    async def process_chat_message(
+        self,
+        user_id: int,
+        message: str,
+        session_id: Optional[str] = None,
+        db: AsyncSession = None,
+        history: Optional[List[Dict[str, Any]]] = None,
+        user_resources: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Process a chat message from the user and provide intelligent response"""
+        try:
+            # The database session should be provided by the router
+            if not db:
+                return {
+                    "success": False,
+                    "error": "Database session not available"
+                }
             
-            # Try to use services for specific intents, then format with LLM
-            service_result = None
+            # Get or create session
+            if not session_id:
+                session_id = f"session_{user_id}_{datetime.now().timestamp()}"
+            
+            if session_id not in self.active_sessions:
+                self.active_sessions[session_id] = {
+                    "user_id": user_id,
+                    "created_at": datetime.now(),
+                    "message_count": 0,
+                    "context": {},
+                    "last_intent": None
+                }
+            
+            session = self.active_sessions[session_id]
+            session["message_count"] += 1
+            
+            # Detect intent solely for guiding the system prompt
+            simple_intent = self._detect_intent_simple(message)
+            
+            # Generate dynamic thinking steps
+            thinking_steps = self._generate_thinking_steps(simple_intent, message, user_id, db)
+
+            # Gather Context
+            user_resources_summary = ""
             try:
-                # Call appropriate service based on intent
-                if detected_intent == "account_management":
-                    if any(word in message.lower() for word in ["analyze", "scan", "overview", "summary", "health"]):
-                        service_result = await self.account_analysis.analyze_accounts(user_id, db=db)
-                
-                elif detected_intent == "content_creation":
-                    # Extract content creation parameters
-                    if any(word in message.lower() for word in ["caption", "text", "copy", "generate", "create"]):
-                        # Extract topic from message (remove common words)
-                        topic_keywords = ["caption", "text", "copy", "generate", "create", "for", "about", "on"]
-                        topic = message
-                        for keyword in topic_keywords:
-                            topic = topic.replace(keyword, "", 1)
-                        topic = topic.strip()
-                        if not topic:
-                            topic = message  # Fallback to full message
-                        
-                        brief = {"topic": topic, "tone": "professional"}
-                        if not self.content.ai_service_manager:
-                            await self.content.initialize()
-                        service_result = await self.content.generate_caption(user_id, brief)
-                        if service_result.get("caption"):
-                            service_result["success"] = True
+                if db and user_id:
+                    if not user_resources:
+                        from core.utils.agent_user_data import get_all_user_resources_for_agent
+                        user_resources = await get_all_user_resources_for_agent(user_id, db)
                     
-                    elif any(word in message.lower() for word in ["hashtag", "tag", "hashtags"]):
-                        if not self.content.ai_service_manager:
-                            await self.content.initialize()
-                        # Extract topic for hashtags
-                        topic_keywords = ["hashtag", "tag", "hashtags", "tags", "for", "about", "on"]
-                        topic = message
-                        for keyword in topic_keywords:
-                            topic = topic.replace(keyword, "", 1)
-                        topic = topic.strip()
-                        if not topic:
-                            topic = message
-                        
-                        tags = await self.content.suggest_hashtags(user_id, topic, n=10)
-                        service_result = {"success": True, "hashtags": tags, "topic": topic}
-                
-                elif detected_intent == "content_remix":
-                    # Content remix - requires original content, so provide guidance for now
-                    # Can be enhanced to extract content from message
-                    service_result = {"success": False, "message": "To remix content, please provide the original post content"}
-                
-                elif detected_intent == "media_generation":
-                    # Extract image generation prompt or use context
-                    prompt_keywords = ["image", "photo", "visual", "picture", "generate", "create", "for", "of", "show"]
-                    prompt = message
-                    for keyword in prompt_keywords:
-                        prompt = prompt.replace(keyword, "", 1)
-                    prompt = prompt.strip()
-                    if not prompt:
-                        prompt = message
+                    profile = user_resources.get('profile', {})
+                    summary = user_resources.get("summary", {})
                     
-                    # Get user tier from database
-                    user_tier = None
-                    try:
-                        from sqlalchemy import select
-                        from core.database.models import User
-                        result = await db.execute(select(User).where(User.id == user_id))
-                        user = result.scalar_one_or_none()
-                        if user:
-                            user_tier = user.tier
-                    except Exception as e:
-                        logger.warning(f"Failed to get user tier: {e}")
-                    
-                    # Generate image with user tier for model selection
-                    service_result = await self.media.generate_image(
-                        prompt=prompt,
-                        context=message,  # Use full message as context
-                        user_id=user_id,
-                        user_tier=user_tier,
-                        auto_generate_prompt=True  # Auto-generate better prompt from user input
-                    )
-                    # Add image_url to service_result for frontend
-                    if service_result.get("success"):
-                        service_result["image_url"] = service_result.get("url")
-                
-                elif detected_intent == "scheduling":
-                    # Scheduling - list schedules or provide guidance
-                    if any(word in message.lower() for word in ["list", "show", "view", "see", "my"]):
-                        if not self.scheduling.redis:
-                            await self.scheduling.initialize()
-                        schedules = await self.scheduling.list_user_schedules(user_id, {})
-                        service_result = {"success": True, "schedules": schedules, "count": len(schedules)}
-                    else:
-                        # Provide scheduling guidance
-                        service_result = {"success": False, "message": "To schedule a post, provide: content, platform, and scheduled time"}
-                
-                elif detected_intent == "analytics":
-                    # Analytics - provide guidance (service methods vary by platform)
-                    service_result = {"success": False, "message": "Analytics available for connected accounts"}
-                
-                elif detected_intent == "trends":
-                    # Extract topic/keyword for trend monitoring
-                    if any(word in message.lower() for word in ["monitor", "track", "alert"]):
-                        # Set up trend monitoring
-                        keywords = []
-                        for word in message.split():
-                            if word.lower() not in ["monitor", "track", "alert", "trends", "for", "about"]:
-                                keywords.append(word)
-                        if keywords:
-                            if not self.trend_alerts.ai_service_manager:
-                                await self.trend_alerts.initialize()
-                            result = await self.trend_alerts.setup_trend_monitoring(
-                                user_id, keywords[:5], ["twitter", "instagram"], "daily"
-                            )
-                            service_result = result
-                    else:
-                        # Get trending topics
-                        topic = message.replace("trend", "").replace("trending", "").strip()
-                        if topic:
-                            trend_data = await self.trend.ingest_google_trends(topic)
-                            service_result = {"success": True, "trend_data": trend_data, "topic": topic}
-                
-                elif detected_intent == "ads":
-                    # Ads - provide guidance (requires campaign data)
-                    service_result = {"success": False, "message": "To create ads, provide: platform, campaign goal, target audience, and budget"}
-                
-                elif detected_intent == "geo_campaigns":
-                    # Extract regions from message
-                    regions = []
-                    region_keywords = ["africa", "kenya", "nairobi", "nigeria", "lagos", "south africa", "cairo", "accra"]
-                    message_lower = message.lower()
-                    for region in region_keywords:
-                        if region in message_lower:
-                            regions.append(region)
-                    
-                    if regions:
-                        # Would need brand_id - provide guidance
-                        service_result = {"success": False, "message": f"To create geo-campaign for {regions}, I need: campaign type, content theme, and budget"}
-                    else:
-                        service_result = {"success": False, "message": "Specify target regions (e.g., Kenya, Nigeria, Africa)"}
-                
-                elif detected_intent == "engagement":
-                    # Engagement boost - requires post content
-                    if any(word in message.lower() for word in ["suggest", "generate", "help"]):
-                        # Provide engagement guidance
-                        service_result = {"success": False, "message": "To boost engagement, provide your post content and I'll suggest polls, questions, and CTAs"}
-                    else:
-                        service_result = {"success": False, "message": "I can help boost engagement with polls, questions, CTAs, and interactive elements"}
-                
-                elif detected_intent == "auto_reply":
-                    # Auto-reply service - extract platform and message
-                    platforms = ["instagram", "facebook", "twitter", "linkedin"]
-                    detected_platform = None
-                    for platform in platforms:
-                        if platform in message.lower():
-                            detected_platform = platform
-                            break
-                    if not detected_platform:
-                        detected_platform = "instagram"  # Default
-                    
-                    # Extract the message to reply to
-                    reply_text = message
-                    for word in ["reply", "auto-reply", "respond", "to", "message", "comment"]:
-                        reply_text = reply_text.replace(word, "", 1)
-                    reply_text = reply_text.strip()
-                    if not reply_text:
-                        reply_text = message
-                    
-                    service_result = await self.engagement.auto_reply(user_id, detected_platform, reply_text)
-                
-                elif detected_intent == "brand":
-                    # Brand service - get or update brand profile
-                    if any(word in message.lower() for word in ["get", "show", "view", "my"]):
-                        brand_profile = await self.brand.get_or_create_profile(user_id)
-                        service_result = {
-                            "success": True,
-                            "brand_profile": {
-                                "voice": brand_profile.voice,
-                                "hashtags_bank": brand_profile.hashtags_bank,
-                                "banned_keywords": brand_profile.banned_keywords
-                            }
-                        }
-                    else:
-                        service_result = {"success": False, "message": "I can help manage your brand profile, voice, and settings. What would you like to update?"}
-                
-                elif detected_intent == "publishing":
-                    # Publisher service - handle immediate publishing
-                    if any(word in message.lower() for word in ["publish", "post", "send", "now"]):
-                        service_result = {"success": False, "message": "To publish immediately, provide: content, platform(s), and media (optional)"}
-                    else:
-                        service_result = {"success": False, "message": "I can help you publish posts immediately across your connected platforms"}
-                
-                elif detected_intent == "oauth":
-                    # OAuth service - platform connection guidance
-                    platforms = ["linkedin", "facebook", "instagram", "twitter"]
-                    detected_platform = None
-                    for platform in platforms:
-                        if platform in message.lower():
-                            detected_platform = platform
-                            break
-                    
-                    if detected_platform:
-                        service_result = {"success": False, "message": f"To connect {detected_platform}, I'll need an authorization code from the OAuth flow"}
-                    else:
-                        service_result = {"success": False, "message": "I can help you connect social media platforms. Which platform would you like to connect?"}
-                
-                elif detected_intent == "approval":
-                    # AriaApproval service - workflow guidance
-                    if any(word in message.lower() for word in ["request", "create", "new"]):
-                        service_result = {"success": False, "message": "To request approval, provide: scheduled post ID and reviewer emails"}
-                    elif any(word in message.lower() for word in ["approve", "reject", "decide"]):
-                        service_result = {"success": False, "message": "To approve/reject, provide: approval ID and decision (approve/reject)"}
-                    else:
-                        service_result = {"success": False, "message": "I can help manage approval workflows for your scheduled posts"}
-                
-                elif detected_intent == "ab_testing":
-                    # A/B testing service - guidance
-                    if any(word in message.lower() for word in ["winner", "best", "pick"]):
-                        service_result = {"success": False, "message": "To pick a winner from A/B test variants, provide the variant data with metrics"}
-                    else:
-                        service_result = {"success": False, "message": "I can help with A/B testing by tracking metrics and picking winners based on performance"}
-                
-                elif detected_intent == "voice_post":
-                    # Voice post service - guidance
-                    if any(word in message.lower() for word in ["create", "make", "generate"]):
-                        service_result = {"success": False, "message": "To create a voice post, upload audio data and provide post configuration"}
-                    else:
-                        service_result = {"success": False, "message": "I can convert voice recordings into polished social media posts with transcription, enhancement, and hashtags"}
-                
-                elif detected_intent == "accessibility":
-                    # Accessibility service - features
-                    if any(word in message.lower() for word in ["alt text", "image"]):
-                        service_result = {"success": False, "message": "To generate alt text, provide image data and optional context"}
-                    elif any(word in message.lower() for word in ["caption", "video"]):
-                        service_result = {"success": False, "message": "To generate video captions, provide video data"}
-                    elif any(word in message.lower() for word in ["enhance", "improve"]):
-                        service_result = {"success": False, "message": "To enhance post accessibility, provide the post data"}
-                    elif any(word in message.lower() for word in ["report", "check", "analyze"]):
-                        service_result = {"success": False, "message": "To generate an accessibility report, provide the post ID"}
-                    elif any(word in message.lower() for word in ["guidelines", "best practices"]):
-                        # Get accessibility guidelines
-                        platform = "general"
-                        platforms = ["instagram", "twitter", "linkedin", "facebook"]
-                        for p in platforms:
-                            if p in message.lower():
-                                platform = p
-                                break
-                        guidelines_result = await self.accessibility.get_accessibility_guidelines(platform)
-                        service_result = guidelines_result
-                    else:
-                        service_result = {"success": False, "message": "I can help with accessibility features: alt text generation, video captions, and accessibility reports"}
-                
-                elif detected_intent == "advanced_analytics":
-                    # Advanced analytics service
-                    if "sentiment" in message.lower() or "heatmap" in message.lower():
-                        # Extract platform and date range
-                        platforms = ["instagram", "facebook", "twitter", "linkedin"]
-                        detected_platform = "instagram"  # Default
-                        for p in platforms:
-                            if p in message.lower():
-                                detected_platform = p
-                                break
-                        
-                        date_range = "30d"  # Default
-                        if "7d" in message.lower() or "week" in message.lower():
-                            date_range = "7d"
-                        elif "90d" in message.lower() or "quarter" in message.lower():
-                            date_range = "90d"
-                        
-                        if not self.advanced_analytics.ai_service_manager:
-                            await self.advanced_analytics.initialize()
-                        service_result = await self.advanced_analytics.generate_sentiment_heatmap(user_id, detected_platform, date_range)
-                    else:
-                        service_result = {"success": False, "message": "I can provide advanced analytics including sentiment heatmaps, audience insights, and predictive analytics"}
-                
-                elif detected_intent == "automation":
-                    # Automation service - parse automation request
-                    # Extract number of days
-                    days = 7  # Default
-                    import re
-                    days_match = re.search(r'(\d+)\s*days?', message.lower())
-                    if days_match:
-                        days = int(days_match.group(1))
-                    else:
-                        # Check for week/month patterns
-                        if "week" in message.lower():
-                            days = 7
-                        elif "month" in message.lower():
-                            days = 30
-                        elif "2 weeks" in message.lower() or "two weeks" in message.lower():
-                            days = 14
-                    
-                    # Extract platforms
-                    platforms = []
-                    platform_keywords = ["instagram", "facebook", "twitter", "linkedin", "tiktok", "youtube"]
-                    for platform in platform_keywords:
-                        if platform in message.lower():
-                            platforms.append(platform)
-                    if not platforms:
-                        platforms = ["instagram"]  # Default
-                    
-                    # Extract task type and topic
-                    task_type = "content_creation"  # Default
-                    if any(word in message.lower() for word in ["post", "publish", "share"]):
-                        task_type = "posting"
-                    elif any(word in message.lower() for word in ["content", "caption", "create"]):
-                        task_type = "content_creation"
-                    
-                    # Extract topic from message
-                    topic = message
-                    # Remove automation keywords
-                    for keyword in ["automate", "automation", "auto", "for the next", "for next", "for", "days", "day", "schedule"]:
-                        topic = re.sub(rf'\b{keyword}\b', '', topic, flags=re.IGNORECASE)
-                    topic = topic.strip()
-                    if not topic or len(topic) < 5:
-                        topic = "social media content"  # Fallback
-                    
-                    # Initialize automation service
-                    await self.automation.initialize()
-                    
-                    # Create automation
-                    task_config = {
-                        "topic": topic,
-                        "tone": "professional",
-                        "hashtag_count": 10,
-                        "days": days,
-                        "timezone": "UTC"
-                    }
-                    
-                    service_result = await self.automation.create_multi_day_automation(
-                        user_id=user_id,
-                        task_type=task_type,
-                        task_config=task_config,
-                        days=days,
-                        platforms=platforms,
-                        db=db
-                    )
-                
-            except Exception as service_error:
-                logger.warning(f"Aria: Service call failed for {detected_intent}: {service_error}")
-                service_result = None
-            
-            # Use LLM to format response (with service results if available)
-            try:
-                ai_manager = await self._get_ai_service_manager()
-                
-                # Build context from service results
-                context_text = ""
-                if service_result and service_result.get("success"):
-                    context_text = f"\n\nService Results:\n{self._format_service_results(service_result, detected_intent)}"
-                
-                # Get user's connected resources for context
-                user_resources_summary = ""
-                try:
-                    if db and user_id:
-                        if not user_resources:
-                            user_resources = await get_all_user_resources_for_agent(user_id, db)
-                        summary = user_resources.get("summary", {})
-                        platforms_count = summary.get("total_platforms", 0)
-                        integrations_count = summary.get("total_integrations", 0)
-                        has_website = summary.get("has_website", False)
-                        
-                        profile = user_resources.get('profile', {})
-                        
-                        # Get agent's custom configuration/tweaks
-                        agent_config = None
-                        custom_instructions_text = ""
-                        try:
-                            if db and user_id:
-                                agent_config = await get_agent_configuration_for_user(user_id, "aria", db)
-                                if agent_config and agent_config.get("custom_instructions"):
-                                    custom_instructions_text = f"""
-
-**CUSTOM INSTRUCTIONS / TWEAKS (STRICTLY FOLLOW THESE):**
-{agent_config.get("custom_instructions")}
-
-**CRITICAL:** You MUST strictly follow the custom instructions above. These are user-specific tweaks that override default behavior. Apply them to ALL your responses and actions.
+                    user_resources_summary = f"""
+**USER CONTEXT:**
+- Brand Name: {profile.get('company', 'Not specified')}
+- Industry: {profile.get('industry', 'Not specified')} (Use this for trend relavancy)
+- Brand Voice: {profile.get('brand_voice', 'Professional & Friendly')}
+- Target Audience: {profile.get('target_audience', 'General')}
+- Marketing Goals: {profile.get('primary_goals', ['Brand Awareness'])}
+- Connected Platforms: {summary.get('total_platforms', 0)}
+- Connected Tools: {summary.get('total_integrations', 0)}
 """
-                        except Exception as e:
-                            logger.warning(f"Could not fetch agent configuration: {e}")
-                        
-                        team_info = user_resources.get('team', {})
-                        team_members_list = ", ".join([m.get('name', '') for m in team_info.get('members', [])[:5]])
-                        
-                        user_resources_summary = f"""
-**USER'S PROFILE & TEAM CONTEXT:**
-- Name: {profile.get('full_name', 'Not provided')}
-- Company: {profile.get('company', profile.get('business_name', 'Not provided'))}
-- Industry: {profile.get('industry', 'Not specified')}
-- Role: {profile.get('role', 'Not specified')}
-- Team: {team_info.get('team_name', 'None')} ({team_info.get('total_members', 0)} members)
-- Team Members: {team_members_list}{'...' if team_info.get('total_members', 0) > 5 else ''}
-- Website URL: {profile.get('website_url', profile.get('business_website', 'Not provided'))}
+            except Exception as e:
+                logger.warning(f"Failed to load user context: {e}")
 
-**CONNECTED RESOURCES:**
-- Connected Platforms: {platforms_count} ({', '.join([p.get('display_name', p.get('platform_name', '')) for p in user_resources.get('platforms', [])[:5]])}{'...' if platforms_count > 5 else ''})
-- Connected Integrations: {integrations_count} ({', '.join([i.get('integration_name', '') for i in user_resources.get('integrations', [])[:5]])}{'...' if integrations_count > 5 else ''})
-{custom_instructions_text}
-
-**PLATFORM NAVIGATION GUIDANCE (Use this to help users):**
-- **To connect/manage platforms:** Direct users to the "Platforms" tab in the dashboard.
-- **To manage team members:** Direct users to the "Members" tab in the dashboard.
-- **To view analytics:** Direct users to the "Analytics" section or "Purity" agent.
-- **To schedule posts:** Direct users to the "Calendar" tab or ask YOU to do it!
-
-**IMPORTANT:** 
-- Only use platforms and integrations that the user has actually connected. Do not suggest actions for platforms/integrations that are not connected.
-- Use the user's website URL, company name, industry, and team context to provide personalized, context-aware responses.
-- Reference the user's business information when relevant to make your suggestions more tailored to their specific needs.
-"""
-                except Exception as e:
-                    logger.warning(f"Could not fetch user resources summary: {e}")
-                
-                # Break down request into tasks
-                tasks = await self._break_down_request_into_tasks(message, user_id, db)
-                
-                # Build task-based instructions
-                task_instructions = ""
-                if tasks["total_tasks"] > 1:
-                    task_instructions = f"""
-
-**TASK BREAKDOWN AND COMPLETION REQUIREMENTS:**
-The user's request requires completing {tasks["total_tasks"]} {tasks["task_type"]} tasks.
-
-**Required Tasks:**
-{chr(10).join(f"- {req}" for req in tasks["requirements"])}
-
-**Completion Criteria:**
-{chr(10).join(f"- {criteria}" for criteria in tasks["completion_criteria"])}
-
-**CRITICAL INSTRUCTIONS FOR TASK COMPLETION:**
-1. You MUST complete ALL {tasks["total_tasks"]} tasks before finishing your response
-2. Work through each task systematically and completely
-3. Do not skip any tasks - every single one must be addressed
-4. Do not summarize or abbreviate - provide full, detailed content for each task
-5. Track your progress explicitly: "Task 1 of {tasks["total_tasks"]}", "Task 2 of {tasks["total_tasks"]}", etc.
-6. Only finish your response when you have completed all {tasks["total_tasks"]} tasks
-7. If you're running out of space, prioritize completing all tasks over detailed explanations
-8. Count down as you complete each task to ensure you don't miss any
-
-**Example structure for calendar tasks:**
-- Day 1: [Full details]
-- Day 2: [Full details]
-- ...
-- Day {tasks["total_tasks"]}: [Full details] ← MUST reach this day
-
-Remember: Completing all {tasks["total_tasks"]} tasks is more important than providing extensive detail for fewer tasks.
-"""
-                
-                # Prepare messages for AI processing
-                messages = [
-                    {
-                        "role": "system",
-                        "content": f"""You are Aria, an AI-powered social media management assistant specializing in comprehensive social media management.
+            messages = [
+                {
+                    "role": "system",
+                    "content": f"""You are **Aria**, an expert **AI Social Media Strategist & Creative Director**.
 {user_resources_summary}
 
-Your full capabilities include:
+**CORE OBJECTIVE:**
+Help the user build a powerful, consistent, and engaging brand presence. You combine **Creative Strategy** with **Data-Driven Execution**.
 
-1. **Account Management**
-   - Account analysis and health checks across all platforms
-   - Multi-account management and optimization
-   - Brand profile management
+**INTELLIGENCE PROTOCOL (STRICTLY FOLLOW THIS):**
+1. **Brand Alignment**: Always ensure ideas match the user's **Brand Voice** and **Target Audience**.
+2. **Platform Native**: tailored content specifically for the target platform (e.g. hashtags for Insta, professional tone for LinkedIn).
+3. **Action Oriented**: Don't just give advice; offer to **Draft Posts**, **Schedule Content**, or **Analyze Data**.
+4. **Tool Usage**: You have specific services for Content Remixing, Geo-Campaigns, Trends, and Scheduling. Use them.
 
-2. **Content Services**
-   - AI-generated captions and copywriting
-   - Hashtag suggestions and research
-   - Content remixing/repurposing for cross-platform posting
-   - Image generation using AI
-   - Voice post creation and transcription
-   - Media upload and management
+**CAPABILITIES:**
+- **Content Creation**: Writing captions, generating images, remixing content.
+- **Strategy**: Calendar planning, campaign design, audience targeting.
+- **Analytics**: Performance review, A/B testing, growth hacking.
+- **Management**: Scheduling, approval workflows, multi-platform publishing.
 
-3. **Scheduling & Publishing**
-   - Post scheduling with optimal timing
-   - Multi-platform posting
-   - Calendar management
-   - Automated publishing
-
-4. **Analytics & Insights**
-   - Performance analytics and metrics
-   - Advanced analytics with deep insights
-   - Engagement tracking
-   - A/B testing for content optimization
-
-5. **Trend Monitoring**
-   - Real-time trend tracking (Google Trends, Twitter, Reddit, SEMrush)
-   - Trend alerts and notifications
-   - Keyword monitoring
-
-6. **Advertising**
-   - Instagram ad campaigns (via Facebook Marketing API)
-   - LinkedIn ad campaigns
-   - AriaCampaign management and optimization
-   - Budget tracking
-
-7. **Engagement**
-   - Auto-reply to comments/messages
-   - Engagement boost suggestions (polls, questions, CTAs)
-   - Interactive content recommendations
-
-8. **Geo-Campaigns**
-   - Location-specific campaign creation
-   - Regional targeting (Africa, Kenya, Nigeria, etc.)
-   - Multi-region campaign strategies
-
-9. **Engagement & Interaction**
-   - Auto-reply to comments and messages with sentiment analysis
-   - Engagement booster with polls, questions, CTAs
-   - Interaction tracking and management
-
-10. **Brand Management**
-   - Brand profile and voice management
-   - Brand guidelines enforcement
-   - Banned keywords and compliance rules
-
-11. **Publishing**
-   - Immediate post publishing across platforms
-   - Multi-platform publishing coordination
-   - Buffer integration for scheduling
-
-12. **Platform Connections**
-   - OAuth integration for Facebook, LinkedIn, Instagram, Twitter
-   - Platform authorization management
-   - Token management and refresh
-
-13. **AriaApproval Workflows**
-   - Post approval requests
-   - Multi-reviewer approval system
-   - AriaApproval status tracking
-
-14. **A/B Testing**
-   - Content variant testing
-   - Performance metrics tracking
-   - Winner selection based on engagement
-
-15. **Voice & Audio**
-   - Voice post creation from audio recordings
-   - Speech-to-text transcription
-   - Audio-based content enhancement
-
-16. **Accessibility**
-   - Alt text generation for images
-   - Video caption generation
-   - Post accessibility enhancement
-   - Accessibility reporting and guidelines
-
-17. **Advanced Analytics**
-   - Sentiment heatmaps
-   - Audience insights and predictive analytics
-   - Deep performance analysis
-
-18. **Automation**
-   - Multi-day content automation
-   - Recurring post scheduling
-   - Automated content generation
-   - Hands-free social media management
-   - Smart scheduling at optimal times
-
-Always be helpful, professional, and provide actionable advice. Use service results when available to give specific, data-driven responses. When service results aren't available, provide expert guidance on how to use the features.
-
-**Response Guidelines:**
-- Be comprehensive and detailed in your responses
-- For content creation requests (calendars, strategies, campaigns, plans), provide complete, actionable plans with specific examples, timelines, and step-by-step implementation details
-- For analysis requests, provide thorough insights with data-driven recommendations
-- For instructional requests, provide complete guides with all necessary details
-- Aim for thorough, in-depth responses that fully address the user's request
-- Include specific examples, actionable steps, and practical implementation guidance
-- Don't summarize or truncate - provide the full, complete response the user needs
-- **IMPORTANT:** Use emojis and icons naturally in your responses to make them more engaging and visually appealing. Use relevant emojis like 📅 for schedules, 📊 for analytics, ✅ for completion, 📈 for growth, 🎯 for targeting, 💡 for ideas, ⚡ for automation, 🔍 for search, etc. Make your responses feel modern and polished.
-{task_instructions}
-Current intent detected: {detected_intent}
-{context_text if context_text else "No service results available - provide expert guidance based on the user's request."}"""
-                    },
-                    {
-                        "role": "user",
-                        "content": message
-                    }
-                ]
-                
-                logger.info(f"Aria: Attempting LLM generation (with service results: {service_result is not None}, fixing indentation)...")
-                
-                # Generate AI response using LLM
-                # Use max_tokens from settings (12k for llama-3.3-70b-versatile)
-                from core.config import settings
-                ai_response = await ai_manager.generate_text(
-                    messages=messages,
-                    max_tokens=settings.groq.groq_max_tokens,  # Use configured max_tokens (12000)
-                    temperature=0.7
-                )
-                
-                if ai_response.success and ai_response.text_content:
-                    logger.info(f"Aria: LLM response successful. Service: {ai_response.service_used}")
-                    response = ai_response.text_content
-                    confidence = 0.9
-                else:
-                    # Fallback to simple response
-                    logger.warning(f"Aria: LLM response failed ({ai_response.error}), using fallback template")
-                    if service_result and service_result.get("success"):
-                        # Format service results directly
-                        response = self._format_service_results(service_result, detected_intent)
-                    else:
-                        response = await self._generate_simple_response(detected_intent, message)
-                    confidence = 0.8
-                    
-            except Exception as ai_error:
-                # Fallback to simple response if AI service fails
-                logger.error(f"Aria: LLM exception occurred: {ai_error}", exc_info=True)
-                detected_intent = self._detect_intent_simple(message)
-                confidence = 0.8
-                response = self._generate_simple_response(detected_intent, message)
+Current User Intent Hint: {simple_intent}
+"""
+                },
+                {"role": "user", "content": message}
+            ]
             
-            # Update session context
-            session["last_intent"] = detected_intent
+            # Add history
+            if history:
+                history_messages = []
+                for h in history[-5:]:
+                    history_messages.append({
+                        "role": h.get("role", "user"), 
+                        "content": h.get("content", "")
+                    })
+                messages[1:1] = history_messages
+
+            # Execute LLM Call
+            ai_manager = await self._get_ai_service_manager()
+            from core.config import settings
             
-            # Build response with thinking steps and service metadata
+            ai_response = await ai_manager.generate_text(
+                messages=messages,
+                max_tokens=settings.groq.groq_max_tokens,
+                temperature=0.7
+            )
+
+            if ai_response.success and ai_response.text_content:
+                response_text = ai_response.text_content
+                confidence = 0.95
+            else:
+                logger.error(f"LLM Failure: {ai_response.error}")
+                response_text = self._generate_simple_response(simple_intent, message)
+                confidence = 0.5
+            
+            # Update session
+            session["last_intent"] = simple_intent
+            
+            # Form final result
             result = {
                 "success": True,
-                "response": response,
+                "response": response_text,
                 "thinking_steps": thinking_steps,
-                "intent": detected_intent,
+                "intent": simple_intent,
                 "confidence": confidence,
                 "session_id": session_id,
                 "timestamp": datetime.now().isoformat()
             }
             
-            # Add service information if services were called
-            if service_result:
-                result["service_used"] = True
-                service_map = {
-                    "account_management": "AccountAnalysisService",
-                    "content_creation": "ContentService",
-                    "content_remix": "ContentRemixService",
-                    "media_generation": "MediaService",
-                    "scheduling": "SchedulingService",
-                    "analytics": "AnalyticsService",
-                    "advanced_analytics": "AdvancedAnalyticsService",
-                    "trends": "TrendService",
-                    "trend_alerts": "TrendAlertsService",
-                    "ads": "AdsService",
-                    "geo_campaigns": "GeoCampaignService",
-                    "engagement": "EngagementBoosterService",
-                    "auto_reply": "EngagementService",
-                    "brand": "BrandService",
-                    "publishing": "PublisherService",
-                    "oauth": "OAuthService",
-                    "approval": "ApprovalService",
-                    "ab_testing": "ABTestingService",
-                    "voice_post": "VoicePostsService",
-                    "accessibility": "AccessibilityService",
-                    "automation": "AutomationService"
-                }
-                result["service_name"] = service_map.get(detected_intent, "UnknownService")
-            else:
-                result["service_used"] = False
-            
+            # Add images if generated
+            if simple_intent == "media_generation" and "image_url" in locals():
+                 result["image_url"] = locals().get("image_url")
+
+            # Update context
+            session["context"]["last_message"] = message
+            session["context"]["last_response"] = response_text
+            session["context"]["timestamp"] = datetime.now().isoformat()
+
             return result
+
+        except Exception as e:
+            logger.error(f"Error processing chat message: {e}")
+            return {
+                "success": False,
+                "error": f"Failed to process chat message: {str(e)}",
+                "session_id": session_id
+            }
             
         except Exception as e:
             return {

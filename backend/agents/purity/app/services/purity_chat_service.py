@@ -395,33 +395,60 @@ class PurityChatService:
         import random
         return random.choice(responses.get(intent, responses["general"]))
     
+    async def _handle_intent(
+        self,
+        user_id: int,
+        message: str,
+        intent_analysis: Dict[str, Any],
+        session: Dict[str, Any],
+        db: AsyncSession
+    ) -> str:
+        """Handle different user intents and provide appropriate responses"""
+        intent = intent_analysis.get("intent", "general")
+        return self._get_fallback_response(intent)
+
     def _generate_thinking_steps(self, intent: str, message: str, user_id: int, db: AsyncSession = None) -> List[str]:
-        """Generate thinking steps based on intent and message context"""
+        """Generate thinking steps based on business development intent"""
         steps = []
         
         if intent == "business_planning":
             steps = [
-                "Analyzing business requirements...",
-                "Reviewing market opportunities...",
-                "Designing business model...",
-                "Preparing comprehensive business plan..."
+                "Analyzing business model viability...",
+                "Scanning market competition...",
+                "Drafting operational roadmap...",
+                "Projecting financial milestones..."
             ]
-        elif intent == "funding_strategy":
+        elif intent == "financial_planning":
             steps = [
-                "Reviewing funding requirements...",
-                "Analyzing funding options...",
-                "Preparing pitch materials...",
-                "Designing funding strategy..."
+                "Calculating burn rate & runway...",
+                "Forecasting revenue scenarios...",
+                "Optimizing cost structure...",
+                "Structuring investment deck..."
+            ]
+        elif intent == "legal_compliance":
+            steps = [
+                "Scanning regulatory frameworks...",
+                "Identifying compliance risks...",
+                "Drafting legal safeguards...",
+                "Validating operational boundaries..."
+            ]
+        elif intent == "growth_planning":
+            steps = [
+                "Identifying extensive growth levers...",
+                "Analyzing scaling bottlenecks...",
+                "Mapping market entry strategy...",
+                "Designing retention loops..."
             ]
         else:
             steps = [
-                "Analyzing your request...",
-                "Reviewing relevant information...",
-                "Preparing response..."
+                "Analyzing business context...",
+                "Checking strategic alignment...",
+                "Reviewing resources...",
+                "Formulating advice..."
             ]
         
         return steps
-    
+
     async def process_chat_message(
         self,
         user_id: int,
@@ -433,6 +460,12 @@ class PurityChatService:
     ) -> Dict[str, Any]:
         """Process a chat message from the user and provide intelligent response"""
         try:
+             # Ensure services are initialized (lazy load logic if implemented, or call specific init)
+            # In previous files we relied on __init__ but let's be safe
+            if not hasattr(self, 'brand_building') or not self.brand_building:
+                 # Re-init if needed or assume initialized in __init__
+                 pass 
+
             # The database session should be provided by the router
             if not db:
                 return {
@@ -456,213 +489,122 @@ class PurityChatService:
             session = self.active_sessions[session_id]
             session["message_count"] += 1
             
-            # Detect intent for thinking steps
-            intent = self._detect_intent(message)
+            # Detect intent solely for guiding the system prompt
+            simple_intent = self._detect_intent(message)
             
-            # Generate thinking steps based on intent
-            thinking_steps = self._generate_thinking_steps(intent, message, user_id, db)
-            
-            # Try to use AI service for better responses
+            # Generate dynamic thinking steps
+            thinking_steps = self._generate_thinking_steps(simple_intent, message, user_id, db)
+
+            # Gather Context
+            user_resources_summary = ""
             try:
-                ai_manager = await self._get_ai_service_manager()
-                
-                # Break down request into tasks
-                tasks = await self._break_down_request_into_tasks(message, user_id, db)
-                
-                # Build task-based instructions
-                task_instructions = ""
-                if tasks["total_tasks"] > 1:
-                    task_instructions = f"""
-
-**TASK BREAKDOWN AND COMPLETION REQUIREMENTS:**
-The user's request requires completing {tasks["total_tasks"]} {tasks["task_type"]} tasks.
-
-**Required Tasks:**
-{chr(10).join(f"- {req}" for req in tasks["requirements"])}
-
-**Completion Criteria:**
-{chr(10).join(f"- {criteria}" for criteria in tasks["completion_criteria"])}
-
-**CRITICAL INSTRUCTIONS FOR TASK COMPLETION:**
-1. You MUST complete ALL {tasks["total_tasks"]} tasks before finishing your response
-2. Work through each task systematically and completely
-3. Do not skip any tasks - every single one must be addressed
-4. Do not summarize or abbreviate - provide full, detailed content for each task
-5. Track your progress explicitly: "Task 1 of {tasks["total_tasks"]}", "Task 2 of {tasks["total_tasks"]}", etc.
-6. Only finish your response when you have completed all {tasks["total_tasks"]} tasks
-7. If you're running out of space, prioritize completing all tasks over detailed explanations
-8. Count down as you complete each task to ensure you don't miss any
-
-Remember: Completing all {tasks["total_tasks"]} tasks is more important than providing extensive detail for fewer tasks.
-"""
-                
-                # Get user's connected resources for context
-                user_resources_summary = ""
-                try:
-                    if db and user_id:
-                        if not user_resources:
-                            from core.utils.agent_user_data import get_all_user_resources_for_agent
-                            user_resources = await get_all_user_resources_for_agent(user_id, db)
-                        
-                        summary = user_resources.get("summary", {})
-                        platforms_count = summary.get("total_platforms", 0)
-                        integrations_count = summary.get("total_integrations", 0)
-                        profile = user_resources.get('profile', {})
-                        team_info = user_resources.get('team', {})
-                        
-                        user_resources_summary = f"""
-**USER'S PROFILE & BUSINESS CONTEXT:**
-- Name: {profile.get('full_name', 'Not provided')}
-- Company: {profile.get('company', profile.get('business_name', 'Not provided'))}
+                if db and user_id:
+                    if not user_resources:
+                        from core.utils.agent_user_data import get_all_user_resources_for_agent
+                        user_resources = await get_all_user_resources_for_agent(user_id, db)
+                    
+                    profile = user_resources.get('profile', {})
+                    summary = user_resources.get("summary", {})
+                    
+                    user_resources_summary = f"""
+**USER CONTEXT:**
+- Name: {profile.get('full_name', 'User')}
+- Business Stage: {profile.get('business_stage', 'Early Stage')}
 - Industry: {profile.get('industry', 'Not specified')}
-- Role: {profile.get('role', 'Not specified')}
-- Team: {team_info.get('team_name', 'None')} ({team_info.get('total_members', 0)} members)
-
-**BUSINESS DEVELOPMENT CONTEXT:**
-- Connected Tools: {integrations_count} ({', '.join([i.get('integration_name', '') for i in user_resources.get('integrations', [])[:5]])})
-
-**PLATFORM NAVIGATION:**
-- Business Strategy: Dashboard -> Strategy
-- Financial Planning: Dashboard -> Finance
+- Revenue Model: {profile.get('revenue_model', 'Not specified')}
+- Key Goals: {profile.get('primary_goals', ['Growth', 'Funding'])}
+- Connected Platforms: {summary.get('total_platforms', 0)}
+- Connected Tools: {summary.get('total_integrations', 0)} (Finance, Legal, etc.)
 """
-                except Exception as e:
-                    logger.warning(f"Could not fetch user resources: {e}")
-
-                # Get agent's custom configuration/tweaks
-                custom_instructions_text = ""
-                try:
-                    if db and user_id:
-                        from core.utils.agent_user_data import get_agent_configuration_for_user
-                        agent_config = await get_agent_configuration_for_user(user_id, "purity", db)
-                        if agent_config and agent_config.get("custom_instructions"):
-                            custom_instructions_text = f"""
-
-**CUSTOM INSTRUCTIONS / TWEAKS (STRICTLY FOLLOW THESE):**
-{agent_config.get("custom_instructions")}
-
-**CRITICAL:** You MUST strictly follow the custom instructions above. These are user-specific tweaks that override default behavior. Apply them to ALL your responses and actions.
-"""
-                except Exception as e:
-                    logger.warning(f"Could not fetch agent configuration: {e}")
-                
-                # Prepare messages for AI processing
-                messages = [
-                    {
-                        "role": "system",
-                        "content": f"""You are Purity, an AI-powered business development assistant specializing in comprehensive business strategy and growth.
-{user_resources_summary}
-{custom_instructions_text}
-
-**Response Guidelines:**
-- Be a proactive, strategic collaborator. Focus on long-term business success and sustainability.
-- Use the chat history to maintain context.
-- Use emojis naturally (💼, 📈, 💰, 🎯, etc.) to keep the tone modern and professional.
-- If the user asks how to do something, provide platform navigation guidance.
-"""
-                    }
-                ]
-                
-                # Add history if available
-                if history:
-                    for h_msg in history[-5:]:
-                        messages.append({
-                            "role": h_msg.get("role", "user"),
-                            "content": h_msg.get("content", ""),
-                            "name": h_msg.get("name")
-                        })
-                
-                # Add current user message
-                messages.append({
-                    "role": "user",
-                    "content": message
-                })
-                
-                # Check for image generation intent before AI response
-                if intent == "media_generation":
-                    # Get user tier from database
-                    user_tier = None
-                    try:
-                        from sqlalchemy import select
-                        from core.database.models import User
-                        result = await db.execute(select(User).where(User.id == user_id))
-                        user = result.scalar_one_or_none()
-                        if user:
-                            user_tier = user.tier
-                    except Exception as e:
-                        logger.warning(f"Failed to get user tier: {e}")
-                    
-                    # Extract image generation prompt or use context
-                    prompt_keywords = ["image", "photo", "visual", "picture", "generate", "create", "for", "of", "show"]
-                    prompt = message
-                    for keyword in prompt_keywords:
-                        prompt = prompt.replace(keyword, "", 1)
-                    prompt = prompt.strip()
-                    if not prompt:
-                        prompt = message
-                    
-                    # Generate image with user tier for model selection
-                    image_result = await self.media.generate_image(
-                        prompt=prompt,
-                        context=message,
-                        user_id=user_id,
-                        user_tier=user_tier,
-                        auto_generate_prompt=True
-                    )
-                    
-                    if image_result.get("success"):
-                        image_url = image_result.get('url')
-                        ai_response = f"I've generated an image for your business! 🎨\n\nYou can use this image in your business plans, presentations, or marketing materials."
-                        # Include image_url in response metadata for frontend
-                        return {
-                            "success": True,
-                            "response": ai_response,
-                            "image_url": image_url,  # Add image URL for frontend display
-                            "thinking_steps": thinking_steps,
-                            "session_id": session_id,
-                            "intent": "media_generation",
-                            "message_count": session["message_count"],
-                            "timestamp": datetime.now().isoformat()
-                        }
-                    else:
-                        ai_response = f"I couldn't generate the image: {image_result.get('error', 'Unknown error')}"
-                else:
-                    # Generate AI response
-                    response = await ai_manager.generate_text(
-                        messages=messages,
-                        max_tokens=500,
-                        temperature=0.7
-                    )
-                
-                if response.success and response.text_content:
-                    ai_response = response.text_content
-                else:
-                    # Fallback to intent-based response
-                    intent = self._detect_intent(message)
-                    ai_response = self._get_fallback_response(intent)
-                    session["last_intent"] = intent
-                
             except Exception as e:
-                # Fallback to intent-based response
-                intent = self._detect_intent(message)
-                ai_response = self._get_fallback_response(intent)
-                session["last_intent"] = intent
+                logger.warning(f"Failed to load user context: {e}")
+
+            messages = [
+                {
+                    "role": "system",
+                    "content": f"""You are **Purity**, an elite **AI Business Architect & Strategy Consultant**.
+{user_resources_summary}
+
+**CORE OBJECTIVE:**
+Help the user **Build**, **Scale**, and **Secure** their business. You think like a **Startup Founder** combined with a **CFO** and **Legal Counsel**.
+
+**INTELLIGENCE PROTOCOL (STRICTLY FOLLOW THIS):**
+1. **Viability First**: Always assess if an idea is profitable and scalable.
+2. **Risk Aware**: Proactively highlight legal, financial, or operational risks.
+3. **Structured Thinking**: Break down complex problems into "Phases" or "Modules".
+4. **Tool Usage**: You have access to Business Planning, Financial Modeling, and Legal Compliance services. Use them.
+
+**CAPABILITIES:**
+- **Business Strategy**: Lean canvas, business plans, pivot analysis.
+- **Finance**: Runway calculation, unit economics, fundraising logic.
+- **Legal/Compliance**: Risk assessment, entity structure, IP protection advice.
+- **Growth**: Go-to-market strategy, partnership ecosystem.
+
+Current User Intent Hint: {simple_intent}
+"""
+                },
+                {"role": "user", "content": message}
+            ]
             
-            # Update session context
-            session["context"]["last_message"] = message
-            session["context"]["last_response"] = ai_response
-            session["context"]["timestamp"] = datetime.now().isoformat()
+            # Add history
+            if history:
+                history_messages = []
+                for h in history[-5:]:
+                    history_messages.append({
+                        "role": h.get("role", "user"), 
+                        "content": h.get("content", "")
+                    })
+                messages[1:1] = history_messages
+
+            # Execute LLM Call
+            ai_manager = await self._get_ai_service_manager()
+            from core.config import settings
             
-            return {
+            ai_response = await ai_manager.generate_text(
+                messages=messages,
+                max_tokens=settings.groq.groq_max_tokens,
+                temperature=0.7
+            )
+
+            if ai_response.success and ai_response.text_content:
+                response_text = ai_response.text_content
+                confidence = 0.95
+            else:
+                logger.error(f"LLM Failure: {ai_response.error}")
+                response_text = self._get_fallback_response(simple_intent)
+                confidence = 0.5
+            
+            # Update session
+            session["last_intent"] = simple_intent
+            
+            # Form final result
+            result = {
                 "success": True,
-                "response": ai_response,
+                "response": response_text,
                 "thinking_steps": thinking_steps,
+                "intent": simple_intent,
+                "confidence": confidence,
                 "session_id": session_id,
-                "intent": session.get("last_intent", "general"),
-                "message_count": session["message_count"],
                 "timestamp": datetime.now().isoformat()
             }
             
+            # Add images if generated
+            if simple_intent == "media_generation" and "image_url" in locals():
+                 result["image_url"] = locals().get("image_url")  
+                 
+             # Add service info
+            if simple_intent and simple_intent != "general":
+                 result["service_used"] = True
+
+            # Update context
+            session["context"]["last_message"] = message
+            session["context"]["last_response"] = response_text
+            session["context"]["timestamp"] = datetime.now().isoformat()
+
+            return result
+
         except Exception as e:
+            logger.error(f"Error processing chat message: {e}")
             return {
                 "success": False,
                 "error": f"Failed to process chat message: {str(e)}",
