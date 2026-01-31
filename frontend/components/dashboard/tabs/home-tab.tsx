@@ -902,47 +902,41 @@ export default function HomeTab() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50/50 text-slate-900 font-sans selection:bg-indigo-500/30 relative">
-      {/* Fixed Header - Changed from sticky to fixed for reliability */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-3 shadow-sm transition-all duration-200">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          {/* Left: Brand/Nav Placeholder */}
+    <div className="flex flex-col min-h-screen bg-slate-100 text-slate-900 font-sans selection:bg-indigo-500/30 relative">
+
+      {/* Main Chat Content Area */}
+      <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-6 pb-40">
+
+        {/* Header Elements: Beta & Icons (Vertical Layout) */}
+        <div className="flex flex-col items-center justify-center space-y-3 mb-8">
+          {/* Beta Badge */}
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100">Beta</span>
+
+          {/* Action Icons Group */}
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-lg tracking-tight text-slate-900">Agent47</span>
-          </div>
-
-          {/* Right: Consolidated Controls */}
-          <div className="flex items-center space-x-4">
-            {/* Beta Badge */}
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100">Beta</span>
-
-            {/* Action Icons Group */}
-            <div className="flex items-center space-x-1 pl-4 border-l border-slate-200">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleClearChat}
-                className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-all"
-              >
-                <Plus className="h-4.5 w-4.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-all"
-              >
-                <History className="h-4.5 w-4.5" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClearChat}
+              className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-white transition-all"
+              title="New Chat"
+            >
+              <Plus className="h-4.5 w-4.5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-white transition-all"
+              title="History"
+            >
+              <History className="h-4.5 w-4.5" />
+            </Button>
           </div>
         </div>
-      </div>
 
-      {/* Main Chat Content Area - Added top padding to account for fixed header */}
-      <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-24 pb-40">
         {/* Welcome Title */}
-        <div className="mt-8 mb-12 text-center space-y-4">
-          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        <div className="mb-8 text-center space-y-2">
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
               ? `Welcome, ${user?.username || user?.full_name || "User"}.`
               : `Welcome back, ${user?.username || user?.full_name || "User"}.`
@@ -951,16 +945,16 @@ export default function HomeTab() {
           <p className="text-slate-500 text-lg font-medium">How can I help you today?</p>
         </div>
 
-        {/* Chat Area */}
-        <div className="space-y-8">
+        {/* Chat Area Container */}
+        <div className="space-y-8 border border-slate-300 rounded-3xl bg-white shadow-sm min-h-[60vh] p-4 sm:p-6 mb-8 relative overflow-hidden">
           {chatMessages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-700">
-              <div className="h-24 w-24 bg-white rounded-3xl flex items-center justify-center border border-slate-200 mb-8 shadow-xl shadow-indigo-500/5">
-                <Sparkles className="h-12 w-12 text-indigo-500" />
+            <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-700 h-full">
+              <div className="h-20 w-20 bg-slate-50 rounded-3xl flex items-center justify-center border border-slate-200 mb-6 shadow-sm">
+                <Sparkles className="h-10 w-10 text-indigo-500" />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 mb-3">Ready for launch.</h3>
-              <p className="text-slate-500 max-w-sm text-lg leading-relaxed">
-                Choose an assistant or start typing to begin your next session.
+              <h3 className="text-xl font-black text-slate-900 mb-2">Ready for launch.</h3>
+              <p className="text-slate-500 max-w-sm text-base leading-relaxed">
+                Choose an assistant or start typing to begin.
               </p>
             </div>
           ) : (
@@ -975,33 +969,33 @@ export default function HomeTab() {
                 <div
                   key={msg.id}
                   className={cn(
-                    "flex w-full mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500",
+                    "flex w-full mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300",
                     isUserMessage ? "justify-end" : "justify-start"
                   )}
                 >
                   <div className={cn(
-                    "flex items-start max-w-[90%] sm:max-w-[80%] lg:max-w-[70%] space-x-4",
+                    "flex items-start max-w-[90%] sm:max-w-[85%] lg:max-w-[75%] space-x-3",
                     isUserMessage && "flex-row-reverse space-x-reverse"
                   )}>
                     {/* Avatar */}
                     <div className="flex-shrink-0 mt-1">
                       {agent ? (
                         <div className={cn(
-                          "h-10 w-10 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm bg-white transition-transform hover:scale-105",
-                          isThinking && "animate-pulse ring-2 ring-indigo-100"
+                          "h-8 w-8 rounded-lg flex items-center justify-center border border-slate-200 shadow-sm bg-white",
+                          isThinking && "animate-pulse ring-2 ring-indigo-50"
                         )}>
-                          <agent.icon className={cn("h-5 w-5", agent.color.replace('bg-', 'text-'))} />
+                          <agent.icon className={cn("h-4 w-4", agent.color.replace('bg-', 'text-'))} />
                         </div>
                       ) : isUserMessage ? (
-                        <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center border border-indigo-500 shadow-md shadow-indigo-600/20 transition-transform hover:scale-105 overflow-hidden">
+                        <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center border border-indigo-500 shadow-md shadow-indigo-600/10 overflow-hidden">
                           {user?.avatar_url ? (
                             <img src={user.avatar_url} alt={user.username} className="h-full w-full object-cover" />
                           ) : (
-                            <User className="h-5 w-5 text-white" />
+                            <User className="h-4 w-4 text-white" />
                           )}
                         </div>
                       ) : isSystemMessage ? (
-                        <div className="h-9 w-9 rounded-xl bg-amber-50 flex items-center justify-center border border-amber-200">
+                        <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center border border-amber-200">
                           <AlertCircle className="h-4 w-4 text-amber-600" />
                         </div>
                       ) : null}
@@ -1013,10 +1007,10 @@ export default function HomeTab() {
                       isUserMessage ? "items-end" : "items-start"
                     )}>
                       {!isSameAuthor && (
-                        <div className="flex items-center space-x-2 mb-2 px-1">
+                        <div className="flex items-center space-x-2 mb-1 px-1">
                           <span className={cn(
-                            "text-xs font-bold tracking-tight uppercase opacity-80",
-                            agent ? "text-slate-700" : "text-slate-500"
+                            "text-[10px] font-bold tracking-tight uppercase opacity-70",
+                            agent ? "text-slate-600" : "text-slate-500"
                           )}>
                             {agent ? agent.name : isUserMessage ? (user?.username || "You") : "System"}
                           </span>
@@ -1024,7 +1018,7 @@ export default function HomeTab() {
                       )}
 
                       <div className={cn(
-                        "px-6 py-4 text-[15px] leading-relaxed shadow-sm backdrop-blur-sm border",
+                        "px-5 py-3 text-[15px] leading-relaxed shadow-sm backdrop-blur-sm border",
                         isUserMessage
                           ? "bg-white text-slate-800 border-slate-200 rounded-2xl rounded-tr-sm"
                           : isSystemMessage
@@ -1032,23 +1026,23 @@ export default function HomeTab() {
                             : "bg-white text-slate-800 border-slate-200 rounded-2xl rounded-tl-sm"
                       )}>
                         {isThinking ? (
-                          <div className="space-y-4 min-w-[300px]">
-                            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                          <div className="space-y-4 min-w-[280px]">
+                            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                               <div className="flex items-center space-x-2.5 text-indigo-600">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                <span className="text-[11px] font-black uppercase tracking-wider">{msg.content}</span>
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                <span className="text-[10px] font-black uppercase tracking-wider">{msg.content}</span>
                               </div>
                             </div>
 
                             {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
-                              <div className="space-y-3 pt-1">
+                              <div className="space-y-2 pt-1">
                                 {msg.thinkingSteps.map((step: string, i: number) => {
                                   const isLast = i === msg.thinkingSteps.length - 1
                                   const getIcon = (text: string) => {
-                                    if (text.toLowerCase().includes('search')) return <Search className="h-3.5 w-3.5" />
-                                    if (text.toLowerCase().includes('plan')) return <Target className="h-3.5 w-3.5" />
-                                    if (text.toLowerCase().includes('task')) return <CheckCircle2 className="h-3.5 w-3.5" />
-                                    return <Activity className="h-3.5 w-3.5" />
+                                    if (text.toLowerCase().includes('search')) return <Search className="h-3 w-3" />
+                                    if (text.toLowerCase().includes('plan')) return <Target className="h-3 w-3" />
+                                    if (text.toLowerCase().includes('task')) return <CheckCircle2 className="h-3 w-3" />
+                                    return <Activity className="h-3 w-3" />
                                   }
 
                                   return (
@@ -1057,17 +1051,17 @@ export default function HomeTab() {
                                       initial={{ opacity: 0, x: -10 }}
                                       animate={{ opacity: 1, x: 0 }}
                                       transition={{ delay: i * 0.1 }}
-                                      className="flex items-start space-x-3"
+                                      className="flex items-start space-x-2.5"
                                     >
                                       <div className={cn(
-                                        "h-6 w-6 rounded flex items-center justify-center flex-shrink-0 mt-0.5",
+                                        "h-5 w-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5",
                                         isLast ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-400"
                                       )}>
                                         {getIcon(step)}
                                       </div>
                                       <div className="flex-1">
                                         <p className={cn(
-                                          "text-xs",
+                                          "text-[11px]",
                                           isLast ? "text-slate-900 font-semibold" : "text-slate-500 font-medium"
                                         )}>
                                           {step}
@@ -1076,7 +1070,7 @@ export default function HomeTab() {
                                           <motion.div
                                             initial={{ width: "0%" }}
                                             animate={{ width: "100%" }}
-                                            className="h-1 bg-indigo-100 mt-2 rounded-full overflow-hidden"
+                                            className="h-0.5 bg-indigo-100 mt-1.5 rounded-full overflow-hidden"
                                           >
                                             <motion.div
                                               className="h-full bg-indigo-500"
@@ -1113,11 +1107,11 @@ export default function HomeTab() {
                         )}
                       </div>
 
-                      <div className="mt-2 px-1 flex items-center space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="mt-1 px-1 flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                         <span className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">
                           {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
-                        <div className="flex items-center space-x-1">
+                        <div className="flex items-center space-x-0.5">
                           <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-indigo-600 hover:bg-white rounded" onClick={() => handleCopyMessage(msg.content)}>
                             <Copy className="h-3 w-3" />
                           </Button>
@@ -1136,24 +1130,24 @@ export default function HomeTab() {
           )}
           {isLoading && !chatMessages.some((m: any) => m.type === "thinking") && (
             <div className="flex justify-start mb-8 pl-1">
-              <div className="h-10 w-10 rounded-xl flex items-center justify-center border border-slate-200 bg-white shadow-sm">
-                <Bot className="h-5 w-5 text-indigo-500 animate-pulse" />
+              <div className="h-8 w-8 rounded-lg flex items-center justify-center border border-slate-200 bg-white shadow-sm">
+                <Bot className="h-4 w-4 text-indigo-500 animate-pulse" />
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} className="h-4" />
+          <div ref={messagesEndRef} className="h-1" />
         </div>
       </div>
 
       {/* Floating Action Bar - Fixed Bottom Position without sticky issues */}
       <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none">
         <div className="max-w-3xl mx-auto w-full pointer-events-auto">
-          <div className="bg-white/90 backdrop-blur-2xl border border-slate-200/80 rounded-2xl p-2.5 shadow-2xl shadow-indigo-500/10 ring-1 ring-slate-900/5 transition-all duration-300 focus-within:ring-indigo-500/50 focus-within:shadow-indigo-500/20">
+          <div className="bg-white/95 backdrop-blur-2xl border border-slate-300 rounded-2xl p-2.5 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5 transition-all duration-300 focus-within:ring-indigo-500/50 focus-within:shadow-indigo-500/20">
             <div className="flex items-center gap-2">
               {/* Agent Quick Select */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl flex-shrink-0 transition-colors">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl flex-shrink-0 transition-colors">
                     <PlusCircle className="h-6 w-6" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -1230,11 +1224,11 @@ export default function HomeTab() {
                   />
                 </label>
 
-                {/* Send */}
+                {/* Send - Increased visibility */}
                 <Button
                   onClick={editingMessageId ? handleUpdateMessage : handleSendMessage}
                   disabled={isLoading || !message.trim()}
-                  className="h-10 w-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 flex items-center justify-center transition-all active:scale-95 disabled:opacity-50 disabled:shadow-none ml-2"
+                  className="h-10 w-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 flex items-center justify-center transition-all active:scale-95 disabled:opacity-70 disabled:shadow-none ml-2"
                 >
                   {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                 </Button>
