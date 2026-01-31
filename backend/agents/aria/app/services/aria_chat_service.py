@@ -442,44 +442,7 @@ class AriaChatService:
         import random
         return random.choice(responses.get(intent, responses["general"]))
     
-    async def process_chat_message(
-        self,
-        user_id: int,
-        message: str,
-        session_id: Optional[str] = None,
-        db: AsyncSession = None,
-        history: Optional[List[Dict[str, Any]]] = None,
-        user_resources: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
-        """Process a chat message from the user and provide intelligent response"""
-        try:
-            # The database session should be provided by the router
-            if not db:
-                return {
-                    "success": False,
-                    "error": "Database session not available"
-                }
-            
-            # Get or create session
-            if not session_id:
-                session_id = f"session_{user_id}_{datetime.now().timestamp()}"
-            
-            if session_id not in self.active_sessions:
-                self.active_sessions[session_id] = {
-                    "user_id": user_id,
-                    "created_at": datetime.now(),
-                    "message_count": 0,
-                    "context": {},
-                    "last_intent": None
-                }
-            
-            session = self.active_sessions[session_id]
-            session["message_count"] += 1
-            
-
-            # Detect intent solely for guiding the system prompt, but let LLM drive the conversation
-            simple_intent = self._detect_intent_simple(message)
-            
+    
     def _generate_thinking_steps(self, intent: str, message: str, user_id: int, db: AsyncSession = None) -> List[str]:
         """Generate thinking steps based on creative/brand intent"""
         steps = []
