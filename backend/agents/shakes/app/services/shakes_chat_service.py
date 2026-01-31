@@ -429,7 +429,9 @@ class ShakesChatService:
         user_id: int,
         message: str,
         session_id: Optional[str] = None,
-        db: AsyncSession = None
+        db: AsyncSession = None,
+        history: Optional[List[Dict[str, Any]]] = None,
+        user_resources: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Process a chat message from the user and provide intelligent response"""
         try:
@@ -496,10 +498,44 @@ The user's request requires completing {tasks["total_tasks"]} {tasks["task_type"
 Remember: Completing all {tasks["total_tasks"]} tasks is more important than providing extensive detail for fewer tasks.
 """
                 
+                # Get user's connected resources for context
+                user_resources_summary = ""
+                try:
+                    if db and user_id:
+                        if not user_resources:
+                            from core.utils.agent_user_data import get_all_user_resources_for_agent
+                            user_resources = await get_all_user_resources_for_agent(user_id, db)
+                        
+                        summary = user_resources.get("summary", {})
+                        platforms_count = summary.get("total_platforms", 0)
+                        integrations_count = summary.get("total_integrations", 0)
+                        profile = user_resources.get('profile', {})
+                        team_info = user_resources.get('team', {})
+                        
+                        user_resources_summary = f"""
+**USER'S PROFILE & BUSINESS CONTEXT:**
+- Name: {profile.get('full_name', 'Not provided')}
+- Company: {profile.get('company', profile.get('business_name', 'Not provided'))}
+- Industry: {profile.get('industry', 'Not specified')}
+- Role: {profile.get('role', 'Not specified')}
+- Team: {team_info.get('team_name', 'None')} ({team_info.get('total_members', 0)} members)
+
+**CONTENT CREATION CONTEXT:**
+- Platforms: {platforms_count} ({', '.join([p.get('display_name', '') for p in user_resources.get('platforms', [])[:5]])})
+- Connected Tools: {integrations_count} ({', '.join([i.get('integration_name', '') for i in user_resources.get('integrations', [])[:5]])})
+
+**PLATFORM NAVIGATION:**
+- Content Dashboard: Dashboard -> Content
+- Post Scheduling: Dashboard -> Calendar
+"""
+                except Exception as e:
+                    logger.warning(f"Could not fetch user resources: {e}")
+
                 # Get agent's custom configuration/tweaks
                 custom_instructions_text = ""
                 try:
                     if db and user_id:
+                        from core.utils.agent_user_data import get_agent_configuration_for_user
                         agent_config = await get_agent_configuration_for_user(user_id, "shakes", db)
                         if agent_config and agent_config.get("custom_instructions"):
                             custom_instructions_text = f"""
@@ -517,28 +553,32 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                     {
                         "role": "system",
                         "content": f"""You are Shakes, an AI-powered content creation assistant specializing in comprehensive content generation and optimization.
+{user_resources_summary}
 {custom_instructions_text}
-                        You help users with content creation tasks including:
-                        - Blog writing and article creation
-                        - Social media content and posts
-                        - Video scripts and storyboards
-                        - Email marketing campaigns
-                        - SEO optimization and keyword research
-                        - Content strategy and planning
-                        - Copywriting and sales content
-                        - Multi-format content creation
-                        
-                        Always provide creative, engaging, and well-structured content that resonates with the target audience.
-                        Be innovative, persuasive, and focused on creating content that drives engagement and conversions.
-                        
-                        **IMPORTANT:** Use emojis and icons naturally in your responses to make them more engaging and visually appealing. Use relevant emojis like ✍️ for writing, 📝 for content, 🔍 for SEO, 💡 for ideas, ⚡ for optimization, 📊 for performance, ✅ for completion, etc. Make your responses feel modern and polished.
-{task_instructions}"""
-                    },
-                    {
-                        "role": "user",
-                        "content": f"User message: {message}\n\nContext: {session.get('context', {}) }"
+
+**Response Guidelines:**
+- Be a proactive, creative collaborator. Focus on creating high-engagement content.
+- Use the chat history to maintain context.
+- Use emojis naturally (✍️, 📝, 🔍, 💡, etc.) to keep the tone modern and engaging.
+- If the user asks how to do something, provide platform navigation guidance.
+"""
                     }
                 ]
+                
+                # Add history if available
+                if history:
+                    for h_msg in history[-5:]:
+                        messages.append({
+                            "role": h_msg.get("role", "user"),
+                            "content": h_msg.get("content", ""),
+                            "name": h_msg.get("name")
+                        })
+                
+                # Add current user message
+                messages.append({
+                    "role": "user",
+                    "content": message
+                })
                 
                 # Check for image generation intent before AI response
                 if intent == "media_generation":

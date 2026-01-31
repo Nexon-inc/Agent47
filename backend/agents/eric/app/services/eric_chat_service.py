@@ -634,7 +634,9 @@ class EricChatService:
         user_id: int,
         message: str,
         session_id: Optional[str] = None,
-        db: AsyncSession = None
+        db: AsyncSession = None,
+        history: Optional[List[Dict[str, Any]]] = None,
+        user_resources: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Process a chat message from the user and provide intelligent response"""
         try:
@@ -831,10 +833,44 @@ The user's request requires completing {tasks["total_tasks"]} {tasks["task_type"
 Remember: Completing all {tasks["total_tasks"]} tasks is more important than providing extensive detail for fewer tasks.
 """
                 
+                # Get user's connected resources for context
+                user_resources_summary = ""
+                try:
+                    if db and user_id:
+                        if not user_resources:
+                            from core.utils.agent_user_data import get_all_user_resources_for_agent
+                            user_resources = await get_all_user_resources_for_agent(user_id, db)
+                        
+                        summary = user_resources.get("summary", {})
+                        platforms_count = summary.get("total_platforms", 0)
+                        integrations_count = summary.get("total_integrations", 0)
+                        profile = user_resources.get('profile', {})
+                        team_info = user_resources.get('team', {})
+                        
+                        user_resources_summary = f"""
+**USER'S PROFILE & BUSINESS CONTEXT:**
+- Name: {profile.get('full_name', 'Not provided')}
+- Company: {profile.get('company', profile.get('business_name', 'Not provided'))}
+- Industry: {profile.get('industry', 'Not specified')}
+- Role: {profile.get('role', 'Not specified')}
+- Team: {team_info.get('team_name', 'None')} ({team_info.get('total_members', 0)} members)
+
+**CONNECTED SALES RESOURCES:**
+- Platforms: {platforms_count} ({', '.join([p.get('display_name', '') for p in user_resources.get('platforms', [])[:5]])})
+- Integrations: {integrations_count} ({', '.join([i.get('integration_name', '') for i in user_resources.get('integrations', [])[:5]])})
+
+**PLATFORM NAVIGATION:**
+- Platforms Management: Dashboard -> Platforms
+- Team Management: Dashboard -> Members
+"""
+                except Exception as e:
+                    logger.warning(f"Could not fetch user resources: {e}")
+
                 # Get agent's custom configuration/tweaks
                 custom_instructions_text = ""
                 try:
                     if db and user_id:
+                        from core.utils.agent_user_data import get_agent_configuration_for_user
                         agent_config = await get_agent_configuration_for_user(user_id, "eric", db)
                         if agent_config and agent_config.get("custom_instructions"):
                             custom_instructions_text = f"""
@@ -852,95 +888,31 @@ Remember: Completing all {tasks["total_tasks"]} tasks is more important than pro
                     {
                         "role": "system",
                         "content": f"""You are Eric, an AI-powered sales automation assistant specializing in comprehensive sales management.
+{user_resources_summary}
 {custom_instructions_text}
-Your full capabilities include:
 
-1. **EricLead Generation & Qualification**
-   - EricLead generation from multiple sources
-   - EricLead scoring and prioritization using AI
-   - EricLead qualification and segmentation
-   - Persona creation and targeting
-
-2. **EricDeal Closing & Management**
-   - EricDeal closing strategies and techniques
-   - EricDeal closing assistance with real-time guidance
-   - Pipeline management and optimization
-   - Sales funnel creation and analysis
-
-3. **Sales Forecasting & Analytics**
-   - Sales forecasting and revenue prediction
-   - Performance analytics and metrics
-   - Predictive analytics for sales outcomes
-   - Pipeline performance analysis
-
-4. **CRM Automation**
-   - CRM integration (Salesforce, HubSpot, Pipedrive)
-   - Automated workflows and processes
-   - Data synchronization
-   - CRM analytics and insights
-
-5. **Sales Outreach**
-   - Cold email sequences
-   - LinkedIn outreach automation
-   - Multi-channel outreach campaigns
-   - Personalized messaging at scale
-
-6. **Email Sequences**
-   - Drip campaign creation
-   - Follow-up automation
-   - Demo booking sequences
-   - EricLead nurturing workflows
-
-7. **EricObjection Handling**
-   - EricObjection response strategies
-   - EricObjection prediction using AI
-   - Handling price, timing, and authority objections
-   - Sales conversation optimization
-
-8. **Customer Insights**
-   - Customer behavior analysis
-   - Customer journey mapping
-   - Customer segmentation
-   - Churn prediction and prevention
-
-9. **Advanced Features**
-   - Auto-pitch generation
-   - Automated proposal building
-   - Voice pitch simulation
-   - Social proof generation
-   - Cross-selling and upselling strategies
-   - Dynamic pricing recommendations
-   - Competitor benchmarking
-   - Local market insights
-   - Market trend alerts
-   - Cross-channel lead tracking
-   - Team sales dashboard
-   - Ethical sales scoring
-   - Gamified incentives
-   - Mobile app monitoring
-   - Multi-language support
-   - Sales training and onboarding
-   - Emerging channels integration
-   - Social selling optimization
-   - Personalized sales recommendations
-   - Tone and branding customization
-   - Advanced conversational AI
-   - Live chat support
-   - Dynamic follow-up scheduling
-   - AI lead prioritization
-
-Always be helpful, professional, and provide actionable advice that helps users close more deals and grow their revenue. Use service results when available to give specific, data-driven responses. When service results aren't available, provide expert guidance on how to use the features.
-
-**IMPORTANT:** Use emojis and icons naturally in your responses to make them more engaging and visually appealing. Use relevant emojis like 💰 for sales, 📈 for growth, 🎯 for targets, 📊 for analytics, 🤝 for deals, 📧 for outreach, ✅ for success, etc. Make your responses feel modern and polished.
-{task_instructions}
-Current intent detected: {detected_intent}
-{context_text if context_text else "No service results available - provide expert guidance based on the user's request."}"""
-                    },
-                    {
-                        "role": "user",
-                        "content": message
+**Response Guidelines:**
+- Be a proactive, helpful collaborator. Focus on helping the user grow their revenue.
+- Use the chat history to maintain context.
+- Use emojis naturally (🤝, 📈, 🎯, 🚀, etc.) to keep the tone engaging.
+"""
                     }
                 ]
+                
+                # Add history if available
+                if history:
+                    for h_msg in history[-5:]:
+                        messages.append({
+                            "role": h_msg.get("role", "user"),
+                            "content": h_msg.get("content", ""),
+                            "name": h_msg.get("name")
+                        })
+                
+                # Add current user message
+                messages.append({
+                    "role": "user",
+                    "content": message
+                })
                 
                 logger.info(f"Eric: Attempting LLM generation (with service results: {service_result is not None})...")
                 

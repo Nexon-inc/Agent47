@@ -50,7 +50,12 @@ import {
   Trash2,
   MoreVertical,
   User,
+  Sparkles,
+  Paperclip,
+  Shield,
+  PlusCircle,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useUserStore } from "@/lib/stores/user-store"
 import { apiClient } from "@/lib/api-client"
@@ -652,15 +657,14 @@ export default function HomeTab() {
   }
 
   return (
-    <div className="p-6 space-y-6 relative">
-
-      {/* Beta Disclaimer */}
-      <div className="flex justify-center">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-full px-6 py-3 animate-pulse">
+    <div className="flex flex-col h-full bg-[#0b0d11] text-gray-100 font-sans selection:bg-indigo-500/30 overflow-y-auto">
+      {/* Premium Beta Badge */}
+      <div className="flex justify-center mt-6">
+        <div className="bg-white/5 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-md">
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-yellow-600" />
-            <p className="text-sm text-yellow-800">
-              This is still in beta, so the AI can make mistakes sometimes.
+            <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+            <p className="text-[11px] uppercase tracking-widest font-bold text-gray-400">
+              Agent47 Intelligence <span className="text-white/20 mx-1">|</span> Beta v2.0
             </p>
           </div>
         </div>
@@ -668,516 +672,291 @@ export default function HomeTab() {
 
 
       {/* Welcome Section */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+      {/* Welcome Title */}
+      <div className="max-w-4xl mx-auto w-full px-6 mt-12 mb-8">
+        <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight text-center">
           {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
-            ? `Welcome, ${user?.username || user?.full_name || "User"}! 👋`
-            : `Welcome back, ${user?.username || user?.full_name || "User"}! 👋`
+            ? `Welcome, ${user?.username || user?.full_name || "User"}.`
+            : `Welcome back, ${user?.username || user?.full_name || "User"}.`
           }
         </h1>
+        <p className="text-gray-500 text-center mt-4 text-lg">How can I help you today?</p>
       </div>
 
 
 
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 gap-6">
-        {/* Chat Interface - Full Width */}
-        <div>
-          <Card className="h-[500px] sm:h-[600px] flex flex-col overflow-hidden">
-            {/* Modern Chat Header */}
-            <div className="bg-gradient-to-r from-green-400 to-green-600 px-4 sm:px-6 py-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                  {selectedAgent ? (
-                    <>
-                      <div className={`w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center ring-2 ring-white/30 flex-shrink-0`}>
-                        <selectedAgent.icon className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="text-base sm:text-lg font-bold text-white truncate">{selectedAgent.name}</h3>
-                        <div className="text-xs sm:text-sm text-white/90 flex items-center">
-                          <motion.div
-                            className="w-2 h-2 rounded-full bg-white mr-2"
-                            animate={{ opacity: [1, 0.5, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          />
-                          {selectedAgent.title}
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <div>
-                      <h3 className="text-base sm:text-lg font-bold text-white">Agent47 Chat</h3>
-                      <p className="text-xs sm:text-sm text-white/90">Select an agent to start</p>
-                    </div>
-                  )}
-                </div>
-                {chatMessages.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClearChat}
-                    className="text-white hover:bg-white/20 flex-shrink-0"
-                  >
-                    <Trash2 className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Clear</span>
-                  </Button>
-                )}
+      {/* Chat Area */}
+      <div className="flex-1 w-full max-w-4xl mx-auto px-6 pb-40">
+        <div className="space-y-10">
+          {chatMessages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="h-20 w-20 bg-white/5 rounded-[2.5rem] flex items-center justify-center border border-white/10 mb-8 shadow-2xl">
+                <Sparkles className="h-10 w-10 text-indigo-400" />
               </div>
+              <h3 className="text-2xl font-black text-white mb-3">Ready for launch.</h3>
+              <p className="text-gray-500 max-w-sm text-lg leading-relaxed">
+                Choose an assistant or start typing to begin your next session.
+              </p>
             </div>
-            <CardContent className="flex-1 flex flex-col p-0 bg-gray-50/50 min-h-0">
-              {/* Chat Messages */}
-              <div className="flex-1 overflow-y-auto space-y-4 p-4">
-                {chatMessages.length === 0 ? (
-                  <div className="text-center text-gray-500 py-12">
-                    <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p className="text-sm">
-                      {selectedAgent
-                        ? `Start a conversation with ${selectedAgent.name}`
-                        : "Please select an agent to start chatting"
-                      }
-                    </p>
-                  </div>
-                ) : (
-                  chatMessages.map((msg) => {
-                    const agent = msg.agentId ? agents.find(a => a.id === msg.agentId) : null
-                    const isUserMessage = msg.type === "user"
-                    const isSystemMessage = msg.type === "system"
-                    const isThinking = msg.type === "thinking"
+          ) : (
+            chatMessages.map((msg: any, index: number) => {
+              const agent = msg.agentId ? agents.find(a => a.id === msg.agentId) : null
+              const isUserMessage = msg.type === "user"
+              const isSystemMessage = msg.type === "system"
+              const isThinking = msg.type === "thinking"
+              const isSameAuthor = index > 0 && chatMessages[index - 1].agentId === msg.agentId && chatMessages[index - 1].type === msg.type
 
-                    // Get agent color gradient
-                    const getAgentColor = () => {
-                      if (!agent) return "from-gray-400 to-gray-600"
-                      const colorMap: Record<string, string> = {
-                        "bg-orange-500": "from-orange-400 to-orange-600",
-                        "bg-purple-500": "from-purple-400 to-purple-600",
-                        "bg-amber-500": "from-amber-400 to-amber-600",
-                        "bg-pink-500": "from-pink-400 to-pink-600",
-                        "bg-green-500": "from-green-400 to-green-600",
-                        "bg-blue-500": "from-blue-400 to-blue-600",
-                        "bg-indigo-500": "from-indigo-400 to-indigo-600",
-                      }
-                      return colorMap[agent.color] || "from-gray-400 to-gray-600"
-                    }
+              return (
+                <div
+                  key={msg.id}
+                  className={cn(
+                    "flex w-full mb-10 animate-in fade-in slide-in-from-bottom-2 duration-500",
+                    isUserMessage ? "justify-end" : "justify-start"
+                  )}
+                >
+                  <div className={cn(
+                    "flex items-start max-w-[85%] sm:max-w-[75%] space-x-4",
+                    isUserMessage && "flex-row-reverse space-x-reverse"
+                  )}>
+                    {/* Avatar */}
+                    <div className="flex-shrink-0 mt-1">
+                      {agent ? (
+                        <div className={cn(
+                          "h-10 w-10 rounded-2xl flex items-center justify-center border border-white/10 shadow-xl bg-[#16171d] transition-transform hover:scale-110",
+                          isThinking && "animate-pulse"
+                        )}>
+                          <agent.icon className="h-5 w-5 text-indigo-400" />
+                        </div>
+                      ) : isUserMessage ? (
+                        <div className="h-10 w-10 rounded-2xl bg-indigo-600 flex items-center justify-center border border-white/10 shadow-xl transition-transform hover:scale-110">
+                          <User className="h-5 w-5 text-white" />
+                        </div>
+                      ) : isSystemMessage ? (
+                        <div className="h-10 w-10 rounded-2xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20">
+                          <AlertCircle className="h-5 w-5 text-amber-500" />
+                        </div>
+                      ) : null}
+                    </div>
 
-                    return (
-                      <div
-                        key={msg.id}
-                        className={`flex ${isUserMessage ? "justify-end" : isSystemMessage ? "justify-center" : "justify-start"} group`}
-                      >
-                        {isSystemMessage ? (
-                          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2.5 text-sm text-green-700 max-w-[85%] shadow-sm">
-                            <div className="prose prose-sm max-w-none text-center">
-                              <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                className="text-sm"
-                                components={{
-                                  p: ({ children }) => <p className="mb-1 last:mb-0 text-green-700">{children}</p>,
-                                  strong: ({ children }) => <strong className="font-semibold text-green-800">{children}</strong>,
-                                  em: ({ children }) => <em className="italic text-green-800">{children}</em>,
-                                  code: ({ children }) => <code className="bg-green-100 px-1.5 py-0.5 rounded text-xs text-green-800 font-mono">{children}</code>,
-                                }}
-                              >
-                                {msg.content}
-                              </ReactMarkdown>
+                    {/* Bubble & Content */}
+                    <div className={cn(
+                      "flex flex-col",
+                      isUserMessage ? "items-end" : "items-start"
+                    )}>
+                      {!isSameAuthor && (
+                        <div className="flex items-center space-x-2 mb-2 px-1">
+                          <span className={cn(
+                            "text-sm font-bold tracking-tight",
+                            agent ? "text-white" : "text-gray-300"
+                          )}>
+                            {agent ? agent.name : isUserMessage ? "You" : "System"}
+                          </span>
+                          {agent && (
+                            <div className="flex items-center space-x-1 bg-white/5 border border-white/10 px-2 py-0.5 rounded-lg shadow-sm">
+                              <Bot className="h-3 w-3 text-indigo-400" />
+                              <span className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Assistant</span>
                             </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className={cn(
+                        "px-6 py-4 rounded-3xl text-[16px] leading-relaxed transition-all duration-300 shadow-2xl",
+                        isUserMessage
+                          ? "bg-[#1d1e24] text-gray-100 border border-white/5 rounded-tr-none"
+                          : isSystemMessage
+                            ? "bg-amber-500/5 text-amber-200 border border-amber-500/10 rounded-tl-none italic text-sm"
+                            : "bg-transparent text-gray-200 rounded-tl-none border-0"
+                      )}>
+                        {isThinking ? (
+                          <div className="space-y-4 py-2">
+                            <div className="flex items-center space-x-3 text-indigo-400">
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                              <span className="text-sm font-black animate-pulse tracking-[0.1em] uppercase">{msg.content}</span>
+                            </div>
+                            {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
+                              <div className="space-y-3 border-l-2 border-indigo-500/20 pl-5 py-1">
+                                {msg.thinkingSteps.map((step: string, i: number) => (
+                                  <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="text-xs text-gray-500 flex items-center space-x-2"
+                                  >
+                                    <div className="h-1.5 w-1.5 rounded-full bg-indigo-500/40" />
+                                    <span className="font-medium">{step}</span>
+                                  </motion.div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ) : (
-                          <div className={`flex items-end gap-2 max-w-[80%] ${isUserMessage ? "flex-row-reverse" : ""}`}>
-                            {/* Avatar */}
-                            {(msg.type === "agent" || msg.type === "thinking") && agent && (
-                              <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${getAgentColor()} flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${isThinking ? "animate-pulse" : ""
-                                }`}>
-                                {agent.name.slice(0, 2).toUpperCase()}
-                              </div>
-                            )}
-                            {isUserMessage && (
-                              <div className="w-9 h-9 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center text-white shadow-md flex-shrink-0">
-                                <User className="w-4 h-4" />
-                              </div>
-                            )}
+                          <div className="prose prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-[#16171d] prose-pre:border prose-pre:border-white/5">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        )}
 
-                            {/* Message Bubble */}
-                            <div className="flex flex-col">
-                              {(msg.type === "agent" || msg.type === "thinking") && agent && (
-                                <span className="text-xs font-semibold mb-1 px-1 text-gray-600">
-                                  {agent.name}
-                                </span>
-                              )}
-
-                              {isThinking ? (
-                                <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <div className="flex space-x-1">
-                                      {[0, 1, 2].map((dot) => (
-                                        <motion.div
-                                          key={dot}
-                                          className="w-1.5 h-1.5 bg-gray-400 rounded-full"
-                                          animate={{
-                                            opacity: [0.3, 1, 0.3],
-                                            scale: [1, 1.2, 1]
-                                          }}
-                                          transition={{
-                                            duration: 1.5,
-                                            repeat: Infinity,
-                                            delay: dot * 0.2,
-                                          }}
-                                        />
-                                      ))}
-                                    </div>
-                                    <span className="text-xs text-gray-500 italic">{msg.content}</span>
-                                  </div>
-
-                                  {/* Thinking Steps */}
-                                  {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
-                                    <div className="space-y-1.5 pt-2 border-t border-gray-100">
-                                      {msg.thinkingSteps.map((step: string, stepIndex: number) => (
-                                        <motion.div
-                                          key={stepIndex}
-                                          className="flex items-start gap-2 text-xs text-gray-600"
-                                          initial={{ opacity: 0, x: -10 }}
-                                          animate={{
-                                            opacity: 1,
-                                            x: 0
-                                          }}
-                                          transition={{ duration: 0.3, delay: stepIndex * 0.4 }}
-                                        >
-                                          <motion.div
-                                            className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 flex-shrink-0"
-                                            animate={{
-                                              scale: [1, 1.3, 1],
-                                              opacity: [0.5, 1, 0.5]
-                                            }}
-                                            transition={{ duration: 1, repeat: Infinity }}
-                                          />
-                                          <span className="leading-relaxed">{step}</span>
-                                        </motion.div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="relative group/message">
-                                  <div
-                                    className={`rounded-2xl px-4 py-3 shadow-sm ${isUserMessage
-                                      ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
-                                      : "bg-white border border-gray-200 text-gray-800"
-                                      }`}
-                                  >
-                                    {msg.isVoice && (
-                                      <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/20">
-                                        <Mic className="w-3.5 h-3.5" />
-                                        <span className="text-xs font-medium opacity-90">Voice Message</span>
-                                      </div>
-                                    )}
-
-                                    {/* Message Actions */}
-                                    <div className={`absolute ${isUserMessage ? 'left-2' : 'right-2'} -top-2 opacity-0 group-hover/message:opacity-100 transition-opacity z-10`}>
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-6 w-6 p-0 bg-white shadow-md hover:bg-gray-100"
-                                          >
-                                            <MoreVertical className="h-3 w-3" />
-                                          </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align={isUserMessage ? "end" : "start"}>
-                                          <DropdownMenuItem onClick={() => handleCopyMessage(msg.content)}>
-                                            <Copy className="w-4 h-4 mr-2" />
-                                            Copy
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem
-                                            onClick={() => handleDeleteMessage(msg.id)}
-                                            className="text-red-600"
-                                          >
-                                            <Trash2 className="w-4 h-4 mr-2" />
-                                            Delete
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
-                                    </div>
-
-                                    {/* Message Content */}
-                                    <div className="prose prose-sm max-w-none">
-                                      {msg.type === "agent" || msg.type === "system" ? (
-                                        <ReactMarkdown
-                                          remarkPlugins={[remarkGfm]}
-                                          className="text-sm"
-                                          components={{
-                                            p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                                            ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
-                                            ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-                                            li: ({ children }) => <li className="ml-2">{children}</li>,
-                                            code: ({ children, className }) => {
-                                              const isInline = !className
-                                              return isInline ? (
-                                                <code className="bg-gray-200 px-1.5 py-0.5 rounded text-xs font-mono text-gray-800">{children}</code>
-                                              ) : (
-                                                <code className="block bg-gray-200 p-2 rounded text-xs font-mono text-gray-800 overflow-x-auto mb-2 border border-gray-300">{children}</code>
-                                              )
-                                            },
-                                            pre: ({ children }) => <pre className="bg-gray-200 p-2 rounded text-xs font-mono text-gray-800 overflow-x-auto mb-2 border border-gray-300">{children}</pre>,
-                                            a: ({ children, href }) => (
-                                              <a href={href} target="_blank" rel="noopener noreferrer" className="underline text-green-600 hover:text-green-700">
-                                                {children}
-                                              </a>
-                                            ),
-                                            strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
-                                            em: ({ children }) => <em className="italic text-gray-700">{children}</em>,
-                                            h1: ({ children }) => <h1 className="text-lg font-bold text-gray-900 mb-2">{children}</h1>,
-                                            h2: ({ children }) => <h2 className="text-base font-bold text-gray-900 mb-2">{children}</h2>,
-                                            h3: ({ children }) => <h3 className="text-sm font-bold text-gray-900 mb-1">{children}</h3>,
-                                            blockquote: ({ children }) => <blockquote className="border-l-4 border-green-500 pl-3 italic text-gray-700 my-2">{children}</blockquote>,
-                                          }}
-                                        >
-                                          {msg.content}
-                                        </ReactMarkdown>
-                                      ) : (
-                                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                                      )}
-                                    </div>
-
-                                    {/* Display generated images */}
-                                    {msg.imageUrl && (
-                                      <div className="mt-3 rounded-lg overflow-hidden border border-gray-300 max-w-md">
-                                        <img
-                                          src={msg.imageUrl}
-                                          alt="Generated image"
-                                          className="w-full h-auto"
-                                          onError={(e) => {
-                                            // Fallback to link if image fails to load
-                                            e.currentTarget.style.display = 'none'
-                                            const link = e.currentTarget.nextElementSibling as HTMLElement
-                                            if (link) link.style.display = 'block'
-                                          }}
-                                        />
-                                        <a
-                                          href={msg.imageUrl}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="hidden text-green-600 hover:text-green-700 flex items-center space-x-2 p-2 bg-gray-50 text-sm"
-                                        >
-                                          <span>View Image</span>
-                                        </a>
-                                      </div>
-                                    )}
-
-                                    <p className={`text-xs mt-1.5 ${isUserMessage
-                                      ? "text-white/70"
-                                      : "text-gray-500"
-                                      }`}>
-                                      {msg.timestamp.toLocaleTimeString()}
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
+                        {/* Image Preview */}
+                        {msg.imageUrl && (
+                          <div className="mt-5 rounded-[2rem] overflow-hidden border border-white/10 max-w-md shadow-2xl group relative">
+                            <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Button variant="outline" size="sm" asChild className="rounded-full bg-white/10 backdrop-blur-md border-white/20 text-white">
+                                <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">View Original</a>
+                              </Button>
                             </div>
                           </div>
                         )}
                       </div>
-                    )
-                  })
-                )}
-                {isLoading && selectedAgent && (
-                  <div className="flex justify-start items-center gap-2">
-                    <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${selectedAgent.color === "bg-orange-500" ? "from-orange-400 to-orange-600" :
-                      selectedAgent.color === "bg-purple-500" ? "from-purple-400 to-purple-600" :
-                        selectedAgent.color === "bg-amber-500" ? "from-amber-400 to-amber-600" :
-                          selectedAgent.color === "bg-pink-500" ? "from-pink-400 to-pink-600" :
-                            selectedAgent.color === "bg-green-500" ? "from-green-400 to-green-600" :
-                              selectedAgent.color === "bg-blue-500" ? "from-blue-400 to-blue-600" :
-                                selectedAgent.color === "bg-indigo-500" ? "from-indigo-400 to-indigo-600" :
-                                  "from-green-400 to-green-600"
-                      } flex items-center justify-center text-white text-xs font-bold shadow-md`}>
-                      {selectedAgent.name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
-                      <div className="flex space-x-1.5">
-                        {[0, 1, 2].map((i) => (
-                          <motion.div
-                            key={i}
-                            className="w-2 h-2 bg-green-500 rounded-full"
-                            animate={{
-                              y: [0, -6, 0],
-                              opacity: [0.5, 1, 0.5]
-                            }}
-                            transition={{
-                              duration: 1.2,
-                              repeat: Infinity,
-                              delay: i * 0.15,
-                            }}
-                          />
-                        ))}
+
+                      <div className="mt-2 px-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-2">
+                        <span className="text-[10px] text-white/10 font-bold tracking-widest uppercase">
+                          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        <div className="flex items-center space-x-1">
+                          <Button variant="ghost" size="icon" className="h-6 w-6 text-white/10 hover:text-indigo-400 hover:bg-transparent" onClick={() => handleCopyMessage(msg.content)}>
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Chat Input Area */}
-              <div className="bg-white border-t border-gray-200 px-4 py-4 space-y-2">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  {/* File Upload */}
-                  <label htmlFor="file-upload" className="flex-shrink-0">
-                    <Button variant="outline" size="sm" asChild disabled={userAgents.length === 0} className="h-9 w-9 p-0">
-                      <span>
-                        <Upload className="w-4 h-4" />
-                      </span>
-                    </Button>
-                  </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    className="hidden"
-                    onChange={handleFileUpload}
-                  />
-
-                  {/* Agent Selector */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" disabled={userAgents.length === 0} className="h-9 px-2 sm:px-3">
-                        <Bot className="w-4 h-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Agents</span>
-                        <ChevronDown className="w-4 h-4 sm:ml-2" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-72 sm:w-80">
-                      <DropdownMenuLabel>Select Agent</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {userAgents.length > 0 ? (
-                        userAgents.map((userAgent) => {
-                          const agent = agents.find(a => a.id === userAgent.agent_id)
-                          if (!agent) return null
-                          return (
-                            <DropdownMenuItem
-                              key={agent.id}
-                              onClick={() => handleAgentSwitch(agent.id)}
-                              className="flex items-center gap-3 p-3"
-                            >
-                              <div className={`w-8 h-8 rounded-full ${agent.color} flex items-center justify-center flex-shrink-0`}>
-                                <agent.icon className="w-4 h-4 text-white" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">{agent.name}</p>
-                                <p className="text-xs text-gray-500 truncate">{agent.title}</p>
-                              </div>
-                            </DropdownMenuItem>
-                          )
-                        })
-                      ) : (
-                        <DropdownMenuItem disabled className="text-center text-gray-500">
-                          No agents selected. Please select agents first.
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="flex items-center gap-2 p-3"
-                        onClick={() => handleIntercommunicate()}
-                        disabled={!canUseIntercommunication}
-                      >
-                        <Network className="w-4 h-4 flex-shrink-0" />
-                        <span className="text-sm">
-                          {intercommunicationEnabled ? "Disable Intercommunication" : "Enable Intercommunication"}
-                        </span>
-                        {!canUseIntercommunication && (
-                          <Badge variant="outline" className="ml-auto text-xs flex-shrink-0">
-                            Upgrade Required
-                          </Badge>
-                        )}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  {/* Message Input */}
-                  <div className="flex-1 relative">
-                    <Input
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder={isRecording ? "Listening..." : userAgents.length === 0 ? "Select agents first..." : "Type a message or use voice..."}
-                      className="pr-20 sm:pr-24 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      disabled={isLoading || userAgents.length === 0}
-                    />
-                    {isRecording && (
-                      <motion.div
-                        className="absolute right-12 top-1/2 -translate-y-1/2"
-                        animate={{ scale: [1, 1.2, 1] }}
-                        transition={{ duration: 1, repeat: Infinity }}
-                      >
-                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      </motion.div>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={isRecording ? stopRecording : startRecording}
-                      disabled={userAgents.length === 0}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0 ${isRecording
-                        ? "bg-red-500 text-white hover:bg-red-600"
-                        : "hover:bg-gray-100"
-                        }`}
-                    >
-                      {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-                    </Button>
-                  </div>
-
-                  {/* Send Button */}
-                  <motion.button
-                    type="button"
-                    onClick={handleSendMessage}
-                    disabled={isLoading || !message.trim() || userAgents.length === 0}
-                    className={`h-9 px-3 sm:px-4 rounded-xl transition-all duration-300 flex items-center justify-center flex-shrink-0 ${isRecording
-                      ? "bg-red-500 text-white shadow-lg shadow-red-500/50"
-                      : "bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30"
-                      } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {isRecording ? (
-                      <Mic className="w-5 h-5" />
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="hidden sm:inline ml-2">Send</span>
-                      </>
-                    )}
-                  </motion.button>
                 </div>
-
-                {/* Voice Status Indicator */}
-                {isRecording && (
+              )
+            })
+          )}
+          {isLoading && !chatMessages.some((m: any) => m.type === "thinking") && (
+            <div className="flex justify-start mb-10 pl-1">
+              <div className="h-10 w-10 rounded-2xl flex items-center justify-center border border-white/10 bg-[#16171d] animate-pulse">
+                <Bot className="h-5 w-5 text-indigo-400" />
+              </div>
+              <div className="ml-4 flex items-center space-x-1.5">
+                {[0, 1, 2].map(i => (
                   <motion.div
-                    className="flex items-center justify-center gap-2 text-red-600 text-xs font-medium"
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                  >
-                    <motion.div
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    >
-                      <Mic className="w-4 h-4" />
-                    </motion.div>
-                    <span>Recording voice message...</span>
-                  </motion.div>
-                )}
-
-                <div className="flex items-center justify-center pt-2">
-                  <p className="text-xs text-gray-500 text-center">
-                    The AI can make mistakes sometimes
-                  </p>
-                </div>
+                    key={i}
+                    className="w-1.5 h-1.5 bg-indigo-500/40 rounded-full"
+                    animate={{ opacity: [0.3, 1, 0.3], y: [0, -4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                  />
+                ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          )}
+          <div ref={messagesEndRef} className="h-10" />
         </div>
-
       </div>
 
-      {/* Tasks Section Removed - Chat tab should fill the space fully */}
+      {/* Floating Action Bar */}
+      <div className="fixed bottom-10 left-0 right-0 z-50 px-6">
+        <div className="max-w-3xl mx-auto relative">
+          {/* Action Buttons Container */}
+          <div className="bg-[#16171d]/90 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] p-3 shadow-[0_30px_60px_rgba(0,0,0,0.6)] transition-all duration-300 hover:border-white/20 focus-within:border-indigo-500/40 focus-within:shadow-[0_0_50px_rgba(79,70,229,0.1)]">
+            <div className="flex items-center space-x-3">
+              {/* Agent Quick Select */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-white/30 hover:text-white/70 hover:bg-white/5 rounded-[2rem] h-12 w-12 flex-shrink-0 transition-all active:scale-95 group">
+                    <PlusCircle className="h-6 w-6 transition-transform group-hover:rotate-90" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" side="top" sideOffset={15} className="w-72 bg-[#16171d]/95 backdrop-blur-xl border-white/10 text-white p-2 rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+                  <DropdownMenuLabel className="text-gray-500 text-[10px] uppercase tracking-[0.2em] font-black px-4 py-3 border-b border-white/5 mb-2">Neural Link: Select Unit</DropdownMenuLabel>
+                  <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                    {userAgents.map((ua: any) => {
+                      const a = agents.find(ag => ag.id === ua.agent_id)
+                      if (!a) return null
+                      const isSelected = selectedAgent?.id === a.id
+                      return (
+                        <DropdownMenuItem key={a.id} onClick={() => handleAgentSwitch(a.id)} className={cn(
+                          "rounded-2xl flex items-center space-x-4 p-3 mb-1 cursor-pointer transition-all",
+                          isSelected ? "bg-indigo-600/10 border border-indigo-500/20" : "hover:bg-white/5 border border-transparent"
+                        )}>
+                          <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/10", isSelected && "border-indigo-500/30")}>
+                            <a.icon className={cn("h-5 w-5", isSelected ? "text-indigo-400" : "text-gray-400")} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={cn("font-bold text-sm truncate", isSelected ? "text-white" : "text-gray-300")}>{a.name}</p>
+                            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">{a.title}</p>
+                          </div>
+                          {isSelected && <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse ring-4 ring-indigo-500/10" />}
+                        </DropdownMenuItem>
+                      )
+                    })}
+                  </div>
+                  <DropdownMenuSeparator className="bg-white/5 my-2" />
+                  <DropdownMenuItem onClick={() => handleIntercommunicate()} className="rounded-xl flex items-center space-x-3 p-3 hover:bg-indigo-600/10 text-indigo-400 border border-transparent hover:border-indigo-500/20">
+                    <Network className="h-4 w-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Inter-Unit Link</span>
+                    {intercommunicationEnabled && (
+                      <div className="ml-auto bg-indigo-500 text-white text-[10px] px-2.5 py-0.5 rounded-full font-semibold">
+                        Active
+                      </div>
+                    )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Message Input */}
+              <div className="flex-1 relative">
+                <Input
+                  value={message}
+                  onChange={(e: any) => setMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={isRecording ? "Listening..." : "How can I help you?"}
+                  className="bg-transparent border-0 focus-visible:ring-0 text-white placeholder:text-white/20 h-12 text-lg px-2 font-medium"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center space-x-2 pr-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={isRecording ? stopRecording : startRecording}
+                  className={cn(
+                    "text-white/30 hover:text-white/70 hover:bg-white/5 rounded-[2rem] h-12 w-12 transition-all active:scale-90",
+                    isRecording && "text-red-500 bg-red-500/10 animate-pulse"
+                  )}
+                >
+                  <Mic className="h-6 w-6" />
+                </Button>
+
+                {/* File Upload Label/Button Integration */}
+                <label htmlFor="file-upload-home" className="cursor-pointer">
+                  <div className="text-white/30 hover:text-white/70 hover:bg-white/5 rounded-[2rem] h-12 w-12 flex items-center justify-center transition-all active:scale-95">
+                    <Paperclip className="h-6 w-6" />
+                  </div>
+                  <input
+                    id="file-upload-home"
+                    type="file"
+                    className="hidden"
+                    onChange={(e: any) => handleFileUpload(e)}
+                  />
+                </label>
+
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={isLoading || !message.trim()}
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-[1.8rem] h-12 px-8 shadow-xl shadow-indigo-600/30 transition-all active:scale-95 font-black uppercase tracking-widest text-xs"
+                >
+                  {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Dispatch"}
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Subtle Disclaimer Footer */}
+          <div className="mt-6 flex justify-center opacity-30 select-none">
+            <span className="text-[9px] uppercase tracking-[0.4em] font-black text-white flex items-center space-x-3">
+              <Shield className="h-3 w-3" />
+              <span>Agent47 Neural Processor : : Version 2.0.47</span>
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

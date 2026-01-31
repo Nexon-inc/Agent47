@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from ..platforms.oauth_service import get_oauth_service
 from ..integrations.integration_manager import IntegrationManager
-from ..database.models import User, UserProfile
+from ..database.models import User, UserProfile, Team, TeamMember
 
 logger = logging.getLogger(__name__)
 
@@ -131,9 +131,55 @@ async def get_user_profile_for_agent(user_id: int, db: AsyncSession) -> Optional
         return None
 
 
+async def get_team_info_for_agent(user_id: int, db: AsyncSession) -> Optional[Dict[str, Any]]:
+    """
+    Fetch user's team information for agent use
+    Returns team details and member list
+    """
+    try:
+        # Get team where user is a member
+        result = await db.execute(
+            select(Team, TeamMember.role).join(
+                TeamMember, Team.id == TeamMember.team_id
+            ).where(TeamMember.user_id == user_id, TeamMember.is_active == True)
+        )
+        team_data = result.first()
+        
+        if not team_data:
+            return None
+            
+        team, user_role = team_data
+        
+        # Get all members of this team
+        members_result = await db.execute(
+            select(User.full_name, TeamMember.role, TeamMember.is_active).join(
+                TeamMember, User.id == TeamMember.user_id
+            ).where(TeamMember.team_id == team.id)
+        )
+        members = []
+        for row in members_result:
+            members.append({
+                "name": row[0],
+                "role": row[1],
+                "active": row[2]
+            })
+            
+        return {
+            "team_id": team.id,
+            "team_name": team.name,
+            "team_description": team.description,
+            "user_role_in_team": user_role,
+            "total_members": len(members),
+            "members": members
+        }
+    except Exception as e:
+        logger.error(f"Failed to fetch team info for agent: {e}")
+        return None
+
+
 async def get_all_user_resources_for_agent(user_id: int, db: AsyncSession) -> Dict[str, Any]:
     """
-    Fetch all user resources (platforms, integrations, profile) in one call
+    Fetch all user resources (platforms, integrations, profile, team) in one call
     Convenient function for agents to get everything they need
     """
     try:
@@ -146,17 +192,22 @@ async def get_all_user_resources_for_agent(user_id: int, db: AsyncSession) -> Di
         # Get profile
         profile = await get_user_profile_for_agent(user_id, db) or {}
         
+        # Get team info
+        team_info = await get_team_info_for_agent(user_id, db) or {}
+        
         return {
             "platforms": platforms,
             "integrations": integrations,
             "profile": profile,
+            "team": team_info,
             "summary": {
                 "total_platforms": len(platforms),
                 "total_integrations": len(integrations),
-                "has_website": bool(profile.get("website_url"))
+                "has_website": bool(profile.get("website_url")),
+                "has_team": bool(team_info.get("team_id"))
             }
         }
     except Exception as e:
         logger.error(f"Failed to fetch user resources for agent: {e}")
-        return {"platforms": [], "integrations": [], "profile": {}, "summary": {}}
+        return {"platforms": [], "integrations": [], "profile": {}, "team": {}, "summary": {}}
 

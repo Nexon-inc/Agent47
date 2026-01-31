@@ -386,9 +386,9 @@ export default function TeamChatTab() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#36393f] text-gray-100">
+    <div className="flex flex-col h-full bg-[#0b0d11] text-gray-100 font-sans selection:bg-indigo-500/30">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 bg-[#2f3136]">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#0b0d11]/80 backdrop-blur-md sticky top-0 z-10">
         <div className="flex items-center space-x-2">
           <Hash className="h-5 w-5 text-gray-400" />
           <h2 className="text-lg font-semibold">team-chat</h2>
@@ -400,232 +400,238 @@ export default function TeamChatTab() {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <MessageSquare className="h-12 w-12 text-gray-600 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-300 mb-2">No messages yet</h3>
-            <p className="text-gray-500 mb-4">
-              Start a conversation by typing a message or use /agent-name to call an agent
-            </p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {AVAILABLE_AGENTS.slice(0, 3).map((agent) => (
-                <Button
-                  key={agent.key}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleAgentSelect(agent)}
-                  className="bg-[#2f3136] border-gray-600 text-gray-300 hover:bg-[#40444b]"
-                >
-                  <Bot className="h-4 w-4 mr-2" />
-                  {agent.name}
-                </Button>
-              ))}
+      <div className="flex-1 overflow-y-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto space-y-8">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
             </div>
-          </div>
-        ) : (
-          messages.map((message, index) => {
-            const isAgent = !!message.agent_key
-            const agentInfo = getAgentInfo(message.agent_key)
-            const isSameUser = index > 0 && messages[index - 1].user_id === message.user_id
-            const isSameAgent = index > 0 &&
-              messages[index - 1].agent_key === message.agent_key &&
-              messages[index - 1].agent_key !== null
+          ) : messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <MessageSquare className="h-12 w-12 text-gray-600 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-300 mb-2">No messages yet</h3>
+              <p className="text-gray-500 mb-4">
+                Start a conversation by typing a message or use /agent-name to call an agent
+              </p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {AVAILABLE_AGENTS.slice(0, 3).map((agent) => (
+                  <Button
+                    key={agent.key}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleAgentSelect(agent)}
+                    className="bg-[#2f3136] border-gray-600 text-gray-300 hover:bg-[#40444b]"
+                  >
+                    <Bot className="h-4 w-4 mr-2" />
+                    {agent.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            messages.map((message, index) => {
+              const isAgent = !!message.agent_key
+              const agentInfo = getAgentInfo(message.agent_key)
+              const isUser = message.user_id === user?.id && !isAgent
+              const isSameAuthor = index > 0 &&
+                (isAgent ? messages[index - 1].agent_key === message.agent_key : messages[index - 1].user_id === message.user_id) &&
+                !messages[index - 1].agent_key === !message.agent_key
 
-            return (
-              <div
-                key={message.id}
-                className={cn(
-                  "flex items-start space-x-3 group hover:bg-[#2f3136]/50 rounded-lg p-2 -mx-2",
-                  isSameUser && !isAgent && "mt-1",
-                  isSameAgent && "mt-1"
-                )}
-              >
-                {/* Avatar */}
-                {(!isSameUser && !isAgent) || (!isSameAgent && isAgent) ? (
-                  <Avatar className="h-10 w-10 flex-shrink-0">
-                    {isAgent ? (
-                      <AvatarFallback className={cn("bg-[#2f3136] border-2", agentInfo?.color.replace("text-", "border-"))}>
-                        <Bot className={cn("h-5 w-5", agentInfo?.color)} />
-                      </AvatarFallback>
-                    ) : (
-                      <>
-                        <AvatarImage src={message.avatar_url} />
-                        <AvatarFallback className="bg-[#5865f2]">
-                          {message.user_name.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </>
-                    )}
-                  </Avatar>
-                ) : (
-                  <div className="w-10" /> // Spacer for same user messages
-                )}
-
-                {/* Message Content */}
-                <div className="flex-1 min-w-0">
-                  {(!isSameUser && !isAgent) || (!isSameAgent && isAgent) ? (
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className={cn("font-semibold", isAgent && agentInfo?.color)}>
-                        {isAgent ? agentInfo?.name || message.agent_key : message.user_name}
-                      </span>
-                      {isAgent && (
-                        <Badge variant="outline" className="text-xs bg-[#2f3136] border-gray-600">
-                          <Bot className="h-3 w-3 mr-1" />
-                          Agent
-                        </Badge>
-                      )}
-                      <span className="text-xs text-gray-400">{formatTime(message.created_at)}</span>
-                    </div>
-                  ) : null}
-
-                  <div className="text-gray-300 whitespace-pre-wrap break-words">
-                    {message.content}
-                  </div>
-
-                  {/* Display generated images */}
-                  {message.file_url && (
-                    <div className="mt-3">
-                      {/* Check if it's an image URL */}
-                      {message.file_url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) ||
-                        message.file_url.includes('storage') ||
-                        message.file_url.includes('supabase') ? (
-                        <div className="rounded-lg overflow-hidden border border-gray-600 max-w-md">
-                          <img
-                            src={message.file_url}
-                            alt="Generated image"
-                            className="w-full h-auto"
-                            onError={(e) => {
-                              // Fallback to link if image fails to load
-                              e.currentTarget.style.display = 'none'
-                              const link = e.currentTarget.nextElementSibling as HTMLElement
-                              if (link) link.style.display = 'block'
-                            }}
-                          />
-                          <a
-                            href={message.file_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hidden text-blue-400 hover:text-blue-300 flex items-center space-x-2 p-2 bg-[#2f3136]"
-                          >
-                            <Paperclip className="h-4 w-4" />
-                            <span>View Image</span>
-                          </a>
+              return (
+                <div
+                  key={message.id}
+                  className={cn(
+                    "flex w-full mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300",
+                    isUser ? "justify-end" : "justify-start"
+                  )}
+                >
+                  <div className={cn(
+                    "flex items-start max-w-[85%] sm:max-w-[75%] space-x-3",
+                    isUser && "flex-row-reverse space-x-reverse"
+                  )}>
+                    {/* Avatar */}
+                    <div className="flex-shrink-0 mt-1">
+                      {isAgent ? (
+                        <div className={cn(
+                          "h-9 w-9 rounded-xl flex items-center justify-center border border-white/10 shadow-lg bg-[#16171d]",
+                          agentInfo?.color.replace("text-", "bg-").replace("-500", "-500/10")
+                        )}>
+                          <span className="text-xl">{agentInfo?.icon}</span>
                         </div>
                       ) : (
-                        <a
-                          href={message.file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-400 hover:text-blue-300 flex items-center space-x-2"
-                        >
-                          <Paperclip className="h-4 w-4" />
-                          <span>{message.file_name || "Attachment"}</span>
-                        </a>
+                        <Avatar className="h-9 w-9 rounded-xl border border-white/10 shadow-lg">
+                          <AvatarImage src={message.avatar_url} />
+                          <AvatarFallback className="bg-indigo-600 text-white font-bold text-xs">
+                            {message.user_name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                       )}
                     </div>
-                  )}
 
-                  {message.audio_url && (
-                    <div className="mt-2">
-                      <audio controls className="w-full max-w-md">
-                        <source src={message.audio_url} />
-                      </audio>
+                    {/* Bubble & Content */}
+                    <div className={cn(
+                      "flex flex-col",
+                      isUser ? "items-end" : "items-start"
+                    )}>
+                      {!isSameAuthor && (
+                        <div className="flex items-center space-x-2 mb-1.5 px-1">
+                          <span className={cn(
+                            "text-sm font-semibold tracking-tight",
+                            isAgent ? "text-white" : "text-gray-300"
+                          )}>
+                            {isAgent ? agentInfo?.name : message.user_name}
+                          </span>
+                          {isAgent && (
+                            <div className="flex items-center space-x-1 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-md">
+                              <Bot className="h-3 w-3 text-indigo-400" />
+                              <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Assistant</span>
+                            </div>
+                          )}
+                          <span className="text-[10px] text-white/20 font-medium">{formatTime(message.created_at)}</span>
+                        </div>
+                      )}
+
+                      <div className={cn(
+                        "px-4 py-3 rounded-2xl text-[15px] leading-relaxed",
+                        isUser
+                          ? "bg-[#1d1e24] text-gray-100 border border-white/5 rounded-tr-none shadow-xl"
+                          : "bg-transparent text-gray-200 rounded-tl-none"
+                      )}>
+                        <div className="whitespace-pre-wrap break-words">
+                          {message.content}
+                        </div>
+
+                        {/* File Attachments */}
+                        {message.file_url && (
+                          <div className="mt-3">
+                            {message.file_url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) ||
+                              message.file_url.includes('storage') ||
+                              message.file_url.includes('supabase') ? (
+                              <div className="rounded-xl overflow-hidden border border-white/10 max-w-md shadow-2xl">
+                                <img
+                                  src={message.file_url}
+                                  alt="Attached image"
+                                  className="w-full h-auto transition-transform hover:scale-[1.02]"
+                                />
+                              </div>
+                            ) : (
+                              <a
+                                href={message.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center space-x-2 px-3 py-2 bg-white/5 border border-white/10 rounded-xl text-indigo-400 hover:text-indigo-300 hover:bg-white/10 transition-all"
+                              >
+                                <Paperclip className="h-4 w-4" />
+                                <span className="text-sm font-medium">{message.file_name || "Attachment"}</span>
+                              </a>
+                            )}
+                          </div>
+                        )}
+
+                        {message.audio_url && (
+                          <div className="mt-3 bg-white/5 p-2 rounded-xl border border-white/10">
+                            <audio controls className="h-8 max-w-full">
+                              <source src={message.audio_url} />
+                            </audio>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            )
-          })
-        )}
-        <div ref={messagesEndRef} />
+              )
+            })
+          )}
+        </div>
+        <div ref={messagesEndRef} className="h-24" />
       </div>
 
-      {/* Input Area */}
-      <div className="px-4 py-3 border-t border-gray-700 bg-[#2f3136]">
-        {/* Agent Autocomplete */}
-        {showAgentAutocomplete && filteredAgents.length > 0 && (
-          <div className="mb-2 bg-[#202225] border border-gray-600 rounded-lg overflow-hidden shadow-xl">
-            {filteredAgents.map((agent, index) => (
-              <button
-                key={agent.key}
-                onClick={() => handleAgentSelect(agent)}
-                className={cn(
-                  "w-full flex items-center space-x-3 px-4 py-2 text-left hover:bg-[#2f3136] transition-colors",
-                  index === selectedAgentIndex && "bg-[#2f3136]"
-                )}
-              >
-                <div className={cn("text-2xl", agent.color)}>{agent.icon}</div>
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-semibold text-gray-200">{agent.name}</span>
-                    <Badge variant="outline" className="text-xs bg-[#2f3136] border-gray-600">
-                      <Bot className="h-3 w-3 mr-1" />
-                      Agent
-                    </Badge>
+      {/* Floating Input Area */}
+      <div className="fixed bottom-8 left-0 right-0 z-20 px-4">
+        <div className="max-w-3xl mx-auto">
+          {/* Agent Autocomplete */}
+          {showAgentAutocomplete && filteredAgents.length > 0 && (
+            <div className="mb-4 bg-[#16171d] border border-white/10 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-xl">
+              {filteredAgents.map((agent, index) => (
+                <button
+                  key={agent.key}
+                  onClick={() => handleAgentSelect(agent)}
+                  className={cn(
+                    "w-full flex items-center space-x-3 px-5 py-3 text-left hover:bg-white/5 transition-colors",
+                    index === selectedAgentIndex && "bg-white/5"
+                  )}
+                >
+                  <div className={cn("text-2xl", agent.color)}>{agent.icon}</div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-semibold text-gray-200">{agent.name}</span>
+                      <Badge variant="outline" className="text-[10px] uppercase tracking-wider bg-white/5 border-white/10 text-gray-400">
+                        Agent
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-400">{agent.description}</p>
                   </div>
-                  <p className="text-sm text-gray-400">{agent.description}</p>
-                </div>
-                <span className="text-xs text-gray-500">/{agent.key}</span>
-              </button>
-            ))}
-          </div>
-        )}
+                  <span className="text-xs font-mono text-gray-500">/{agent.key}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
-        <div className="flex items-end space-x-2">
-          <div className="flex-1 relative">
-            <Input
-              ref={inputRef}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyDown={handleKeyPress}
-              placeholder={
-                showAgentAutocomplete
-                  ? "Select an agent or continue typing..."
-                  : "Message #team-chat or /agent-name to call an agent"
-              }
-              className="bg-[#40444b] border-gray-600 text-gray-100 placeholder:text-gray-500 focus:border-gray-500"
-            />
+          <div className="bg-[#16171d]/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl flex items-end space-x-2">
+            <div className="flex-1 relative">
+              <Input
+                ref={inputRef}
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder={
+                  showAgentAutocomplete
+                    ? "Select an agent..."
+                    : "Message #team-chat or /agent-name"
+                }
+                className="bg-transparent border-0 focus-visible:ring-0 text-gray-100 placeholder:text-white/20 h-12 text-base px-4"
+              />
+            </div>
+            <div className="flex items-center pb-1 pr-1 space-x-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white/40 hover:text-white/70 hover:bg-white/5 rounded-xl h-10 w-10 transition-all"
+              >
+                <Paperclip className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "text-white/40 hover:text-white/70 hover:bg-white/5 rounded-xl h-10 w-10 transition-all",
+                  isRecording && "text-red-500 bg-red-500/10"
+                )}
+                onClick={() => setIsRecording(!isRecording)}
+              >
+                <Mic className="h-5 w-5" />
+              </Button>
+              <Button
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isSending}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl h-10 w-10 p-0 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
+              >
+                {isSending ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Send className="h-5 w-5" />
+                )}
+              </Button>
+            </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-gray-400 hover:text-gray-300 hover:bg-[#40444b]"
-          >
-            <Paperclip className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-gray-400 hover:text-gray-300 hover:bg-[#40444b]"
-            onClick={() => setIsRecording(!isRecording)}
-          >
-            <Mic className={cn("h-5 w-5", isRecording && "text-red-500")} />
-          </Button>
-          <Button
-            onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || isSending}
-            className="bg-[#5865f2] hover:bg-[#4752c4] text-white"
-          >
-            {isSending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
 
-        {/* Help Text */}
-        <div className="mt-2 text-xs text-gray-500">
-          <span className="flex items-center space-x-1">
-            <Sparkles className="h-3 w-3" />
-            <span>
-              Type <code className="bg-[#40444b] px-1 py-0.5 rounded">/agent-name</code> to call an agent
+          {/* Help Tooltip */}
+          <div className="mt-3 text-center">
+            <span className="inline-flex items-center space-x-2 text-[10px] uppercase tracking-widest text-white/20 font-medium">
+              <Sparkles className="h-3 w-3" />
+              <span>Type /agent-name to call an assistant</span>
             </span>
-          </span>
+          </div>
         </div>
       </div>
     </div>

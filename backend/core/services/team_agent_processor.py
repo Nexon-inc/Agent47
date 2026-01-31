@@ -108,13 +108,53 @@ class TeamAgentProcessor:
             except Exception as e:
                 logger.warning(f"Failed to get team owner tier: {e}")
             
+            # Get detailed user resources (platforms, integrations, profile, team)
+            user_resources = {}
+            try:
+                from core.utils.agent_user_data import get_all_user_resources_for_agent
+                user_resources = await get_all_user_resources_for_agent(request.team_member_id, session)
+            except Exception as e:
+                logger.warning(f"Failed to fetch user resources for context: {e}")
+
+            # Get chat history (last 10 messages)
+            chat_history = []
+            try:
+                from sqlalchemy import select
+                from ..database.models import TeamChatMessage
+                history_result = await session.execute(
+                    select(TeamChatMessage).where(
+                        TeamChatMessage.team_id == request.team_id,
+                        # Filter for messages involving this agent or user
+                        # (simplified: just last 10 messages in the team chat)
+                        TeamChatMessage.deleted_at.is_(None)
+                    ).order_by(TeamChatMessage.created_at.desc()).limit(10)
+                )
+                history_messages = history_result.scalars().all()
+                # Format history for LLM
+                for msg in reversed(history_messages):
+                    chat_history.append({
+                        "role": "assistant" if msg.agent_key else "user",
+                        "content": msg.content,
+                        "name": msg.agent_key if msg.agent_key else "User"
+                    })
+            except Exception as e:
+                logger.warning(f"Failed to fetch chat history: {e}")
+
+            # Prepare enriched request data
+            enriched_request_data = {
+                **(request.request_data or {}),
+                "history": chat_history,
+                "user_resources": user_resources
+            }
+
             # Route to appropriate agent service with team owner's tier
             agent_result = await self._route_to_agent(
                 agent_key=request.agent_key,
                 request_type=request.request_type,
-                request_data=request.request_data,
+                request_data=enriched_request_data,
                 team_member_id=request.team_member_id,
-                team_owner_tier=team_owner_tier  # Pass team owner's tier
+                team_owner_tier=team_owner_tier,
+                db=session  # Pass database session
             )
             
             if not agent_result.get("success"):
@@ -174,7 +214,8 @@ class TeamAgentProcessor:
         request_type: str,
         request_data: Dict[str, Any],
         team_member_id: int,
-        team_owner_tier = None
+        team_owner_tier = None,
+        db = None
     ) -> Dict[str, Any]:
         """Route request to appropriate agent service"""
         try:
@@ -186,12 +227,15 @@ class TeamAgentProcessor:
                 result = await service.process_chat_message(
                     user_id=team_member_id,
                     message=request_data.get("message", ""),
-                    context=request_data.get("context", {})
+                    session_id=request_data.get("session_id"),
+                    db=db,
+                    history=request_data.get("history"),
+                    user_resources=request_data.get("user_resources")
                 )
                 return {
                     "success": True,
                     "response": result.get("response", ""),
-                    "image_url": result.get("image_url"),  # Include image_url if present
+                    "image_url": result.get("image_url"),
                     "output": result
                 }
             
@@ -202,12 +246,15 @@ class TeamAgentProcessor:
                 result = await service.process_chat_message(
                     user_id=team_member_id,
                     message=request_data.get("message", ""),
-                    session_id=request_data.get("session_id")
+                    session_id=request_data.get("session_id"),
+                    db=db,
+                    history=request_data.get("history"),
+                    user_resources=request_data.get("user_resources")
                 )
                 return {
                     "success": True,
                     "response": result.get("response", ""),
-                    "image_url": result.get("image_url"),  # Include image_url if present
+                    "image_url": result.get("image_url"),
                     "output": result
                 }
             
@@ -215,15 +262,18 @@ class TeamAgentProcessor:
                 from agents.aria.app.services.aria_chat_service import AriaChatService
                 service = AriaChatService()
                 await service.initialize()
-                result = await service.process_message(
+                result = await service.process_chat_message(
                     user_id=team_member_id,
                     message=request_data.get("message", ""),
-                    context=request_data.get("context", {})
+                    session_id=request_data.get("session_id"),
+                    db=db,
+                    history=request_data.get("history"),
+                    user_resources=request_data.get("user_resources")
                 )
                 return {
                     "success": True,
                     "response": result.get("response", ""),
-                    "image_url": result.get("image_url"),  # Include image_url if present
+                    "image_url": result.get("image_url"),
                     "output": result
                 }
             
@@ -231,15 +281,18 @@ class TeamAgentProcessor:
                 from agents.jackie.app.services.jackie_chat_service import JackieChatService
                 service = JackieChatService()
                 await service.initialize()
-                result = await service.process_message(
+                result = await service.process_chat_message(
                     user_id=team_member_id,
                     message=request_data.get("message", ""),
-                    context=request_data.get("context", {})
+                    session_id=request_data.get("session_id"),
+                    db=db,
+                    history=request_data.get("history"),
+                    user_resources=request_data.get("user_resources")
                 )
                 return {
                     "success": True,
                     "response": result.get("response", ""),
-                    "image_url": result.get("image_url"),  # Include image_url if present
+                    "image_url": result.get("image_url"),
                     "output": result
                 }
             
@@ -247,15 +300,18 @@ class TeamAgentProcessor:
                 from agents.joe.app.services.joe_chat_service import JoeChatService
                 service = JoeChatService()
                 await service.initialize()
-                result = await service.process_message(
+                result = await service.process_chat_message(
                     user_id=team_member_id,
                     message=request_data.get("message", ""),
-                    context=request_data.get("context", {})
+                    session_id=request_data.get("session_id"),
+                    db=db,
+                    history=request_data.get("history"),
+                    user_resources=request_data.get("user_resources")
                 )
                 return {
                     "success": True,
                     "response": result.get("response", ""),
-                    "image_url": result.get("image_url"),  # Include image_url if present
+                    "image_url": result.get("image_url"),
                     "output": result
                 }
             
@@ -263,15 +319,18 @@ class TeamAgentProcessor:
                 from agents.purity.app.services.purity_chat_service import PurityChatService
                 service = PurityChatService()
                 await service.initialize()
-                result = await service.process_message(
+                result = await service.process_chat_message(
                     user_id=team_member_id,
                     message=request_data.get("message", ""),
-                    context=request_data.get("context", {})
+                    session_id=request_data.get("session_id"),
+                    db=db,
+                    history=request_data.get("history"),
+                    user_resources=request_data.get("user_resources")
                 )
                 return {
                     "success": True,
                     "response": result.get("response", ""),
-                    "image_url": result.get("image_url"),  # Include image_url if present
+                    "image_url": result.get("image_url"),
                     "output": result
                 }
             
@@ -279,15 +338,18 @@ class TeamAgentProcessor:
                 from agents.shakes.app.services.shakes_chat_service import ShakesChatService
                 service = ShakesChatService()
                 await service.initialize()
-                result = await service.process_message(
+                result = await service.process_chat_message(
                     user_id=team_member_id,
                     message=request_data.get("message", ""),
-                    context=request_data.get("context", {})
+                    session_id=request_data.get("session_id"),
+                    db=db,
+                    history=request_data.get("history"),
+                    user_resources=request_data.get("user_resources")
                 )
                 return {
                     "success": True,
                     "response": result.get("response", ""),
-                    "image_url": result.get("image_url"),  # Include image_url if present
+                    "image_url": result.get("image_url"),
                     "output": result
                 }
             

@@ -447,7 +447,9 @@ class AriaChatService:
         user_id: int,
         message: str,
         session_id: Optional[str] = None,
-        db: AsyncSession = None
+        db: AsyncSession = None,
+        history: Optional[List[Dict[str, Any]]] = None,
+        user_resources: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Process a chat message from the user and provide intelligent response"""
         try:
@@ -832,7 +834,8 @@ class AriaChatService:
                 user_resources_summary = ""
                 try:
                     if db and user_id:
-                        user_resources = await get_all_user_resources_for_agent(user_id, db)
+                        if not user_resources:
+                            user_resources = await get_all_user_resources_for_agent(user_id, db)
                         summary = user_resources.get("summary", {})
                         platforms_count = summary.get("total_platforms", 0)
                         integrations_count = summary.get("total_integrations", 0)
@@ -857,21 +860,33 @@ class AriaChatService:
                         except Exception as e:
                             logger.warning(f"Could not fetch agent configuration: {e}")
                         
+                        team_info = user_resources.get('team', {})
+                        team_members_list = ", ".join([m.get('name', '') for m in team_info.get('members', [])[:5]])
+                        
                         user_resources_summary = f"""
-**USER'S PROFILE & CONNECTED RESOURCES:**
+**USER'S PROFILE & TEAM CONTEXT:**
 - Name: {profile.get('full_name', 'Not provided')}
 - Company: {profile.get('company', profile.get('business_name', 'Not provided'))}
 - Industry: {profile.get('industry', 'Not specified')}
 - Role: {profile.get('role', 'Not specified')}
+- Team: {team_info.get('team_name', 'None')} ({team_info.get('total_members', 0)} members)
+- Team Members: {team_members_list}{'...' if team_info.get('total_members', 0) > 5 else ''}
 - Website URL: {profile.get('website_url', profile.get('business_website', 'Not provided'))}
-- Location: {profile.get('location', 'Not specified')}
-- Business Stage: {profile.get('business_stage', 'Not specified')}
+
+**CONNECTED RESOURCES:**
 - Connected Platforms: {platforms_count} ({', '.join([p.get('display_name', p.get('platform_name', '')) for p in user_resources.get('platforms', [])[:5]])}{'...' if platforms_count > 5 else ''})
 - Connected Integrations: {integrations_count} ({', '.join([i.get('integration_name', '') for i in user_resources.get('integrations', [])[:5]])}{'...' if integrations_count > 5 else ''})
 {custom_instructions_text}
+
+**PLATFORM NAVIGATION GUIDANCE (Use this to help users):**
+- **To connect/manage platforms:** Direct users to the "Platforms" tab in the dashboard.
+- **To manage team members:** Direct users to the "Members" tab in the dashboard.
+- **To view analytics:** Direct users to the "Analytics" section or "Purity" agent.
+- **To schedule posts:** Direct users to the "Calendar" tab or ask YOU to do it!
+
 **IMPORTANT:** 
 - Only use platforms and integrations that the user has actually connected. Do not suggest actions for platforms/integrations that are not connected.
-- Use the user's website URL, company name, industry, and business stage to provide personalized, context-aware responses.
+- Use the user's website URL, company name, industry, and team context to provide personalized, context-aware responses.
 - Reference the user's business information when relevant to make your suggestions more tailored to their specific needs.
 """
                 except Exception as e:
