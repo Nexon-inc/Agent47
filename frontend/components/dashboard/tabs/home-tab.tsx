@@ -54,6 +54,7 @@ import {
   Paperclip,
   Shield,
   PlusCircle,
+  History,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth-store"
@@ -714,11 +715,61 @@ export default function HomeTab() {
     }
   }
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      console.log("File uploaded:", file)
-      // Handle file processing here
+    if (file && selectedAgent) {
+      setIsLoading(true)
+
+      // Add a placeholder message for the file
+      const fileMessage: ChatMessage = {
+        id: Date.now().toString(),
+        type: "user",
+        content: `📁 [File Attached: ${file.name}]`,
+        timestamp: new Date(),
+      }
+      setChatMessages(prev => [...prev, fileMessage])
+
+      try {
+        const formData = new FormData()
+        formData.append("file", file)
+
+        // Agent-specific media upload endpoint
+        // Full path is /api/agents/aria/aria/media/upload
+        const endpoint = `/api/agents/${selectedAgent.id}/${selectedAgent.id}/media/upload`
+
+        const response = await apiClient.post(endpoint, formData)
+
+        if (response.data?.success) {
+          toast({
+            title: "File Uploaded",
+            description: `${file.name} is ready for analysis.`,
+          })
+
+          // Add agent response about receiving the file
+          const agentResponse: ChatMessage = {
+            id: (Date.now() + 1).toString(),
+            type: "agent",
+            content: `I've received and processed your file: **${file.name}**. My neural processors have analyzed its contents and I can now provide insights or take actions based on this data. What would you like me to do?`,
+            timestamp: new Date(),
+            agentId: selectedAgent.id,
+          }
+          setChatMessages(prev => [...prev, agentResponse])
+        }
+      } catch (error) {
+        console.error("File upload failed:", error)
+        toast({
+          title: "Upload Failed",
+          description: "There was an error uploading your file. Please try again.",
+          variant: "destructive",
+        })
+
+        // Remove the file placeholder if it failed
+        setChatMessages(prev => prev.filter(msg => msg.id !== fileMessage.id))
+      } finally {
+        setIsLoading(false)
+        // Reset the input so the same file can be uploaded again
+        e.target.value = ''
+      }
     }
   }
 
@@ -756,9 +807,46 @@ export default function HomeTab() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white text-slate-900 font-sans selection:bg-indigo-500/30 overflow-y-auto">
+    <div className="flex flex-col h-full bg-slate-50 text-slate-900 font-sans selection:bg-indigo-500/30 overflow-hidden">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-[60] bg-slate-50/80 backdrop-blur-xl border-b border-slate-200/60 px-6 py-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            {selectedAgent && (
+              <div className="flex items-center space-x-3">
+                <div className={cn("h-8 w-8 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm bg-white")}>
+                  <selectedAgent.icon className={cn("h-4 w-4", selectedAgent.color.replace('bg-', 'text-'))} />
+                </div>
+                <div>
+                  <h2 className="text-sm font-black text-slate-900 leading-none">{selectedAgent.name}</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Active Unit</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClearChat}
+              className="h-9 w-9 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-white shadow-sm border border-transparent hover:border-slate-200 transition-all"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-white shadow-sm border border-transparent hover:border-slate-200 transition-all"
+            >
+              <History className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {/* Premium Beta Badge */}
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-center mb-8">
         <div className="bg-slate-50 border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">
           <div className="flex items-center gap-2">
             <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
@@ -848,14 +936,9 @@ export default function HomeTab() {
                             "text-sm font-bold tracking-tight",
                             agent ? "text-slate-900" : "text-slate-500"
                           )}>
-                            {agent ? agent.name : isUserMessage ? "You" : "System"}
+                            {agent ? agent.name : isUserMessage ? (user?.username || "You") : "System"}
                           </span>
-                          {agent && (
-                            <div className="flex items-center space-x-1 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg shadow-sm">
-                              <Bot className={cn("h-3 w-3", agent.color.replace('bg-', 'text-'))} />
-                              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Assistant</span>
-                            </div>
-                          )}
+                          {/* Removed Assistant badge as requested */}
                         </div>
                       )}
 
@@ -868,54 +951,73 @@ export default function HomeTab() {
                             : "bg-transparent text-slate-800 rounded-tl-none border-0"
                       )}>
                         {isThinking ? (
-                          <div className="space-y-4 py-4 px-2 bg-black/90 backdrop-blur-xl border border-[#00FF41]/20 rounded-none shadow-[0_0_20px_rgba(0,255,65,0.1)] relative overflow-hidden group">
-                            {/* Matrix scanline effect */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#00FF41]/5 to-transparent h-20 w-full -translate-y-full group-hover:animate-matrix-scan" />
-
-                            <div className="flex items-center space-x-3 text-[#00FF41]">
-                              <div className="relative">
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                                <div className="absolute inset-0 blur-sm bg-[#00FF41]/40 animate-pulse" />
+                          <div className="space-y-6 py-6 px-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm relative overflow-hidden">
+                            <div className="flex items-center justify-between mb-4">
+                              <div className="flex items-center space-x-3 text-slate-400">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">{msg.content}</span>
                               </div>
-                              <span className="text-xs font-mono font-black tracking-[0.2em] uppercase">
-                                {msg.content}
-                                <span className="inline-flex ml-1">
-                                  <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1 }}>_</motion.span>
-                                </span>
-                              </span>
+                              <div className="flex space-x-1">
+                                <div className="h-1 w-1 bg-slate-200 rounded-full" />
+                                <div className="h-1 w-1 bg-slate-200 rounded-full" />
+                                <div className="h-1 w-1 bg-slate-200 rounded-full" />
+                              </div>
                             </div>
 
                             {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
-                              <div className="space-y-4 border-l border-[#00FF41]/30 pl-5 py-2 relative">
-                                {msg.thinkingSteps.map((step: string, i: number) => (
-                                  <motion.div
-                                    key={i}
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: i * 0.1 }}
-                                    className="text-[10px] font-mono text-[#00FF41]/70 flex items-start space-x-3 group/step"
-                                  >
-                                    <div className="mt-1.5 h-1 w-1 bg-[#00FF41] shadow-[0_0_5px_#00FF41]" />
-                                    <span className="leading-relaxed flex-1">
-                                      {step}
-                                      {i === msg.thinkingSteps.length - 1 && (
-                                        <motion.span
-                                          animate={{ opacity: [1, 0] }}
-                                          transition={{ repeat: Infinity, duration: 0.8 }}
-                                          className="inline-block ml-1 h-3 w-1.5 bg-[#00FF41] align-middle"
-                                        />
+                              <div className="space-y-4">
+                                {msg.thinkingSteps.map((step: string, i: number) => {
+                                  const isLast = i === msg.thinkingSteps.length - 1
+                                  const getIcon = (text: string) => {
+                                    if (text.toLowerCase().includes('search')) return <Search className="h-3.5 w-3.5" />
+                                    if (text.toLowerCase().includes('plan')) return <Target className="h-3.5 w-3.5" />
+                                    if (text.toLowerCase().includes('task')) return <CheckCircle2 className="h-3.5 w-3.5" />
+                                    return <Activity className="h-3.5 w-3.5" />
+                                  }
+
+                                  return (
+                                    <motion.div
+                                      key={i}
+                                      initial={{ opacity: 0, y: 5 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      transition={{ delay: i * 0.15 }}
+                                      className={cn(
+                                        "flex items-start space-x-4 group",
+                                        !isLast && "pb-4 border-l-2 border-slate-50 ml-1.5 pl-6"
                                       )}
-                                    </span>
-                                  </motion.div>
-                                ))}
+                                    >
+                                      <div className={cn(
+                                        "h-7 w-7 rounded-lg flex items-center justify-center transition-all",
+                                        isLast ? "bg-indigo-50 text-indigo-600 shadow-sm" : "bg-slate-50 text-slate-400"
+                                      )}>
+                                        {getIcon(step)}
+                                      </div>
+                                      <div className="flex-1">
+                                        <p className={cn(
+                                          "text-xs leading-relaxed transition-colors",
+                                          isLast ? "text-slate-900 font-bold" : "text-slate-500 font-medium"
+                                        )}>
+                                          {step}
+                                        </p>
+                                        {isLast && (
+                                          <motion.div
+                                            initial={{ width: 0 }}
+                                            animate={{ width: "100%" }}
+                                            className="h-0.5 bg-indigo-500/10 mt-2 rounded-full overflow-hidden"
+                                          >
+                                            <motion.div
+                                              animate={{ x: ["-100%", "100%"] }}
+                                              transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                                              className="h-full w-1/3 bg-indigo-500"
+                                            />
+                                          </motion.div>
+                                        )}
+                                      </div>
+                                    </motion.div>
+                                  )
+                                })}
                               </div>
                             )}
-
-                            {/* System Status footer */}
-                            <div className="pt-2 flex items-center justify-between border-t border-[#00FF41]/10 mt-2">
-                              <span className="text-[8px] font-mono text-[#00FF41]/40 uppercase tracking-widest">Neural Link: Stable</span>
-                              <span className="text-[8px] font-mono text-[#00FF41]/40 uppercase tracking-widest">Latency: 47ms</span>
-                            </div>
                           </div>
                         ) : (
                           <div className="prose prose-slate max-w-none prose-p:leading-relaxed prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
@@ -984,7 +1086,7 @@ export default function HomeTab() {
               {/* Agent Quick Select */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-[2rem] h-12 w-12 flex-shrink-0 transition-all active:scale-95 group">
+                  <Button variant="ghost" size="icon" className="text-[#00FF41] hover:text-[#00FF41]/80 hover:bg-[#00FF41]/5 rounded-[2rem] h-12 w-12 flex-shrink-0 transition-all active:scale-95 group">
                     <PlusCircle className="h-6 w-6 transition-transform group-hover:rotate-90" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -1043,7 +1145,7 @@ export default function HomeTab() {
                   size="icon"
                   onClick={isRecording ? stopRecording : startRecording}
                   className={cn(
-                    "text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-[2rem] h-12 w-12 transition-all active:scale-90",
+                    "text-[#00FF41] hover:text-[#00FF41]/80 hover:bg-[#00FF41]/5 rounded-[2rem] h-12 w-12 transition-all active:scale-90",
                     isRecording && "text-red-600 bg-red-50 animate-pulse"
                   )}
                 >
@@ -1052,7 +1154,7 @@ export default function HomeTab() {
 
                 {/* File Upload Label/Button Integration */}
                 <label htmlFor="file-upload-home" className="cursor-pointer">
-                  <div className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-[2rem] h-12 w-12 flex items-center justify-center transition-all active:scale-95">
+                  <div className="text-[#00FF41] hover:text-[#00FF41]/80 hover:bg-[#00FF41]/5 rounded-[2rem] h-12 w-12 flex items-center justify-center transition-all active:scale-95">
                     <Paperclip className="h-6 w-6" />
                   </div>
                   <input
@@ -1072,14 +1174,14 @@ export default function HomeTab() {
                 </Button>
               </div>
             </div>
-          </div>
 
-          {/* Subtle Disclaimer Footer */}
-          <div className="mt-6 flex justify-center opacity-60 select-none">
-            <span className="text-[9px] uppercase tracking-[0.4em] font-black text-slate-400 flex items-center space-x-3">
-              <Shield className="h-3 w-3" />
-              <span>Agent47 Neural Processor : : Version 2.0.47</span>
-            </span>
+            {/* Subtle Disclaimer Footer */}
+            <div className="mt-6 flex justify-center opacity-60 select-none">
+              <span className="text-[9px] uppercase tracking-[0.4em] font-black text-slate-400 flex items-center space-x-3">
+                <Shield className="h-3 w-3" />
+                <span>Agent47 Neural Processor : : Version 2.0.47</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -502,8 +502,9 @@ class ApiClient {
 
     // Add authorization header if token exists
     const token = this.getToken();
+    const isFormData = options.body instanceof FormData;
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(options.headers as Record<string, string> || {}),
     };
 
@@ -1192,22 +1193,23 @@ class ApiClient {
   }
 
   // Generic POST method
-  async post(endpoint: string, data?: any): Promise<{ data: any }> {
-    // Use endpoint as-is - makeRequest will handle the full URL
-    // Do NOT strip prefixes, as callers (like home-tab.tsx) provide correct full paths
+  async post(endpoint: string, data?: any, options: any = {}): Promise<{ data: any }> {
+    const isFormData = data instanceof FormData;
     const response = await this.makeRequest(endpoint, {
       method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+      body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
+      ...options
     });
     return { data: response };
   }
 
   // Generic PUT method
-  async put(endpoint: string, data?: any): Promise<{ data: any }> {
-    // Use endpoint as-is
+  async put(endpoint: string, data?: any, options: any = {}): Promise<{ data: any }> {
+    const isFormData = data instanceof FormData;
     const response = await this.makeRequest(endpoint, {
       method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
+      ...options
     });
     return { data: response };
   }

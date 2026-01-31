@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 from pydantic import BaseModel
 from typing import Optional
 from core.authentication.auth_manager import get_current_user
@@ -37,6 +37,21 @@ async def create_image(
         width=payload.width,
         height=payload.height,
         auto_generate_prompt=payload.auto_generate_prompt
+    )
+
+
+@router.post("/upload")
+async def upload_media(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Upload a media file (image, video, etc.)"""
+    svc = MediaService()
+    contents = await file.read()
+    return await svc.upload_media(
+        file_data=contents,
+        content_type=file.content_type,
+        filename=file.filename
     )
 
 
