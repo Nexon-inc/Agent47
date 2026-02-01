@@ -15,11 +15,7 @@ from core.ai import get_ai_service_manager
 from core.config import Settings
 
 class MultiBrandService:
-    def __init__(self, db: AsyncSession, integration_manager: IntegrationManager, event_bus: EventBus):
-        self.db = db
-        self.integration_manager = integration_manager
-        self.event_bus = event_bus
-        # Using AI Service Manager for sentiment analysis and intent detection
+    def __init__(self, db: Optional[AsyncSession] = None, integration_manager: Optional[IntegrationManager] = None, event_bus: Optional[EventBus] = None):\n        self.db = db\n        self.integration_manager = integration_manager\n        self.event_bus = event_bus\n        # Using AI Service Manager for sentiment analysis and intent detection
         self.settings = Settings()
         self._brand_context_cache = {}
         self._configuration_cache = {}

@@ -10,7 +10,7 @@ from ..models import JoeMultiLanguageResearch, JoeLanguage, JoeResearchContext
 logger = logging.getLogger(__name__)
 
 class MultiLanguageResearchService:
-    def __init__(self, db: AsyncSession, event_bus: EventBus, redis: RedisManager):
+    def __init__(self, db: Optional[AsyncSession] = None, event_bus: Optional[EventBus] = None, redis: Optional[RedisManager] = None):
         self.db = db
         self.event_bus = event_bus
         self.redis = redis
