@@ -39,7 +39,6 @@ async def get_selected_agents(
             if r.locked:
                 if user_tier == UserTier.FREE:
                     # Free tier: lock until trial ends
-                    from datetime import timedelta
                     trial_end = current_user.created_at
                     if trial_end.tzinfo:
                         trial_end = trial_end.replace(tzinfo=None)
@@ -48,7 +47,6 @@ async def get_selected_agents(
                 elif user_tier in [UserTier.STARTER, UserTier.PRO]:
                     # Starter/Pro: lock for 1 month from selection
                     if r.created_at:
-                        from datetime import timedelta
                         selection_date = r.created_at
                         if selection_date.tzinfo:
                             selection_date = selection_date.replace(tzinfo=None)
@@ -81,7 +79,7 @@ def _is_trial_active(user: User) -> bool:
         return False  # Only free tier has trial period
     
     trial_duration_days = 14
-    from datetime import timedelta
+    trial_duration_days = 14
     trial_end = user.created_at
     if trial_end.tzinfo:
         trial_end = trial_end.replace(tzinfo=None)
@@ -131,7 +129,6 @@ async def _check_agent_locked(user: User, db: AsyncSession) -> tuple[bool, Optio
             # Get the earliest agent selection date
             if locked_agents:
                 earliest_selection = min(agent.created_at for agent in locked_agents if agent.created_at)
-                from datetime import timedelta
                 lock_end_date = earliest_selection + timedelta(days=30)  # 1 month lock
                 
                 # Also check subscription period end as fallback
@@ -295,9 +292,7 @@ async def save_selected_agents(
         # Calculate a generic lock end date for response (just an estimate for the UI)
         # For mixed locking, this is less relevant, but we return the newly calculated one for NEW agents
         lock_end_date = None
-        if should_lock:
             if user_tier == UserTier.FREE:
-                from datetime import timedelta
                 trial_end = current_user.created_at
                 if trial_end.tzinfo:
                    trial_end = trial_end.replace(tzinfo=None) # naive to naive math if needed, but best aware
@@ -307,7 +302,6 @@ async def save_selected_agents(
                 trial_end = trial_end.replace(hour=23, minute=59, second=59)
                 lock_end_date = (trial_end + timedelta(days=14)).isoformat()
             elif user_tier in [UserTier.STARTER, UserTier.PRO]:
-                from datetime import timedelta
                 lock_end_date = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
         
         return {"success": True, "agents": list(agents), "locked": should_lock, "lock_end_date": lock_end_date}
