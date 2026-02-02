@@ -161,70 +161,156 @@ async def save_selected_agents(
 ):
     """Save user's selected agents in DB with plan limits"""
     try:
-        agents = request.agents
+        agents = set(request.agents)  # Use set for easier membership testing
 
-        # Check if agents are locked
-        is_locked, lock_reason = await _check_agent_locked(current_user, db)
-        if is_locked:
-            raise HTTPException(status_code=403, detail=lock_reason or "Agents are locked and cannot be changed")
+        # 1. Fetch currently selected and locked agents
+        result = await db.execute(
+            select(UserSelectedAgent).where(
+                UserSelectedAgent.user_id == current_user.id
+            )
+        )
+        existing_rows = result.scalars().all()
+        
+        # Check if existing locked agents are still locked (time validation)
+        # We need to perform the same checks as before to see if expirations have passed
+        locked_agents_map = {} # agent_key -> row
+        
+        user_tier = current_user.tier or UserTier.FREE
+        
+        for row in existing_rows:
+            if not row.locked:
+                continue
+                
+            is_still_locked = True
+            
+            if user_tier == UserTier.FREE:
+                 # Check trial expiry
+                 if not _is_trial_active(current_user):
+                     pass # Locked indefinitely until upgrade
+                 else:
+                     is_still_locked = False # Trial active, not locked
+            else:
+                # Paid tier time check
+                if row.created_at:
+                    selection_date = row.created_at
+                    if selection_date.tzinfo:
+                        selection_date = selection_date.replace(tzinfo=None) # naive for calculation if needed, but best to use aware
+                    else:
+                        selection_date = selection_date.replace(tzinfo=timezone.utc) # assume UTC if naive in DB
 
-        # Validate agent keys
+                    lock_end_date = selection_date + timedelta(days=30)
+                    
+                    # Check subscription override
+                    subscription_end = await _get_subscription_period_end(current_user, db)
+                    if subscription_end:
+                         if subscription_end.tzinfo is None:
+                             subscription_end = subscription_end.replace(tzinfo=timezone.utc)
+                         if subscription_end > lock_end_date:
+                            lock_end_date = subscription_end
+                    
+                    now = datetime.now(timezone.utc)
+                    if now >= lock_end_date:
+                        is_still_locked = False
+            
+            if is_still_locked:
+                locked_agents_map[row.agent_key] = row
+
+        # 2. Validate: All currently locked agents MUST be in the new request
+        missing_locked_agents = []
+        for locked_key in locked_agents_map:
+            if locked_key not in agents:
+                missing_locked_agents.append(locked_key)
+        
+        if missing_locked_agents:
+             raise HTTPException(
+                 status_code=403, 
+                 detail=f"Cannot remove locked agents: {', '.join(missing_locked_agents)}. They are locked for 30 days or until trial/plan expiry."
+             )
+
+        # 3. Validate agent keys validity
         for a in agents:
             if a not in VALID_AGENT_KEYS:
                 raise HTTPException(status_code=400, detail=f"Invalid agent_id: {a}")
         
-        # Free plan excludes purity (unless test mode is enabled via ALLOW_ALL_AGENTS_IN_TEST env var)
+        # 4. Enforce Purity restriction
         allow_all_agents_in_test = os.getenv("ALLOW_ALL_AGENTS_IN_TEST", "").lower() in ("true", "1", "yes")
         if (current_user.tier or UserTier.FREE) == UserTier.FREE and "purity" in agents:
             if not allow_all_agents_in_test:
                 raise HTTPException(status_code=400, detail="Purity is not available on Free tier")
-        # Enforce limits
+
+        # 5. Enforce plan limit
         limit = _plan_limit(current_user.tier)
         if len(agents) > limit:
             raise HTTPException(status_code=400, detail=f"Plan {(current_user.tier or UserTier.FREE).value} allows maximum {limit} agents")
 
-        # Determine if agents should be locked
-        # For free tier: lock until trial ends or upgrade
-        # For Starter/Pro tiers: lock for 1 month from selection date
+        # 6. Apply changes
+        # Determine strict lock status for NEW agents
         should_lock = False
-        user_tier = current_user.tier or UserTier.FREE
-        
         if user_tier == UserTier.FREE:
-            # Lock agents for free tier users (they're locked until upgrade)
             should_lock = True
         elif user_tier in [UserTier.STARTER, UserTier.PRO]:
-            # For Starter and Pro tiers, lock agents for 1 month from selection
             should_lock = True
 
-        # Replace selections
+        # We will delete all and re-insert. 
+        # CRITICAL: For locked agents, we must preserve their original 'created_at' and 'locked' status 
+        # to ensure the 30-day timer doesn't reset!
+        
         await db.execute(delete(UserSelectedAgent).where(UserSelectedAgent.user_id == current_user.id))
-        now = datetime.now()
+        
+        now_utc = datetime.now(timezone.utc)
+        
         for key in agents:
-            db.add(UserSelectedAgent(
-                user_id=current_user.id,
-                agent_key=key,
-                status="active",
-                locked=should_lock,
-                automation_enabled=False,
-                created_at=now,  # Set creation time for monthly lock calculation
-            ))
+            # If it was previously locked, preserve its state
+            if key in locked_agents_map:
+                original_row = locked_agents_map[key]
+                # Preserve original creation time for lock calculation
+                original_created_at = original_row.created_at
+                if original_created_at and original_created_at.tzinfo is None:
+                     original_created_at = original_created_at.replace(tzinfo=timezone.utc)
+
+                db.add(UserSelectedAgent(
+                    user_id=current_user.id,
+                    agent_key=key,
+                    status=original_row.status,     # Preserve status
+                    locked=True,                    # Keep locked
+                    automation_enabled=original_row.automation_enabled, # Preserve automation
+                    configuration=original_row.configuration, # Preserve config
+                    created_at=original_created_at, # Preserve time
+                    updated_at=now_utc
+                ))
+            else:
+                # New agent selection
+                db.add(UserSelectedAgent(
+                    user_id=current_user.id,
+                    agent_key=key,
+                    status="active",
+                    locked=should_lock,
+                    automation_enabled=False,
+                    created_at=now_utc,
+                    updated_at=now_utc
+                ))
+                
         await db.commit()
         
-        # Calculate lock end date for response
+        # Calculate a generic lock end date for response (just an estimate for the UI)
+        # For mixed locking, this is less relevant, but we return the newly calculated one for NEW agents
         lock_end_date = None
         if should_lock:
             if user_tier == UserTier.FREE:
                 from datetime import timedelta
                 trial_end = current_user.created_at
                 if trial_end.tzinfo:
-                    trial_end = trial_end.replace(tzinfo=None)
+                   trial_end = trial_end.replace(tzinfo=None) # naive to naive math if needed, but best aware
+                else: 
+                   trial_end = trial_end.replace(tzinfo=timezone.utc)
+
                 trial_end = trial_end.replace(hour=23, minute=59, second=59)
                 lock_end_date = (trial_end + timedelta(days=14)).isoformat()
             elif user_tier in [UserTier.STARTER, UserTier.PRO]:
                 from datetime import timedelta
-                lock_end_date = (now + timedelta(days=30)).isoformat()  # 1 month from now
+                lock_end_date = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
         
-        return {"success": True, "agents": agents, "locked": should_lock, "lock_end_date": lock_end_date}
+        return {"success": True, "agents": list(agents), "locked": should_lock, "lock_end_date": lock_end_date}
         
     except HTTPException:
         raise

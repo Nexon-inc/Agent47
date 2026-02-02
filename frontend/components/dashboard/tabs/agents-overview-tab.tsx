@@ -163,9 +163,9 @@ const agentTemplates = [
 
 export default function AgentsOverviewTab() {
   const { user } = useAuthStore()
-  
-  // Get user's subscription plan
-  const userPlan = user?.subscription_plan || 'free'
+
+  // Get user's subscription plan (use tier if available)
+  const userPlan = user?.tier || user?.subscription_plan || 'free'
   const canUseIntercommunication = userPlan === 'starter' || userPlan === 'pro'
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
@@ -197,7 +197,7 @@ export default function AgentsOverviewTab() {
   // Subscribe to real-time agent updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -221,57 +221,57 @@ export default function AgentsOverviewTab() {
   const canUserSelectAgent = (agentId: string, userPlan: string, selectedAgents: any[]) => {
     const selectedCount = selectedAgents.length
     const maxAgents = userPlan === "free" ? 1 : userPlan === "starter" ? 4 : 7
-    
+
     // If user has reached their limit, they can't select more
     if (selectedCount >= maxAgents) {
       return false
     }
-    
+
     // Free users can't select Purity
     if (userPlan === "free" && agentId === "purity") {
       return false
     }
-    
+
     return true
   }
 
   const loadAgentsData = async () => {
     try {
       setIsLoading(true)
-      
+
       // Load agent health data and selected agents (no task metrics)
       const [healthResponse, selectedAgentsResponse] = await Promise.all([
         apiClient.getAgentHealth().catch(() => ({ data: { agents: [] } })), // Fallback if health endpoint fails
         apiClient.getSelectedAgents().catch(() => []) // Fallback if selected agents fails
       ])
-      
+
       const healthData = healthResponse.data?.agents || []
       const selectedAgents = selectedAgentsResponse || []
-      
+
       // Get user's subscription plan to determine agent limits
       const { userPlan } = useUserStore.getState()
-      
+
       // Create agents with real data and proper selection logic
       const agentsWithRealData = agentTemplates.map(template => {
         const agentHealth = healthData.find((h: any) => h.agent_id === template.id)
         const selectedAgentData = selectedAgents.find((sa: any) => sa.agent_id === template.id)
         const isSelected = !!selectedAgentData
         const isLocked = selectedAgentData?.locked || false
-        
+
         // Get agent status from selected agent data or health data
         const agentStatus = selectedAgentData?.status || agentHealth?.status || (isSelected ? "active" : "inactive")
-        
+
         // Get configuration from selected agent data
         const config = selectedAgentData?.configuration || {}
         const customInstructions = config.custom_instructions || ""
         const configPreferences = config.preferences || {}
-        
+
         // Merge default settings with configuration preferences
         const mergedSettings = { ...template.defaultSettings, ...configPreferences }
-        
+
         // Determine if user can select this agent based on their plan
         const canSelect = canUserSelectAgent(template.id, userPlan, selectedAgents)
-        
+
         return {
           ...template,
           status: agentStatus,
@@ -285,7 +285,7 @@ export default function AgentsOverviewTab() {
           color: template.color || "bg-gray-500"
         } as Agent
       })
-      
+
       setAgents(agentsWithRealData)
     } catch (error) {
       console.error("Failed to load agents data:", error)
@@ -322,21 +322,21 @@ export default function AgentsOverviewTab() {
     try {
       const agent = agents.find(a => a.id === agentId)
       if (!agent) return
-      
+
       // Check if user can select this agent
       if (!agent.isSelected && !agent.canSelect) {
         console.log("User cannot select this agent due to plan limitations")
         return
       }
-      
+
       // Toggle between active and paused/inactive
       const newStatus = agent.status === "active" ? "paused" : "active"
-      
+
       // Update local state immediately for better UX
-      setAgents(prev => prev.map(a => 
+      setAgents(prev => prev.map(a =>
         a.id === agentId ? { ...a, status: newStatus } : a
       ))
-      
+
       // Persist to backend
       try {
         const response = await apiClient.updateAgentStatus(agentId, newStatus)
@@ -344,17 +344,17 @@ export default function AgentsOverviewTab() {
       } catch (e) {
         console.warn('Backend toggle failed, reverting', e)
         // Revert the change on error
-        setAgents(prev => prev.map(a => 
+        setAgents(prev => prev.map(a =>
           a.id === agentId ? { ...a, status: agent.status } : a
         ))
       }
-      
+
     } catch (error) {
       console.error("Failed to toggle agent:", error)
       // Revert the change on error
       const agent = agents.find(a => a.id === agentId)
       if (agent) {
-        setAgents(prev => prev.map(a => 
+        setAgents(prev => prev.map(a =>
           a.id === agentId ? { ...a, status: agent.status } : a
         ))
       }
@@ -364,13 +364,13 @@ export default function AgentsOverviewTab() {
   const handleEditAgent = async (agent: Agent) => {
     setSelectedAgent(agent)
     setAgentSettings(agent.settings)
-    
+
     // Load existing configuration from backend
     try {
       const configResponse = await apiClient.getAgentConfiguration(agent.id)
       const config = configResponse.data?.configuration || {}
       setCustomInstructions(config.custom_instructions || agent.customInstructions || "")
-      
+
       // Merge with existing settings
       if (config.preferences) {
         setAgentSettings({ ...agent.settings, ...config.preferences })
@@ -383,36 +383,36 @@ export default function AgentsOverviewTab() {
 
   const handleSaveSettings = async () => {
     if (!selectedAgent) return
-    
+
     try {
       setIsSaving(true)
       setSaveStatus("idle")
-      
+
       // Persist to backend using configuration endpoint
       const response = await apiClient.updateAgentConfiguration(
-        selectedAgent.id, 
+        selectedAgent.id,
         customInstructions,
         agentSettings
       )
       console.log("Agent configuration updated successfully:", response)
-      
+
       // Update local state
-      setAgents(prev => prev.map(agent => 
-        agent.id === selectedAgent.id 
-          ? { 
-              ...agent, 
-              settings: agentSettings,
-              customInstructions 
-            } 
+      setAgents(prev => prev.map(agent =>
+        agent.id === selectedAgent.id
+          ? {
+            ...agent,
+            settings: agentSettings,
+            customInstructions
+          }
           : agent
       ))
-      
+
       setSaveStatus("success")
       setTimeout(() => {
         setSelectedAgent(null)
         setSaveStatus("idle")
       }, 1500)
-      
+
     } catch (error) {
       console.error("Failed to save configuration:", error)
       setSaveStatus("error")
@@ -441,11 +441,11 @@ export default function AgentsOverviewTab() {
     try {
       // Update local state immediately for better UX
       setIntercommunicationEnabled(enabled)
-      
+
       // Persist to backend
       const response = await apiClient.updateIntercommunicationSetting(enabled)
       console.log("Intercommunication setting updated successfully:", response)
-      
+
     } catch (error) {
       console.error("Failed to toggle intercommunication:", error)
       // Revert the toggle on error
@@ -559,7 +559,7 @@ export default function AgentsOverviewTab() {
             Agent Intercommunication
           </CardTitle>
           <CardDescription>
-            {canUseIntercommunication 
+            {canUseIntercommunication
               ? "Enable agents to communicate and collaborate with each other for maximum automation"
               : "Upgrade to Starter or Pro plan to enable agent intercommunication"
             }
@@ -570,10 +570,10 @@ export default function AgentsOverviewTab() {
             <div className="space-y-1">
               <p className="text-sm font-medium">Intercommunication</p>
               <p className="text-xs text-muted-foreground">
-                {canUseIntercommunication 
-                  ? (intercommunicationEnabled 
-                      ? "Agents can communicate and collaborate" 
-                      : "Agents work independently")
+                {canUseIntercommunication
+                  ? (intercommunicationEnabled
+                    ? "Agents can communicate and collaborate"
+                    : "Agents work independently")
                   : "Feature not available on Free plan"
                 }
               </p>
@@ -663,15 +663,14 @@ export default function AgentsOverviewTab() {
                       agent.status === "active"
                         ? "bg-green-100 text-green-800 border-green-200"
                         : agent.status === "paused"
-                        ? "bg-yellow-100 text-yellow-800 border-yellow-200"
-                        : "bg-gray-100 text-gray-800 border-gray-200"
+                          ? "bg-yellow-100 text-yellow-800 border-yellow-200"
+                          : "bg-gray-100 text-gray-800 border-gray-200"
                     }
                   >
                     <div
-                      className={`w-2 h-2 rounded-full mr-1 ${
-                        agent.status === "active" ? "bg-green-500" : 
+                      className={`w-2 h-2 rounded-full mr-1 ${agent.status === "active" ? "bg-green-500" :
                         agent.status === "paused" ? "bg-yellow-500" : "bg-gray-400"
-                      }`}
+                        }`}
                     />
                     {agent.status}
                   </Badge>
@@ -697,7 +696,7 @@ export default function AgentsOverviewTab() {
                 </div>
               )}
 
-                <div className="text-center">
+              <div className="text-center">
                 <div className="text-sm text-gray-600 ">
                   {agent.isOnline ? "Online" : "Offline"}
                 </div>
@@ -708,11 +707,10 @@ export default function AgentsOverviewTab() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className={`flex-1 ${
-                    agent.status === "active" 
-                      ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-300" 
-                      : "bg-transparent"
-                  }`}
+                  className={`flex-1 ${agent.status === "active"
+                    ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-300"
+                    : "bg-transparent"
+                    }`}
                   onClick={() => handleToggleAgent(agent.id)}
                   disabled={isLoading || !agent.isSelected}
                   title={!agent.isSelected ? "Select this agent first" : agent.status === "active" ? "Pause agent" : "Activate agent"}
@@ -757,8 +755,8 @@ export default function AgentsOverviewTab() {
                           <p className="text-sm text-gray-600 mb-3">
                             Add specific instructions or tweaks for this agent. The agent will strictly follow these instructions when processing your requests.
                           </p>
-                          <Textarea 
-                            placeholder="Example: Always use a professional tone, focus on B2B clients, prioritize email communication over social media, etc." 
+                          <Textarea
+                            placeholder="Example: Always use a professional tone, focus on B2B clients, prioritize email communication over social media, etc."
                             className="min-h-[120px]"
                             value={customInstructions}
                             onChange={(e) => setCustomInstructions(e.target.value)}
@@ -777,8 +775,8 @@ export default function AgentsOverviewTab() {
                               <Label htmlFor={`${selectedAgent.id}-${key}`} className="text-sm capitalize cursor-pointer">
                                 {key.replace(/([A-Z])/g, " $1").trim()}
                               </Label>
-                              <Switch 
-                                id={`${selectedAgent.id}-${key}`} 
+                              <Switch
+                                id={`${selectedAgent.id}-${key}`}
                                 checked={value as boolean}
                                 onCheckedChange={(checked) => {
                                   setAgentSettings(prev => ({
@@ -793,15 +791,15 @@ export default function AgentsOverviewTab() {
                       </div>
                     </div>
                     <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         onClick={() => setSelectedAgent(null)}
                         disabled={isSaving}
                       >
                         <X className="w-4 h-4 mr-1" />
                         Cancel
                       </Button>
-                      <Button 
+                      <Button
                         onClick={handleSaveSettings}
                         disabled={isSaving}
                         className="flex items-center gap-2"
