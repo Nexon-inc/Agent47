@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, func, and_
 from pydantic import BaseModel
@@ -141,7 +141,7 @@ async def _check_agent_locked(user: User, db: AsyncSession) -> tuple[bool, Optio
                     if subscription_end > lock_end_date:
                         lock_end_date = subscription_end
                 
-                now = datetime.now()
+                now = datetime.now(timezone.utc)
                 if now < lock_end_date:
                     return True, f"Agents are locked until {lock_end_date.strftime('%Y-%m-%d')} (1 month from selection)."
                 else:

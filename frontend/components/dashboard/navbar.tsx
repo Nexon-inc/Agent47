@@ -41,7 +41,8 @@ export default function DashboardNavbar() {
   const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60))
   const seconds = Math.floor((remaining % (1000 * 60)) / 1000)
 
-  const isFreeTier = user?.subscription_plan === 'free' || !user?.subscription_plan
+  // Check subscription status using the definitive user.tier field
+  const isFreeTier = user?.tier === 'free' || !user?.tier
   const showUpgradeBanner = isFreeTier && remaining < 48 * 60 * 60 * 1000 // Show when less than 48 hours left
 
   const unreadCount = notifications.filter((n) => n.unread).length
@@ -63,8 +64,8 @@ export default function DashboardNavbar() {
                 variant="outline"
                 className="bg-green-500 text-white border-green-500 text-xs"
               >
-                <span className="hidden sm:inline">{user?.subscription_plan?.charAt(0).toUpperCase() + user?.subscription_plan?.slice(1) || 'Free'} Plan</span>
-                <span className="sm:hidden">{user?.subscription_plan?.charAt(0).toUpperCase() || 'F'}</span>
+                <span className="hidden sm:inline">{user?.tier?.charAt(0).toUpperCase() + user?.tier?.slice(1) || 'Free'} Plan</span>
+                <span className="sm:hidden">{user?.tier?.charAt(0).toUpperCase() || 'F'}</span>
               </Badge>
               <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
                 <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
