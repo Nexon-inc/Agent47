@@ -10,7 +10,7 @@ from core.config import get_settings
 
 # Mock setup
 settings = get_settings()
-engine = create_async_engine(settings.database_url)
+engine = create_async_engine(settings.supabase.database_url)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 async def verify_locking_logic():

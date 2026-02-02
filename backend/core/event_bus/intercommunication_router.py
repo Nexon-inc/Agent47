@@ -12,7 +12,7 @@ from .intercommunication_service import (
 )
 from ..authentication.auth_manager import get_current_user
 from ..database.models import User, UserTier
-from ..database.connection import get_database
+from ..database.connection import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import logging
@@ -151,7 +151,7 @@ async def create_task(
 @router.get("/intercommunication", response_model=IntercommunicationToggleResponse)
 async def get_intercommunication_setting(
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_db)
 ):
     can_use = (current_user.tier or UserTier.FREE) in {UserTier.STARTER, UserTier.PRO}
     return IntercommunicationToggleResponse(enabled=bool(current_user.intercommunication_enabled), can_use=can_use)
@@ -160,7 +160,7 @@ async def get_intercommunication_setting(
 async def set_intercommunication_setting(
     req: IntercommunicationToggleRequest,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_database)
+    db: AsyncSession = Depends(get_db)
 ):
     can_use = (current_user.tier or UserTier.FREE) in {UserTier.STARTER, UserTier.PRO}
     if not can_use and req.enabled:
