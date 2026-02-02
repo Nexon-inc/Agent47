@@ -799,7 +799,20 @@ Current User Intent Hint: {simple_intent}
             # Add service info
             if simple_intent and simple_intent != "general":
                  result["service_used"] = True
-                 # (Optional: map service name here if needed for frontend logic)
+                 service_map = {
+                    "lead_generation": "LeadGenerationService",
+                    "lead_scoring": "LeadScoringService",
+                    "deal_closing": "DealClosingService",
+                    "sales_forecasting": "SalesForecastingService",
+                    "objection_handling": "ObjectionHandlingService",
+                    "sales_outreach": "SalesOutreachService",
+                    "media_generation": "MediaService",
+                    "email_sequences": "EmailSequencesService",
+                    "customer_insights": "CustomerInsightsService",
+                    "performance_analytics": "PerformanceAnalyticsService",
+                    "sales_funnel": "SalesFunnelService"
+                 }
+                 result["service_name"] = service_map.get(simple_intent, "UnknownService")
             
             # Update context
             session["context"]["last_message"] = message
@@ -815,19 +828,7 @@ Current User Intent Hint: {simple_intent}
                 "error": f"Failed to process chat message: {str(e)}",
                 "session_id": session_id
             }
-        "lead_generation": "LeadGenerationService",
-                    "lead_scoring": "LeadScoringService",
-                    "deal_closing": "DealClosingService",
-                    "sales_forecasting": "SalesForecastingService",
-                    "objection_handling": "ObjectionHandlingService",
-                    "sales_outreach": "SalesOutreachService",
-                    "media_generation": "MediaService",
-                    "email_sequences": "EmailSequencesService",
-                    "customer_insights": "CustomerInsightsService",
-                    "performance_analytics": "PerformanceAnalyticsService",
-                    "sales_funnel": "SalesFunnelService"
-                }
-                result["service_name"] = service_map.get(detected_intent, "UnknownService")
+
             else:
                 result["service_used"] = False
             
