@@ -27,7 +27,7 @@ import {
 } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
-import { useUserStore } from "@/lib/stores/user-store"
+
 import AgentSelectionModal from "@/components/dashboard/agent-selection-modal"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -76,7 +76,8 @@ interface AccountData {
 
 export default function AccountOverviewTab() {
   const { user, isAuthenticated, refreshUser, forceRefresh } = useAuthStore()
-  const { userPlan } = useUserStore()
+  // Derive userPlan directly from the authenticated user object to ensure it matches the database
+  const userPlan = user?.tier || "free"
   const [isLoading, setIsLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [accountData, setAccountData] = useState<AccountData | null>(null)
@@ -96,26 +97,26 @@ export default function AccountOverviewTab() {
     try {
       setIsLoading(true)
       console.log("Loading account data...")
-      
+
       if (isAuthenticated && user && apiClient) {
         try {
           // Try to get user data from backend
           const userData = await apiClient.getAccountData()
           console.log("Backend account data:", userData)
-          
+
           if (!userData) {
             throw new Error("No user data received from backend")
           }
-          
+
           // Validate user exists
           if (!userData.id) {
             console.warn("User ID missing from response")
           }
-          
+
           // Handle onboarding_data - prioritize it if it exists and has content
           let onboardingData = userData.onboarding_data
           let profileData = {}
-          
+
           // Parse onboarding_data if it's a string (JSON from backend)
           if (typeof onboardingData === 'string') {
             try {
@@ -126,7 +127,7 @@ export default function AccountOverviewTab() {
               onboardingData = null
             }
           }
-          
+
           // If onboarding_data exists and has actual data, use it
           if (onboardingData && typeof onboardingData === 'object' && Object.keys(onboardingData).length > 0) {
             console.log("Using onboarding_data from backend:", onboardingData)
@@ -156,10 +157,10 @@ export default function AccountOverviewTab() {
               nickname: userData.username || ""
             }
           }
-          
+
           console.log("Raw userData:", userData)
           console.log("Profile data extracted:", profileData)
-          
+
           // Helper function to format field for display - prioritize actual data
           const getDisplayValue = (value: any, defaultValue: string = ""): string => {
             if (value === null || value === undefined || value === "") return defaultValue
@@ -212,7 +213,7 @@ export default function AccountOverviewTab() {
               },
             },
           }
-          
+
           setAccountData(transformedData)
           setEditedData(transformedData)
           setLastUpdated(new Date().toLocaleTimeString())
@@ -279,7 +280,7 @@ export default function AccountOverviewTab() {
         },
       },
     }
-    
+
     setAccountData(defaultData)
     setEditedData(defaultData)
     setLastUpdated(new Date().toLocaleTimeString())
@@ -306,14 +307,14 @@ export default function AccountOverviewTab() {
 
     // Check if any agent is locked
     const hasLockedAgent = selectedAgents.some((agent: any) => agent.locked === true)
-    
+
     if (hasLockedAgent) {
       setAgentsLocked(true)
-      
+
       // Get lock end date from agent data (if available)
       const lockedAgent = selectedAgents.find((agent: any) => agent.locked === true)
       let lockEndDate: Date | null = null
-      
+
       if (lockedAgent?.lock_end_date) {
         lockEndDate = new Date(lockedAgent.lock_end_date)
         setTrialEndDate(lockEndDate)
@@ -322,7 +323,7 @@ export default function AccountOverviewTab() {
         setTrialEndDate(trialEnd)
         lockEndDate = trialEnd
       }
-      
+
       if (userPlan === "free") {
         if (lockEndDate && new Date() > lockEndDate) {
           setLockReason("Your 14-day free trial has ended. Agents are locked until you upgrade your plan.")
@@ -390,7 +391,7 @@ export default function AccountOverviewTab() {
           icon: "📝",
         },
       ]
-      
+
       // Add agent selection activity if agents are selected
       if (selectedAgents.length > 0) {
         mockActivities.unshift({
@@ -401,7 +402,7 @@ export default function AccountOverviewTab() {
           icon: "🤖",
         })
       }
-      
+
       setActivities(mockActivities)
     } catch (error) {
       console.error("Error loading activities:", error)
@@ -432,7 +433,7 @@ export default function AccountOverviewTab() {
     if (!isAuthenticated || !user) return
 
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -460,7 +461,7 @@ export default function AccountOverviewTab() {
   const handleSaveProfile = async () => {
     try {
       setIsLoading(true)
-      
+
       if (editedData && apiClient && isAuthenticated) {
         try {
           // Save to backend
@@ -482,17 +483,17 @@ export default function AccountOverviewTab() {
             primaryGoals: editedData.business.primaryGoals,
             mainPurpose: editedData.business.mainPurpose,
           })
-          
+
           console.log("Profile updated successfully:", response)
         } catch (error) {
           console.error("Error updating profile:", error)
         }
       }
-      
+
       setAccountData(editedData)
       setIsEditing(false)
       setLastUpdated(new Date().toLocaleTimeString())
-      
+
     } catch (error) {
       console.error("Error saving profile:", error)
     } finally {
@@ -1130,22 +1131,22 @@ export default function AccountOverviewTab() {
                           <p className="text-sm text-yellow-700 mt-1">{lockReason}</p>
                           {userPlan === "free" && trialEndDate && (
                             <p className="text-xs text-yellow-600 mt-2">
-                              {new Date() > trialEndDate 
+                              {new Date() > trialEndDate
                                 ? "Trial ended. Upgrade to unlock agents."
                                 : `Trial ends: ${trialEndDate.toLocaleDateString()}`}
                             </p>
                           )}
                           {(userPlan === "starter" || userPlan === "pro") && trialEndDate && (
                             <p className="text-xs text-yellow-600 mt-2">
-                              {new Date() > trialEndDate 
+                              {new Date() > trialEndDate
                                 ? "Lock period ended. You can now change your agents."
                                 : `Lock ends: ${trialEndDate.toLocaleDateString()} (1 month from selection)`}
                             </p>
                           )}
                           {userPlan === "free" && (
-                            <Button 
-                              onClick={() => window.location.href = "/pricing"} 
-                              size="sm" 
+                            <Button
+                              onClick={() => window.location.href = "/pricing"}
+                              size="sm"
                               className="mt-3 bg-yellow-600 hover:bg-yellow-700"
                             >
                               Upgrade Plan
@@ -1159,15 +1160,15 @@ export default function AccountOverviewTab() {
                     <p className="text-sm text-gray-600">
                       You have {selectedAgents.length} agent{selectedAgents.length > 1 ? 's' : ''} selected
                     </p>
-                    <Button 
+                    <Button
                       onClick={() => {
                         if (!agentsLocked) {
                           setShowAgentSelection(true)
                         } else {
                           alert(lockReason + "\n\nUpgrade your plan to unlock agents.")
                         }
-                      }} 
-                      variant="outline" 
+                      }}
+                      variant="outline"
                       size="sm"
                       disabled={agentsLocked}
                       title={agentsLocked ? lockReason : "Change agent selection"}
@@ -1210,7 +1211,7 @@ export default function AccountOverviewTab() {
                 <div className="text-center py-8">
                   <Bot className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500 mb-4">No agents selected yet</p>
-                  <Button 
+                  <Button
                     onClick={() => {
                       if (!agentsLocked) {
                         setShowAgentSelection(true)

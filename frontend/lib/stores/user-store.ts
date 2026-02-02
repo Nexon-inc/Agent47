@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-type UserPlan = "free" | "starter" | "pro"
+export type UserPlan = "free" | "starter" | "pro"
 
 interface UserState {
   userPlan: UserPlan

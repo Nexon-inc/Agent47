@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { apiClient, User, AuthTokens, SignupData, LoginData, PasswordResetData } from "@/lib/api-client"
+import { useUserStore, type UserPlan } from "./user-store"
 
 // Use the shared Supabase client from api-client
 const getSupabaseClient = async () => {
@@ -14,7 +15,7 @@ interface AuthState {
   isLoading: boolean
   error: string | null
   session: any | null
-  
+
   // Actions
   signup: (data: SignupData) => Promise<boolean>
   login: (data: LoginData) => Promise<boolean>
@@ -22,13 +23,13 @@ interface AuthState {
   resetPassword: (data: PasswordResetData) => Promise<boolean>
   refreshUser: () => Promise<void>
   clearError: () => void
-  
+
   // Initialize auth state from storage
   initialize: () => Promise<void>
-  
+
   // Force refresh auth state
   forceRefresh: () => Promise<void>
-  
+
   // Supabase session management
   initializeSupabase: () => Promise<void>
   handleAuthStateChange: (event: string, session: any) => void
@@ -48,23 +49,33 @@ export const useAuthStore = create<AuthState>()(
       initialize: async () => {
         const user = apiClient.getCurrentUserFromStorage()
         const isAuthenticated = apiClient.isAuthenticated()
-        
+
+        if (user) {
+          const plan = (user.tier || "free") as UserPlan
+          useUserStore.getState().setUserPlan(plan)
+        }
+
         set({
           user,
           isAuthenticated,
           isLoading: false,
           error: null
         })
-        
+
         // If we have tokens but no user data, try to refresh from backend
         if (isAuthenticated && !user) {
           try {
             const freshUser = await apiClient.getCurrentUser()
             set({ user: freshUser })
+            if (freshUser) {
+              const plan = (freshUser.tier || "free") as UserPlan
+              useUserStore.getState().setUserPlan(plan)
+            }
           } catch (error) {
             console.error('Failed to refresh user during initialization:', error)
             // If refresh fails, clear auth state
             set({ user: null, isAuthenticated: false })
+            useUserStore.getState().setUserPlan("free")
           }
         }
       },
@@ -72,35 +83,44 @@ export const useAuthStore = create<AuthState>()(
       // Signup action
       signup: async (data: SignupData) => {
         set({ isLoading: true, error: null })
-        
+
         try {
           const tokens = await apiClient.signup(data)
-          
+
           // Wait for tokens to be saved before updating state
           // Check if user is admin based on tier or email whitelist
           const isAdmin = tokens.user.tier === 'pro' || tokens.user.is_admin === true
-          
+
+          const userWithAdmin = { ...tokens.user, is_admin: isAdmin }
+
           set({
-            user: { ...tokens.user, is_admin: isAdmin },
+            user: userWithAdmin,
             isAuthenticated: true,
             isLoading: false,
             error: null
           })
-          
+
+          const plan = (tokens.user.tier || "free") as UserPlan
+          useUserStore.getState().setUserPlan(plan)
+
           // Add a small delay to ensure localStorage is updated
           await new Promise(resolve => setTimeout(resolve, 100))
-          
+
           // Fetch fresh user data from backend to ensure we have complete profile
           try {
             const freshUser = await apiClient.getCurrentUser()
             if (freshUser && freshUser.id) {
-              set({ user: { ...freshUser, is_admin: isAdmin } })
+              const freshUserWithAdmin = { ...freshUser, is_admin: isAdmin }
+              set({ user: freshUserWithAdmin })
+
+              const freshPlan = (freshUser.tier || "free") as UserPlan
+              useUserStore.getState().setUserPlan(freshPlan)
             }
           } catch (err) {
             console.warn('Failed to fetch fresh user data after signup:', err)
             // Continue with the user data we have from signup response
           }
-          
+
           return true
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Signup failed'
@@ -115,31 +135,40 @@ export const useAuthStore = create<AuthState>()(
       // Login action
       login: async (data: LoginData) => {
         set({ isLoading: true, error: null })
-        
+
         try {
           const tokens = await apiClient.login(data)
-          
+
           // Check if user is admin based on tier or email whitelist
           const isAdmin = tokens.user.tier === 'pro' || tokens.user.is_admin === true
-          
+
+          const userWithAdmin = { ...tokens.user, is_admin: isAdmin }
+
           set({
-            user: { ...tokens.user, is_admin: isAdmin },
+            user: userWithAdmin,
             isAuthenticated: true,
             isLoading: false,
             error: null
           })
-          
+
+          const plan = (tokens.user.tier || "free") as UserPlan
+          useUserStore.getState().setUserPlan(plan)
+
           // Fetch fresh user data from backend to ensure we have complete profile
           try {
             const freshUser = await apiClient.getCurrentUser()
             if (freshUser && freshUser.id) {
-              set({ user: { ...freshUser, is_admin: isAdmin } })
+              const freshUserWithAdmin = { ...freshUser, is_admin: isAdmin }
+              set({ user: freshUserWithAdmin })
+
+              const freshPlan = (freshUser.tier || "free") as UserPlan
+              useUserStore.getState().setUserPlan(freshPlan)
             }
           } catch (err) {
             console.warn('Failed to fetch fresh user data after login:', err)
             // Continue with the user data we have from login response
           }
-          
+
           return true
         } catch (error) {
           console.error('Login error:', error)
@@ -155,7 +184,7 @@ export const useAuthStore = create<AuthState>()(
       // Logout action
       logout: async () => {
         set({ isLoading: true })
-        
+
         try {
           await apiClient.logout()
         } catch (error) {
@@ -167,13 +196,14 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null
           })
+          useUserStore.getState().setUserPlan("free")
         }
       },
 
       // Reset password action
       resetPassword: async (data: PasswordResetData) => {
         set({ isLoading: true, error: null })
-        
+
         try {
           await apiClient.resetPasswordRequest(data)
           set({ isLoading: false })
@@ -193,10 +223,14 @@ export const useAuthStore = create<AuthState>()(
         // Check if we have tokens, not just isAuthenticated flag
         const hasTokens = apiClient.isAuthenticated()
         if (!hasTokens) return
-        
+
         try {
           const user = await apiClient.getCurrentUser()
           set({ user, isAuthenticated: true })
+          if (user) {
+            const plan = (user.tier || "free") as UserPlan
+            useUserStore.getState().setUserPlan(plan)
+          }
         } catch (error) {
           console.error('Failed to refresh user:', error)
           // If refresh fails, user might be logged out
@@ -218,13 +252,18 @@ export const useAuthStore = create<AuthState>()(
           set({ user: null, isAuthenticated: false })
           return
         }
-        
+
         try {
           const user = await apiClient.getCurrentUser()
           set({ user, isAuthenticated: true })
+          if (user) {
+            const plan = (user.tier || "free") as UserPlan
+            useUserStore.getState().setUserPlan(plan)
+          }
         } catch (error) {
           console.error('Failed to force refresh user:', error)
           set({ user: null, isAuthenticated: false })
+          useUserStore.getState().setUserPlan("free")
         }
       },
 
@@ -234,15 +273,19 @@ export const useAuthStore = create<AuthState>()(
           // Check if user is already authenticated from storage
           const storedUser = localStorage.getItem('user');
           const accessToken = localStorage.getItem('access_token');
-          
+
           if (storedUser && accessToken) {
             try {
               const user = JSON.parse(storedUser);
-              set({ 
+              set({
                 user,
                 isAuthenticated: true,
                 session: { access_token: accessToken }
               });
+              if (user) {
+                const plan = (user.tier || "free") as UserPlan
+                useUserStore.getState().setUserPlan(plan)
+              }
             } catch (error) {
               console.error('Failed to parse stored user:', error);
               // Clear invalid storage
@@ -257,25 +300,32 @@ export const useAuthStore = create<AuthState>()(
       // Handle Supabase auth state changes
       handleAuthStateChange: (event: string, session: any) => {
         console.log('Auth state changed:', event, session);
-        
+
         if (event === 'SIGNED_IN' && session) {
-          set({ 
+          set({
             session,
             isAuthenticated: true,
-            error: null 
+            error: null
           });
-          
+
           // Get user profile
           apiClient.getCurrentUser()
-            .then(user => set({ user }))
+            .then(user => {
+              set({ user })
+              if (user) {
+                const plan = (user.tier || "free") as UserPlan
+                useUserStore.getState().setUserPlan(plan)
+              }
+            })
             .catch(error => console.error('Failed to get user profile:', error));
         } else if (event === 'SIGNED_OUT') {
-          set({ 
+          set({
             user: null,
             isAuthenticated: false,
             session: null,
-            error: null 
+            error: null
           });
+          useUserStore.getState().setUserPlan("free")
         } else if (event === 'TOKEN_REFRESHED' && session) {
           set({ session });
         }
