@@ -829,18 +829,6 @@ Current User Intent Hint: {simple_intent}
                 "session_id": session_id
             }
 
-            else:
-                result["service_used"] = False
-            
-            return result
-            
-        except Exception as e:
-            logger.error(f"Eric: Error in process_chat_message: {e}", exc_info=True)
-            return {
-                "success": False,
-                "error": f"Failed to process chat message: {str(e)}",
-                "response": "I apologize, but I encountered an error processing your message. Please try again or rephrase your request."
-            }
     
     def _format_service_results(self, service_result: Dict[str, Any], intent: str) -> str:
         """Format service results into readable text for LLM context"""
