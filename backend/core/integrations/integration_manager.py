@@ -787,6 +787,40 @@ class IntegrationManager:
             logger.error(f"Integration API call failed: {e}")
             return {"success": False, "error": str(e)}
     
+    async def get_user_integration_usage(self, user_id: int):
+        """
+        Get list of user's connected integrations for agent context.
+        Used by agent_user_data.py to populate context.
+        """
+        try:
+            db = get_database()
+            async with db.get_session() as session:
+                # Select specific fields to match agent_user_data expectation
+                # We return rows which support dot access and return Enum objects for status fields
+                query = (
+                    select(
+                        Integration.id.label("integration_id"),
+                        Integration.name.label("integration_name"),
+                        Integration.status, 
+                        IntegrationCredentials.created_at.label("connected_at"),
+                        IntegrationCredentials.last_used,
+                        IntegrationCredentials.status.label("credentials_status")
+                    )
+                    .join(IntegrationCredentials, Integration.id == IntegrationCredentials.integration_id)
+                    .where(
+                        and_(
+                            IntegrationCredentials.user_id == user_id,
+                            IntegrationCredentials.status == CredentialStatus.VALID
+                        )
+                    )
+                )
+                
+                result = await session.execute(query)
+                return result.all()
+        except Exception as e:
+            logger.error(f"Failed to get user integration usage: {e}")
+            return []
+
     async def _store_integration_usage(
         self, 
         session: AsyncSession, 
