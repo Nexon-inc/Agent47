@@ -8,7 +8,7 @@ import os
 
 from core.authentication.auth_manager import get_current_user
 from core.database.models import User, UserSelectedAgent, UserTier, Agent
-from core.billing.models import Subscription
+from core.billing.models import Subscription, SubscriptionStatus
 from core.database.connection import get_db
 
 router = APIRouter(prefix="/api/v1/account", tags=["Selected Agents"])
@@ -91,16 +91,20 @@ def _is_trial_active(user: User) -> bool:
 async def _get_subscription_period_end(user: User, db: AsyncSession) -> Optional[datetime]:
     """Get user's subscription period end date"""
     try:
-        result = await db.execute(
-            select(Subscription).where(
-                Subscription.user_id == user.id,
-                Subscription.status == "active"
-            ).order_by(Subscription.created_at.desc())
-        )
-        subscription = result.scalar_one_or_none()
-        if subscription and subscription.current_period_end:
-            return subscription.current_period_end
+        # Use nested transaction to handle potential errors without aborting the main transaction
+        async with db.begin_nested():
+            result = await db.execute(
+                select(Subscription).where(
+                    Subscription.user_id == user.id,
+                    Subscription.status == SubscriptionStatus.ACTIVE
+                ).order_by(Subscription.created_at.desc())
+            )
+            subscription = result.scalar_one_or_none()
+            if subscription and subscription.current_period_end:
+                return subscription.current_period_end
     except Exception:
+        # If subscription check fails (e.g. table not found), just return None
+        # The nested transaction rollback handles the db state.
         pass
     return None
 
