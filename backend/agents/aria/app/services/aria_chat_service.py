@@ -495,24 +495,7 @@ class AriaChatService:
             steps = [
                 "Assessing platform-specific context...",
                 "Checking recent social media trends...",
-            ]
-        elif intent == "scheduling":
-            steps = [
-                "Analyzing audience activity heatmaps...",
-                "Calculating optimal post velocity...",
-                "Mapping content distribution...",
-                "Finalizing publication timeline..."
-            ]
-        elif intent == "analytics":
-            steps = [
-                "Aggregating engagement metrics...",
-                "Calculating conversion rates...",
-                "Identifying top-performing assets...",
-                "Generating growth insights..."
-            ]
-        else:
-            steps = [
-                "Analyzing creative creative brief...",
+                "Analyzing creative brief...",
                 "Reviewing brand guidelines...",
                 "Checking active campaigns...",
                 "Formulating strategic response..."
@@ -670,13 +653,7 @@ Current User Intent Hint: {simple_intent}
             return {
                 "success": False,
                 "error": f"Failed to process chat message: {str(e)}",
-                "session_id": session_id
-            }
-            
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Failed to process chat message: {str(e)}",
+                "session_id": session_id,
                 "response": "I apologize, but I encountered an error processing your message. Please try again or rephrase your request."
             }
     
