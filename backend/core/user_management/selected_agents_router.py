@@ -292,6 +292,7 @@ async def save_selected_agents(
         # Calculate a generic lock end date for response (just an estimate for the UI)
         # For mixed locking, this is less relevant, but we return the newly calculated one for NEW agents
         lock_end_date = None
+        if should_lock:
             if user_tier == UserTier.FREE:
                 trial_end = current_user.created_at
                 if trial_end.tzinfo:
