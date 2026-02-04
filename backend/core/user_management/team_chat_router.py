@@ -9,6 +9,7 @@ from sqlalchemy import select, and_, or_, func
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 import logging
+import asyncio
 from pydantic import BaseModel
 
 from ..database import get_database
@@ -159,6 +160,25 @@ async def send_chat_message(
             })
         except Exception as e:
             logger.warning(f"Failed to broadcast team chat message: {e}")
+
+        # --- DYNAMIC DISPATCH LOGIC ---
+        # If no agent was specified, check if intercommunication is enabled and trigger a dispatcher
+        if not chat_message.agent_key and current_user.intercommunication_enabled:
+            try:
+                from ..event_bus.intercommunication_service import get_intercommunication_service
+                intercomm_service = await get_intercommunication_service()
+                
+                # We trigger the intercommunication analysis in the background
+                # This will look at the message, decide the best agent, and create an agent-request
+                asyncio.create_task(intercomm_service.dynamic_dispatch(
+                    user_id=current_user.id,
+                    team_id=team.id,
+                    message_content=chat_message.content,
+                    db=db
+                ))
+            except Exception as e:
+                logger.error(f"Failed to trigger dynamic dispatch: {e}")
+        # -----------------------------
         
         return {
             "success": True,

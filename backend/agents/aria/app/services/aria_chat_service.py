@@ -284,11 +284,27 @@ class AriaChatService:
             if content_key in message_lower:
                 detected_content_types.append(content_name)
         
-        # Detect calendar/planning requests (social media calendars)
-        if "day" in message_lower or "calendar" in message_lower or "schedule" in message_lower:
+        # Detect calendar/planning requests (social media calendars) - 7, 14, 30, 90 days
+        if any(word in message_lower for word in ["day", "week", "month", "calendar", "schedule", "automate"]):
             day_matches = re.findall(r'(\d+)[\s-]?day', message_lower)
+            weeks_matches = re.findall(r'(\d+)[\s-]?week', message_lower)
+            months_matches = re.findall(r'(\d+)[\s-]?month', message_lower)
+            
+            num_days = 0
             if day_matches:
-                tasks["total_tasks"] = int(day_matches[0])
+                num_days = int(day_matches[0])
+            elif weeks_matches:
+                num_days = int(weeks_matches[0]) * 7
+            elif months_matches:
+                num_days = int(months_matches[0]) * 30
+            elif " week" in message_lower:
+                num_days = 7
+            elif " month" in message_lower:
+                num_days = 30
+                
+            # Support requested specific cycles: 7, 14, 30, 90
+            if num_days > 0 or any(word in message_lower for word in ["calendar", "schedule", "automate"]):
+                tasks["total_tasks"] = num_days if num_days > 0 else 7 # Default to 7
                 tasks["task_type"] = "social_calendar"
                 tasks["platforms"] = detected_platforms if detected_platforms else ["All connected platforms"]
                 tasks["content_types"] = detected_content_types if detected_content_types else ["Posts"]
@@ -449,17 +465,36 @@ class AriaChatService:
         
         if intent == "content_creation":
             steps = [
-                "Analyzing brand voice parameters...",
-                "Scanning current design trends...",
-                "Drafting copy variations...",
-                "Optimizing for platform engagement..."
+                "Analyzing your brand voice & style guide...",
+                "Scouring connected platforms for top-performing hooks...",
+                "Drafting platform-specific captions with emoji accents...",
+                "Optimizing hashtag sets for maximum reach..."
             ]
-        elif intent == "brand":
+        elif intent == "account_management":
             steps = [
-                "Auditing visual identity consistency...",
-                "Checking sentiment alignment...",
-                "Reviewing core brand values...",
-                "Formulating brand strategy recommendations..."
+                "Fetching latest performance metrics across all nodes...",
+                "Identifying audience engagement spikes...",
+                "Detecting optimal posting windows for the next 48h...",
+                "Formulating growth recommendations..."
+            ]
+        elif intent == "scheduling":
+            steps = [
+                "Reviewing your content calendar for gaps...",
+                "Synchronizing time-zones with platform APIs...",
+                "Preparing content queue for automated publishing...",
+                "Verifying media asset availability..."
+            ]
+        elif intent == "analytics":
+            steps = [
+                "Aggregating cross-platform engagement data...",
+                "Calculating CTR and Conversion Velocity...",
+                "Generating sentiment analysis for recent comments...",
+                "Visualizing performance trends..."
+            ]
+        else:
+            steps = [
+                "Assessing platform-specific context...",
+                "Checking recent social media trends...",
             ]
         elif intent == "scheduling":
             steps = [
@@ -558,11 +593,12 @@ class AriaChatService:
 **CORE OBJECTIVE:**
 Help the user build a powerful, consistent, and engaging brand presence. You combine **Creative Strategy** with **Data-Driven Execution**.
 
-**INTELLIGENCE PROTOCOL (STRICTLY FOLLOW THIS):**
-1. **Brand Alignment**: Always ensure ideas match the user's **Brand Voice** and **Target Audience**.
-2. **Platform Native**: tailored content specifically for the target platform (e.g. hashtags for Insta, professional tone for LinkedIn).
-3. **Action Oriented**: Don't just give advice; offer to **Draft Posts**, **Schedule Content**, or **Analyze Data**.
-4. **Tool Usage**: You have specific services for Content Remixing, Geo-Campaigns, Trends, and Scheduling. Use them.
+**CONVERSATIONAL PROTOCOL (CRITICAL):**
+1. **No Repetitive Greetings**: If the conversation history exists, skip introductions like "I'm Aria...". Jump straight to the task.
+2. **Handle Missing Info**: If the user asks for analysis (e.g., competitors, specific brands, target audience) and you don't have that data in the "USER CONTEXT" or current message, **ASK THEM**. Say: "To give you a precise strategy, could you tell me more about [what's missing]?"
+3. **Rich Formatting**: Use 📅, 📊, ⚡, and ✨ for headers and lists. Match the landing page "visual life."
+4. **Direct Links**: If a user needs to connect platforms, use this markdown link: `[Connect Platforms](/account/platforms)`.
+5. **Actionable Steps**: End every response with a clear "Next Step" or a question.
 
 **CAPABILITIES:**
 - **Content Creation**: Writing captions, generating images, remixing content.

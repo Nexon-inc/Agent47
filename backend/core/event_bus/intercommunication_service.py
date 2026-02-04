@@ -291,6 +291,127 @@ class IntercommunicationService:
             "timestamp": datetime.utcnow().isoformat()
         }
     
+    async def dynamic_dispatch(
+        self,
+        user_id: int,
+        team_id: int,
+        message_content: str,
+        db: AsyncSession
+    ) -> bool:
+        """Dynamically dispatch a message to the best-fit agent(s)"""
+        if not self._initialized:
+            await self.initialize()
+            
+        try:
+            # 1. Analyze intent and domain using LLM
+            # We use a specialized "Coordinator" prompt
+            coordinator_prompt = [
+                {
+                    "role": "system",
+                    "content": """You are the **Agent47 Team Coordinator**. Your job is to analyze a user message and route it to the BEST agent.
+                    
+**AGENTS AVAILABLE:**
+- **aria**: Social Media (content, posts, accounts, engagement, platforms like Instagram, Twitter, LinkedIn).
+- **clara**: Customer Support (tickets, satisfaction, help, loyalty).
+- **eric**: Sales (leads, revenue, CRM, deals, closing, follow-ups).
+- **jackie**: Marketing (campaigns, ads, SEO, branding, market strategy).
+- **joe**: Research (market data, competitors, trends, deep analysis).
+- **purity**: Business Intelligence (analytics, KPIs, growth metrics, reports).
+- **shakes**: Content Creation (writing, copy, SEO blog posts, creative ideas).
+
+**RULES:**
+1. Pick ONLY ONE agent if the request is specific.
+2. If the request is complex, pick a 'primary' and 'secondary'.
+3. **CLARIFICATION**: If the user mentions something vague (e.g. "my competitors" or "the new store"), and you don't see who they are talking about, return 'clarify' as the agent_key.
+4. Return a JSON object: {"agent_key": "...", "reason": "...", "needs_clarification": bool}
+"""
+                },
+                {"role": "user", "content": message_content}
+            ]
+            
+            ai_manager = await get_ai_service_manager()
+            from core.config import settings
+            
+            ai_response = await ai_manager.generate_text(
+                messages=coordinator_prompt,
+                max_tokens=200,
+                temperature=0.2 # Be precise
+            )
+            
+            import json
+            dispatch_info = {"agent_key": "aria"} # Default
+            try:
+                # Clean up potential markdown formatting
+                json_text = ai_response.text_content.strip()
+                if "```json" in json_text:
+                    json_text = json_text.split("```json")[1].split("```")[0].strip()
+                dispatch_info = json.loads(json_text)
+            except Exception as e:
+                logger.warning(f"Failed to parse coordinator JSON: {e}")
+
+            agent_key = dispatch_info.get("agent_key")
+            
+            if dispatch_info.get("needs_clarification") or agent_key == "clarify":
+                # Trigger a system/coordinator message asking for more info
+                from core.realtime.websocket_router import broadcast_team_chat_message
+                await broadcast_team_chat_message(team_id, {
+                    "team_id": team_id,
+                    "user_id": 0, # System
+                    "user_name": "Coordinator",
+                    "agent_key": "system",
+                    "message_type": "system",
+                    "content": f"🤝 I'd love to help with that! To be as precise as possible, could you clarify **{dispatch_info.get('reason', 'more details about your request')}**?",
+                    "created_at": datetime.utcnow().isoformat()
+                })
+                return True
+
+            # 2. Create the agent request if an agent was chosen
+            if agent_key in ["aria", "clara", "eric", "jackie", "joe", "purity", "shakes"]:
+                from ..database.models import TeamAgentRequest
+                agent_request = TeamAgentRequest(
+                    team_id=team_id,
+                    team_member_id=user_id,
+                    agent_key=agent_key,
+                    request_type="chat",
+                    request_data={"message": message_content, "dynamic_dispatch": True},
+                    status="pending"
+                )
+                db.add(agent_request)
+                await db.commit()
+                
+                # Trigger processing (via kafka or directly)
+                from .kafka_manager import get_kafka
+                kafka = await get_kafka()
+                await kafka.publish(
+                    topic="team_agent_requests",
+                    message={
+                        "request_id": agent_request.id,
+                        "team_id": team_id,
+                        "team_member_id": user_id,
+                        "agent_key": agent_key,
+                        "request_type": "chat",
+                        "request_data": agent_request.request_data
+                    }
+                )
+                
+                # Notify the user that the agent is taking over
+                from core.realtime.websocket_router import broadcast_team_chat_message
+                await broadcast_team_chat_message(team_id, {
+                    "team_id": team_id,
+                    "user_id": 0, 
+                    "user_name": "Coordinator",
+                    "agent_key": "system",
+                    "message_type": "system",
+                    "content": f"🤝 **{agent_key.capitalize()}** is taking the lead on this!",
+                    "created_at": datetime.utcnow().isoformat()
+                })
+                
+            return True
+            
+        except Exception as e:
+            logger.error(f"Dynamic Dispatch error: {e}")
+            return False
+
     async def complete_task_with_summary(
         self,
         task_id: str,

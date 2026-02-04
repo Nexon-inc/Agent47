@@ -23,7 +23,11 @@ import {
   Sparkles,
   Lock,
   Crown,
+  Trophy,
+  Target,
+  Zap,
 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useToast } from "@/hooks/use-toast"
@@ -44,6 +48,7 @@ interface ChatMessage {
   reply_to_message_id?: number | null
   created_at: string
   avatar_url?: string
+  thinking_steps?: string[]
 }
 
 interface Agent {
@@ -118,6 +123,7 @@ export default function TeamChatTab() {
   const [selectedAgentIndex, setSelectedAgentIndex] = useState(0)
   const [isRecording, setIsRecording] = useState(false)
   const [hasTeam, setHasTeam] = useState(true)
+  const [isCoordinatorActive, setIsCoordinatorActive] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const unsubscribeRef = useRef<(() => void) | null>(null)
@@ -137,9 +143,15 @@ export default function TeamChatTab() {
     loadMessages()
 
     // Subscribe to team chat messages via WebSocket
-    const unsubscribe = websocketService.subscribe('team_chat_message', (message) => {
+    const unsubscribe = websocketService.subscribe('team_chat_message', (message: any) => {
       // Reload messages when new team chat message is received
       setTimeout(loadMessages, 300) // Small delay to ensure DB is updated
+
+      // If it's a coordinator message, show activity
+      if (message.agent_key === 'system') {
+        setIsCoordinatorActive(true)
+        setTimeout(() => setIsCoordinatorActive(false), 5000)
+      }
     })
 
     unsubscribeRef.current = unsubscribe
@@ -393,9 +405,24 @@ export default function TeamChatTab() {
           <Hash className="h-5 w-5 text-slate-400" />
           <h2 className="text-lg font-semibold text-slate-900">team-chat</h2>
         </div>
-        <div className="flex items-center space-x-2">
-          <Users className="h-4 w-4 text-slate-400" />
-          <span className="text-sm text-slate-500 font-medium tracking-tight">Team Workspace</span>
+        <div className="flex items-center space-x-4">
+          <AnimatePresence>
+            {isCoordinatorActive && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                className="flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-full"
+              >
+                <Sparkles className="h-4 w-4 text-indigo-600" />
+                <span className="text-xs font-semibold text-indigo-700">🤝 Agents Collaborating</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <div className="flex items-center space-x-2">
+            <Users className="h-4 w-4 text-slate-400" />
+            <span className="text-sm text-slate-500 font-medium tracking-tight">Team Workspace</span>
+          </div>
         </div>
       </div>
 
@@ -498,8 +525,67 @@ export default function TeamChatTab() {
                           : "bg-transparent text-slate-800 rounded-tl-none border-0"
                       )}>
                         <div className="whitespace-pre-wrap break-words">
-                          {message.content}
+                          {message.content.split('\n').map((line: string, idx: number) => {
+                            // Format lines with emojis/icons (Rich Formatting)
+                            if (line.trim().startsWith('📅') || line.trim().startsWith('📊') || line.trim().startsWith('📝') || line.trim().startsWith('⚡') || line.trim().startsWith('✅') || line.trim().startsWith('🚀') || line.trim().startsWith('✨')) {
+                              return (
+                                <div key={idx} className="mt-3 first:mt-0 mb-1">
+                                  <span className="font-bold text-slate-900 flex items-center gap-2">
+                                    {line}
+                                  </span>
+                                </div>
+                              )
+                            } else if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+                              return (
+                                <div key={idx} className="flex items-start gap-2 mt-1.5 ml-1">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                                  <span className="text-slate-700">{line.replace(/^[•-]\s*/, '')}</span>
+                                </div>
+                              )
+                            } else if (line.trim().match(/^\d+\./)) {
+                              return (
+                                <div key={idx} className="flex items-start gap-2 mt-1.5 ml-1">
+                                  <span className="text-indigo-600 font-bold shrink-0">{line.match(/^\d+\./)?.[0]}</span>
+                                  <span className="text-slate-700">{line.replace(/^\d+\.\s*/, '')}</span>
+                                </div>
+                              )
+                            } else if (line.trim() === '') {
+                              return <div key={idx} className="h-2" />
+                            }
+                            return <div key={idx} className={idx === 0 ? '' : 'mt-1'}>{line}</div>
+                          })}
                         </div>
+
+                        {/* Thinking Steps Rendering */}
+                        {isAgent && message.thinking_steps && (
+                          <div className="mt-4 pt-3 border-t border-slate-100 space-y-2">
+                            <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                              <div className="flex space-x-1 shrink-0">
+                                {[0, 1, 2].map((dot) => (
+                                  <motion.div
+                                    key={dot}
+                                    className="w-1 h-1 bg-slate-300 rounded-full"
+                                    animate={{ opacity: [0.3, 1, 0.3] }}
+                                    transition={{ duration: 1.5, repeat: Infinity, delay: dot * 0.2 }}
+                                  />
+                                ))}
+                              </div>
+                              Thinking Process
+                            </div>
+                            {message.thinking_steps.map((step: string, sIdx: number) => (
+                              <motion.div
+                                key={sIdx}
+                                initial={{ opacity: 0, x: -5 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: sIdx * 0.1 }}
+                                className="flex items-center gap-2 text-xs text-slate-500"
+                              >
+                                <CheckCircle className="h-3 w-3 text-emerald-500" />
+                                <span>{step}</span>
+                              </motion.div>
+                            ))}
+                          </div>
+                        )}
 
                         {/* File Attachments */}
                         {message.file_url && (
