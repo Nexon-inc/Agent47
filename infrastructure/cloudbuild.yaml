@@ -73,6 +73,7 @@ steps:
         KAFKA_SASL_PASSWORD=kafka-sasl-password:latest,
         CHROMA_HOST=chroma-host:latest,
         CHROMA_PORT=chroma-port:latest,
+        CREDENTIAL_MASTER_KEY=credential-master-key:latest,
         BILLING_PAYSTACK_SECRET_KEY=paystack-secret-key:latest,
         BILLING_PAYSTACK_PUBLIC_KEY=paystack-public-key:latest,
         GOOGLE_CLIENT_ID=google-client-id:latest,
