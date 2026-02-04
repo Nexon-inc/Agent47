@@ -7,7 +7,7 @@ from pydantic import BaseModel
 import os
 
 from core.authentication.auth_manager import get_current_user
-from core.database.models import User, UserSelectedAgent, UserTier
+from core.database.models import User, UserSelectedAgent, UserTier, Agent
 from core.billing.models import Subscription
 from core.database.connection import get_db
 
@@ -40,16 +40,16 @@ async def get_selected_agents(
                 if user_tier == UserTier.FREE:
                     # Free tier: lock until trial ends
                     trial_end = current_user.created_at
-                    if trial_end.tzinfo:
-                        trial_end = trial_end.replace(tzinfo=None)
+                    if not trial_end.tzinfo:
+                        trial_end = trial_end.replace(tzinfo=timezone.utc)
                     trial_end = trial_end.replace(hour=23, minute=59, second=59)
                     lock_end_date = (trial_end + timedelta(days=14)).isoformat()
                 elif user_tier in [UserTier.STARTER, UserTier.PRO]:
                     # Starter/Pro: lock for 1 month from selection
                     if r.created_at:
                         selection_date = r.created_at
-                        if selection_date.tzinfo:
-                            selection_date = selection_date.replace(tzinfo=None)
+                        if not selection_date.tzinfo:
+                            selection_date = selection_date.replace(tzinfo=timezone.utc)
                         lock_end_date = (selection_date + timedelta(days=30)).isoformat()
             
             agents_data.append({
@@ -81,12 +81,12 @@ def _is_trial_active(user: User) -> bool:
     trial_duration_days = 14
     trial_duration_days = 14
     trial_end = user.created_at
-    if trial_end.tzinfo:
-        trial_end = trial_end.replace(tzinfo=None)
+    if not trial_end.tzinfo:
+        trial_end = trial_end.replace(tzinfo=timezone.utc)
     trial_end = trial_end.replace(hour=23, minute=59, second=59)
     trial_end = trial_end + timedelta(days=trial_duration_days)
     
-    return datetime.now() < trial_end
+    return datetime.now(timezone.utc) < trial_end
 
 async def _get_subscription_period_end(user: User, db: AsyncSession) -> Optional[datetime]:
     """Get user's subscription period end date"""
@@ -190,10 +190,8 @@ async def save_selected_agents(
                 # Paid tier time check
                 if row.created_at:
                     selection_date = row.created_at
-                    if selection_date.tzinfo:
-                        selection_date = selection_date.replace(tzinfo=None) # naive for calculation if needed, but best to use aware
-                    else:
-                        selection_date = selection_date.replace(tzinfo=timezone.utc) # assume UTC if naive in DB
+                    if selection_date.tzinfo is None:
+                        selection_date = selection_date.replace(tzinfo=timezone.utc)
 
                     lock_end_date = selection_date + timedelta(days=30)
                     
@@ -295,9 +293,7 @@ async def save_selected_agents(
         if should_lock:
             if user_tier == UserTier.FREE:
                 trial_end = current_user.created_at
-                if trial_end.tzinfo:
-                   trial_end = trial_end.replace(tzinfo=None) # naive to naive math if needed, but best aware
-                else: 
+                if not trial_end.tzinfo:
                    trial_end = trial_end.replace(tzinfo=timezone.utc)
 
                 trial_end = trial_end.replace(hour=23, minute=59, second=59)
@@ -545,19 +541,20 @@ async def get_agent_health(
         
         # Query recent tasks for each agent to determine real activity
         from sqlalchemy import select, func, and_
-        from core.database.models import Task
+        from sqlalchemy import select, func, and_
+        from core.database.models import Task, Agent
         
         health_data = []
         for agent_id in agent_ids:
-            # Get recent tasks for this agent (last 24 hours)
+            # Get recent tasks for this agent (last 24 hours) via join
             recent_tasks_query = select(
                 func.count(Task.id).label('task_count'),
                 func.max(Task.created_at).label('last_task_time')
-            ).where(
+            ).select_from(Task).join(Agent, Task.agent_id == Agent.id).where(
                 and_(
-                    Task.agent_id == agent_id,
+                    Agent.name == agent_id,  # agent_id variable holds the key string e.g 'aria'
                     Task.user_id == current_user.id,
-                    Task.created_at >= datetime.utcnow() - timedelta(hours=24)
+                    Task.created_at >= datetime.now(timezone.utc) - timedelta(hours=24)
                 )
             )
             
@@ -584,12 +581,12 @@ async def get_agent_health(
                 completed_tasks_query = select(
                     func.avg(Task.response_time).label('avg_response_time'),
                     func.count(Task.id).label('completed_count')
-                ).where(
+                ).select_from(Task).join(Agent, Task.agent_id == Agent.id).where(
                     and_(
-                        Task.agent_id == agent_id,
+                        Agent.name == agent_id,
                         Task.user_id == current_user.id,
                         Task.status == 'completed',
-                        Task.created_at >= datetime.utcnow() - timedelta(hours=24),
+                        Task.created_at >= datetime.now(timezone.utc) - timedelta(hours=24),
                         Task.response_time.isnot(None)
                     )
                 )
@@ -652,7 +649,8 @@ async def get_single_agent_health(
         from core.cache import get_redis
         from core.config import get_settings
         from sqlalchemy import select, func, and_
-        from core.database.models import Task
+        from sqlalchemy import select, func, and_
+        from core.database.models import Task, Agent
         
         settings = get_settings()
         supabase_manager = await get_supabase()
@@ -684,11 +682,11 @@ async def get_single_agent_health(
         recent_tasks_query = select(
             func.count(Task.id).label('task_count'),
             func.max(Task.created_at).label('last_task_time')
-        ).where(
+        ).select_from(Task).join(Agent, Task.agent_id == Agent.id).where(
             and_(
-                Task.agent_id == agent_id,
+                Agent.name == agent_id,
                 Task.user_id == current_user.id,
-                Task.created_at >= datetime.utcnow() - timedelta(hours=24)
+                Task.created_at >= datetime.now(timezone.utc) - timedelta(hours=24)
             )
         )
         
@@ -708,12 +706,12 @@ async def get_single_agent_health(
             completed_tasks_query = select(
                 func.avg(Task.response_time).label('avg_response_time'),
                 func.count(Task.id).label('completed_count')
-            ).where(
+            ).select_from(Task).join(Agent, Task.agent_id == Agent.id).where(
                 and_(
-                    Task.agent_id == agent_id,
+                    Agent.name == agent_id,
                     Task.user_id == current_user.id,
                     Task.status == 'completed',
-                    Task.created_at >= datetime.utcnow() - timedelta(hours=24),
+                    Task.created_at >= datetime.now(timezone.utc) - timedelta(hours=24),
                     Task.response_time.isnot(None)
                 )
             )
