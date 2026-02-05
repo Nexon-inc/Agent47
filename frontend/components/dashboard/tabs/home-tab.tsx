@@ -935,10 +935,9 @@ export default function HomeTab() {
         </div>
       </div>
 
-      {/* Main Chat Content Area - Centered Layout */}
-      <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 pt-10 pb-40">
-
-        <div className="space-y-12">
+      {/* Main Chat Content        {/* Chat History Area */}
+      <div className="flex-1 overflow-y-auto pt-24 pb-48 custom-scrollbar bg-white">
+        <div className="max-w-4xl mx-auto px-4 w-full">
           {chatMessages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-1000">
               <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 mb-8 shadow-sm">
@@ -1029,10 +1028,10 @@ export default function HomeTab() {
                       )}>
                         {isThinking ? (
                           <div className="space-y-4 min-w-[280px]">
-                            <div className="flex items-center justify-between pb-2 border-b border-slate-50">
-                              <div className="flex items-center space-x-2.5 text-emerald-500">
+                            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                              <div className="flex items-center space-x-2.5 text-emerald-600">
                                 <Loader2 className="h-4 w-4 animate-spin" />
-                                <span className="text-[11px] font-black uppercase tracking-widest">{msg.content}</span>
+                                <span className="text-[12px] font-bold uppercase tracking-widest">{msg.content}</span>
                               </div>
                             </div>
 
@@ -1063,8 +1062,8 @@ export default function HomeTab() {
                                       </div>
                                       <div className="flex-1">
                                         <p className={cn(
-                                          "text-[12px]",
-                                          isLast ? "text-slate-900 font-bold" : "text-slate-500 font-medium"
+                                          "text-[13px] leading-snug",
+                                          isLast ? "text-slate-900 font-bold" : "text-slate-700 font-medium"
                                         )}>
                                           {step}
                                         </p>
@@ -1098,11 +1097,11 @@ export default function HomeTab() {
 
                       {/* Tooltip Metrics - Minimalist */}
                       <div className="mt-2 flex items-center space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+                        <span className="text-[11px] text-slate-500 font-bold tracking-widest uppercase">
                           {formatTime(msg.timestamp.toISOString())}
                         </span>
                         <div className="flex items-center space-x-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-full" onClick={() => handleCopyMessage(msg.content)}>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-emerald-500 hover:bg-emerald-50 rounded-full" onClick={() => handleCopyMessage(msg.content)}>
                             <Copy className="h-3.5 w-3.5" />
                           </Button>
                           {isUserMessage && (

@@ -112,8 +112,8 @@ export default function DashboardSidebar() {
                     className={cn(
                       "group flex items-center px-3 py-2.5 rounded-lg relative transition-all duration-200 w-full",
                       isActive(item.href)
-                        ? "bg-green-50 text-green-700 border border-green-200"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
+                        ? "bg-emerald-50 text-emerald-900 font-bold border border-emerald-100"
+                        : "text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-medium",
                     )}
                   >
                     <Link href={item.href} prefetch={true} className="flex items-center w-full">
@@ -121,7 +121,7 @@ export default function DashboardSidebar() {
                         className={cn(
                           "h-5 w-5 shrink-0",
                           isActive(item.href)
-                            ? "text-green-600"
+                            ? "text-emerald-600"
                             : "text-slate-500",
                         )}
                       />

@@ -48,7 +48,7 @@ export default function DashboardNavbar() {
   const unreadCount = notifications.filter((n) => n.unread).length
 
   return (
-    <header className="sticky top-0 z-50 flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-white/95 backdrop-blur-md px-2 sm:px-4">
+    <header className="sticky top-0 z-50 flex h-14 sm:h-16 shrink-0 items-center gap-2 border-b bg-white px-2 sm:px-4">
       <SidebarTrigger className="-ml-1" />
 
       <div className="flex flex-1 items-center justify-between min-w-0">
@@ -62,13 +62,13 @@ export default function DashboardNavbar() {
             <div className="flex items-center gap-1 sm:gap-2">
               <Badge
                 variant="outline"
-                className="bg-green-500 text-white border-green-500 text-xs"
+                className="bg-emerald-500 text-white border-emerald-500 text-xs"
               >
                 <span className="hidden sm:inline">{user?.tier?.charAt(0).toUpperCase() + user?.tier?.slice(1) || 'Free'} Plan</span>
                 <span className="sm:hidden">{user?.tier?.charAt(0).toUpperCase() || 'F'}</span>
               </Badge>
-              <div className="flex items-center gap-1 text-xs sm:text-sm text-gray-600">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+              <div className="flex items-center gap-1 text-xs sm:text-sm text-slate-900 font-medium">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-slate-700" />
                 <span className="hidden sm:inline">
                   {days > 0 ? `${days}d` : ''} {hours}h {minutes}m
                 </span>

@@ -123,7 +123,7 @@ export default function PlatformsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Loading connected platforms...</p>
+            <p className="text-slate-900 font-bold">Loading connected platforms...</p>
           </div>
         </div>
       </div>
@@ -136,8 +136,8 @@ export default function PlatformsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Platform Connections</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-3xl font-bold text-slate-900">Platform Connections</h1>
+            <p className="text-slate-800 mt-2 font-medium">
               Manage your connected platforms and enable AI agents to work with your data.
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function PlatformsPage() {
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 <div>
-                  <p className="text-sm text-gray-600">Total Connected</p>
+                  <p className="text-sm text-slate-700 font-bold">Total Connected</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
                 </div>
               </div>
@@ -166,7 +166,7 @@ export default function PlatformsPage() {
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 <div>
-                  <p className="text-sm text-gray-600">Active</p>
+                  <p className="text-sm text-slate-700 font-bold">Active</p>
                   <p className="text-2xl font-bold text-green-600">{stats.active}</p>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export default function PlatformsPage() {
               <div className="flex items-center space-x-2">
                 <RefreshCw className="h-5 w-5 text-yellow-600" />
                 <div>
-                  <p className="text-sm text-gray-600">Expired</p>
+                  <p className="text-sm text-slate-700 font-bold">Expired</p>
                   <p className="text-2xl font-bold text-yellow-600">{stats.expired}</p>
                 </div>
               </div>
@@ -190,7 +190,7 @@ export default function PlatformsPage() {
               <div className="flex items-center space-x-2">
                 <AlertCircle className="h-5 w-5 text-red-600" />
                 <div>
-                  <p className="text-sm text-gray-600">Need Attention</p>
+                  <p className="text-sm text-slate-700 font-bold">Need Attention</p>
                   <p className="text-2xl font-bold text-red-600">{stats.needsAttention}</p>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function PlatformsPage() {
             <CardContent className="p-8 text-center">
               <ExternalLink className="h-12 w-12 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">No platforms connected</h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-slate-700 mb-4 font-medium">
                 Connect your first platform to start using AI agents with your data.
               </p>
               <Button onClick={() => setShowConnectModal(true)}>

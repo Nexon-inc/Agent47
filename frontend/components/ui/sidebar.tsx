@@ -115,14 +115,14 @@ const SidebarProvider = React.forwardRef<
             {
               "--sidebar-width": SIDEBAR_WIDTH,
               "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-              "--sidebar-background": "222.2 84% 4.9%", // Dark background
-              "--sidebar-foreground": "210 40% 98%", // Light text
-              "--sidebar-primary": "210 40% 98%",
-              "--sidebar-primary-foreground": "222.2 84% 4.9%",
-              "--sidebar-accent": "217.2 32.6% 17.5%", // Dark accent
-              "--sidebar-accent-foreground": "210 40% 98%",
-              "--sidebar-border": "217.2 32.6% 17.5%",
-              "--sidebar-ring": "224.3 76.3% 94.1%",
+              "--sidebar-background": "0 0% 100%", // Pure white
+              "--sidebar-foreground": "222.2 84% 4.9%", // Dark slate
+              "--sidebar-primary": "142 76% 36%",
+              "--sidebar-primary-foreground": "210 40% 98%",
+              "--sidebar-accent": "210 40% 96.1%", // Light gray accent
+              "--sidebar-accent-foreground": "222.2 47.4% 11.2%",
+              "--sidebar-border": "214.3 31.8% 91.4%",
+              "--sidebar-ring": "142 76% 36%",
               ...style,
             } as React.CSSProperties
           }
@@ -506,7 +506,7 @@ const SidebarMenuAction = React.forwardRef<
         "peer-data-[size=lg]/menu-button:top-2.5",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
-          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+        "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
         className,
       )}
       {...props}

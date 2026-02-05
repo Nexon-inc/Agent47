@@ -18,9 +18,9 @@ export default function DashboardLayout({
       <Suspense fallback={<div className="w-64 bg-gray-100 animate-pulse" />}>
         <DashboardSidebar />
       </Suspense>
-      <SidebarInset>
+      <SidebarInset className="bg-white">
         <DashboardNavbar />
-        <main className="flex-1 overflow-auto p-4 md:p-6">
+        <main className="flex-1 overflow-auto p-4 md:p-6 bg-white">
           <Suspense>
             <DashboardBreadcrumbs />
           </Suspense>
