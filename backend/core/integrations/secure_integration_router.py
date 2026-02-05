@@ -695,7 +695,7 @@ async def get_integration_stats(request: Request):
         user_id = await get_current_user_id(request)
         
         from ..database.connection import get_database
-        from sqlalchemy import select, func, and_
+        from sqlalchemy import select, func, and_, Integer
         from datetime import datetime, timedelta
         from .models import IntegrationCredentials
         from ..database.models import IntegrationAuditLog, IntegrationAuditAction
@@ -715,8 +715,8 @@ async def get_integration_stats(request: Request):
             # Get connection attempts from audit logs
             audit_query = select(
                 func.count(IntegrationAuditLog.id).label("total_attempts"),
-                func.sum(func.cast(IntegrationAuditLog.success == "true", int)).label("successful"),
-                func.sum(func.cast(IntegrationAuditLog.success == "false", int)).label("failed")
+                func.sum(func.case([(IntegrationAuditLog.success == "success", 1)], else_=0)).label("successful"),
+                func.sum(func.case([(IntegrationAuditLog.success == "failure", 1)], else_=0)).label("failed")
             ).where(
                 and_(
                     IntegrationAuditLog.user_id == user_id,

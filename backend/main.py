@@ -31,7 +31,7 @@ from core.services.geolocation_router import router as geolocation_router
 from core.user_management.inbox_router import inbox_router as inbox_router
 from core.analytics.analytics_router import router as analytics_router
 from core.notifications.notification_router import router as notification_router
-from core.platforms.oauth_router import router as platform_router
+from core.platforms.oauth_router import router as platform_router, callback_router as platform_callback_router
 from core.integrations.secure_integration_router import router as integration_router
 from core.user_management.account_router import router as account_router
 from core.user_management.selected_agents_router import router as selected_agents_router
@@ -180,6 +180,7 @@ app.include_router(inbox_router)
 app.include_router(analytics_router)
 app.include_router(notification_router)
 app.include_router(platform_router)
+app.include_router(platform_callback_router)
 app.include_router(integration_router)
 app.include_router(account_router)
 app.include_router(selected_agents_router)

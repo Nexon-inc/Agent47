@@ -12,7 +12,7 @@ from core.user_management.calendar_service import (
 from core.authentication.auth_manager import get_current_user
 from core.user_management.user_manager import User
 
-router = APIRouter(prefix="/calendar", tags=["calendar"])
+router = APIRouter(prefix="/api/v1/calendar", tags=["calendar"])
 
 class CalendarEventCreateRequest(BaseModel):
     title: str = Field(..., description="Event title")

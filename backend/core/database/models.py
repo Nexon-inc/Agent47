@@ -78,6 +78,12 @@ class IntegrationAuditAction(enum.Enum):
     DELETE = "delete"
     SYNC = "sync"
     WEBHOOK = "webhook"
+    CREDENTIALS_STORED = "credentials_stored"
+    INTEGRATION_ACCESSED = "integration_accessed"
+    API_CALL_MADE = "api_call_made"
+    INTEGRATION_CONNECTED = "integration_connected"
+    INTEGRATION_DISCONNECTED = "integration_disconnected"
+    CREDENTIALS_REFRESHED = "credentials_refreshed"
 
 class IntegrationAuditSeverity(enum.Enum):
     LOW = "low"

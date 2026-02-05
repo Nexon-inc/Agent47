@@ -13,6 +13,8 @@ from ..user_management.user_manager import get_user_manager
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/platforms", tags=["platforms"])
+# Create a separate router for top-level auth callbacks (no prefix)
+callback_router = APIRouter(tags=["platforms"])
 
 async def get_current_user_id(request: Request) -> Optional[int]:
     """Extract user ID from JWT token"""
@@ -191,6 +193,7 @@ async def initiate_platform_connection(
         raise HTTPException(status_code=500, detail=f"Failed to initiate platform connection: {str(e)}")
 
 @router.get("/callback/{platform_name}")
+@callback_router.get("/auth/callback/{platform_name}")
 async def handle_oauth_callback(
     platform_name: str,
     code: str = Query(..., description="Authorization code from platform"),
