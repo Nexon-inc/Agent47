@@ -66,6 +66,15 @@ import remarkGfm from "remark-gfm"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 
+const formatTime = (dateStr: string) => {
+  try {
+    const date = new Date(dateStr)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  } catch (e) {
+    return ""
+  }
+}
+
 const agents = [
   {
     id: "aria",
@@ -902,71 +911,65 @@ export default function HomeTab() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-100 text-slate-900 font-sans selection:bg-indigo-500/30 relative">
+    <div className="flex flex-col min-h-screen bg-white text-slate-900 font-sans selection:bg-emerald-500/30 relative">
 
-      {/* Sticky Header Section */}
-      <div className="sticky top-[-24px] md:top-[-24px] z-40 bg-slate-100/95 backdrop-blur-md pt-8 pb-4 mb-2 -mx-4 sm:-mx-6 px-4 sm:px-6 border-b border-slate-200/50">
-        <div className="max-w-5xl mx-auto relative px-4 sm:px-6">
-          <div className="flex flex-col items-center text-center space-y-6">
-            {/* Beta Large Title */}
-            <div className="flex flex-col items-center">
-              <span className="text-3xl sm:text-4xl font-black uppercase tracking-tighter text-indigo-600 mb-1">Beta.</span>
-              <p className="text-[11px] sm:text-xs text-slate-500 font-bold max-w-sm leading-tight px-4 uppercase tracking-wider">
-                Agent47 is currently in active development; features and intelligence are being refined daily.
-              </p>
-            </div>
-
-            {/* Welcome Message */}
-            <div className="space-y-2 pb-2">
-              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                {user?.created_at && new Date(user.created_at).getTime() > Date.now() - 24 * 60 * 60 * 1000
-                  ? `Welcome, ${user?.username || user?.full_name || "User"}.`
-                  : `Welcome back, ${user?.username || user?.full_name || "User"}.`
-                }
-              </h1>
-              {chatMessages.length === 0 && (
-                <p className="text-slate-500 text-lg font-medium italic">How can I help you today?</p>
-              )}
-            </div>
+      {/* Header - Minimalist Top Bar */}
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-100 px-6 py-3">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <span className="text-xl font-bold tracking-tighter text-emerald-500">A47.</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">Beta</span>
           </div>
-
-          {/* Action Icons - Positioned at the top of the chat area rectangle */}
-          <div className="absolute bottom-[-14px] right-4 sm:right-6 flex items-center space-x-2.5 z-50">
+          <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleClearChat}
-              className="h-11 w-11 rounded-2xl text-[#22c55e] hover:text-emerald-600 hover:bg-white transition-all shadow-xl shadow-slate-200 border border-slate-200 bg-white"
-              title="New Chat"
+              className="text-emerald-500 hover:bg-emerald-50 rounded-full"
             >
-              <Plus className="h-5.5 w-5.5 stroke-[3px]" />
+              <History className="h-5 w-5" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-11 w-11 rounded-2xl text-[#22c55e] hover:text-emerald-600 hover:bg-white transition-all shadow-xl shadow-slate-200 border border-slate-200 bg-white"
-              title="History"
-            >
-              <History className="h-5.5 w-5.5 stroke-[3px]" />
-            </Button>
+            <div className="h-8 w-8 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center">
+              <User className="h-4 w-4 text-slate-400" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Chat Content Area */}
-      <div className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-2 pb-40">
+      {/* Main Chat Content Area - Centered Layout */}
+      <div className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 pt-10 pb-40">
 
-        {/* Chat Area Container */}
-        <div className="space-y-8 border border-slate-300 rounded-3xl bg-white shadow-sm min-h-[60vh] p-4 sm:p-6 mb-8 relative overflow-hidden">
+        <div className="space-y-12">
           {chatMessages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center animate-in fade-in duration-700 h-full">
-              <div className="h-20 w-20 bg-slate-50 rounded-3xl flex items-center justify-center border border-slate-200 mb-6 shadow-sm">
-                <Sparkles className="h-10 w-10 text-indigo-500" />
+            <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-1000">
+              <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 mb-8 shadow-sm">
+                <Sparkles className="h-10 w-10 text-emerald-500" />
               </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2">Ready for launch.</h3>
-              <p className="text-slate-500 max-w-sm text-base leading-relaxed">
-                Choose an assistant or start typing to begin.
+              <h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">How can I help you today?</h3>
+              <p className="text-slate-500 max-w-sm text-lg font-medium leading-relaxed mb-8">
+                Your AI-powered business command center is ready.
               </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mt-4">
+                {[
+                  "Optimize my social media engagement",
+                  "Create a lead generation strategy",
+                  "Analyze my competitor's presence",
+                  "Draft a content repurposing plan"
+                ].map((prompt, i) => (
+                  <Button
+                    key={i}
+                    variant="outline"
+                    onClick={() => {
+                      setMessage(prompt)
+                      const input = document.getElementById('chat-input-home')
+                      if (input) input.focus()
+                    }}
+                    className="justify-start text-left h-auto py-3 px-4 rounded-xl border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-slate-600 font-medium text-sm"
+                  >
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
             </div>
           ) : (
             chatMessages.map((msg: any, index: number) => {
@@ -980,34 +983,34 @@ export default function HomeTab() {
                 <div
                   key={msg.id}
                   className={cn(
-                    "flex w-full mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300",
+                    "flex w-full mb-8 animate-in fade-in slide-in-from-bottom-2 duration-300",
                     isUserMessage ? "justify-end" : "justify-start"
                   )}
                 >
                   <div className={cn(
-                    "flex items-start max-w-[90%] sm:max-w-[85%] lg:max-w-[75%] space-x-3",
+                    "flex items-start max-w-[90%] sm:max-w-[85%] lg:max-w-[80%] space-x-4",
                     isUserMessage && "flex-row-reverse space-x-reverse"
                   )}>
                     {/* Avatar */}
                     <div className="flex-shrink-0 mt-1">
                       {agent ? (
                         <div className={cn(
-                          "h-8 w-8 rounded-lg flex items-center justify-center border border-slate-200 shadow-sm bg-white",
-                          isThinking && "animate-pulse ring-2 ring-indigo-50"
+                          "h-10 w-10 rounded-full flex items-center justify-center border border-slate-100 shadow-sm bg-white",
+                          isThinking && "animate-pulse ring-2 ring-emerald-50"
                         )}>
-                          <agent.icon className={cn("h-4 w-4", agent.color.replace('bg-', 'text-'))} />
+                          <agent.icon className={cn("h-5 w-5", agent.color.replace('bg-', 'text-'))} />
                         </div>
                       ) : isUserMessage ? (
-                        <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center border border-indigo-500 shadow-md shadow-indigo-600/10 overflow-hidden">
+                        <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm overflow-hidden">
                           {user?.avatar_url ? (
                             <img src={user.avatar_url} alt={user.username} className="h-full w-full object-cover" />
                           ) : (
-                            <User className="h-4 w-4 text-white" />
+                            <User className="h-5 w-5 text-slate-400" />
                           )}
                         </div>
                       ) : isSystemMessage ? (
-                        <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center border border-amber-200">
-                          <AlertCircle className="h-4 w-4 text-amber-600" />
+                        <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center border border-amber-200">
+                          <AlertCircle className="h-5 w-5 text-amber-600" />
                         </div>
                       ) : null}
                     </div>
@@ -1017,43 +1020,31 @@ export default function HomeTab() {
                       "flex flex-col group",
                       isUserMessage ? "items-end" : "items-start"
                     )}>
-                      {!isSameAuthor && (
-                        <div className="flex items-center space-x-2 mb-1 px-1">
-                          <span className={cn(
-                            "text-[10px] font-bold tracking-tight uppercase opacity-70",
-                            agent ? "text-slate-600" : "text-slate-500"
-                          )}>
-                            {agent ? agent.name : isUserMessage ? (user?.username || "You") : "System"}
-                          </span>
-                        </div>
-                      )}
-
+                      {/* Bubble with specific Grok styling */}
                       <div className={cn(
-                        "px-5 py-3 text-[15px] leading-relaxed shadow-sm backdrop-blur-sm border",
+                        "px-6 py-4 text-[16px] leading-relaxed shadow-sm",
                         isUserMessage
-                          ? "bg-white text-slate-800 border-slate-200 rounded-2xl rounded-tr-sm"
-                          : isSystemMessage
-                            ? "bg-amber-50 text-amber-800 border-amber-200 rounded-2xl rounded-tl-sm italic text-sm"
-                            : "bg-white text-slate-800 border-slate-200 rounded-2xl rounded-tl-sm"
+                          ? "bg-[#f1f1f1] text-[#1a1a1a] rounded-3xl rounded-tr-sm border border-transparent"
+                          : "bg-white text-[#0d0d0d] border border-[#e5e7eb] rounded-3xl rounded-tl-sm"
                       )}>
                         {isThinking ? (
                           <div className="space-y-4 min-w-[280px]">
-                            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                              <div className="flex items-center space-x-2.5 text-indigo-600">
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                <span className="text-[10px] font-black uppercase tracking-wider">{msg.content}</span>
+                            <div className="flex items-center justify-between pb-2 border-b border-slate-50">
+                              <div className="flex items-center space-x-2.5 text-emerald-500">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <span className="text-[11px] font-black uppercase tracking-widest">{msg.content}</span>
                               </div>
                             </div>
 
                             {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
-                              <div className="space-y-2 pt-1">
+                              <div className="space-y-3 pt-1">
                                 {msg.thinkingSteps.map((step: string, i: number) => {
                                   const isLast = i === msg.thinkingSteps.length - 1
                                   const getIcon = (text: string) => {
-                                    if (text.toLowerCase().includes('search')) return <Search className="h-3 w-3" />
-                                    if (text.toLowerCase().includes('plan')) return <Target className="h-3 w-3" />
-                                    if (text.toLowerCase().includes('task')) return <CheckCircle2 className="h-3 w-3" />
-                                    return <Activity className="h-3 w-3" />
+                                    if (text.toLowerCase().includes('search')) return <Search className="h-3.5 w-3.5" />
+                                    if (text.toLowerCase().includes('plan')) return <Target className="h-3.5 w-3.5" />
+                                    if (text.toLowerCase().includes('task')) return <CheckCircle2 className="h-3.5 w-3.5" />
+                                    return <Activity className="h-3.5 w-3.5" />
                                   }
 
                                   return (
@@ -1062,34 +1053,21 @@ export default function HomeTab() {
                                       initial={{ opacity: 0, x: -10 }}
                                       animate={{ opacity: 1, x: 0 }}
                                       transition={{ delay: i * 0.1 }}
-                                      className="flex items-start space-x-2.5"
+                                      className="flex items-start space-x-3"
                                     >
                                       <div className={cn(
-                                        "h-5 w-5 rounded flex items-center justify-center flex-shrink-0 mt-0.5",
-                                        isLast ? "bg-indigo-100 text-indigo-600" : "bg-slate-100 text-slate-400"
+                                        "h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
+                                        isLast ? "bg-emerald-100 text-emerald-600" : "bg-slate-50 text-slate-300"
                                       )}>
                                         {getIcon(step)}
                                       </div>
                                       <div className="flex-1">
                                         <p className={cn(
-                                          "text-[11px]",
-                                          isLast ? "text-slate-900 font-semibold" : "text-slate-500 font-medium"
+                                          "text-[12px]",
+                                          isLast ? "text-slate-900 font-bold" : "text-slate-500 font-medium"
                                         )}>
                                           {step}
                                         </p>
-                                        {isLast && (
-                                          <motion.div
-                                            initial={{ width: "0%" }}
-                                            animate={{ width: "100%" }}
-                                            className="h-0.5 bg-indigo-100 mt-1.5 rounded-full overflow-hidden"
-                                          >
-                                            <motion.div
-                                              className="h-full bg-indigo-500"
-                                              animate={{ x: ["-100%", "100%"] }}
-                                              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                            />
-                                          </motion.div>
-                                        )}
                                       </div>
                                     </motion.div>
                                   )
@@ -1098,7 +1076,7 @@ export default function HomeTab() {
                             )}
                           </div>
                         ) : (
-                          <div className="prose prose-slate prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200 prose-pre:rounded-xl">
+                          <div className="prose prose-slate prose-lg max-w-none prose-p:leading-relaxed prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-100 prose-pre:rounded-2xl selection:bg-emerald-500/20">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {msg.content}
                             </ReactMarkdown>
@@ -1107,10 +1085,10 @@ export default function HomeTab() {
 
                         {/* Image Preview */}
                         {msg.imageUrl && (
-                          <div className="mt-4 rounded-xl overflow-hidden border border-slate-200 shadow-md group relative max-w-sm">
+                          <div className="mt-4 rounded-2xl overflow-hidden border border-slate-100 shadow-xl group relative max-w-md">
                             <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto" />
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Button variant="secondary" size="sm" asChild className="rounded-full">
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Button variant="secondary" size="sm" asChild className="rounded-full bg-white/90 text-slate-900 hover:bg-white">
                                 <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">View Full Size</a>
                               </Button>
                             </div>
@@ -1118,17 +1096,18 @@ export default function HomeTab() {
                         )}
                       </div>
 
-                      <div className="mt-1 px-1 flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <span className="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">
-                          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {/* Tooltip Metrics - Minimalist */}
+                      <div className="mt-2 flex items-center space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <span className="text-[10px] text-slate-400 font-bold tracking-widest uppercase">
+                          {formatTime(msg.timestamp.toISOString())}
                         </span>
-                        <div className="flex items-center space-x-0.5">
-                          <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-indigo-600 hover:bg-white rounded" onClick={() => handleCopyMessage(msg.content)}>
-                            <Copy className="h-3 w-3" />
+                        <div className="flex items-center space-x-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-full" onClick={() => handleCopyMessage(msg.content)}>
+                            <Copy className="h-3.5 w-3.5" />
                           </Button>
                           {isUserMessage && (
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-slate-400 hover:text-indigo-600 hover:bg-white rounded" onClick={() => handleEditMessage(msg)}>
-                              <Pencil className="h-3 w-3" />
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-full" onClick={() => handleEditMessage(msg)}>
+                              <Pencil className="h-3.5 w-3.5" />
                             </Button>
                           )}
                         </div>
@@ -1141,8 +1120,8 @@ export default function HomeTab() {
           )}
           {isLoading && !chatMessages.some((m: any) => m.type === "thinking") && (
             <div className="flex justify-start mb-8 pl-1">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center border border-slate-200 bg-white shadow-sm">
-                <Bot className="h-4 w-4 text-indigo-500 animate-pulse" />
+              <div className="h-10 w-10 rounded-full flex items-center justify-center border border-slate-100 bg-white shadow-sm">
+                <Loader2 className="h-5 w-5 text-emerald-500 animate-spin" />
               </div>
             </div>
           )}
@@ -1150,101 +1129,106 @@ export default function HomeTab() {
         </div>
       </div>
 
-      {/* Floating Action Bar - Fixed Bottom Position without sticky issues */}
-      <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none">
-        <div className="max-w-3xl mx-auto w-full pointer-events-auto">
-          <div className="bg-white/95 backdrop-blur-2xl border border-slate-300 rounded-2xl p-2.5 shadow-2xl shadow-slate-900/10 ring-1 ring-slate-900/5 transition-all duration-300 focus-within:ring-indigo-500/50 focus-within:shadow-indigo-500/20">
-            <div className="flex items-center gap-2">
+      {/* Floating Action Bar - Grok Minimalist Style */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-8 pt-4 bg-gradient-to-t from-white via-white/80 to-transparent">
+        <div className="max-w-3xl mx-auto w-full">
+          <div className="bg-white border border-slate-200 rounded-[32px] p-2 shadow-[0_10px_40px_rgba(0,0,0,0.04)] transition-all duration-300 focus-within:border-emerald-500 focus-within:shadow-[0_10px_40px_rgba(16,185,129,0.08)]">
+            <div className="flex items-end gap-2 px-2">
               {/* Agent Quick Select */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-xl flex-shrink-0 transition-colors">
+                  <Button variant="ghost" size="icon" className="h-10 w-10 text-emerald-500 hover:bg-emerald-50 rounded-full flex-shrink-0 mb-1 transition-colors">
                     <PlusCircle className="h-6 w-6" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" side="top" sideOffset={20} className="w-80 bg-white border border-slate-200 p-2 rounded-2xl shadow-xl">
-                  <DropdownMenuLabel className="text-[10px] uppercase tracking-wider font-bold text-slate-400 px-3 py-2">Select Processor</DropdownMenuLabel>
-                  <div className="max-h-[300px] overflow-y-auto custom-scrollbar space-y-1">
+                <DropdownMenuContent align="start" side="top" sideOffset={12} className="w-72 bg-white border border-slate-100 p-2 rounded-3xl shadow-2xl">
+                  <DropdownMenuLabel className="text-[10px] uppercase tracking-widest font-black text-slate-400 px-4 py-3">Select Agent</DropdownMenuLabel>
+                  <div className="max-h-[350px] overflow-y-auto space-y-1">
                     {userAgents.map((ua: any) => {
                       const a = agents.find(ag => ag.id === ua.agent_id)
                       if (!a) return null
                       const isSelected = selectedAgent?.id === a.id
                       return (
                         <DropdownMenuItem key={a.id} onClick={() => handleAgentSwitch(a.id)} className={cn(
-                          "rounded-xl flex items-center gap-3 p-2.5 cursor-pointer focus:bg-slate-50",
-                          isSelected && "bg-indigo-50/80"
+                          "rounded-2xl flex items-center gap-4 p-3 cursor-pointer focus:bg-slate-50",
+                          isSelected && "bg-emerald-50/50"
                         )}>
-                          <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center bg-white border border-slate-200", isSelected && "border-indigo-200 text-indigo-600")}>
-                            <a.icon className="h-4 w-4" />
+                          <div className={cn("h-10 w-10 rounded-full flex items-center justify-center bg-white border border-slate-100 shadow-sm", isSelected && "border-emerald-200 text-emerald-600")}>
+                            <a.icon className="h-5 w-5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={cn("font-semibold text-sm", isSelected ? "text-indigo-900" : "text-slate-700")}>{a.name}</p>
-                            <p className="text-[10px] text-slate-400 font-medium truncate">{a.title}</p>
+                            <p className={cn("font-bold text-sm", isSelected ? "text-emerald-900" : "text-slate-700")}>{a.name}</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase truncate">{a.title}</p>
                           </div>
-                          {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-indigo-500" />}
+                          {isSelected && <div className="h-2 w-2 rounded-full bg-emerald-500" />}
                         </DropdownMenuItem>
                       )
                     })}
                   </div>
-                  <DropdownMenuSeparator className="my-2" />
-                  <DropdownMenuItem onClick={() => handleIntercommunicate()} className="rounded-xl p-2.5 flex items-center gap-3 text-indigo-600 focus:bg-indigo-50 hover:bg-indigo-50">
-                    <Network className="h-4 w-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider flex-1">Neural Link</span>
-                    {intercommunicationEnabled && <span className="h-2 w-2 bg-indigo-600 rounded-full animate-pulse" />}
+                  <DropdownMenuSeparator className="my-2 bg-slate-50" />
+                  <DropdownMenuItem onClick={() => handleIntercommunicate()} className="rounded-2xl p-3 flex items-center gap-4 text-emerald-600 focus:bg-emerald-50">
+                    <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                      <Network className="h-5 w-5" />
+                    </div>
+                    <span className="text-xs font-black uppercase tracking-widest flex-1">Neural Link</span>
+                    {intercommunicationEnabled && <span className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse" />}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Message Input */}
-              <div className="flex-1">
-                <Input
+              {/* Message Input - Auto-growing textarea or multiline-aware input */}
+              <div className="flex-1 min-h-[48px] flex items-center">
+                <Textarea
                   id="chat-input-home"
                   value={message}
                   onChange={(e: any) => setMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder={isRecording ? "Listening..." : "Type a message..."}
-                  className="bg-transparent border-0 focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 h-10 text-[16px] px-2 font-medium"
+                  onKeyDown={(e: any) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSendMessage()
+                    }
+                  }}
+                  placeholder={isRecording ? "Listening..." : "Tell A47 anything..."}
+                  className="bg-transparent border-0 focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 min-h-[48px] max-h-[200px] text-[16px] py-3.5 px-2 font-medium resize-none scrollbar-hide"
+                  rows={1}
                 />
               </div>
 
               {/* Actions */}
-              <div className="flex items-center gap-1">
-                {/* Voice */}
+              <div className="flex items-center gap-1 mb-1">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={isRecording ? stopRecording : startRecording}
                   className={cn(
-                    "h-10 w-10 rounded-xl transition-all",
-                    isRecording ? "text-red-500 bg-red-50 animate-pulse" : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
+                    "h-10 w-10 rounded-full transition-all",
+                    isRecording ? "text-red-500 bg-red-50 animate-pulse" : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50"
                   )}
                 >
                   <Mic className="h-5 w-5" />
                 </Button>
 
-                {/* File Upload */}
                 <label htmlFor="file-upload-home" className="cursor-pointer">
-                  <div className="h-10 w-10 flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
+                  <div className="h-10 w-10 flex items-center justify-center rounded-full text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all">
                     <Paperclip className="h-5 w-5" />
                   </div>
-                  <input
-                    id="file-upload-home"
-                    type="file"
-                    className="hidden"
-                    onChange={(e: any) => handleFileUpload(e)}
-                  />
+                  <input id="file-upload-home" type="file" className="hidden" onChange={(e: any) => handleFileUpload(e)} />
                 </label>
 
-                {/* Send - Increased visibility */}
                 <Button
                   onClick={editingMessageId ? handleUpdateMessage : handleSendMessage}
                   disabled={isLoading || !message.trim()}
-                  className="h-10 w-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 flex items-center justify-center transition-all active:scale-95 disabled:opacity-70 disabled:shadow-none ml-2"
+                  className="h-10 w-10 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl shadow-emerald-500/20 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:shadow-none ml-1"
                 >
                   {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                 </Button>
               </div>
             </div>
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
+              Agent47 Intelligence Engine • Precision & Speed
+            </p>
           </div>
         </div>
       </div>
