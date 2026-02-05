@@ -917,15 +917,14 @@ export default function HomeTab() {
       {/* Header - Minimalist Top Bar */}
       <div className="sticky top-0 z-[60] bg-white/95 backdrop-blur-xl border-b border-slate-100 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span className="text-2xl font-black tracking-tighter text-emerald-600">A47.</span>
-            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-600/80">Beta</span>
+          <div className="flex items-center">
+            <span className="text-sm font-black uppercase tracking-[0.3em] text-emerald-600">BETA</span>
           </div>
           <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               size="icon"
-              className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors h-10 w-10"
+              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-colors h-10 w-10"
               onClick={() => {
                 setChatMessages([])
                 toast({
@@ -939,7 +938,7 @@ export default function HomeTab() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors h-10 w-10"
+              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-colors h-10 w-10"
             >
               <History className="h-6 w-6" />
             </Button>

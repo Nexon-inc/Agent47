@@ -612,7 +612,8 @@ Current User Intent Hint: {simple_intent}
             ai_response = await ai_manager.generate_text(
                 messages=messages,
                 max_tokens=settings.groq.groq_max_tokens,
-                temperature=0.7
+                temperature=0.2,
+                top_p=0.9
             )
 
             if ai_response.success and ai_response.text_content:
