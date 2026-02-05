@@ -56,6 +56,7 @@ import {
   PlusCircle,
   History,
   Pencil,
+  SquarePen,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth-store"
@@ -904,7 +905,7 @@ export default function HomeTab() {
       console.error("Failed to toggle intercommunication:", error)
       toast({
         title: "Communication Error",
-        description: "Failed to update inter-agent link preference.",
+        description: "Failed to update inter-agent communication preference.",
         variant: "destructive",
       })
     }
@@ -914,23 +915,34 @@ export default function HomeTab() {
     <div className="flex flex-col min-h-screen bg-white text-slate-900 font-sans selection:bg-emerald-500/30 relative">
 
       {/* Header - Minimalist Top Bar */}
-      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-100 px-6 py-3">
+      <div className="sticky top-0 z-[60] bg-white/95 backdrop-blur-xl border-b border-slate-100 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold tracking-tighter text-emerald-500">A47.</span>
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">Beta</span>
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl font-black tracking-tighter text-emerald-600">A47.</span>
+            <span className="text-[11px] font-black uppercase tracking-[0.2em] text-emerald-600/80">Beta</span>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             <Button
               variant="ghost"
               size="icon"
-              className="text-emerald-500 hover:bg-emerald-50 rounded-full"
+              className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors h-10 w-10"
+              onClick={() => {
+                setChatMessages([])
+                toast({
+                  title: "New Chat Started",
+                  description: "Protocol initialized for a fresh session.",
+                })
+              }}
             >
-              <History className="h-5 w-5" />
+              <SquarePen className="h-6 w-6" />
             </Button>
-            <div className="h-8 w-8 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center">
-              <User className="h-4 w-4 text-slate-400" />
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-full transition-colors h-10 w-10"
+            >
+              <History className="h-6 w-6" />
+            </Button>
           </div>
         </div>
       </div>
@@ -1156,8 +1168,8 @@ export default function HomeTab() {
                             <a.icon className="h-5 w-5" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={cn("font-bold text-sm", isSelected ? "text-emerald-900" : "text-slate-700")}>{a.name}</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase truncate">{a.title}</p>
+                            <p className={cn("font-bold text-sm", isSelected ? "text-emerald-900" : "text-slate-700")}>{a.title}</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase truncate">Protocolized Unit</p>
                           </div>
                           {isSelected && <div className="h-2 w-2 rounded-full bg-emerald-500" />}
                         </DropdownMenuItem>
@@ -1169,7 +1181,7 @@ export default function HomeTab() {
                     <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
                       <Network className="h-5 w-5" />
                     </div>
-                    <span className="text-xs font-black uppercase tracking-widest flex-1">Neural Link</span>
+                    <span className="text-xs font-black uppercase tracking-widest flex-1">Intercommunication</span>
                     {intercommunicationEnabled && <span className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse" />}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
