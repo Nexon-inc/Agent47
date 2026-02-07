@@ -18,7 +18,6 @@ class BillingTier(enum.Enum):
     FREE = "free"
     STARTER = "starter"
     PRO = "pro"
-    ENTERPRISE = "enterprise"
 
 class TaskStatus(enum.Enum):
     PENDING = "pending"

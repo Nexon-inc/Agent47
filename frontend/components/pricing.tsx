@@ -14,25 +14,43 @@ interface PricingProps {
 
 const defaultPlans = [
   {
+    name: "Free",
+    description: "Try before you commit. Perfect for testing.",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    features: [
+      { included: true, text: "1 AI Employee (Limited Access)" },
+      { included: true, text: "100 Tasks per Month" },
+      { included: true, text: "Basic Platform Access" },
+      { included: true, text: "Community Support" },
+      { included: false, text: "Advanced Features" },
+    ],
+    cta: "Start Free",
+    badge: null,
+    color: "from-slate-400 to-slate-600",
+    popular: false,
+    moneyBack: "No credit card required",
+  },
+  {
     name: "Starter",
     description: "Perfect for solopreneurs starting their first team.",
     monthlyPrice: 49.0,
     yearlyPrice: 529.2, // 10% discount: (49 * 12) * 0.9
     features: [
-      { included: true, text: "Hire 1 Specialized AI Employee" },
+      { included: true, text: "Hire 3 Specialized AI Employees" },
       { included: true, text: "14-Day Free Trial" },
       { included: true, text: "Full Platform & Tool Access" },
-      { included: true, text: "Unlimited Tasks for your Agent" },
+      { included: true, text: "Unlimited Tasks for your Agents" },
       { included: true, text: "Email Support (24h response)" },
     ],
-    cta: "Hire Your First Employee",
+    cta: "Hire Your First Team",
     badge: null,
     color: "from-green-400 to-green-600",
     popular: false,
-    moneyBack: "Save ~ $3,500/mo in human overhead",
+    moneyBack: "Save ~ $10,500/mo in human overhead",
   },
   {
-    name: "Full Team",
+    name: "Pro",
     description: "Your comprehensive 24/7 digital workforce.",
     monthlyPrice: 149.0,
     yearlyPrice: 1609.2, // 10% discount: (149 * 12) * 0.9
@@ -48,24 +66,6 @@ const defaultPlans = [
     color: "from-green-500 to-green-700",
     popular: true,
     moneyBack: "Save ~ $29,000/mo in human overhead",
-  },
-  {
-    name: "Enterprise",
-    description: "For agencies scaling multiple brands.",
-    monthlyPrice: 499.0,
-    yearlyPrice: 5389.2, // 10% discount
-    features: [
-      { included: true, text: "Unlimited AI Teams" },
-      { included: true, text: "White-label Dashboard" },
-      { included: true, text: "Custom API & SDK Access" },
-      { included: true, text: "Dedicated Success Manager" },
-      { included: true, text: "SLA-backed Performance" },
-    ],
-    cta: "Contact Sales",
-    badge: null,
-    color: "from-slate-700 to-slate-900",
-    popular: false,
-    moneyBack: "Custom high-scale solutions",
   },
 ]
 
