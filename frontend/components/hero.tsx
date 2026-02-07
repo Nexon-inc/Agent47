@@ -14,9 +14,9 @@ export default function Hero() {
   const [thinkingStepIndex, setThinkingStepIndex] = useState(0)
 
   const chatMessages = [
-    { 
-      type: "user", 
-      message: "Help me automate my social media marketing", 
+    {
+      type: "user",
+      message: "Help me automate my social media marketing",
       time: "2:34 PM",
       isVoice: false
     },
@@ -206,22 +206,22 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                Introducing Agent47 — AI Automation Platform
+                Introducing Agent47 — Meet Your 24/7 AI Workforce
               </motion.div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight">
-                Automate Your Business with <span className="gradient-text">Agent47</span>
+                Hire Your <span className="gradient-text">24/7 AI Team</span>
               </h1>
             </div>
             <p className="text-lg md:text-xl text-gray-600 max-w-[500px] mx-auto md:mx-0">
-              Built for teams and companies to orchestrate multi-agent workflows across operations, marketing, sales, and support—delivering faster execution, higher ROI, and measurable outcomes.
+              Stop overpaying for local operations. Hire specialized AI employees that work 24/7 across marketing, sales, and support for 1/100th of the cost.
             </p>
 
             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
               <Link
-                href="/auth?tab=signup"
+                href="/onboarding"
                 className="group bg-gradient-to-r from-green-400 to-green-600 text-white font-semibold px-8 py-4 rounded-lg hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300 flex items-center"
               >
-                Get Started Free
+                Hire Your Team
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </Link>
               <Link
@@ -263,7 +263,7 @@ export default function Hero() {
           >
             {/* Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-green-600/20 rounded-3xl blur-3xl -z-10 opacity-60"></div>
-            
+
             {/* Modern Chat Interface */}
             <div className="relative bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
               {/* Chat Header */}
@@ -276,7 +276,7 @@ export default function Hero() {
                     <div>
                       <h3 className="text-lg font-bold text-white">Agent47 Chat</h3>
                       <div className="text-sm text-white/90 flex items-center">
-                        <motion.div 
+                        <motion.div
                           className="w-2 h-2 rounded-full bg-white mr-2"
                           animate={{ opacity: [1, 0.5, 1] }}
                           transition={{ duration: 2, repeat: Infinity }}
@@ -286,12 +286,11 @@ export default function Hero() {
                     </div>
                   </div>
                   <motion.button
-                    className={`p-3 rounded-full transition-all duration-300 ${
-                      isVoiceActive 
-                        ? "bg-red-500 text-white shadow-lg shadow-red-500/50 ring-2 ring-red-300" 
+                    className={`p-3 rounded-full transition-all duration-300 ${isVoiceActive
+                        ? "bg-red-500 text-white shadow-lg shadow-red-500/50 ring-2 ring-red-300"
                         : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-                    }`}
-                    animate={{ 
+                      }`}
+                    animate={{
                       scale: isVoiceActive ? [1, 1.1, 1] : 1,
                     }}
                     transition={{ duration: 0.5, repeat: isVoiceActive ? Infinity : 0 }}
@@ -302,7 +301,7 @@ export default function Hero() {
               </div>
 
               {/* Chat Messages Container */}
-              <div 
+              <div
                 ref={chatMessagesRef}
                 className="bg-gray-50/50 px-4 py-4 h-[420px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
               >
@@ -310,7 +309,7 @@ export default function Hero() {
                   {chatMessages.slice(0, currentMessage + 1).map((msg, i) => {
                     const isThinking = msg.type === "thinking"
                     const isCurrentThinking = isThinking && i === currentMessage
-                    
+
                     return (
                       <motion.div
                         key={i}
@@ -329,9 +328,8 @@ export default function Hero() {
                           >
                             {/* Avatar */}
                             {(msg.type === "bot" || msg.type === "thinking") && (
-                              <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${msg.color} flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${
-                                isThinking ? "animate-pulse" : ""
-                              }`}>
+                              <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${msg.color} flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${isThinking ? "animate-pulse" : ""
+                                }`}>
                                 {msg.avatar || msg.agent?.slice(0, 2) || "AI"}
                               </div>
                             )}
@@ -340,7 +338,7 @@ export default function Hero() {
                                 <User className="w-4 h-4" />
                               </div>
                             )}
-                            
+
                             {/* Message Bubble */}
                             <div className="flex flex-col">
                               {(msg.type === "bot" || msg.type === "thinking") && msg.agent && (
@@ -348,7 +346,7 @@ export default function Hero() {
                                   {msg.agent}
                                 </span>
                               )}
-                              
+
                               {isThinking ? (
                                 <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
                                   <div className="flex items-center gap-2 mb-2">
@@ -357,7 +355,7 @@ export default function Hero() {
                                         <motion.div
                                           key={dot}
                                           className="w-1.5 h-1.5 bg-gray-400 rounded-full"
-                                          animate={{ 
+                                          animate={{
                                             opacity: [0.3, 1, 0.3],
                                             scale: [1, 1.2, 1]
                                           }}
@@ -371,19 +369,19 @@ export default function Hero() {
                                     </div>
                                     <span className="text-xs text-gray-500 italic">{msg.message}</span>
                                   </div>
-                                  
+
                                   {/* Thinking Steps */}
                                   {msg.thinkingSteps && (
                                     <div className="space-y-1.5 pt-2 border-t border-gray-100">
                                       {msg.thinkingSteps.map((step: string, stepIndex: number) => {
                                         const isStepActive = isCurrentThinking && stepIndex <= thinkingStepIndex
-                                        
+
                                         return (
                                           <motion.div
                                             key={stepIndex}
                                             className="flex items-center gap-2 text-xs text-gray-600"
                                             initial={{ opacity: 0, x: -10 }}
-                                            animate={{ 
+                                            animate={{
                                               opacity: isStepActive ? 1 : 0.3,
                                               x: 0
                                             }}
@@ -409,11 +407,10 @@ export default function Hero() {
                                 </div>
                               ) : (
                                 <div
-                                  className={`rounded-2xl px-4 py-3 shadow-sm ${
-                                    msg.type === "user"
+                                  className={`rounded-2xl px-4 py-3 shadow-sm ${msg.type === "user"
                                       ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
                                       : "bg-white border border-gray-200 text-gray-800"
-                                  }`}
+                                    }`}
                                 >
                                   {msg.isVoice && (
                                     <div className="flex items-center gap-2 mb-2 pb-2 border-b border-white/20">
@@ -451,11 +448,10 @@ export default function Hero() {
                                       }
                                     })}
                                   </div>
-                                  <p className={`text-xs mt-2 ${
-                                    msg.type === "user" 
-                                      ? "text-white/70" 
+                                  <p className={`text-xs mt-2 ${msg.type === "user"
+                                      ? "text-white/70"
                                       : "text-gray-500"
-                                  }`}>
+                                    }`}>
                                     {msg.time}
                                   </p>
                                 </div>
@@ -473,7 +469,7 @@ export default function Hero() {
                       const nextMsg = chatMessages[currentMessage + 1]
                       const agentColor = nextMsg?.color || "from-green-400 to-green-600"
                       const agentAvatar = nextMsg?.avatar || "AI"
-                      
+
                       return (
                         <motion.div
                           className="flex justify-start items-center gap-2"
@@ -490,7 +486,7 @@ export default function Hero() {
                                 <motion.div
                                   key={i}
                                   className="w-2 h-2 bg-green-500 rounded-full"
-                                  animate={{ 
+                                  animate={{
                                     y: [0, -6, 0],
                                     opacity: [0.5, 1, 0.5]
                                   }}
@@ -531,11 +527,10 @@ export default function Hero() {
                     )}
                   </div>
                   <motion.button
-                    className={`p-3 rounded-xl transition-all duration-300 ${
-                      isVoiceActive
+                    className={`p-3 rounded-xl transition-all duration-300 ${isVoiceActive
                         ? "bg-red-500 text-white shadow-lg shadow-red-500/50"
                         : "bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30"
-                    }`}
+                      }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -546,7 +541,7 @@ export default function Hero() {
                     )}
                   </motion.button>
                 </div>
-                
+
                 {/* Voice Status Indicator */}
                 {isVoiceActive && (
                   <motion.div

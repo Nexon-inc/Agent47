@@ -17,129 +17,129 @@ import {
 
 const agents = [
   {
-    name: "Aria - Social Media Agent",
+    name: "Aria - Social Media Manager",
     icon: Globe,
-    color: "bg-gradient-to-br from-green-400 to-green-600",
-    lightColor: "bg-orange-50",
-    textColor: "text-[#FF6B1A]",
+    color: "bg-gradient-to-br from-[#FF1493] to-[#FF69B4]", // Pink/Magenta
+    lightColor: "bg-pink-50",
+    textColor: "text-[#FF1493]",
     description: [
-      "Schedule posts across platforms with AI-optimized timing.",
-      "Analyze sentiment and respond to comments in real-time.",
-      "Generate trending hashtags and visuals for engagement.",
-      "Monitor campaigns with unified analytics dashboards.",
+      "Manages all your social media channels 24/7 without ever taking a day off.",
+      "Handles engagement, comment moderation, and real-time response strategy.",
+      "Generates brand-consistent content and optimal scheduling for growth.",
+      "Provides weekly performance briefings and ROI analysis.",
     ],
     stats: {
       automationRate: "92%",
-      timeReduction: "4.5h",
-      engagementIncrease: "37%",
+      workloadCapacity: "Unlimited",
+      humanEquivalent: "$3,500/mo",
     },
   },
   {
-    name: "Clara - Customer Support Agent",
+    name: "Clara - Support Specialist",
     icon: Headphones,
-    color: "bg-gradient-to-br from-purple-400 to-purple-600",
-    lightColor: "bg-purple-50",
-    textColor: "text-purple-600",
-    description: [
-      "Handle inquiries via email, chat, and social in 50+ languages.",
-      "Detect intent and personalize replies with CRM data.",
-      "Escalate complex issues to humans with full context.",
-      "Build dynamic FAQs from past interactions.",
-    ],
-    stats: {
-      responseTime: "< 30s",
-      resolutionRate: "78%",
-      customerSatisfaction: "94%",
-    },
-  },
-  {
-    name: "Shakes - Content Creation Agent",
-    icon: FileText,
-    color: "bg-gradient-to-br from-green-400 to-green-600",
+    color: "bg-gradient-to-br from-green-400 to-green-600", // Green
     lightColor: "bg-green-50",
     textColor: "text-green-600",
     description: [
-      "Write SEO-optimized blogs, scripts, and whitepapers.",
-      "Generate video storyboards with stock footage suggestions.",
-      "Edit drafts iteratively based on your feedback.",
-      "Localize content for global audiences.",
+      "Handles support inquiries via email and chat in 50+ languages instantly.",
+      "Resolves complex tickets using your documentation and past history.",
+      "Escalates nuanced judgment calls to you with full context prepared.",
+      "Builds and maintains your customer knowledge base autonomously.",
     ],
     stats: {
-      contentQuality: "89%",
-      creationSpeed: "5x faster",
-      seoRankingImprovement: "43%",
+      responseTime: "< 30s",
+      resolutionRate: "88%",
+      humanEquivalent: "$3,000/mo",
     },
   },
   {
-    name: "Jackie - Marketing Agent",
-    icon: BarChart3,
-    color: "bg-gradient-to-br from-pink-400 to-pink-600",
-    lightColor: "bg-pink-50",
-    textColor: "text-pink-600",
-    description: [
-      "Segment audiences with data-driven insights.",
-      "Automate email, SMS, and ad campaigns with A/B tests.",
-      "Track ROI across platforms like Google Ads, Meta.",
-      "Analyze competitors and suggest counter-strategies.",
-    ],
-    stats: {
-      campaignEfficiency: "3.2x",
-      conversionIncrease: "28%",
-      budgetOptimization: "31%",
-    },
-  },
-  {
-    name: "Eric - Sales Agent",
-    icon: DollarSign,
-    color: "bg-gradient-to-br from-amber-400 to-amber-600",
-    lightColor: "bg-amber-50",
-    textColor: "text-amber-600",
-    description: [
-      "Score leads with predictive models for higher conversions.",
-      "Craft personalized outreach emails and follow-ups.",
-      "Manage pipelines with CRM integrations (Salesforce, HubSpot).",
-      "Forecast sales with 90% accuracy using AI models.",
-    ],
-    stats: {
-      leadQualification: "47% better",
-      closingRate: "36% higher",
-      forecastAccuracy: "90%",
-    },
-  },
-  {
-    name: "Purity - Business Maker Agent",
-    icon: Lightbulb,
-    color: "bg-gradient-to-br from-gray-800 to-black",
-    lightColor: "bg-gray-50",
-    textColor: "text-gray-800",
-    description: [
-      "Generate tailored business ideas based on trends and market data.",
-      "Validate opportunities with competitor analysis and SEO insights.",
-      "Create automated Business Model Canvas and customer personas.",
-      "Build MVP blueprints with prioritized features and tools.",
-    ],
-    stats: {
-      ideaGeneration: "500+ ideas",
-      validationAccuracy: "87%",
-      timeToLaunch: "60% faster",
-    },
-  },
-  {
-    name: "Joe - Research Agent",
-    icon: Search,
-    color: "bg-gradient-to-br from-teal-500 to-cyan-600",
+    name: "Shakes - Content Creator",
+    icon: FileText,
+    color: "bg-gradient-to-br from-teal-400 to-cyan-500", // Teal
     lightColor: "bg-teal-50",
     textColor: "text-teal-600",
     description: [
-      "Collect data from Wikipedia, Google Search, and YouTube APIs.",
-      "Scrape websites and process PDFs with advanced NLP.",
-      "Generate reports in multiple formats (PDF, DOCX, JSON, Markdown).",
-      "Support multilingual research with real-time translation.",
+      "Produces SEO-optimized blogs, articles, and whitepapers on demand.",
+      "Creates scripts, social captions, and marketing copy in your brand voice.",
+      "Iterates on drafts based on your feedback until they are perfect.",
+      "Manages your content calendar and distribution requirements.",
     ],
     stats: {
-      dataAccuracy: "96%",
-      researchSpeed: "10x faster",
-      sourcesProcessed: "1000+",
+      contentQuality: "94%",
+      creationSpeed: "Instant",
+      humanEquivalent: "$3,500/mo",
+    },
+  },
+  {
+    name: "Jackie - Marketing Executive",
+    icon: BarChart3,
+    color: "bg-gradient-to-br from-orange-400 to-orange-600", // Orange
+    lightColor: "bg-orange-50",
+    textColor: "text-orange-600",
+    description: [
+      "Architects and executes multi-channel marketing campaigns.",
+      "Optimizes ad spend across Meta, Google, and LinkedIn in real-time.",
+      "Performs deep competitor analysis to steal market share.",
+      "Continuously A/B tests your landing pages and funnels.",
+    ],
+    stats: {
+      roiImprovement: "+42%",
+      optimizationCycles: "24/7",
+      humanEquivalent: "$5,000/mo",
+    },
+  },
+  {
+    name: "Eric - Sales Director",
+    icon: DollarSign,
+    color: "bg-gradient-to-br from-blue-500 to-blue-700", // Blue
+    lightColor: "bg-blue-50",
+    textColor: "text-blue-600",
+    description: [
+      "Scores and qualifies leads 24/7 so you never miss an opportunity.",
+      "Sends personalized outreach and follows up until the deal is ready.",
+      "Manages your CRM pipeline (Salesforce, HubSpot) with perfect data.",
+      "Forecasts revenue with high accuracy based on live deal data.",
+    ],
+    stats: {
+      leadQual: "47% higher",
+      followupRate: "100%",
+      humanEquivalent: "$5,000/mo",
+    },
+  },
+  {
+    name: "Purity - Strategic Advisor",
+    icon: Lightbulb,
+    color: "bg-gradient-to-br from-amber-400 to-yellow-600", // Gold
+    lightColor: "bg-amber-50",
+    textColor: "text-amber-600",
+    description: [
+      "Identifies new revenue streams and business model opportunities.",
+      "Analyzes your business metrics to find efficiency bottlenecks.",
+      "Provides data-backed advice on growth strategy and scaling.",
+      "Validates new product ideas with market data before you build.",
+    ],
+    stats: {
+      strategyAccuracy: "91%",
+      marketInsights: "Real-time",
+      humanEquivalent: "$5,000/mo",
+    },
+  },
+  {
+    name: "Joe - Research Analyst",
+    icon: Search,
+    color: "bg-gradient-to-br from-purple-500 to-purple-700", // Purple
+    lightColor: "bg-purple-50",
+    textColor: "text-purple-600",
+    description: [
+      "Conducts deep market research and competitive intelligence gathering.",
+      "Scrapes and synthesizes data from thousands of sources instantly.",
+      "Generates comprehensive PDF reports on any topic in minutes.",
+      "Monitors industry trends to keep your business ahead of the curve.",
+    ],
+    stats: {
+      dataAccuracy: "98%",
+      researchSpeed: "100x human",
+      humanEquivalent: "$4,000/mo",
     },
   },
 ]
@@ -149,7 +149,7 @@ export default function Features() {
   const [activeTab, setActiveTab] = useState<number>(0)
 
   return (
-      <section id="features" className="py-24 bg-white relative overflow-hidden">
+    <section id="features" className="py-24 bg-white relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-green-400/5 to-transparent rounded-full blur-3xl -z-10"></div>
       <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-400/5 to-transparent rounded-full blur-3xl -z-10"></div>
@@ -161,7 +161,7 @@ export default function Features() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-        > 
+        >
           <h2 className="text-3xl md:text-5xl font-extrabold mb-6">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">
               Meet Your AI Workforce
@@ -177,11 +177,10 @@ export default function Features() {
           {agents.map((agent, index) => (
             <motion.button
               key={index}
-              className={`px-6 py-3 rounded-full font-medium text-sm md:text-base transition-all duration-300 ${
-                activeTab === index
+              className={`px-6 py-3 rounded-full font-medium text-sm md:text-base transition-all duration-300 ${activeTab === index
                   ? `${agent.color} text-white shadow-lg`
                   : `bg-white/90 ${agent.textColor} hover:bg-opacity-100 hover:shadow border border-gray-200`
-              }`}
+                }`}
               onClick={() => setActiveTab(index)}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

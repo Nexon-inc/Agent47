@@ -6,20 +6,20 @@ import Link from "next/link"
 
 const steps = [
   {
-    title: "1. Sign Up Free",
-    description: "Create an account in 30 seconds—no credit card needed.",
+    title: "1. Create Your Profile",
+    description: "Brief us on your business, brand voice, and strategic goals in 5 minutes.",
     icon: ClipboardCheck,
     color: "from-green-400 to-green-600",
   },
   {
-    title: "2. Choose Your Agents",
-    description: "Select the AI agents that match your workflow needs.",
+    title: "2. Brief Your AI Team",
+    description: "Assign specific roles to your specialized AI employees based on your needs.",
     icon: Users,
     color: "from-purple-400 to-purple-600",
   },
   {
-    title: "3. Monitor Results",
-    description: "Track performance and ROI in your personalized dashboard.",
+    title: "3. Scale Your Output",
+    description: "Watch your 24/7 team execute tasks and track ROI in your dashboard.",
     icon: BarChart,
     color: "from-green-400 to-green-600",
   },
@@ -45,7 +45,7 @@ export default function HowItWorks() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-[800px] mx-auto">
-            From sign-up to automation, Agent47 is built for speed.
+            From briefing to execution, Agent47 is built to scale your productivity instantly.
           </p>
         </motion.div>
 
@@ -93,14 +93,14 @@ export default function HowItWorks() {
             transition={{ duration: 0.5, delay: 0.6 }}
           >
             <Link
-              href="/auth"
+              href="/onboarding"
               className="group inline-flex items-center bg-gradient-to-r from-green-400 to-green-600 text-white font-semibold px-8 py-4 rounded-lg hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300"
             >
-              Try It Now
+              Start Your Briefing
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
             </Link>
 
-            <p className="mt-6 text-gray-500">No credit card required. Free trial for 14 days.</p>
+            <p className="mt-6 text-gray-500">Pick 1 AI employee for 14 days. Zero risk.</p>
           </motion.div>
         </div>
       </div>

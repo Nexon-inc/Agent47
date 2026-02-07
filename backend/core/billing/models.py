@@ -1,15 +1,11 @@
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, Float, ForeignKey, JSON, Enum, Table
-from core.database.models import Base
+from core.database.models import Base, BillingTier
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from datetime import datetime
 import enum
 
 
-class BillingTier(enum.Enum):
-    FREE = "free"
-    STARTER = "starter"
-    PRO = "pro"
 
 class PaymentStatus(enum.Enum):
     PENDING = "pending"

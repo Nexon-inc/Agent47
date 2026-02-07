@@ -23,14 +23,19 @@ import { Home, BarChart3, Globe, Zap, Settings, Inbox, Users, LogOut, Bot, Histo
 
 const navigationItems = [
   {
-    title: "Dashboard",
+    title: "Intelligence Hub",
     icon: Home,
     href: "/dashboard?tab=home",
   },
   {
-    title: "AI Agents",
+    title: "My Workforce",
     icon: Bot,
     href: "/dashboard?tab=agents-overview",
+  },
+  {
+    title: "Strategy Room",
+    icon: Users,
+    href: "/dashboard?tab=team-chat",
   },
   {
     title: "Platforms",
@@ -38,17 +43,17 @@ const navigationItems = [
     href: "/dashboard?tab=platforms-overview",
   },
   {
-    title: "Tools & Automation",
+    title: "Automations",
     icon: Zap,
     href: "/dashboard?tab=tools-automation-overview",
   },
   {
-    title: "Team Management",
+    title: "Leadership",
     icon: UserPlus,
     href: "/dashboard?tab=team-management",
   },
   {
-    title: "Inbox",
+    title: "Communications",
     icon: Inbox,
     href: "/dashboard?tab=inbox",
   },
@@ -58,19 +63,14 @@ const navigationItems = [
     href: "/dashboard?tab=analytics",
   },
   {
-    title: "History",
+    title: "Task History",
     icon: History,
     href: "/dashboard?tab=history",
   },
   {
-    title: "Account",
+    title: "Settings",
     icon: Settings,
     href: "/dashboard?tab=account-overview",
-  },
-  {
-    title: "Upgrade",
-    icon: TrendingUp,
-    href: "/dashboard?tab=upgrade",
   },
 ]
 

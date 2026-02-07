@@ -14,58 +14,58 @@ interface PricingProps {
 
 const defaultPlans = [
   {
-    name: "Free",
-    description: "Perfect for trying out Agent47.",
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    features: [
-      { included: true, text: "1 Agent (user chooses)" },
-      { included: true, text: "14-day full access trial" },
-      { included: true, text: "Then limited to 5 actions/day" },
-      { included: true, text: "Basic Content Creation" },
-      { included: true, text: "Community Support" },
-    ],
-    cta: "Get Started Free",
-    badge: null,
-    color: "from-green-400 to-green-600",
-    popular: false,
-    moneyBack: null,
-  },
-  {
     name: "Starter",
-    description: "Perfect for freelancers and small teams.",
-    monthlyPrice: 24.99,
-  yearlyPrice: 269.89, // 10% discount: (24.99 * 12) * 0.9
+    description: "Perfect for solopreneurs starting their first team.",
+    monthlyPrice: 49.0,
+    yearlyPrice: 529.2, // 10% discount: (49 * 12) * 0.9
     features: [
-      { included: true, text: "4 Agents (Purity excluded)" },
-      { included: true, text: "Full agent features" },
-      { included: true, text: "Basic analytics" },
-      { included: true, text: "Custom Integrations (5 platforms)" },
+      { included: true, text: "Hire 1 Specialized AI Employee" },
+      { included: true, text: "14-Day Free Trial" },
+      { included: true, text: "Full Platform & Tool Access" },
+      { included: true, text: "Unlimited Tasks for your Agent" },
       { included: true, text: "Email Support (24h response)" },
     ],
-    cta: "Choose Plan",
-    badge: "Most Popular",
+    cta: "Hire Your First Employee",
+    badge: null,
     color: "from-green-400 to-green-600",
-    popular: true,
-    moneyBack: "7-day money-back guarantee",
+    popular: false,
+    moneyBack: "Save ~ $3,500/mo in human overhead",
   },
   {
-    name: "Pro",
-    description: "For agencies and growing businesses.",
-  monthlyPrice: 79.0,
-  yearlyPrice: 853.20, // 10% discount: (79 * 12) * 0.9
+    name: "Full Team",
+    description: "Your comprehensive 24/7 digital workforce.",
+    monthlyPrice: 149.0,
+    yearlyPrice: 1609.2, // 10% discount: (149 * 12) * 0.9
     features: [
-      { included: true, text: "All 7 Agents Available" },
-      { included: true, text: "Inter-agent communication" },
-      { included: true, text: "Advanced analytics" },
-      { included: true, text: "Team Collaboration (5 members)" },
+      { included: true, text: "Hire All 7 AI Employees" },
+      { included: true, text: "Inter-Employee Communication" },
+      { included: true, text: "Team Strategic Briefing" },
+      { included: true, text: "Unlimited Multi-Agent Workflows" },
       { included: true, text: "Priority Support (12h response)" },
     ],
-    cta: "Choose Plan",
-    badge: null,
+    cta: "Hire Your Full Team",
+    badge: "Most Popular",
     color: "from-green-500 to-green-700",
+    popular: true,
+    moneyBack: "Save ~ $29,000/mo in human overhead",
+  },
+  {
+    name: "Enterprise",
+    description: "For agencies scaling multiple brands.",
+    monthlyPrice: 499.0,
+    yearlyPrice: 5389.2, // 10% discount
+    features: [
+      { included: true, text: "Unlimited AI Teams" },
+      { included: true, text: "White-label Dashboard" },
+      { included: true, text: "Custom API & SDK Access" },
+      { included: true, text: "Dedicated Success Manager" },
+      { included: true, text: "SLA-backed Performance" },
+    ],
+    cta: "Contact Sales",
+    badge: null,
+    color: "from-slate-700 to-slate-900",
     popular: false,
-    moneyBack: "7-day money-back guarantee",
+    moneyBack: "Custom high-scale solutions",
   },
 ]
 
@@ -99,7 +99,7 @@ export default function Pricing({ plans = defaultPlans, isLoading = false, error
   }
 
   return (
-      <section id="pricing" className="py-24 bg-[#FFF8F0] relative overflow-hidden">
+    <section id="pricing" className="py-24 bg-[#FFF8F0] relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-bl from-green-400/5 to-transparent rounded-full blur-3xl -z-10"></div>
       <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-green-400/5 to-transparent rounded-full blur-3xl -z-10"></div>
@@ -112,13 +112,11 @@ export default function Pricing({ plans = defaultPlans, isLoading = false, error
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl md:text-5xl font-extrabold mb-6">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-600">
-              Plans for Every Workflow
-            </span>
+          <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-slate-900">
+            Hire Your <span className="gradient-text">AI Workforce</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-[800px] mx-auto">
-            Start free, scale with your needs—no hidden fees.
+          <p className="text-xl text-gray-600 max-w-[800px] mx-auto font-medium">
+            Stop overpaying for local operations. Hire specialized AI employees at 1/100th of the cost.
           </p>
         </motion.div>
 
@@ -135,9 +133,8 @@ export default function Pricing({ plans = defaultPlans, isLoading = false, error
               className={`absolute inset-0 rounded-full ${yearly ? "bg-gradient-to-r from-green-400 to-green-600" : "bg-gray-300"} transition-colors`}
             />
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform ${
-                yearly ? "translate-x-6" : "translate-x-1"
-              }`}
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform ${yearly ? "translate-x-6" : "translate-x-1"
+                }`}
             />
           </button>
           <span className={`ml-3 flex items-center ${yearly ? "font-semibold text-green-600" : "text-gray-600"}`}>
@@ -154,9 +151,8 @@ export default function Pricing({ plans = defaultPlans, isLoading = false, error
           {plans.map((plan, index) => (
             <motion.div
               key={index}
-              className={`bg-white rounded-2xl shadow-xl overflow-hidden relative border ${
-                plan.popular ? "border-green-500" : "border-gray-200"
-              } ${plan.popular ? "md:-mt-4 md:mb-4" : ""}`}
+              className={`bg-white rounded-2xl shadow-xl overflow-hidden relative border ${plan.popular ? "border-green-500" : "border-gray-200"
+                } ${plan.popular ? "md:-mt-4 md:mb-4" : ""}`}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -199,13 +195,12 @@ export default function Pricing({ plans = defaultPlans, isLoading = false, error
 
                 <Link
                   href="/signup"
-                  className={`w-full block text-center py-3 px-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center ${
-                    plan.monthlyPrice === 0
-                      ? "bg-gradient-to-r from-[#10B981] to-[#34D399] text-white hover:shadow-lg hover:shadow-[#10B981]/20"
-                      : plan.popular
+                  className={`w-full block text-center py-3 px-4 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center ${plan.monthlyPrice === 0
+                    ? "bg-gradient-to-r from-[#10B981] to-[#34D399] text-white hover:shadow-lg hover:shadow-[#10B981]/20"
+                    : plan.popular
                       ? "bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/20"
                       : "bg-gradient-to-r from-gray-200 to-gray-300 text-gray-800 hover:from-gray-300 hover:to-gray-400"
-                  }`}
+                    }`}
                 >
                   {plan.cta}
                   <ArrowRight className="ml-2 w-4 h-4" />

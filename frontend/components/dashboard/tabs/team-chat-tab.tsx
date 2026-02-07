@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
+  BarChart3,
   Send,
   Mic,
   Paperclip,
@@ -63,51 +64,44 @@ const AVAILABLE_AGENTS: Agent[] = [
   {
     key: "aria",
     name: "Aria",
-    description: "Social Media Agent - Create posts, manage accounts",
+    description: "PR & Communications Director",
     icon: "📱",
-    color: "text-pink-500",
+    color: "text-blue-500",
   },
   {
     key: "clara",
     name: "Clara",
-    description: "Customer Support Agent - Handle tickets and chats",
-    icon: "💬",
-    color: "text-blue-500",
+    description: "Customer Success Lead",
+    icon: "🤝",
+    color: "text-green-500",
   },
   {
     key: "eric",
     name: "Eric",
-    description: "Sales Agent - Qualify leads, generate proposals",
-    icon: "💰",
-    color: "text-green-500",
+    description: "Senior Sales Representative",
+    icon: "💼",
+    color: "text-red-500",
   },
   {
     key: "jackie",
     name: "Jackie",
-    description: "Marketing Agent - Create campaigns, analyze performance",
-    icon: "📊",
-    color: "text-purple-500",
-  },
-  {
-    key: "joe",
-    name: "Joe",
-    description: "Research Agent - Market research, competitor analysis",
-    icon: "🔍",
+    description: "Growth Marketing Manager",
+    icon: "🚀",
     color: "text-orange-500",
   },
   {
     key: "purity",
     name: "Purity",
-    description: "Business Intelligence Agent - Analytics and insights",
-    icon: "📈",
+    description: "Operations Strategist",
+    icon: "🧠",
     color: "text-indigo-500",
   },
   {
     key: "shakes",
     name: "Shakes",
-    description: "Content Creation Agent - Write content, optimize SEO",
+    description: "Lead Creative Designer",
     icon: "✍️",
-    color: "text-yellow-500",
+    color: "text-purple-500",
   },
 ]
 
@@ -400,29 +394,47 @@ export default function TeamChatTab() {
   return (
     <div className="flex flex-col min-h-[calc(100vh-8rem)] bg-white text-slate-900 font-sans selection:bg-indigo-500/30 relative">
       {/* Header - Fixed Sticky behavior */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/95 backdrop-blur-xl sticky top-0 z-50 -mx-4 md:-mx-6 shadow-sm">
-        <div className="flex items-center space-x-2">
-          <Hash className="h-5 w-5 text-slate-400" />
-          <h2 className="text-lg font-semibold text-slate-900">team-chat</h2>
-        </div>
-        <div className="flex items-center space-x-4">
-          <AnimatePresence>
-            {isCoordinatorActive && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 20 }}
-                className="flex items-center space-x-2 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-full"
-              >
-                <Sparkles className="h-4 w-4 text-indigo-600" />
-                <span className="text-xs font-semibold text-indigo-700">🤝 Agents Collaborating</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
+      <div className="flex flex-col border-b border-slate-200 bg-white/95 backdrop-blur-xl sticky top-0 z-50 -mx-4 md:-mx-6 shadow-sm">
+        <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center space-x-2">
-            <Users className="h-4 w-4 text-slate-400" />
-            <span className="text-sm text-slate-500 font-medium tracking-tight">Team Workspace</span>
+            <Hash className="h-5 w-5 text-slate-400" />
+            <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Strategy Room</h2>
           </div>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Secure Line</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Employee Activity Bar */}
+        <div className="px-6 py-3 border-t border-slate-100 flex items-center space-x-6 overflow-x-auto no-scrollbar scroll-smooth">
+          {AVAILABLE_AGENTS.map((agent) => (
+            <button
+              key={agent.key}
+              onClick={() => handleAgentSelect(agent)}
+              className="flex items-center space-x-2 group shrink-0 transition-opacity hover:opacity-100 opacity-80"
+            >
+              <div className={cn(
+                "h-8 w-8 rounded-lg flex items-center justify-center border transition-all text-sm",
+                agent.color.replace("text-", "border-").replace("-500", "-200"),
+                agent.color.replace("text-", "bg-").replace("-500", "-50/50"),
+                "group-hover:scale-110 group-hover:shadow-sm"
+              )}>
+                {agent.icon}
+              </div>
+              <div className="flex flex-col items-start leading-none">
+                <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{agent.name}</span>
+                <div className="flex items-center space-x-1 mt-0.5">
+                  <div className={cn("h-1 w-1 rounded-full", isCoordinatorActive ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
+                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                    {isCoordinatorActive ? "Synthesizing" : "Ready"}
+                  </span>
+                </div>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -430,27 +442,28 @@ export default function TeamChatTab() {
       <div className="flex-1 overflow-y-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-48">
               <Loader2 className="h-6 w-6 animate-spin text-slate-300" />
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <MessageSquare className="h-12 w-12 text-slate-200 mb-4" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">No messages yet</h3>
-              <p className="text-slate-500 mb-4 max-w-sm mx-auto leading-relaxed">
-                Connect with your team or use /agent-name to delegate tasks to an assistant.
+            <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200">
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
+                <MessageSquare className="h-8 w-8 text-slate-200" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Strategy Room Initialized</h3>
+              <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed font-medium">
+                The secure line is open. Brief your workforce or select an employee below to begin the mission.
               </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {AVAILABLE_AGENTS.slice(0, 3).map((agent) => (
+              <div className="flex flex-wrap gap-3 justify-center">
+                {AVAILABLE_AGENTS.map((agent) => (
                   <Button
                     key={agent.key}
                     variant="outline"
-                    size="sm"
                     onClick={() => handleAgentSelect(agent)}
-                    className="bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 rounded-xl"
+                    className="h-12 bg-white border-slate-200 text-slate-900 hover:bg-slate-50 rounded-xl font-black uppercase tracking-tight text-[10px] px-5 group"
                   >
-                    <Bot className="h-4 w-4 mr-2" />
-                    {agent.name}
+                    <span className="mr-2 text-base group-hover:scale-125 transition-transform">{agent.icon}</span>
+                    Call {agent.name}
                   </Button>
                 ))}
               </div>
@@ -519,71 +532,109 @@ export default function TeamChatTab() {
                       )}
 
                       <div className={cn(
-                        "px-4 py-3 rounded-2xl text-[15px] leading-relaxed",
+                        "px-5 py-4 rounded-[24px] text-[15px] leading-relaxed relative overflow-hidden group/bubble transition-all",
                         isUser
-                          ? "bg-slate-100 text-slate-900 border border-slate-200/50 rounded-tr-none shadow-sm"
-                          : "bg-transparent text-slate-800 rounded-tl-none border-0"
+                          ? "bg-slate-50 text-slate-900 border border-slate-200/50 rounded-tr-none shadow-sm"
+                          : cn(
+                            "bg-white border-2 rounded-tl-none shadow-md",
+                            agentInfo?.color.replace("text-", "border-").replace("-500", "-100")
+                          )
                       )}>
-                        <div className="whitespace-pre-wrap break-words">
+                        {/* Agent Decorative Background Gradient */}
+                        {isAgent && (
+                          <div className={cn(
+                            "absolute top-0 right-0 w-32 h-32 opacity-[0.03] pointer-events-none -mr-16 -mt-16 rounded-full blur-3xl",
+                            agentInfo?.color.replace("text-", "bg-")
+                          )} />
+                        )}
+
+                        <div className="whitespace-pre-wrap break-words relative z-10">
                           {message.content.split('\n').map((line: string, idx: number) => {
-                            // Format lines with emojis/icons (Rich Formatting)
-                            if (line.trim().startsWith('📅') || line.trim().startsWith('📊') || line.trim().startsWith('📝') || line.trim().startsWith('⚡') || line.trim().startsWith('✅') || line.trim().startsWith('🚀') || line.trim().startsWith('✨')) {
+                            // Specialized Rich Card Rendering for specific line starts
+                            if (line.trim().startsWith('📊') || line.trim().startsWith('📈')) {
                               return (
-                                <div key={idx} className="mt-3 first:mt-0 mb-1">
-                                  <span className="font-bold text-slate-900 flex items-center gap-2">
+                                <div key={idx} className="my-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center space-x-4 shadow-inner">
+                                  <div className={cn("p-3 rounded-xl", agentInfo?.color.replace("text-", "bg-").replace("-500", "-100"))}>
+                                    <BarChart3 className={cn("h-5 w-5", agentInfo?.color)} />
+                                  </div>
+                                  <div>
+                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest leading-none mb-1">Impact Metric</h4>
+                                    <p className="text-lg font-black text-slate-800 tracking-tight">{line.replace(/^[📊📈]\s*/, '')}</p>
+                                  </div>
+                                </div>
+                              )
+                            }
+
+                            if (line.trim().startsWith('🚀') || line.trim().startsWith('⚡')) {
+                              return (
+                                <div key={idx} className={cn(
+                                  "my-4 p-4 rounded-2xl border-2 flex flex-col space-y-2 shadow-sm",
+                                  agentInfo?.color.replace("text-", "border-").replace("-500", "-200"),
+                                  agentInfo?.color.replace("text-", "bg-").replace("-500", "-50/30")
+                                )}>
+                                  <div className="flex items-center space-x-2">
+                                    <Zap className={cn("h-4 w-4", agentInfo?.color)} />
+                                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Recommended Action</h4>
+                                  </div>
+                                  <p className="font-bold text-slate-800 leading-tight">{line.replace(/^[🚀⚡]\s*/, '')}</p>
+                                  <Button size="sm" className={cn("mt-2 h-8 rounded-lg font-black uppercase tracking-tighter text-[10px] w-fit", agentInfo?.color.replace("text-", "bg-"))}>
+                                    Execute Now
+                                  </Button>
+                                </div>
+                              )
+                            }
+
+                            // Standard Line Formatting
+                            if (line.trim().startsWith('📅') || line.trim().startsWith('📝') || line.trim().startsWith('✅') || line.trim().startsWith('✨')) {
+                              return (
+                                <div key={idx} className="mt-4 first:mt-0 mb-2">
+                                  <span className="font-black text-slate-900 flex items-center gap-2 uppercase text-xs tracking-tight bg-slate-50 w-fit px-2 py-1 rounded-md border border-slate-100">
                                     {line}
                                   </span>
                                 </div>
                               )
                             } else if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
                               return (
-                                <div key={idx} className="flex items-start gap-2 mt-1.5 ml-1">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2 shrink-0" />
-                                  <span className="text-slate-700">{line.replace(/^[•-]\s*/, '')}</span>
+                                <div key={idx} className="flex items-start gap-3 mt-2 ml-1">
+                                  <div className={cn("w-1.5 h-1.5 rounded-full mt-2 shrink-0", agentInfo ? agentInfo.color.replace("text-", "bg-") : "bg-indigo-500")} />
+                                  <span className="text-slate-700 font-medium">{line.replace(/^[•-]\s*/, '')}</span>
                                 </div>
                               )
                             } else if (line.trim().match(/^\d+\./)) {
                               return (
-                                <div key={idx} className="flex items-start gap-2 mt-1.5 ml-1">
-                                  <span className="text-indigo-600 font-bold shrink-0">{line.match(/^\d+\./)?.[0]}</span>
-                                  <span className="text-slate-700">{line.replace(/^\d+\.\s*/, '')}</span>
+                                <div key={idx} className="flex items-start gap-3 mt-2 ml-1">
+                                  <span className={cn("font-black shrink-0 text-sm", agentInfo?.color)}>{line.match(/^\d+\./)?.[0]}</span>
+                                  <span className="text-slate-700 font-medium">{line.replace(/^\d+\.\s*/, '')}</span>
                                 </div>
                               )
                             } else if (line.trim() === '') {
-                              return <div key={idx} className="h-2" />
+                              return <div key={idx} className="h-3" />
                             }
-                            return <div key={idx} className={idx === 0 ? '' : 'mt-1'}>{line}</div>
+                            return <div key={idx} className={cn(idx === 0 ? '' : 'mt-1.5', isAgent ? "font-medium text-slate-700" : "text-slate-800")}>{line}</div>
                           })}
                         </div>
 
                         {/* Thinking Steps Rendering */}
                         {isAgent && message.thinking_steps && (
-                          <div className="mt-4 pt-3 border-t border-slate-100 space-y-2">
-                            <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                              <div className="flex space-x-1 shrink-0">
-                                {[0, 1, 2].map((dot) => (
-                                  <motion.div
-                                    key={dot}
-                                    className="w-1 h-1 bg-slate-300 rounded-full"
-                                    animate={{ opacity: [0.3, 1, 0.3] }}
-                                    transition={{ duration: 1.5, repeat: Infinity, delay: dot * 0.2 }}
-                                  />
-                                ))}
-                              </div>
-                              Thinking Process
+                          <div className="mt-6 pt-4 border-t border-slate-100 space-y-2 relative z-10">
+                            <div className="flex items-center gap-2 text-[10px] uppercase font-black text-slate-400 tracking-widest mb-3">
+                              <Sparkles className={cn("h-3 w-3", agentInfo?.color)} />
+                              Strategic Calculation
                             </div>
-                            {message.thinking_steps.map((step: string, sIdx: number) => (
-                              <motion.div
-                                key={sIdx}
-                                initial={{ opacity: 0, x: -5 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: sIdx * 0.1 }}
-                                className="flex items-center gap-2 text-xs text-slate-500"
-                              >
-                                <CheckCircle className="h-3 w-3 text-emerald-500" />
-                                <span>{step}</span>
-                              </motion.div>
-                            ))}
+                            <div className="space-y-1.5">
+                              {message.thinking_steps.map((step: string, sIdx: number) => (
+                                <motion.div
+                                  key={sIdx}
+                                  initial={{ opacity: 0, x: -5 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: sIdx * 0.1 }}
+                                  className="flex items-center gap-2.5 text-[11px] text-slate-500 font-bold uppercase tracking-tight"
+                                >
+                                  <div className={cn("h-1 w-1 rounded-full", agentInfo?.color.replace("text-", "bg-"))} />
+                                  <span>{step}</span>
+                                </motion.div>
+                              ))}
+                            </div>
                           </div>
                         )}
 
