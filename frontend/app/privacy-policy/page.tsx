@@ -78,7 +78,7 @@ const sections = [
           </li>
         </ul>
         <p className="text-gray-700 italic">
-          Note: Data shared with agents (e.g., Eric's CRM access) stays within your control.
+          Note: Data shared with personnel (e.g., Eric's CRM access) stays within your control.
         </p>
       </>
     ),
@@ -397,8 +397,8 @@ export default function PrivacyPolicyPage() {
                             <button
                               onClick={() => scrollToSection(section.id)}
                               className={`text-left w-full ${activeSection === section.id
-                                  ? "text-green-600 font-semibold"
-                                  : "text-green-600 hover:text-green-700"
+                                ? "text-green-600 font-semibold"
+                                : "text-green-600 hover:text-green-700"
                                 } transition-colors`}
                             >
                               {section.title}

@@ -105,12 +105,12 @@ export default function AdminPage() {
           <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-green-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <Bot className="w-8 h-8 text-green-500" />
-              <span className="text-sm text-gray-400">Agents</span>
+              <span className="text-sm text-gray-400">Personnel</span>
             </div>
             <div className="text-3xl font-bold text-white">
               {stats?.metrics?.active_agents || 0}
             </div>
-            <div className="text-sm text-gray-400 mt-2">Active agents</div>
+            <div className="text-sm text-gray-400 mt-2">Active personnel</div>
           </Card>
 
           <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-yellow-500/50 transition-colors">
@@ -154,7 +154,7 @@ export default function AdminPage() {
                 className="w-full px-4 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg flex items-center gap-3 transition-colors"
               >
                 <Bot className="w-5 h-5" />
-                <span>Manage Agents</span>
+                <span>Manage Personnel</span>
               </button>
               <button
                 onClick={() => router.push("/admin/system")}

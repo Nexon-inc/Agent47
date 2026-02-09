@@ -100,15 +100,15 @@ export default function EricFeaturesPage() {
       features: [
         {
           name: "Conversational AI",
-          description: "Engage customers via chatbot or voice assistant for inquiries and demos",
+          description: "Engage customers via AI personnel or voice assistant for inquiries and demos",
         },
         {
-          name: "Live Chat & AI-Powered Sales Assistant",
+          name: "AI-Powered Sales Specialist",
           description: "Handle real-time customer interactions with intelligent responses",
         },
         {
-          name: "Voice & Chatbot Sales Engagement",
-          description: "Support both voice and text interactions for comprehensive engagement",
+          name: "Voice & Personnel Sales Engagement",
+          description: "Support both voice and digital interactions for comprehensive engagement",
         },
         {
           name: "Advanced Conversational AI for Industry-Specific Queries",

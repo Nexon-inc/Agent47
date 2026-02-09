@@ -35,8 +35,8 @@ export default function ClaraFeaturesPage() {
           description: "Answer FAQs and provide troubleshooting using NLP",
         },
         {
-          name: "Live Chat Handoff",
-          description: "Transfer complex queries to human agents with context",
+          name: "Specialist Chat Handoff",
+          description: "Transfer complex queries to specialists with context",
         },
         {
           name: "Sentiment Analysis",
@@ -85,8 +85,8 @@ export default function ClaraFeaturesPage() {
           description: "Deliver context-aware replies",
         },
         {
-          name: "AI Chatbot & Live Agent Handoff",
-          description: "Combine automation with human escalation",
+          name: "AI & Specialist Handoff",
+          description: "Combine automation with expert escalation",
         },
         {
           name: "Speech Recognition & Voice Support",
@@ -102,7 +102,7 @@ export default function ClaraFeaturesPage() {
         },
         {
           name: "Voice Sentiment Coaching",
-          description: "Train human agents with AI-suggested empathetic responses",
+          description: "Train specialists with AI-suggested empathetic responses",
         },
         {
           name: "Predictive Issue Detection",
@@ -190,8 +190,8 @@ export default function ClaraFeaturesPage() {
           description: "Map interactions across channels for context",
         },
         {
-          name: "Gamified Agent Performance",
-          description: "Leaderboards to motivate human agents",
+          name: "Gamified Personnel Performance",
+          description: "Leaderboards to motivate your team",
         },
       ],
     },
@@ -309,7 +309,7 @@ export default function ClaraFeaturesPage() {
             </div>
             <p className="text-xl text-gray-600 mb-8">
               Dedicated AI employee providing high-EQ customer support, technical troubleshooting, and omnichannel
-              assistance with seamless human collaboration.
+              assistance with seamless specialist collaboration.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">

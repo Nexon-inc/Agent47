@@ -257,155 +257,155 @@ export default function Features() {
 
                     <div className="mt-6 pt-6 border-t border-gray-100">
                       <div className="flex justify-between items-center">
-                        <div className="text-gray-500">Average time saved per specialist</div></div>
-                      <div className="text-xl font-bold text-green-600">9.5 hours</div>
+                        <div className="text-gray-500">Average time saved per specialist</div>
+                        <div className="text-xl font-bold text-green-600">9.5 hours</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
 
-      {/* Agent Modal */}
-      <AnimatePresence>
-        {selectedAgent !== null && (
-          <motion.div
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedAgent(null)}
-          >
+        {/* Agent Modal */}
+        <AnimatePresence>
+          {selectedAgent !== null && (
             <motion.div
-              className="bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 25 }}
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedAgent(null)}
             >
-              <div className={`${agents[selectedAgent].color} p-8 text-white relative`}>
-                <button
-                  onClick={() => setSelectedAgent(null)}
-                  className="absolute top-4 right-4 text-white hover:text-white/80 transition-colors"
-                  aria-label="Close modal"
-                >
-                  <X size={24} />
-                </button>
+              <motion.div
+                className="bg-white rounded-2xl max-w-4xl w-full max-h-[80vh] overflow-y-auto"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", damping: 25 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className={`${agents[selectedAgent].color} p-8 text-white relative`}>
+                  <button
+                    onClick={() => setSelectedAgent(null)}
+                    className="absolute top-4 right-4 text-white hover:text-white/80 transition-colors"
+                    aria-label="Close modal"
+                  >
+                    <X size={24} />
+                  </button>
 
-                <div className="flex items-center mb-6">
-                  <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mr-6">
-                    {React.createElement(agents[selectedAgent].icon, { size: 32 })}
-                  </div>
-                  <div>
-                    <h3 className="text-3xl font-bold">{agents[selectedAgent].name}</h3>
-                    <p className="text-white/80 text-lg">Advanced AI personnel for your workflow</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  {Object.entries(agents[selectedAgent].stats).map(([key, value], i) => (
-                    <div key={i} className="bg-white/10 rounded-xl p-4">
-                      <div className="text-white/80 text-sm mb-1">
-                        {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
-                      </div>
-                      <div className="text-xl font-bold">{value}</div>
+                  <div className="flex items-center mb-6">
+                    <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mr-6">
+                      {React.createElement(agents[selectedAgent].icon, { size: 32 })}
                     </div>
-                  ))}
+                    <div>
+                      <h3 className="text-3xl font-bold">{agents[selectedAgent].name}</h3>
+                      <p className="text-white/80 text-lg">Advanced AI personnel for your workflow</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    {Object.entries(agents[selectedAgent].stats).map(([key, value], i) => (
+                      <div key={i} className="bg-white/10 rounded-xl p-4">
+                        <div className="text-white/80 text-sm mb-1">
+                          {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+                        </div>
+                        <div className="text-xl font-bold">{value}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div className="p-8">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="text-xl font-semibold text-gray-800 mb-4">All Capabilities</h4>
-                    <ul className="space-y-4">
-                      {agents[selectedAgent].description.map((item, i) => (
-                        <li key={i} className="flex items-start">
-                          <Check className={`w-5 h-5 ${agents[selectedAgent].textColor} mr-3 mt-0.5 flex-shrink-0`} />
-                          <span className="text-gray-700">{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-8">
-                      <h4 className="text-xl font-semibold text-gray-800 mb-4">Integration Options</h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        {["Slack", "Gmail", "Zapier", "Salesforce", "HubSpot", "Notion"].map((item, i) => (
-                          <div key={i} className="flex items-center">
-                            <div className="w-8 h-8 bg-gray-200 rounded-md mr-2"></div>
+                <div className="p-8">
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div>
+                      <h4 className="text-xl font-semibold text-gray-800 mb-4">All Capabilities</h4>
+                      <ul className="space-y-4">
+                        {agents[selectedAgent].description.map((item, i) => (
+                          <li key={i} className="flex items-start">
+                            <Check className={`w-5 h-5 ${agents[selectedAgent].textColor} mr-3 mt-0.5 flex-shrink-0`} />
                             <span className="text-gray-700">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="mt-8">
+                        <h4 className="text-xl font-semibold text-gray-800 mb-4">Integration Options</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                          {["Slack", "Gmail", "Zapier", "Salesforce", "HubSpot", "Notion"].map((item, i) => (
+                            <div key={i} className="flex items-center">
+                              <div className="w-8 h-8 bg-gray-200 rounded-md mr-2"></div>
+                              <span className="text-gray-700">{item}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-xl font-semibold text-gray-800 mb-4">How It Works</h4>
+                      <div className="space-y-6">
+                        {[
+                          {
+                            title: "Connect Your Tools",
+                            desc: `${agents[selectedAgent].name.split(" - ")[0]} integrates with your existing platforms to access necessary data.`,
+                          },
+                          {
+                            title: "Configure Workflows",
+                            desc: "Set up automation rules and preferences through our intuitive dashboard.",
+                          },
+                          {
+                            title: "Monitor & Optimize",
+                            desc: "Track performance metrics and fine-tune your specialist's behavior for optimal results.",
+                          },
+                        ].map((step, i) => (
+                          <div key={i} className="flex">
+                            <div
+                              className={`w-8 h-8 ${agents[selectedAgent].color} rounded-full flex items-center justify-center text-white font-bold mr-4 flex-shrink-0`}
+                            >
+                              {i + 1}
+                            </div>
+                            <div>
+                              <h5 className="font-semibold text-gray-800">{step.title}</h5>
+                              <p className="text-gray-600">{step.desc}</p>
+                            </div>
                           </div>
                         ))}
                       </div>
-                    </div>
-                  </div>
 
-                  <div>
-                    <h4 className="text-xl font-semibold text-gray-800 mb-4">How It Works</h4>
-                    <div className="space-y-6">
-                      {[
-                        {
-                          title: "Connect Your Tools",
-                          desc: `${agents[selectedAgent].name.split(" - ")[0]} integrates with your existing platforms to access necessary data.`,
-                        },
-                        {
-                          title: "Configure Workflows",
-                          desc: "Set up automation rules and preferences through our intuitive dashboard.",
-                        },
-                        {
-                          title: "Monitor & Optimize",
-                          desc: "Track performance metrics and fine-tune your specialist's behavior for optimal results.",
-                        },
-                      ].map((step, i) => (
-                        <div key={i} className="flex">
-                          <div
-                            className={`w-8 h-8 ${agents[selectedAgent].color} rounded-full flex items-center justify-center text-white font-bold mr-4 flex-shrink-0`}
-                          >
-                            {i + 1}
-                          </div>
+                      <div className="mt-8 p-6 bg-gray-50 rounded-xl">
+                        <h4 className="text-lg font-semibold text-gray-800 mb-3">Customer Success Story</h4>
+                        <p className="text-gray-600 italic mb-4">
+                          "{agents[selectedAgent].name.split(" - ")[0]} helped us reduce our{" "}
+                          {agents[selectedAgent].name.split(" - ")[1].toLowerCase()} workload by 73% while improving
+                          quality. It's been a game-changer for our team."
+                        </p>
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
                           <div>
-                            <h5 className="font-semibold text-gray-800">{step.title}</h5>
-                            <p className="text-gray-600">{step.desc}</p>
+                            <div className="font-medium text-gray-800">Sarah Johnson</div>
+                            <div className="text-sm text-gray-500">Director at TechFlow</div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="mt-8 p-6 bg-gray-50 rounded-xl">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-3">Customer Success Story</h4>
-                      <p className="text-gray-600 italic mb-4">
-                        "{agents[selectedAgent].name.split(" - ")[0]} helped us reduce our{" "}
-                        {agents[selectedAgent].name.split(" - ")[1].toLowerCase()} workload by 73% while improving
-                        quality. It's been a game-changer for our team."
-                      </p>
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
-                        <div>
-                          <div className="font-medium text-gray-800">Sarah Johnson</div>
-                          <div className="text-sm text-gray-500">Director at TechFlow</div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
-                  <button
-                    className={`${agents[selectedAgent].color} text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:shadow-lg`}
-                    onClick={() => setSelectedAgent(null)}
-                  >
-                    Got it
-                  </button>
+                  <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
+                    <button
+                      className={`${agents[selectedAgent].color} text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:shadow-lg`}
+                      onClick={() => setSelectedAgent(null)}
+                    >
+                      Got it
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          )}
+        </AnimatePresence>
+      </div>
     </section >
   )
 }

@@ -116,7 +116,7 @@ export default function CompliancePage() {
                     "Annual third-party audits by certified auditors",
                     "Continuous monitoring of security controls",
                     "Documented policies and procedures",
-                    "Regular security awareness training for all employees",
+                    "Regular security awareness training for all personnel",
                     "Incident response and disaster recovery plans",
                   ],
                 },

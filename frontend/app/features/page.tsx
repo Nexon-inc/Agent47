@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function FeaturesPage() {
-  const agents = [
+  const personnel = [
     {
       name: "Aria",
       description: "Social Media Automation",
@@ -105,7 +105,7 @@ export default function FeaturesPage() {
     },
     {
       name: "Joe",
-      description: "Research Agent",
+      description: "Research Personnel",
       icon: Search,
       color: "from-sky-400 to-cyan-500",
       link: "/features/joe",
@@ -146,7 +146,7 @@ export default function FeaturesPage() {
       {/* Agent Cards */}
       <div className="container mx-auto px-4 py-12 2xl:px-12 3xl:px-16 max-w-7xl 2xl:max-w-[1400px] 3xl:max-w-[1600px]">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {agents.map((agent, index) => {
+          {personnel.map((agent, index) => {
             const IconComponent = agent.icon
             return (
               <Link href={agent.link} key={index} className="group">
@@ -195,14 +195,14 @@ export default function FeaturesPage() {
                 icon: Zap,
                 color: "from-amber-500 to-orange-500",
                 description:
-                  "State-of-the-art AI models power all our agents, delivering intelligent automation across your workflow.",
+                  "State-of-the-art AI models power all our personnel, delivering intelligent automation across your workflow.",
               },
               {
-                title: "Cross-Agent Integration",
+                title: "Cross-Personnel Integration",
                 icon: Code,
                 color: "from-blue-500 to-indigo-500",
                 description:
-                  "All agents seamlessly work together, sharing data and insights to create a unified automation ecosystem.",
+                  "All personnel seamlessly work together, sharing data and insights to create a unified automation ecosystem.",
               },
               {
                 title: "Enterprise-Grade Security",
@@ -223,7 +223,7 @@ export default function FeaturesPage() {
                 icon: BarChart3,
                 color: "from-pink-500 to-rose-500",
                 description:
-                  "Unified analytics dashboard provides insights across all agents and automation workflows.",
+                  "Unified analytics dashboard provides insights across all personnel and automation workflows.",
               },
               {
                 title: "API Access",

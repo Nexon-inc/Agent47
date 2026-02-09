@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 
-interface Agent {
+interface Member {
   name: string
   description: string
   color: string
@@ -25,9 +25,9 @@ interface Phase {
   icon: typeof Zap
   goals: string[]
   features: string[]
-  agents: Agent[]
-  agentCount: number
-  targetAgentCount?: number
+  personnel: Member[]
+  personnelCount: number
+  targetPersonnelCount?: number
 }
 
 const phases: Phase[] = [
@@ -44,7 +44,7 @@ const phases: Phase[] = [
       "Build strong community and gather user feedback",
       "Establish brand presence and market positioning",
       "Test system stability and performance at scale",
-      "Refine agent collaboration and intercommunication",
+      "Refine personnel collaboration and intercommunication",
       "Expand to 15 personnel by January 2026",
     ],
     features: [
@@ -65,9 +65,9 @@ const phases: Phase[] = [
       "User Feedback Portal",
       "Target: 15 Personnel by January 2026",
     ],
-    agentCount: 7,
-    targetAgentCount: 15,
-    agents: [
+    personnelCount: 7,
+    targetPersonnelCount: 15,
+    personnel: [
       { name: "Aria", description: "Social Media Automation", color: "bg-orange-500" },
       { name: "Clara", description: "Customer Support AI", color: "bg-purple-500" },
       { name: "Eric", description: "Sales Optimization", color: "bg-blue-500" },
@@ -89,7 +89,7 @@ const phases: Phase[] = [
       "Achieve peak automation efficiency across all workflows",
       "Launch comprehensive API and documentation",
       "Introduce custom personnel builder for enterprise clients",
-      "Replace underperforming agents with advanced alternatives",
+      "Replace underperforming personnel with advanced alternatives",
       "Scale infrastructure for 100,000+ concurrent users",
       "Integrate advanced AI models (GPT-5, Claude 3.5)",
       "Expand to 15 specialized personnel",
@@ -107,9 +107,9 @@ const phases: Phase[] = [
       "AI Model Selection (Choose your LLM)",
       "Webhook & Real-Time Events",
     ],
-    agentCount: 0,
-    targetAgentCount: 15,
-    agents: [],
+    personnelCount: 0,
+    targetPersonnelCount: 15,
+    personnel: [],
   },
   {
     name: "Phase 3: SIGMA",
@@ -143,9 +143,9 @@ const phases: Phase[] = [
       "Zero-Latency Global Infrastructure",
       "Blockchain-Verified AI Actions",
     ],
-    agentCount: 0,
-    targetAgentCount: 17,
-    agents: [],
+    personnelCount: 0,
+    targetPersonnelCount: 17,
+    personnel: [],
   },
 ]
 
@@ -204,7 +204,7 @@ export default function RoadmapPage() {
                   <phase.icon className="w-6 h-6 text-white drop-shadow-sm" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {phase.agentCount} {phase.targetAgentCount && phase.targetAgentCount > phase.agentCount ? `→ ${phase.targetAgentCount}` : ""} Agents
+                  {phase.personnelCount} {phase.targetPersonnelCount && phase.targetPersonnelCount > phase.personnelCount ? `→ ${phase.targetPersonnelCount}` : ""} Employees
                 </h3>
                 <p className={`text-sm font-semibold ${phase.color} mb-1`}>{phase.name.split(":")[1]}</p>
                 <p className="text-sm text-gray-500">{phase.timeline}</p>
@@ -275,7 +275,7 @@ export default function RoadmapPage() {
                         <span className="text-sm">{phase.timeline}</span>
                         <span className="mx-3">•</span>
                         <span className="text-sm">
-                          {phase.agentCount} {phase.targetAgentCount && phase.targetAgentCount > phase.agentCount ? `→ ${phase.targetAgentCount}` : ""} Agents
+                          {phase.personnelCount} {phase.targetPersonnelCount && phase.targetPersonnelCount > phase.personnelCount ? `→ ${phase.targetPersonnelCount}` : ""} Personnel
                         </span>
                       </div>
                     </div>
@@ -327,14 +327,14 @@ export default function RoadmapPage() {
                             </div>
 
                             {/* AI Personnel */}
-                            {phase.agents.length > 0 && (
+                            {phase.personnel.length > 0 && (
                               <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                   <Rocket className="w-5 h-5 mr-2 text-orange-500" />
-                                  AI Personnel ({phase.agentCount}{phase.targetAgentCount && phase.targetAgentCount > phase.agentCount ? ` → ${phase.targetAgentCount}` : ""})
+                                  AI Personnel ({phase.personnelCount}{phase.targetPersonnelCount && phase.targetPersonnelCount > phase.personnelCount ? ` → ${phase.targetPersonnelCount}` : ""})
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                  {phase.agents.map((agent, i) => (
+                                  {phase.personnel.map((agent, i) => (
                                     <div
                                       key={i}
                                       className="flex items-center p-4 bg-gray-50 rounded-xl border border-gray-200 hover:shadow-lg transition-shadow"
@@ -357,7 +357,7 @@ export default function RoadmapPage() {
                                 </div>
                               </div>
                             )}
-                            {phase.agents.length === 0 && phase.targetAgentCount && (
+                            {phase.personnel.length === 0 && phase.targetPersonnelCount && (
                               <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                   <Rocket className="w-5 h-5 mr-2 text-orange-500" />

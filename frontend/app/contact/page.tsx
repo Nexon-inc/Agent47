@@ -29,9 +29,9 @@ export default function ContactPage() {
       isOpen: true,
     },
     {
-      question: "Can I switch between different agents?",
+      question: "Can I switch between different personnel?",
       answer:
-        "Yes! Depending on your plan, you can swap agents monthly. The Starter plan allows 3 agents, Pro allows 6, and Ecosystem gives you access to all available agents.",
+        "Yes! Depending on your plan, you can swap personnel monthly. The Starter plan allows 3 personnel, Pro allows 6, and Ecosystem gives you access to all available personnel.",
       isOpen: false,
     },
     {
@@ -49,7 +49,7 @@ export default function ContactPage() {
     {
       question: "What integrations do you support?",
       answer:
-        "Agent47 integrates with popular tools like Slack, Gmail, Zapier, Salesforce, HubSpot, and Notion. Each agent has specific integration capabilities tailored to its function.",
+        "Agent47 integrates with popular tools like Slack, Gmail, Zapier, Salesforce, HubSpot, and Notion. Each personnel has specific integration capabilities tailored to its function.",
       isOpen: false,
     },
   ])

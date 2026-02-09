@@ -177,7 +177,7 @@ export default function JackieFeaturesPage() {
       color: "from-teal-500 to-green-500",
       features: [
         {
-          name: "Customer Engagement & Chatbots",
+          name: "Customer Engagement Intelligence",
           description: "Manage interactions and responses automatically",
         },
         {
@@ -189,8 +189,8 @@ export default function JackieFeaturesPage() {
           description: "Target nuanced customer segments using CRM data",
         },
         {
-          name: "Human-Like Chatbot Responses",
-          description: "Mimic human responses with empathy and context",
+          name: "Expert Personnel Responses",
+          description: "Mimic expert responses with empathy and context",
         },
       ],
     },

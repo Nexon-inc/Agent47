@@ -193,7 +193,7 @@ export default function AgentsAdminPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Agent Management</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Personnel Management</h1>
           <p className="text-gray-400">Monitor and manage your AI personnel</p>
         </div>
 
@@ -201,11 +201,11 @@ export default function AgentsAdminPage() {
           <TabsList className="bg-gray-900/50 border-gray-800">
             <TabsTrigger value="agents" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400">
               <Activity className="h-4 w-4 mr-2" />
-              Agents
+              Personnel
             </TabsTrigger>
             <TabsTrigger value="chat" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400">
               <MessageSquare className="h-4 w-4 mr-2" />
-              Chat with Agents
+              Chat with Personnel
             </TabsTrigger>
           </TabsList>
 
@@ -254,14 +254,14 @@ export default function AgentsAdminPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-white">Agent Status</CardTitle>
+                    <CardTitle className="text-white">Personnel Status</CardTitle>
                     <CardDescription className="text-gray-400">Monitor and manage your AI personnel</CardDescription>
                   </div>
                   <div className="flex items-center space-x-4">
                     <div className="relative">
                       <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                       <Input
-                        placeholder="Search agents..."
+                        placeholder="Search personnel..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="pl-10 w-64 bg-gray-800 border-gray-700 text-white"
@@ -275,7 +275,7 @@ export default function AgentsAdminPage() {
                   {filteredAgents.length === 0 ? (
                     <div className="text-center py-12">
                       <Bot className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-300 mb-2">No agents found</h3>
+                      <h3 className="text-xl font-semibold text-gray-300 mb-2">No personnel found</h3>
                       <p className="text-gray-500">No agents match your search criteria</p>
                     </div>
                   ) : (
@@ -450,8 +450,8 @@ function AgentChatInterface({ agents }: { agents: Agent[] }) {
       {/* Agent List */}
       <Card className="bg-gray-900/50 border-gray-800 lg:col-span-1">
         <CardHeader>
-          <CardTitle className="text-white">Select Agent</CardTitle>
-          <CardDescription className="text-gray-400">Choose an agent to chat with</CardDescription>
+          <CardTitle className="text-white">Select Personnel</CardTitle>
+          <CardDescription className="text-gray-400">Choose a personnel to chat with</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 max-h-[600px] overflow-y-auto scrollbar-hide">
@@ -469,8 +469,8 @@ function AgentChatInterface({ agents }: { agents: Agent[] }) {
                     setMessages([])
                   }}
                   className={`w-full p-3 rounded-lg border transition-colors text-left ${selectedAgent?.id === agent.id
-                      ? 'bg-green-600/20 border-green-500 text-white'
-                      : 'bg-gray-800/50 border-gray-700 text-gray-300 hover:bg-gray-800'
+                    ? 'bg-green-600/20 border-green-500 text-white'
+                    : 'bg-gray-800/50 border-gray-700 text-gray-300 hover:bg-gray-800'
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -520,10 +520,10 @@ function AgentChatInterface({ agents }: { agents: Agent[] }) {
                     >
                       <div
                         className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.type === 'user'
-                            ? 'bg-green-600 text-white'
-                            : msg.type === 'system'
-                              ? 'bg-gray-800 text-gray-300 border border-gray-700'
-                              : 'bg-gray-800 text-white'
+                          ? 'bg-green-600 text-white'
+                          : msg.type === 'system'
+                            ? 'bg-gray-800 text-gray-300 border border-gray-700'
+                            : 'bg-gray-800 text-white'
                           }`}
                       >
                         {msg.type === 'system' && msg.content.includes('💭') ? (

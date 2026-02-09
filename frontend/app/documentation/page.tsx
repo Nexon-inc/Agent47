@@ -139,8 +139,8 @@ const agent47 = new Agent47({
   apiKey: process.env.AGENT47_API_KEY
 })
 
-// Send a task to Aria (Social Media Agent)
-const response = await agent47.agents.aria.chat({
+// Send a task to Aria (Social Media Specialist)
+const response = await agent47.personnel.aria.chat({
   message: "Create a week's worth of Instagram posts about AI automation",
   options: {
     tone: "professional",
@@ -154,7 +154,7 @@ console.log(response.content)
 
 // Access analytics
 const analytics = await agent47.analytics.get({
-  agentId: "aria",
+  personnelId: "aria",
   period: "last_7_days"
 })
 

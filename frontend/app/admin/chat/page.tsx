@@ -137,52 +137,52 @@ export default function AdminChatPage() {
       permissions: ['superadmin']
     },
 
-    // Agent Commands
+    // Personnel Commands
     {
-      name: 'agents.list',
-      description: 'List all agents with detailed status and performance metrics',
-      syntax: 'agents.list [filter]',
-      examples: ['agents.list', 'agents.list online', 'agents.list busy'],
+      name: 'personnel.list',
+      description: 'List all personnel with detailed status and performance metrics',
+      syntax: 'personnel.list [filter]',
+      examples: ['personnel.list', 'personnel.list online', 'personnel.list busy'],
       category: 'agents',
       permissions: ['superadmin', 'admin']
     },
     {
-      name: 'agents.status',
-      description: 'Get detailed status of specific agent or all agents',
-      syntax: 'agents.status [agent_id]',
-      examples: ['agents.status', 'agents.status aria', 'agents.status all'],
+      name: 'personnel.status',
+      description: 'Get detailed status of specific personnel or all personnel',
+      syntax: 'personnel.status [personnel_id]',
+      examples: ['personnel.status', 'personnel.status aria', 'personnel.status all'],
       category: 'agents',
       permissions: ['superadmin', 'admin']
     },
     {
-      name: 'agents.restart',
-      description: 'Restart specific agent or multiple agents',
-      syntax: 'agents.restart [agent_id] [force]',
-      examples: ['agents.restart aria', 'agents.restart all', 'agents.restart aria force'],
+      name: 'personnel.restart',
+      description: 'Restart specific personnel or multiple personnel',
+      syntax: 'personnel.restart [personnel_id] [force]',
+      examples: ['personnel.restart aria', 'personnel.restart all', 'personnel.restart aria force'],
       category: 'agents',
       permissions: ['superadmin', 'admin']
     },
     {
-      name: 'agents.configure',
-      description: 'Configure agent parameters and capabilities',
-      syntax: 'agents.configure [agent_id] [parameter] [value]',
-      examples: ['agents.configure aria memory_limit 2GB', 'agents.configure aria enable_api true'],
+      name: 'personnel.configure',
+      description: 'Configure personnel parameters and capabilities',
+      syntax: 'personnel.configure [personnel_id] [parameter] [value]',
+      examples: ['personnel.configure aria memory_limit 2GB', 'personnel.configure aria enable_api true'],
       category: 'agents',
       permissions: ['superadmin']
     },
     {
-      name: 'agents.deploy',
-      description: 'Deploy new agent or update existing agent',
-      syntax: 'agents.deploy [agent_id] [version] [config]',
-      examples: ['agents.deploy new_agent v1.2.0', 'agents.deploy aria v2.0.0'],
+      name: 'personnel.deploy',
+      description: 'Deploy new personnel or update existing personnel',
+      syntax: 'personnel.deploy [personnel_id] [version] [config]',
+      examples: ['personnel.deploy new_specialist v1.2.0', 'personnel.deploy aria v2.0.0'],
       category: 'agents',
       permissions: ['superadmin']
     },
     {
-      name: 'agents.monitor',
-      description: 'Start real-time monitoring of agent performance',
-      syntax: 'agents.monitor [agent_id] [metrics]',
-      examples: ['agents.monitor aria', 'agents.monitor all cpu,memory,response_time'],
+      name: 'personnel.monitor',
+      description: 'Start real-time monitoring of personnel performance',
+      syntax: 'personnel.monitor [personnel_id] [metrics]',
+      examples: ['personnel.monitor aria', 'personnel.monitor all cpu,memory,response_time'],
       category: 'agents',
       permissions: ['superadmin', 'admin']
     },
@@ -391,52 +391,52 @@ export default function AdminChatPage() {
       permissions: ['superadmin']
     },
 
-    // Agent Automation Commands
+    // Personnel Automation Commands
     {
-      name: 'agent.execute',
-      description: 'Execute a task with a specific agent',
-      syntax: 'agent.execute [agent_id] [task_type] [parameters]',
-      examples: ['agent.execute aria create_post "AI automation benefits"', 'agent.execute joe market_research "competitor analysis"'],
+      name: 'personnel.execute',
+      description: 'Execute a task with a specific personnel',
+      syntax: 'personnel.execute [personnel_id] [task_type] [parameters]',
+      examples: ['personnel.execute aria create_post "AI automation benefits"', 'personnel.execute joe market_research "competitor analysis"'],
       category: 'agents',
       permissions: ['superadmin', 'admin']
     },
     {
-      name: 'agent.workflow',
-      description: 'Create and execute agent workflows',
-      syntax: 'agent.workflow [action] [workflow_id] [parameters]',
-      examples: ['agent.workflow create "marketing_campaign"', 'agent.workflow execute workflow_123'],
+      name: 'personnel.workflow',
+      description: 'Create and execute personnel workflows',
+      syntax: 'personnel.workflow [action] [workflow_id] [parameters]',
+      examples: ['personnel.workflow create "marketing_campaign"', 'personnel.workflow execute workflow_123'],
       category: 'agents',
       permissions: ['superadmin', 'admin']
     },
     {
-      name: 'agent.communicate',
-      description: 'Send messages between agents',
-      syntax: 'agent.communicate [sender] [receiver] [message_type] [content]',
-      examples: ['agent.communicate aria joe "data_request" "market insights"'],
+      name: 'personnel.communicate',
+      description: 'Send messages between specialists',
+      syntax: 'personnel.communicate [sender] [receiver] [message_type] [content]',
+      examples: ['personnel.communicate aria joe "data_request" "market insights"'],
       category: 'agents',
       permissions: ['superadmin', 'admin']
     },
     {
-      name: 'agent.monitor',
-      description: 'Monitor agent performance and tasks',
-      syntax: 'agent.monitor [agent_id] [metrics]',
-      examples: ['agent.monitor aria performance', 'agent.monitor all tasks'],
+      name: 'personnel.monitor',
+      description: 'Monitor personnel performance and tasks',
+      syntax: 'personnel.monitor [personnel_id] [metrics]',
+      examples: ['personnel.monitor aria performance', 'personnel.monitor all tasks'],
       category: 'agents',
       permissions: ['superadmin', 'admin']
     },
     {
-      name: 'agent.optimize',
-      description: 'Optimize agent performance and configurations',
-      syntax: 'agent.optimize [agent_id] [parameter] [value]',
-      examples: ['agent.optimize aria memory_limit 2GB', 'agent.optimize all performance'],
+      name: 'personnel.optimize',
+      description: 'Optimize personnel performance and configurations',
+      syntax: 'personnel.optimize [personnel_id] [parameter] [value]',
+      examples: ['personnel.optimize aria memory_limit 2GB', 'personnel.optimize all performance'],
       category: 'agents',
       permissions: ['superadmin']
     },
     {
-      name: 'agent.deploy',
-      description: 'Deploy new agents or update existing ones',
-      syntax: 'agent.deploy [agent_id] [version] [config]',
-      examples: ['agent.deploy new_agent v1.0.0', 'agent.deploy aria v2.0.0'],
+      name: 'personnel.deploy',
+      description: 'Deploy new specialists or update existing ones',
+      syntax: 'personnel.deploy [personnel_id] [version] [config]',
+      examples: ['personnel.deploy new_specialist v1.0.0', 'personnel.deploy aria v2.0.0'],
       category: 'agents',
       permissions: ['superadmin']
     }

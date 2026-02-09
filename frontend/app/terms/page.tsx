@@ -455,8 +455,8 @@ export default function TermsPage() {
                             <button
                               onClick={() => scrollToSection(section.id)}
                               className={`text-left w-full ${activeSection === section.id
-                                  ? "text-green-600 font-semibold"
-                                  : "text-green-600 hover:text-green-700"
+                                ? "text-green-600 font-semibold"
+                                : "text-green-600 hover:text-green-700"
                                 } transition-colors`}
                             >
                               {section.title}
