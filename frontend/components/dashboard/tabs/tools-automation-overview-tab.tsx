@@ -217,7 +217,7 @@ interface CalendarStats {
   by_status: Record<string, number>
 }
 
-export default function ToolsAutomationOverviewTab() {
+export default function EmployeeToolkitTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
   const [selectedType, setSelectedType] = useState<string>("All")
@@ -317,16 +317,16 @@ export default function ToolsAutomationOverviewTab() {
   // Subscribe to real-time integration and calendar updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
 
     // Reload when integrations change or calendar events update
     const unsubscribe = websocketService.subscribe('notification', (message) => {
-      if (message.data?.type === 'integration_error' || 
-          message.data?.type === 'platform_update' ||
-          message.data?.type === 'task_completed') {
+      if (message.data?.type === 'integration_error' ||
+        message.data?.type === 'platform_update' ||
+        message.data?.type === 'task_completed') {
         loadIntegrationsData()
       }
     })
@@ -338,27 +338,27 @@ export default function ToolsAutomationOverviewTab() {
     try {
       setIsLoading(true)
       setIsRefreshing(true)
-      
+
       // Load integrations, usage, stats, and calendar data in parallel
       // Get available integrations from the correct endpoint
       try {
         const integrationsResponse = await apiClient.get("/api/v1/integrations/").catch(() => null);
         console.log("Integrations API response:", integrationsResponse);
-        
+
         const availableIntegrationsResponse = await apiClient.get("/api/v1/integrations/available").catch((err) => {
           console.error("Failed to load available integrations:", err);
           return null;
         });
-        
+
         const usageResponse = await apiClient.get("/api/v1/integrations/usage").catch(() => null);
         const statsResponse = await apiClient.get("/api/v1/integrations/stats").catch(() => null);
         const calendarResponse = await apiClient.get("/api/v1/calendar/events").catch(() => null);
         const calendarStatsResponse = await apiClient.get("/api/v1/calendar/stats").catch(() => null);
-        
+
         // Handle both wrapped and unwrapped responses
         let directIntegrations = integrationsResponse?.data || integrationsResponse || [];
         let availableIntegrations = availableIntegrationsResponse?.data?.integrations || availableIntegrationsResponse?.data || [];
-        
+
         // Ensure we have arrays
         if (!Array.isArray(directIntegrations)) {
           directIntegrations = directIntegrations?.integrations || [];
@@ -366,12 +366,12 @@ export default function ToolsAutomationOverviewTab() {
         if (!Array.isArray(availableIntegrations)) {
           availableIntegrations = availableIntegrations?.integrations || [];
         }
-        
+
         // Use available integrations if the main endpoint doesn't return data
-        let allIntegrations = directIntegrations.length > 0 
-          ? directIntegrations 
+        let allIntegrations = directIntegrations.length > 0
+          ? directIntegrations
           : availableIntegrations;
-        
+
         // If no integrations from API, provide default tools list
         if (allIntegrations.length === 0) {
           allIntegrations = [
@@ -390,16 +390,16 @@ export default function ToolsAutomationOverviewTab() {
           ]
           console.warn("No integrations loaded - using default tools list");
         }
-        
+
         setIntegrations(allIntegrations);
         setIntegrationUsage(usageResponse?.data || usageResponse || []);
         setIntegrationStats(statsResponse?.data || statsResponse || null);
         setCalendarEvents(calendarResponse?.data || calendarResponse || []);
         setCalendarStats(calendarStatsResponse?.data || calendarStatsResponse || null);
         setLastUpdated(new Date());
-        
+
         console.log("Loaded integrations:", allIntegrations.length, allIntegrations);
-        
+
       } catch (error) {
         console.error("Failed to load integrations:", error);
         // Set default tools when API is not available
@@ -423,7 +423,7 @@ export default function ToolsAutomationOverviewTab() {
         setCalendarEvents([]);
         setCalendarStats(null);
       }
-      
+
     } catch (error) {
       console.error("Failed to load integrations data:", error)
       // Set empty data when API is not available
@@ -467,7 +467,7 @@ export default function ToolsAutomationOverviewTab() {
       if (!integration) {
         throw new Error("Integration not found")
       }
-      
+
       // Try to connect using the integration name
       await apiClient.post(`/api/v1/integrations/connect/${integration.name}`, {})
       await loadIntegrationsData()
@@ -518,10 +518,10 @@ export default function ToolsAutomationOverviewTab() {
     try {
       // Use OAuth flow for platform-based integrations
       const response = await apiClient.get(`/api/v1/platforms/connect/${integration.name}`)
-      
+
       // Handle wrapped response
       const data = response?.data || response
-      
+
       if (data?.success && data?.auth_url) {
         toast({
           title: "Redirecting...",
@@ -585,9 +585,9 @@ export default function ToolsAutomationOverviewTab() {
   const getIntegrationIcon = (integration: Integration) => {
     // Try to get icon by integration name first, then by type
     const iconName = integration.name.toLowerCase().replace(/[^a-z0-9]/g, '_')
-    const IconComponent = integrationIcons[iconName] || 
-                         integrationIcons[integration.integration_type] || 
-                         integrationIcons.default
+    const IconComponent = integrationIcons[iconName] ||
+      integrationIcons[integration.integration_type] ||
+      integrationIcons.default
     return <IconComponent className="h-5 w-5 text-current" />
   }
 
@@ -610,7 +610,7 @@ export default function ToolsAutomationOverviewTab() {
       canva: "from-blue-500 to-blue-600",
       wordpress: "from-blue-500 to-blue-600",
     }
-    
+
     const iconName = integration.name.toLowerCase().replace(/[^a-z0-9]/g, '_')
     return colorMap[iconName] || "from-gray-500 to-gray-600"
   }
@@ -635,11 +635,11 @@ export default function ToolsAutomationOverviewTab() {
     }
   }
 
-  const filteredIntegrations = selectedType === "All" 
-    ? integrations 
+  const filteredIntegrations = selectedType === "All"
+    ? integrations
     : integrations.filter(integration => integration.integration_type === selectedType.toLowerCase())
 
-  const upcomingEvents = calendarEvents.filter(event => 
+  const upcomingEvents = calendarEvents.filter(event =>
     new Date(event.start_time) > new Date() && event.status !== "completed"
   ).slice(0, 5)
 
@@ -697,12 +697,12 @@ export default function ToolsAutomationOverviewTab() {
             <Zap className="h-6 w-6 text-green-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Tools & Automation</h2>
-            <p className="text-gray-600">Manage integrations, automations, and calendar events</p>
+            <h2 className="text-2xl font-bold text-gray-900">Employee Toolkit</h2>
+            <p className="text-gray-600">Equip your AI workforce with professional tools and platforms</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Button 
+          <Button
             className="bg-green-600 hover:bg-green-700"
             onClick={() => {
               // Scroll to integrations section or show connection modal
@@ -713,11 +713,11 @@ export default function ToolsAutomationOverviewTab() {
             }}
           >
             <Wifi className="w-4 h-4 mr-2" />
-            Connect Your Tools
+            Add Professional Tools
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
@@ -739,7 +739,7 @@ export default function ToolsAutomationOverviewTab() {
             <div className="flex items-center">
               <Settings className="h-8 w-8 text-green-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Integrations</p>
+                <p className="text-sm font-medium text-gray-600">Active Tools</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {integrationStats?.total_integrations || 0}
                 </p>
@@ -753,7 +753,7 @@ export default function ToolsAutomationOverviewTab() {
             <div className="flex items-center">
               <CheckCircle className="h-8 w-8 text-green-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Connected</p>
+                <p className="text-sm font-medium text-gray-600">Operational</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {integrationStats?.connected_count || 0}
                 </p>
@@ -813,7 +813,7 @@ export default function ToolsAutomationOverviewTab() {
                       <Badge className={getStatusColor(event.status)}>
                         {event.status}
                       </Badge>
-                </div>
+                    </div>
                   </div>
                   <p className="text-sm text-gray-600 mb-2">{event.description}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
@@ -821,9 +821,9 @@ export default function ToolsAutomationOverviewTab() {
                     <span>End: {new Date(event.end_time).toLocaleString()}</span>
                   </div>
                 </div>
-          ))}
-        </div>
-      ) : (
+              ))}
+            </div>
+          ) : (
             <div className="text-center py-8">
               <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No upcoming events</p>
@@ -836,7 +836,7 @@ export default function ToolsAutomationOverviewTab() {
       {/* Integrations */}
       <Card id="integrations-section">
         <CardHeader>
-                <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2">
               <Settings className="h-5 w-5" />
               <span>Available Integrations</span>
@@ -859,17 +859,17 @@ export default function ToolsAutomationOverviewTab() {
                 <SelectItem value="Security">Security</SelectItem>
               </SelectContent>
             </Select>
-                </div>
-              </CardHeader>
+          </div>
+        </CardHeader>
         <CardContent>
           {filteredIntegrations.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {filteredIntegrations.map((integration) => {
-                const isConnected = integrationUsage.some(usage => 
+                const isConnected = integrationUsage.some(usage =>
                   usage.integration_id === integration.id && usage.status === "connected"
                 )
                 const usage = integrationUsage.find(usage => usage.integration_id === integration.id)
-                
+
                 return (
                   <div key={integration.id} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-3">
@@ -886,14 +886,14 @@ export default function ToolsAutomationOverviewTab() {
                         {isConnected ? "Connected" : "Available"}
                       </Badge>
                     </div>
-                    
+
                     <p className="text-sm text-gray-600 mb-3">{integration.description}</p>
-                    
+
                     <div className="flex items-center justify-between text-sm text-gray-500 mb-3">
                       <span>Provider: {integration.provider}</span>
                       <span>Tier: {integration.pricing_tier}</span>
                     </div>
-                    
+
                     {usage && isConnected && (
                       <div className="mb-3 p-2 bg-gray-50 rounded text-sm">
                         <div className="flex justify-between">
@@ -903,12 +903,12 @@ export default function ToolsAutomationOverviewTab() {
                         <div className="text-xs text-gray-500 mt-1">
                           Last used: {usage.last_used ? new Date(usage.last_used).toLocaleDateString() : "Never"}
                         </div>
-                    </div>
-                  )}
+                      </div>
+                    )}
 
-                  <div className="flex space-x-2">
-                    {isConnected ? (
-                        <Button 
+                    <div className="flex space-x-2">
+                      {isConnected ? (
+                        <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleDisconnectIntegration(integration.id)}
@@ -918,8 +918,8 @@ export default function ToolsAutomationOverviewTab() {
                           Disconnect
                         </Button>
                       ) : (
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           onClick={() => {
                             // Check if it's a platform that supports OAuth
                             if (integration.authentication_methods?.oauth2 && !integration.authentication_methods?.api_key) {
@@ -951,29 +951,29 @@ export default function ToolsAutomationOverviewTab() {
                       </Button>
                     </div>
                   </div>
-          )
-        })}
-      </div>
+                )
+              })}
+            </div>
           ) : (
             <div className="text-center py-8">
               <Settings className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No integrations available</p>
               <p className="text-sm text-gray-500">Integrations will appear here when available</p>
-      </div>
-      )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Connected Integrations Usage */}
       {integrationUsage.length > 0 && (
-      <Card>
-        <CardHeader>
+        <Card>
+          <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Activity className="h-5 w-5" />
               <span>Integration Usage</span>
             </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-4">
               {integrationUsage.map((usage) => {
                 const integration = integrations.find(i => i.id === usage.integration_id)
@@ -982,14 +982,14 @@ export default function ToolsAutomationOverviewTab() {
                 return (
                   <div key={usage.id} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2">
                         {getIntegrationIcon(integration)}
                         <h3 className="font-medium">{integration.display_name}</h3>
-                        </div>
+                      </div>
                       <Badge className={getStatusColor(usage.status)}>
                         {usage.status}
-                  </Badge>
-                </div>
+                      </Badge>
+                    </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
@@ -1009,14 +1009,14 @@ export default function ToolsAutomationOverviewTab() {
                         <p className="font-medium">
                           {usage.last_used ? new Date(usage.last_used).toLocaleDateString() : "Never"}
                         </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
                 )
               })}
             </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
       )}
 
       {/* API Key Dialog */}

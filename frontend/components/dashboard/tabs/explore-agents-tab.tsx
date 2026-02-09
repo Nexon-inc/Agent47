@@ -9,16 +9,16 @@ import { cn } from "@/lib/utils"
 import { useUserStore } from "@/lib/stores/user-store"
 
 // Types
-type AgentCategory = "all" | "marketing" | "sales" | "support" | "content" | "business"
+type EmployeeCategory = "all" | "marketing" | "sales" | "support" | "content" | "business"
 type SortOption = "popularity" | "newest" | "alphabetical"
-type AgentId = "aria" | "clara" | "shakes" | "eric" | "jackie" | "purity" | "future1" | "future2"
+type EmployeeId = "aria" | "clara" | "shakes" | "eric" | "jackie" | "purity" | "future1" | "future2"
 
-interface Agent {
-  id: AgentId
+interface Employee {
+  id: EmployeeId
   name: string
   title: string
   description: string
-  category: AgentCategory[]
+  category: EmployeeCategory[]
   icon: React.ElementType
   color: string
   lightColor: string
@@ -30,20 +30,20 @@ interface Agent {
   freeEligible: boolean
 }
 
-export default function ExploreAgentsTab() {
+export default function RecruitmentTab() {
   const { userPlan } = useUserStore()
-  const [category, setCategory] = useState<AgentCategory>("all")
+  const [category, setCategory] = useState<EmployeeCategory>("all")
   const [sortBy, setSortBy] = useState<SortOption>("popularity")
-  const [selectedAgent, setSelectedAgent] = useState<AgentId | null>(null)
-  const [selectedAgents, setSelectedAgents] = useState<AgentId[]>(["aria"])
+  const [selectedCandidate, setSelectedCandidate] = useState<EmployeeId | null>(null)
+  const [hiredEmployees, setHiredEmployees] = useState<EmployeeId[]>(["aria"])
 
-  // Agent data
-  const agents: Agent[] = [
+  // Employee data
+  const employees: Employee[] = [
     {
       id: "aria",
       name: "Aria",
-      title: "Social Media Agent",
-      description: "Automate your social media workflow",
+      title: "AI Social Media Manager",
+      description: "Strategic distribution and real-time social engagement",
       category: ["marketing", "content"],
       icon: Globe,
       color: "bg-gradient-to-br from-[#FF6B1A] to-[#FF8C3E]",
@@ -63,8 +63,8 @@ export default function ExploreAgentsTab() {
     {
       id: "clara",
       name: "Clara",
-      title: "Customer Support Agent",
-      description: "Handle inquiries and support tickets",
+      title: "AI Support Specialist",
+      description: "Omnichannel customer resolution and empathy",
       category: ["support"],
       icon: Headphones,
       color: "bg-gradient-to-br from-purple-400 to-purple-600",
@@ -84,8 +84,8 @@ export default function ExploreAgentsTab() {
     {
       id: "shakes",
       name: "Shakes",
-      title: "Content Creation Agent",
-      description: "Create engaging content for your audience",
+      title: "AI Creative Director",
+      description: "Narrative architecture and high-conversion assets",
       category: ["content"],
       icon: FileText,
       color: "bg-gradient-to-br from-green-400 to-green-600",
@@ -105,8 +105,8 @@ export default function ExploreAgentsTab() {
     {
       id: "jackie",
       name: "Jackie",
-      title: "Marketing Agent",
-      description: "Optimize your marketing campaigns",
+      title: "AI Marketing Director",
+      description: "Full-funnel strategy and audience scaling",
       category: ["marketing"],
       icon: Megaphone,
       color: "bg-gradient-to-br from-pink-400 to-pink-600",
@@ -126,8 +126,8 @@ export default function ExploreAgentsTab() {
     {
       id: "eric",
       name: "Eric",
-      title: "Sales Agent",
-      description: "Boost your sales and conversions",
+      title: "AI Sales Representative",
+      description: "Automated lead qualification and CRM optimization",
       category: ["sales"],
       icon: DollarSign,
       color: "bg-gradient-to-br from-amber-400 to-amber-600",
@@ -147,8 +147,8 @@ export default function ExploreAgentsTab() {
     {
       id: "purity",
       name: "Purity",
-      title: "Business Maker Agent",
-      description: "Launch and scale businesses with AI",
+      title: "AI Business Architect",
+      description: "Venture strategy and operational modeling",
       category: ["business", "marketing"],
       icon: Lightbulb,
       color: "bg-gradient-to-br from-indigo-500 to-indigo-700",
@@ -211,8 +211,8 @@ export default function ExploreAgentsTab() {
     },
   ]
 
-  // Filter and sort agents
-  const filteredAgents = agents
+  // Filter and sort employees
+  const filteredEmployees = employees
     .filter((agent) => category === "all" || agent.category.includes(category))
     .sort((a, b) => {
       if (sortBy === "popularity") return b.popularity - a.popularity
@@ -220,16 +220,16 @@ export default function ExploreAgentsTab() {
       return a.name.localeCompare(b.name) // alphabetical
     })
 
-  // Handle agent selection
-  const toggleAgentSelection = (agentId: AgentId) => {
+  // Handle employee selection
+  const toggleEmployeeSelection = (agentId: EmployeeId) => {
     // For free tier, only allow one agent
     if (userPlan === "free") {
-      setSelectedAgents([agentId])
+      setHiredEmployees([agentId])
       return
     }
 
     // For other plans, allow multiple agents based on plan limits
-    setSelectedAgents((prev) => {
+    setHiredEmployees((prev) => {
       if (prev.includes(agentId)) {
         return prev.filter((id) => id !== agentId)
       } else {
@@ -242,32 +242,32 @@ export default function ExploreAgentsTab() {
     })
   }
 
-  // Check if agent can be added based on plan
-  const canAddAgent = (agent: Agent) => {
+  // Check if candidate can be hired based on plan
+  const canAddEmployee = (agent: Employee) => {
     if (agent.comingSoon) return false
-    if (selectedAgents.includes(agent.id)) return true
+    if (hiredEmployees.includes(agent.id)) return true
 
     if (userPlan === "free") {
-      return selectedAgents.length === 0 && agent.freeEligible
+      return hiredEmployees.length === 0 && agent.freeEligible
     }
 
     const maxAgents = userPlan === "starter" ? 3 : userPlan === "pro" ? 6 : 999
-    return selectedAgents.length < maxAgents
+    return hiredEmployees.length < maxAgents
   }
 
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-[#4B0082]  mb-4">Explore Agents</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-[#4B0082]  mb-4">Talent Recruitment</h1>
         <p className="text-gray-600  mb-6">
-          Discover AI agents to automate your workflows.
+          Discover AI employees to automate your workflows.
           {userPlan === "free"
-            ? " Free tier allows 1 agent."
+            ? " Free tier allows 1 employee."
             : userPlan === "starter"
-              ? " Starter plan allows 3 agents."
+              ? " Starter plan allows 3 employees."
               : userPlan === "pro"
-                ? " Pro plan allows 6 agents."
-                : " Ecosystem plan allows unlimited agents."}
+                ? " Pro plan allows 6 employees."
+                : " Ecosystem plan allows unlimited employees."}
         </p>
 
         {/* Filters */}
@@ -279,15 +279,15 @@ export default function ExploreAgentsTab() {
             <select
               id="category"
               value={category}
-              onChange={(e) => setCategory(e.target.value as AgentCategory)}
+              onChange={(e) => setCategory(e.target.value as EmployeeCategory)}
               className="w-full h-10 px-3 rounded-lg border border-gray-300  bg-white  text-gray-900  focus:outline-none focus:ring-2 focus:ring-[#1E90FF]"
             >
-              <option value="all">All Categories</option>
-              <option value="marketing">Marketing</option>
-              <option value="sales">Sales</option>
-              <option value="support">Customer Support</option>
-              <option value="content">Content Creation</option>
-              <option value="business">Business Development</option>
+              <option value="all">Full Workforce</option>
+              <option value="marketing">Marketing & Growth</option>
+              <option value="sales">Sales & Revenue</option>
+              <option value="support">Success & Support</option>
+              <option value="content">Creative Services</option>
+              <option value="business">Strategy & Business</option>
             </select>
           </div>
 
@@ -311,14 +311,14 @@ export default function ExploreAgentsTab() {
         </div>
       </div>
 
-      {/* Agent Grid */}
+      {/* Employee Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredAgents.map((agent) => (
+        {filteredEmployees.map((agent) => (
           <div
             key={agent.id}
             className={cn(
               "bg-white  rounded-xl shadow-sm border overflow-hidden transition-all",
-              selectedAgents.includes(agent.id)
+              hiredEmployees.includes(agent.id)
                 ? "border-[#1E90FF] [#1E90FF]"
                 : "border-gray-200 ",
               "hover:shadow-md",
@@ -354,33 +354,33 @@ export default function ExploreAgentsTab() {
 
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 ">
                 <button
-                  onClick={() => setSelectedAgent(agent.id)}
+                  onClick={() => setSelectedCandidate(agent.id)}
                   className={cn("text-sm font-medium", agent.textColor)}
                 >
                   Learn More
                 </button>
 
                 <button
-                  onClick={() => !agent.comingSoon && toggleAgentSelection(agent.id)}
-                  disabled={!canAddAgent(agent) && !selectedAgents.includes(agent.id)}
+                  onClick={() => !agent.comingSoon && toggleEmployeeSelection(agent.id)}
+                  disabled={!canAddEmployee(agent) && !hiredEmployees.includes(agent.id)}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
-                    selectedAgents.includes(agent.id)
+                    hiredEmployees.includes(agent.id)
                       ? "bg-[#1E90FF]/10 text-[#1E90FF]"
                       : agent.comingSoon
                         ? "bg-gray-100  text-gray-400  cursor-not-allowed"
-                        : canAddAgent(agent)
+                        : canAddEmployee(agent)
                           ? "bg-[#00FF88] text-white hover:bg-[#00FF88]/90"
                           : "bg-gray-100  text-gray-400  cursor-not-allowed",
                   )}
                 >
-                  {selectedAgents.includes(agent.id)
-                    ? "Selected"
+                  {hiredEmployees.includes(agent.id)
+                    ? "Onboarded"
                     : agent.comingSoon
                       ? "Coming Soon"
-                      : userPlan === "free" && selectedAgents.length > 0 && !selectedAgents.includes(agent.id)
-                        ? "Upgrade to Add"
-                        : "Add Agent"}
+                      : userPlan === "free" && hiredEmployees.length > 0 && !hiredEmployees.includes(agent.id)
+                        ? "Upgrade to Hire"
+                        : "Hire Employee"}
                 </button>
               </div>
             </div>
@@ -388,9 +388,9 @@ export default function ExploreAgentsTab() {
         ))}
       </div>
 
-      {/* Agent Detail Modal */}
+      {/* Employee Detail Modal */}
       <AnimatePresence>
-        {selectedAgent && (
+        {selectedCandidate && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
@@ -401,14 +401,14 @@ export default function ExploreAgentsTab() {
               onClick={(e) => e.stopPropagation()}
             >
               {(() => {
-                const agent = agents.find((a) => a.id === selectedAgent)
+                const agent = employees.find((a) => a.id === selectedCandidate)
                 if (!agent) return null
 
                 return (
                   <>
                     <div className={cn("p-6 relative", agent.color)}>
                       <button
-                        onClick={() => setSelectedAgent(null)}
+                        onClick={() => setSelectedCandidate(null)}
                         className="absolute top-4 right-4 text-white/80 hover:text-white"
                       >
                         <X className="w-6 h-6" />
@@ -420,7 +420,7 @@ export default function ExploreAgentsTab() {
                         </div>
                         <div>
                           <h3 className="text-2xl font-bold text-white">
-                            {agent.name} - {agent.title}
+                            Reviewing Candidate: {agent.name}
                           </h3>
                           <p className="text-white/80">{agent.description}</p>
                         </div>
@@ -429,7 +429,7 @@ export default function ExploreAgentsTab() {
 
                     <div className="p-6">
                       <div className="mb-6">
-                        <h4 className="font-semibold text-gray-800  mb-3">Key Features</h4>
+                        <h4 className="font-semibold text-gray-800  mb-3">Professional Skills</h4>
                         <ul className="space-y-2">
                           {agent.features.map((feature, index) => (
                             <li key={index} className="flex items-start">
@@ -458,29 +458,29 @@ export default function ExploreAgentsTab() {
                         <button
                           onClick={() => {
                             if (!agent.comingSoon) {
-                              toggleAgentSelection(agent.id)
+                              toggleEmployeeSelection(agent.id)
                             }
-                            setSelectedAgent(null)
+                            setSelectedCandidate(null)
                           }}
-                          disabled={!canAddAgent(agent) && !selectedAgents.includes(agent.id)}
+                          disabled={!canAddEmployee(agent) && !hiredEmployees.includes(agent.id)}
                           className={cn(
                             "px-6 py-2 rounded-lg font-medium",
-                            selectedAgents.includes(agent.id)
+                            hiredEmployees.includes(agent.id)
                               ? "bg-[#1E90FF]/10 text-[#1E90FF]"
                               : agent.comingSoon
                                 ? "bg-gray-100  text-gray-400  cursor-not-allowed"
-                                : canAddAgent(agent)
+                                : canAddEmployee(agent)
                                   ? "bg-[#00FF88] text-white hover:bg-[#00FF88]/90"
                                   : "bg-gray-100  text-gray-400  cursor-not-allowed",
                           )}
                         >
-                          {selectedAgents.includes(agent.id)
-                            ? "Agent Selected"
+                          {hiredEmployees.includes(agent.id)
+                            ? "Onboarded"
                             : agent.comingSoon
                               ? "Coming Soon"
-                              : userPlan === "free" && selectedAgents.length > 0 && !selectedAgents.includes(agent.id)
-                                ? "Upgrade to Add"
-                                : "Add This Agent"}
+                              : userPlan === "free" && hiredEmployees.length > 0 && !hiredEmployees.includes(agent.id)
+                                ? "Upgrade to Hire"
+                                : "Onboard This Employee"}
                         </button>
                       </div>
                     </div>

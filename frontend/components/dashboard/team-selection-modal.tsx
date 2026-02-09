@@ -9,7 +9,7 @@ import { useAuthStore } from "@/lib/stores/auth-store"
 import { useUserStore } from "@/lib/stores/user-store"
 import { apiClient } from "@/lib/api-client"
 
-interface Agent {
+interface Employee {
   id: string
   name: string
   title: string
@@ -18,75 +18,75 @@ interface Agent {
   icon: string
 }
 
-interface AgentSelectionModalProps {
+interface TeamSelectionModalProps {
   isOpen: boolean
   onClose: () => void
   onConfirm: () => void
 }
 
-const agents: Agent[] = [
-    {
-      id: "aria",
-      name: "Aria",
-      title: "Social Media Agent",
-    description: "Manages your social media presence across all platforms",
-      tier: "free",
+const employees: Employee[] = [
+  {
+    id: "aria",
+    name: "Aria",
+    title: "AI Social Media Manager",
+    description: "Expertly manages your brand presence and engagement across all social platforms.",
+    tier: "free",
     icon: "📱"
-    },
-    {
-      id: "clara",
-      name: "Clara",
-      title: "Customer Support Agent",
-    description: "Handles customer inquiries and support tickets",
+  },
+  {
+    id: "clara",
+    name: "Clara",
+    title: "AI Support Specialist",
+    description: "Provides empathetic, high-EQ customer support and technical troubleshooting 24/7.",
     tier: "free",
     icon: "🎧"
-    },
-    {
-      id: "eric",
-      name: "Eric",
-      title: "Sales Agent",
-    description: "Manages sales processes and lead generation",
+  },
+  {
+    id: "eric",
+    name: "Eric",
+    title: "AI Sales Representative",
+    description: "Optimizes lead generation and closes deals with data-driven sales strategies.",
     tier: "free",
     icon: "💼"
-    },
-    {
-      id: "jackie",
-      name: "Jackie",
-      title: "Marketing Agent",
-    description: "Creates and manages marketing campaigns",
+  },
+  {
+    id: "jackie",
+    name: "Jackie",
+    title: "AI Marketing Director",
+    description: "Architects high-performance marketing campaigns and accelerates brand growth.",
     tier: "free",
     icon: "📢"
   },
   {
     id: "joe",
     name: "Joe",
-    title: "Research Agent",
-    description: "Conducts market research and data analysis",
+    title: "AI Research Analyst",
+    description: "Conducts deep market research and provides actionable competitor insights.",
     tier: "free",
     icon: "🔍"
-    },
-    {
-      id: "shakes",
-      name: "Shakes",
-      title: "Content Creation Agent",
-    description: "Creates engaging content for all your needs",
+  },
+  {
+    id: "shakes",
+    name: "Shakes",
+    title: "AI Creative Director",
+    description: "Crafts compelling narratives and high-conversion content across all formats.",
     tier: "free",
     icon: "✍️"
-    },
-    {
-      id: "purity",
-      name: "Purity",
-    title: "Business Intelligence Agent",
-    description: "Provides business insights and analytics",
+  },
+  {
+    id: "purity",
+    name: "Purity",
+    title: "AI Business Architect",
+    description: "Strategizes venture architecture and complex financial forecasting for scaling.",
     tier: "starter",
     icon: "📊"
   }
 ]
 
-export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: AgentSelectionModalProps) {
+export default function TeamSelectionModal({ isOpen, onClose, onConfirm }: TeamSelectionModalProps) {
   const { user, isAuthenticated } = useAuthStore()
   const { userPlan } = useUserStore()
-  const [selectedAgents, setSelectedAgents] = useState<string[]>([])
+  const [selectedEmployees, setSelectedAgents] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingExisting, setIsLoadingExisting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -95,16 +95,16 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
   useEffect(() => {
     if (isOpen && isAuthenticated) {
       setError(null) // Clear any previous errors
-      loadExistingAgents()
+      loadExistingEmployees()
     }
   }, [isOpen, isAuthenticated])
 
-  const loadExistingAgents = async () => {
+  const loadExistingEmployees = async () => {
     try {
-      const existingAgents = await apiClient.getSelectedAgents()
-      if (existingAgents && existingAgents.length > 0) {
+      const onboardedEmployees = await apiClient.getSelectedAgents()
+      if (onboardedEmployees && onboardedEmployees.length > 0) {
         // Extract agent IDs from the response - handle both agent_id and id fields
-        const agentIds = existingAgents
+        const agentIds = onboardedEmployees
           .filter((agent: any) => agent.status === "active" || agent.status === "enabled")
           .map((agent: any) => agent.agent_id || agent.agent_key || agent.id || agent.key)
           .filter(Boolean)
@@ -127,43 +127,43 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
   }
 
   // Determine limits based on user plan
-  const getAgentLimits = () => {
+  const getEmployeeLimits = () => {
     switch (userPlan) {
       case "free":
-        return { max: 1, available: agents.filter(a => a.tier === "free" && a.id !== "purity") }
+        return { max: 1, available: employees.filter(a => a.tier === "free" && a.id !== "purity") }
       case "starter":
-        return { max: 4, available: agents.filter(a => a.tier === "free" || a.tier === "starter") }
+        return { max: 4, available: employees.filter(a => a.tier === "free" || a.tier === "starter") }
       case "pro":
-        return { max: 7, available: agents }
+        return { max: 7, available: employees }
       default:
-        return { max: 1, available: agents.filter(a => a.tier === "free" && a.id !== "purity") }
+        return { max: 1, available: employees.filter(a => a.tier === "free" && a.id !== "purity") }
     }
   }
 
-  const { max, available } = getAgentLimits()
+  const { max, available } = getEmployeeLimits()
 
-  const canSelectAgent = (agentId: string) => {
-    if (selectedAgents.includes(agentId)) return true
-    return selectedAgents.length < max
+  const canSelectEmployee = (agentId: string) => {
+    if (selectedEmployees.includes(agentId)) return true
+    return selectedEmployees.length < max
   }
 
-  const handleAgentToggle = (agentId: string) => {
-    if (selectedAgents.includes(agentId)) {
-      setSelectedAgents(selectedAgents.filter(id => id !== agentId))
-    } else if (canSelectAgent(agentId)) {
-      setSelectedAgents([...selectedAgents, agentId])
+  const handleEmployeeToggle = (agentId: string) => {
+    if (selectedEmployees.includes(agentId)) {
+      setSelectedAgents(selectedEmployees.filter(id => id !== agentId))
+    } else if (canSelectEmployee(agentId)) {
+      setSelectedAgents([...selectedEmployees, agentId])
     }
   }
 
   const handleConfirm = async () => {
-    if (selectedAgents.length === 0) {
+    if (selectedEmployees.length === 0) {
       setError("Please select at least one agent")
       return
     }
 
     // Validate tier limits
-    if (selectedAgents.length > max) {
-      setError(`You can only select up to ${max} agent${max > 1 ? 's' : ''} with your ${userPlan} plan.`)
+    if (selectedEmployees.length > max) {
+      setError(`You can only select up to ${max} employee${max > 1 ? 's' : ''} with your ${userPlan} plan.`)
       return
     }
 
@@ -173,46 +173,46 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
 
     try {
       // Save selected agents to backend - this saves to UserSelectedAgent table
-      const response = await apiClient.saveSelectedAgents(selectedAgents)
+      const response = await apiClient.saveSelectedAgents(selectedEmployees)
 
       if (response && (response.success || response.agents)) {
         // Successfully saved to user profile
         console.log("Agents saved successfully:", response)
-        
-        // Show warning if agents are now locked
+
+        // Show warning if team is now locked
         if (response.locked) {
           if (userPlan === "free") {
-            const trialEnd = user?.created_at 
+            const trialEnd = user?.created_at
               ? new Date(new Date(user.created_at).getTime() + 14 * 24 * 60 * 60 * 1000)
               : null
             const endDateStr = trialEnd ? trialEnd.toLocaleDateString() : "soon"
-            alert(`Agents saved successfully! Your agents are now locked until your trial period ends on ${endDateStr}. Upgrade your plan to unlock immediately.`)
+            alert(`Team expansion successful! Your workforce is now locked until your trial period ends on ${endDateStr}. Upgrade your plan to modify your team immediately.`)
           } else if (userPlan === "starter" || userPlan === "pro") {
-            const lockEndDate = response.lock_end_date 
+            const lockEndDate = response.lock_end_date
               ? new Date(response.lock_end_date).toLocaleDateString()
               : "1 month from now"
             const maxAgents = userPlan === "starter" ? 4 : 7
-            alert(`Agents saved successfully! You've selected ${selectedAgents.length} of ${maxAgents} agents. Your agents are now locked for 1 month until ${lockEndDate}.`)
+            alert(`Team expansion successful! You've onboarded ${selectedEmployees.length} of ${maxAgents} employees. Your workforce is now locked for 1 month until ${lockEndDate}.`)
           } else {
-            alert("Agents saved successfully! Your agents are now locked until your subscription period ends.")
+            alert("Team expansion successful! Your workforce is now locked until your subscription period ends.")
           }
         }
-        
+
         onConfirm()
       } else {
-        setError(response?.error || "Failed to save agent selection. Please try again.")
+        setError(response?.error || "Failed to save employee selection. Please try again.")
       }
     } catch (error: any) {
-      console.error("Error saving agent selection:", error)
+      console.error("Error saving employee selection:", error)
       console.error("Error details:", {
         message: error?.message,
         response: error?.response,
         status: error?.response?.status,
         data: error?.response?.data
       })
-      
+
       // Build friendly error message
-      let errorMessage = "Failed to save agent selection. Please try again."
+      let errorMessage = "Failed to save employee selection. Please try again."
       if (error?.message) {
         errorMessage = error.message
       } else if (error?.response?.data?.detail) {
@@ -222,11 +222,11 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
       }
 
       setError(errorMessage)
-      
+
       // If it's a lock error, show upgrade option
       if (errorMessage.includes("locked")) {
         setTimeout(() => {
-          if (confirm("Your agents are locked. Would you like to upgrade your plan to unlock them?")) {
+          if (confirm("Your workforce is locked. Would you like to expand your plan to unlock them?")) {
             window.location.href = "/pricing"
           }
         }, 1000)
@@ -237,13 +237,13 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
   }
 
   const getUpgradeMessage = () => {
-    if (userPlan === "free" && selectedAgents.length >= 1) {
-      return "Upgrade to Starter to select up to 4 agents, or Pro for all 7 agents"
+    if (userPlan === "free" && selectedEmployees.length >= 1) {
+      return "Upgrade to Starter to hire up to 4 employees, or Pro for the full workforce"
     }
-    if (userPlan === "starter" && selectedAgents.length >= 4) {
-      return "Upgrade to Pro to select all 7 agents"
+    if (userPlan === "starter" && selectedEmployees.length >= 4) {
+      return "Upgrade to Pro to hire the full workforce"
     }
-        return null
+    return null
   }
 
   if (!isOpen) return null
@@ -253,15 +253,15 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
       <div className="bg-white rounded-lg max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         <div className="p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
-              <div className="flex-1 min-w-0">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Choose Your AI Agents</h2>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Onboard Your AI Team</h2>
               <p className="text-sm sm:text-base text-gray-600 mt-1">
-                Select up to {max} agent{max > 1 ? 's' : ''} based on your {userPlan} plan
-                </p>
+                Hire up to {max} team member{max > 1 ? 's' : ''} based on your {userPlan} plan
+              </p>
               {isLoadingExisting && (
                 <p className="text-xs sm:text-sm text-green-600 mt-1">Loading your current selections...</p>
               )}
-              </div>
+            </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <Badge variant={userPlan === "free" ? "secondary" : userPlan === "starter" ? "default" : "default"} className="text-xs">
                 {userPlan === "free" && <Lock className="w-3 h-3 mr-1" />}
@@ -280,24 +280,23 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
             {available.map((agent) => {
-              const isSelected = selectedAgents.includes(agent.id)
-              const canSelect = canSelectAgent(agent.id)
+              const isSelected = selectedEmployees.includes(agent.id)
+              const canSelect = canSelectEmployee(agent.id)
               const isLocked = !canSelect && !isSelected
-              
+
               return (
-                <Card 
-                  key={agent.id} 
-                  className={`cursor-pointer transition-all duration-200 ${
-                    isSelected 
-                      ? "ring-2 ring-green-500 bg-green-50" 
-                      : isLocked 
-                        ? "opacity-50 cursor-not-allowed" 
-                        : "hover:shadow-md"
-                  }`}
+                <Card
+                  key={agent.id}
+                  className={`cursor-pointer transition-all duration-200 ${isSelected
+                    ? "ring-2 ring-green-500 bg-green-50"
+                    : isLocked
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:shadow-md"
+                    }`}
                   onClick={(e: React.MouseEvent) => {
                     e.stopPropagation();
                     if (!isLocked) {
-                      handleAgentToggle(agent.id);
+                      handleEmployeeToggle(agent.id);
                     }
                   }}
                 >
@@ -306,16 +305,16 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
                       <div className="flex items-center gap-3">
                         <div className="text-2xl">{agent.icon}</div>
                         <div>
-                    <CardTitle className="text-lg">{agent.name}</CardTitle>
+                          <CardTitle className="text-lg">{agent.name}</CardTitle>
                           <CardDescription className="text-sm">{agent.title}</CardDescription>
+                        </div>
                       </div>
-                    </div>
                       {isSelected && (
                         <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                           <Check className="w-4 h-4 text-white" />
-                      </div>
-                    )}
-                      </div>
+                        </div>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-gray-600">{agent.description}</p>
@@ -338,15 +337,15 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             <div className="text-sm text-gray-600">
-              {selectedAgents.length} of {max} agents selected
+              {selectedEmployees.length} of {max} employees onboarded
             </div>
             <div className="flex gap-2 sm:gap-3">
               <Button variant="outline" onClick={onClose} disabled={isLoading} className="flex-1 sm:flex-initial">
                 Cancel
               </Button>
-              <Button 
-                onClick={handleConfirm} 
-                disabled={selectedAgents.length === 0 || isLoading}
+              <Button
+                onClick={handleConfirm}
+                disabled={selectedEmployees.length === 0 || isLoading}
                 className="flex-1 sm:flex-initial min-w-[120px]"
               >
                 {isLoading ? (
@@ -357,7 +356,7 @@ export default function AgentSelectionModal({ isOpen, onClose, onConfirm }: Agen
                   </div>
                 ) : (
                   <>
-                    <span className="hidden sm:inline">Confirm Selection</span>
+                    <span className="hidden sm:inline">Confirm Onboarding</span>
                     <span className="sm:hidden">Confirm</span>
                   </>
                 )}

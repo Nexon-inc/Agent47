@@ -28,7 +28,7 @@ import {
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
 
-import AgentSelectionModal from "@/components/dashboard/agent-selection-modal"
+import TeamSelectionModal from "@/components/dashboard/team-selection-modal"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface AccountData {
@@ -83,10 +83,10 @@ export default function AccountOverviewTab() {
   const [accountData, setAccountData] = useState<AccountData | null>(null)
   const [editedData, setEditedData] = useState<AccountData | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string>("")
-  const [selectedAgents, setSelectedAgents] = useState<any[]>([])
-  const [showAgentSelection, setShowAgentSelection] = useState(false)
-  const [isLoadingAgents, setIsLoadingAgents] = useState(false)
-  const [agentsLocked, setAgentsLocked] = useState(false)
+  const [selectedEmployees, setSelectedEmployees] = useState<any[]>([])
+  const [showTeamSelection, setShowTeamSelection] = useState(false)
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false)
+  const [employeesLocked, setEmployeesLocked] = useState(false)
   const [lockReason, setLockReason] = useState<string>("")
   const [trialEndDate, setTrialEndDate] = useState<Date | null>(null)
   const [activities, setActivities] = useState<any[]>([])
@@ -298,25 +298,25 @@ export default function AccountOverviewTab() {
     return null
   }
 
-  // Check if agents are locked
-  const checkAgentsLocked = () => {
-    if (!selectedAgents || selectedAgents.length === 0) {
-      setAgentsLocked(false)
+  // Check if employees are locked
+  const checkEmployeesLocked = () => {
+    if (!selectedEmployees || selectedEmployees.length === 0) {
+      setEmployeesLocked(false)
       return
     }
 
-    // Check if any agent is locked
-    const hasLockedAgent = selectedAgents.some((agent: any) => agent.locked === true)
+    // Check if any employee is locked
+    const hasLockedEmployee = selectedEmployees.some((agent: any) => agent.locked === true)
 
-    if (hasLockedAgent) {
-      setAgentsLocked(true)
+    if (hasLockedEmployee) {
+      setEmployeesLocked(true)
 
-      // Get lock end date from agent data (if available)
-      const lockedAgent = selectedAgents.find((agent: any) => agent.locked === true)
+      // Get lock end date from employee data (if available)
+      const lockedEmployee = selectedEmployees.find((agent: any) => agent.locked === true)
       let lockEndDate: Date | null = null
 
-      if (lockedAgent?.lock_end_date) {
-        lockEndDate = new Date(lockedAgent.lock_end_date)
+      if (lockedEmployee?.lock_end_date) {
+        lockEndDate = new Date(lockedEmployee.lock_end_date)
         setTrialEndDate(lockEndDate)
       } else {
         const trialEnd = calculateTrialEndDate()
@@ -326,46 +326,46 @@ export default function AccountOverviewTab() {
 
       if (userPlan === "free") {
         if (lockEndDate && new Date() > lockEndDate) {
-          setLockReason("Your 14-day free trial has ended. Agents are locked until you upgrade your plan.")
+          setLockReason("Your 14-day free trial has ended. Employees are locked until you upgrade your plan.")
         } else {
           const endDateStr = lockEndDate ? lockEndDate.toLocaleDateString() : "soon"
-          setLockReason(`Agents are locked until your trial period ends on ${endDateStr}. Upgrade now to unlock immediately.`)
+          setLockReason(`Employees are locked until your trial period ends on ${endDateStr}. Upgrade now to unlock immediately.`)
         }
       } else if (userPlan === "starter" || userPlan === "pro") {
         // Starter/Pro: Monthly lock
         if (lockEndDate) {
           if (new Date() > lockEndDate) {
-            setLockReason("Your 1-month lock period has ended. You can now change your agents.")
-            setAgentsLocked(false) // Unlock if period has passed
+            setLockReason("Your 1-month lock period has ended. You can now change your employees.")
+            setEmployeesLocked(false) // Unlock if period has passed
           } else {
             const endDateStr = lockEndDate.toLocaleDateString()
-            const maxAgents = userPlan === "starter" ? 4 : 7
-            setLockReason(`Agents are locked for 1 month from selection. You selected ${selectedAgents.length} of ${maxAgents} agents. Lock ends on ${endDateStr}.`)
+            const maxEmployees = userPlan === "starter" ? 4 : 7
+            setLockReason(`Employees are locked for 1 month from selection. You selected ${selectedEmployees.length} of ${maxEmployees} employees. Lock ends on ${endDateStr}.`)
           }
         } else {
-          setLockReason("Agents are locked for 1 month from selection date.")
+          setLockReason("Employees are locked for 1 month from selection date.")
         }
       } else {
-        setLockReason("Agents are locked until your subscription period ends. Contact support to change agents.")
+        setLockReason("Employees are locked until your subscription period ends. Contact support to change employees.")
       }
     } else {
-      setAgentsLocked(false)
+      setEmployeesLocked(false)
       setLockReason("")
     }
   }
 
-  // Load selected agents
-  const loadSelectedAgents = async () => {
+  // Load selected employees
+  const loadSelectedEmployees = async () => {
     try {
-      setIsLoadingAgents(true)
-      const agents = await apiClient.getSelectedAgents()
-      setSelectedAgents(agents || [])
+      setIsLoadingEmployees(true)
+      const employees = await apiClient.getSelectedAgents()
+      setSelectedEmployees(employees || [])
     } catch (error) {
-      console.error("Error loading selected agents:", error)
-      setSelectedAgents([])
-      setAgentsLocked(false)
+      console.error("Error loading selected employees:", error)
+      setSelectedEmployees([])
+      setEmployeesLocked(false)
     } finally {
-      setIsLoadingAgents(false)
+      setIsLoadingEmployees(false)
     }
   }
 
@@ -392,12 +392,12 @@ export default function AccountOverviewTab() {
         },
       ]
 
-      // Add agent selection activity if agents are selected
-      if (selectedAgents.length > 0) {
+      // Add employee selection activity if employees are onboarded
+      if (selectedEmployees.length > 0) {
         mockActivities.unshift({
           id: 0,
-          type: "agent_selection",
-          description: `You selected ${selectedAgents.length} agent${selectedAgents.length > 1 ? 's' : ''}`,
+          type: "employee_selection",
+          description: `You onboarded ${selectedEmployees.length} employee${selectedEmployees.length > 1 ? 's' : ''}`,
           timestamp: new Date().toISOString(),
           icon: "🤖",
         })
@@ -412,19 +412,19 @@ export default function AccountOverviewTab() {
     }
   }
 
-  // Check lock status whenever selectedAgents or user changes
+  // Check lock status whenever selectedEmployees or user changes
   useEffect(() => {
-    if (selectedAgents.length > 0) {
-      checkAgentsLocked()
+    if (selectedEmployees.length > 0) {
+      checkEmployeesLocked()
     } else {
-      setAgentsLocked(false)
+      setEmployeesLocked(false)
     }
-  }, [selectedAgents, user, userPlan])
+  }, [selectedEmployees, user, userPlan])
 
   useEffect(() => {
     console.log("Account tab loaded, user:", user, "isAuthenticated:", isAuthenticated)
     loadAccountData()
-    loadSelectedAgents()
+    loadSelectedEmployees()
     loadActivities()
   }, [user, isAuthenticated])
 
@@ -582,7 +582,7 @@ export default function AccountOverviewTab() {
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
-          <TabsTrigger value="agents">Agents</TabsTrigger>
+          <TabsTrigger value="employees">Employees</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
@@ -1102,44 +1102,44 @@ export default function AccountOverviewTab() {
           </Card>
         </TabsContent>
 
-        {/* Agents Tab */}
-        <TabsContent value="agents" className="space-y-6">
+        {/* Employees Tab */}
+        <TabsContent value="employees" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Bot className="h-5 w-5 mr-2" />
-                Selected Agents
+                Selected Employees
               </CardTitle>
               <CardDescription>
-                Manage your selected AI agents based on your {userPlan} plan
+                Manage your selected AI workforce based on your {userPlan} plan
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {isLoadingAgents ? (
+              {isLoadingEmployees ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin" />
-                  <span className="ml-2">Loading agents...</span>
+                  <span className="ml-2">Loading employees...</span>
                 </div>
-              ) : selectedAgents.length > 0 ? (
+              ) : selectedEmployees.length > 0 ? (
                 <div className="space-y-4">
-                  {agentsLocked && (
+                  {employeesLocked && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                       <div className="flex items-start gap-3">
                         <Settings className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-yellow-800">Agents Locked</p>
+                          <p className="text-sm font-medium text-yellow-800">Workforce Locked</p>
                           <p className="text-sm text-yellow-700 mt-1">{lockReason}</p>
                           {userPlan === "free" && trialEndDate && (
                             <p className="text-xs text-yellow-600 mt-2">
                               {new Date() > trialEndDate
-                                ? "Trial ended. Upgrade to unlock agents."
+                                ? "Trial ended. Upgrade to unlock employees."
                                 : `Trial ends: ${trialEndDate.toLocaleDateString()}`}
                             </p>
                           )}
                           {(userPlan === "starter" || userPlan === "pro") && trialEndDate && (
                             <p className="text-xs text-yellow-600 mt-2">
                               {new Date() > trialEndDate
-                                ? "Lock period ended. You can now change your agents."
+                                ? "Lock period ended. You can now change your employees."
                                 : `Lock ends: ${trialEndDate.toLocaleDateString()} (1 month from selection)`}
                             </p>
                           )}
@@ -1158,27 +1158,27 @@ export default function AccountOverviewTab() {
                   )}
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-gray-600">
-                      You have {selectedAgents.length} agent{selectedAgents.length > 1 ? 's' : ''} selected
+                      You have {selectedEmployees.length} employee${selectedEmployees.length > 1 ? 's' : ''} on your team
                     </p>
                     <Button
                       onClick={() => {
-                        if (!agentsLocked) {
-                          setShowAgentSelection(true)
+                        if (!employeesLocked) {
+                          setShowTeamSelection(true)
                         } else {
-                          alert(lockReason + "\n\nUpgrade your plan to unlock agents.")
+                          alert(lockReason + "\n\nUpgrade your plan to unlock employees.")
                         }
                       }}
                       variant="outline"
                       size="sm"
-                      disabled={agentsLocked}
-                      title={agentsLocked ? lockReason : "Change agent selection"}
+                      disabled={employeesLocked}
+                      title={employeesLocked ? lockReason : "Change employee selection"}
                     >
                       <Edit className="h-4 w-4 mr-2" />
-                      Change Selection
+                      Manage Workforce
                     </Button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {selectedAgents.map((agent: any) => (
+                    {selectedEmployees.map((agent: any) => (
                       <div
                         key={agent.agent_id}
                         className="border rounded-lg p-4 flex items-center justify-between"
@@ -1188,7 +1188,7 @@ export default function AccountOverviewTab() {
                             <Bot className="w-5 h-5 text-green-600" />
                           </div>
                           <div>
-                            <p className="font-medium capitalize">{agent.agent_id}</p>
+                            <p className="font-medium capitalize">{agent.agent_key || agent.agent_id}</p>
                             <p className="text-xs text-gray-500">Status: {agent.status}</p>
                             {agent.locked && (
                               <p className="text-xs text-yellow-600 mt-1">🔒 Locked</p>
@@ -1210,18 +1210,18 @@ export default function AccountOverviewTab() {
               ) : (
                 <div className="text-center py-8">
                   <Bot className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">No agents selected yet</p>
+                  <p className="text-gray-500 mb-4">No employees selected yet</p>
                   <Button
                     onClick={() => {
-                      if (!agentsLocked) {
-                        setShowAgentSelection(true)
+                      if (!employeesLocked) {
+                        setShowTeamSelection(true)
                       } else {
                         alert(lockReason)
                       }
                     }}
-                    disabled={agentsLocked}
+                    disabled={employeesLocked}
                   >
-                    Select Agents
+                    Hire Workforce
                   </Button>
                 </div>
               )}
@@ -1346,13 +1346,13 @@ export default function AccountOverviewTab() {
         </TabsContent>
       </Tabs>
 
-      {/* Agent Selection Modal */}
-      <AgentSelectionModal
-        isOpen={showAgentSelection && !agentsLocked}
-        onClose={() => setShowAgentSelection(false)}
+      {/* Team Selection Modal */}
+      <TeamSelectionModal
+        isOpen={showTeamSelection && !employeesLocked}
+        onClose={() => setShowTeamSelection(false)}
         onConfirm={() => {
-          setShowAgentSelection(false)
-          loadSelectedAgents()
+          setShowTeamSelection(false)
+          loadSelectedEmployees()
         }}
       />
     </div>

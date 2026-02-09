@@ -42,9 +42,9 @@ import {
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useUserStore } from "@/lib/stores/user-store"
-import AgentSelectionModal from "../agent-selection-modal"
+import TeamSelectionModal from "../team-selection-modal"
 
-interface Agent {
+interface Employee {
   id: string
   name: string
   title: string
@@ -60,12 +60,12 @@ interface Agent {
   canSelect?: boolean
 }
 
-const agentTemplates = [
+const employeeTemplates = [
   {
     id: "aria",
     name: "Aria",
-    title: "Social Media Agent",
-    description: "Automates social media posting, engagement tracking, and content optimization across all platforms.",
+    title: "AI Social Media Manager",
+    description: "Expertly manages your brand presence and engagement across all social platforms.",
     icon: Globe,
     color: "bg-orange-500",
     defaultSettings: {
@@ -78,8 +78,8 @@ const agentTemplates = [
   {
     id: "clara",
     name: "Clara",
-    title: "Customer Support Agent",
-    description: "Handles customer inquiries with AI-powered responses, intelligent routing, and 24/7 availability.",
+    title: "AI Support Specialist",
+    description: "Provides empathetic, high-EQ customer support and technical troubleshooting 24/7.",
     icon: Headphones,
     color: "bg-purple-500",
     defaultSettings: {
@@ -92,8 +92,8 @@ const agentTemplates = [
   {
     id: "eric",
     name: "Eric",
-    title: "Sales Agent",
-    description: "Boosts sales with intelligent lead scoring, proposal generation, and automated pipeline management.",
+    title: "AI Sales Representative",
+    description: "Optimizes lead generation and closes deals with data-driven sales strategies.",
     icon: DollarSign,
     color: "bg-amber-500",
     defaultSettings: {
@@ -106,8 +106,8 @@ const agentTemplates = [
   {
     id: "jackie",
     name: "Jackie",
-    title: "Marketing Agent",
-    description: "Optimizes marketing campaigns with data-driven insights, audience segmentation, and automation.",
+    title: "AI Marketing Director",
+    description: "Architects high-performance marketing campaigns and accelerates brand growth.",
     icon: Megaphone,
     color: "bg-pink-500",
     defaultSettings: {
@@ -120,8 +120,8 @@ const agentTemplates = [
   {
     id: "shakes",
     name: "Shakes",
-    title: "Content Creation Agent",
-    description: "Creates engaging content with AI-powered writing, editing, and optimization for various platforms.",
+    title: "AI Creative Director",
+    description: "Crafts compelling narratives and high-conversion content across all formats.",
     icon: FileText,
     color: "bg-green-500",
     defaultSettings: {
@@ -134,8 +134,8 @@ const agentTemplates = [
   {
     id: "joe",
     name: "Joe",
-    title: "Research Agent",
-    description: "Conducts comprehensive market research and competitive analysis with AI-powered data collection.",
+    title: "AI Research Analyst",
+    description: "Conducts deep market research and provides actionable competitor insights.",
     icon: Search,
     color: "bg-sky-400",
     defaultSettings: {
@@ -148,8 +148,8 @@ const agentTemplates = [
   {
     id: "purity",
     name: "Purity",
-    title: "Business Maker Agent",
-    description: "Helps launch and scale businesses with AI-powered insights, from idea validation to business models.",
+    title: "AI Business Architect",
+    description: "Strategizes venture architecture and complex financial forecasting for scaling.",
     icon: Lightbulb,
     color: "bg-gray-800",
     defaultSettings: {
@@ -161,7 +161,7 @@ const agentTemplates = [
   },
 ]
 
-export default function AgentsOverviewTab() {
+export default function TeamOverviewTab() {
   const { user } = useAuthStore()
 
   // Get user's subscription plan (use tier if available)
@@ -169,16 +169,16 @@ export default function AgentsOverviewTab() {
   const canUseIntercommunication = userPlan === 'starter' || userPlan === 'pro'
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
-  const [agentSettings, setAgentSettings] = useState<Record<string, boolean>>({})
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
+  const [employeeSettings, setEmployeeSettings] = useState<Record<string, boolean>>({})
   const [customInstructions, setCustomInstructions] = useState("")
-  const [agents, setAgents] = useState<Agent[]>([])
+  const [employees, setEmployees] = useState<Employee[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle")
   const [refreshing, setRefreshing] = useState(false)
   const [intercommunicationEnabled, setIntercommunicationEnabled] = useState(false)
-  const [showAgentSelection, setShowAgentSelection] = useState(false)
+  const [showTeamSelection, setShowTeamSelection] = useState(false)
 
   // Debounce search term
   useEffect(() => {
@@ -188,9 +188,9 @@ export default function AgentsOverviewTab() {
     return () => clearTimeout(timer)
   }, [searchTerm])
 
-  // Load agents data on component mount
+  // Load employees data on component mount
   useEffect(() => {
-    loadAgentsData()
+    loadEmployeesData()
     loadIntercommunicationSetting()
   }, [])
 
@@ -204,11 +204,11 @@ export default function AgentsOverviewTab() {
 
     // Subscribe to task updates and agent responses
     const unsubscribeTask = websocketService.subscribe('task_update', () => {
-      loadAgentsData()
+      loadEmployeesData()
     })
 
     const unsubscribeAgent = websocketService.subscribe('agent_response', () => {
-      loadAgentsData()
+      loadEmployeesData()
     })
 
     return () => {
@@ -218,8 +218,8 @@ export default function AgentsOverviewTab() {
   }, [])
 
   // Helper function to determine if user can select an agent
-  const canUserSelectAgent = (agentId: string, userPlan: string, selectedAgents: any[]) => {
-    const selectedCount = selectedAgents.length
+  const canUserSelectAgent = (agentId: string, userPlan: string, selectedEmployees: any[]) => {
+    const selectedCount = selectedEmployees.length
     const maxAgents = userPlan === "free" ? 1 : userPlan === "starter" ? 4 : 7
 
     // If user has reached their limit, they can't select more
@@ -235,34 +235,34 @@ export default function AgentsOverviewTab() {
     return true
   }
 
-  const loadAgentsData = async () => {
+  const loadEmployeesData = async () => {
     try {
       setIsLoading(true)
 
-      // Load agent health data and selected agents (no task metrics)
-      const [healthResponse, selectedAgentsResponse] = await Promise.all([
-        apiClient.getAgentHealth().catch(() => ({ data: { agents: [] } })), // Fallback if health endpoint fails
-        apiClient.getSelectedAgents().catch(() => []) // Fallback if selected agents fails
+      // Load agent health data and selected employees (no task metrics)
+      const [healthResponse, selectedEmployeesResponse] = await Promise.all([
+        apiClient.getAgentHealth().catch(() => ({ data: { employees: [] } })), // Fallback if health endpoint fails
+        apiClient.getSelectedAgents().catch(() => []) // Fallback if selected employees fails
       ])
 
-      const healthData = healthResponse.data?.agents || []
-      const selectedAgents = selectedAgentsResponse || []
+      const healthData = healthResponse.data?.employees || []
+      const selectedEmployees = selectedEmployeesResponse || []
 
       // Get user's subscription plan to determine agent limits
       const { userPlan } = useUserStore.getState()
 
-      // Create agents with real data and proper selection logic
-      const agentsWithRealData = agentTemplates.map(template => {
+      // Create employees with real data and proper selection logic
+      const employeesWithRealData = employeeTemplates.map(template => {
         const agentHealth = healthData.find((h: any) => h.agent_id === template.id)
-        const selectedAgentData = selectedAgents.find((sa: any) => sa.agent_id === template.id)
-        const isSelected = !!selectedAgentData
-        const isLocked = selectedAgentData?.locked || false
+        const selectedEmployeeData = selectedEmployees.find((sa: any) => sa.agent_id === template.id)
+        const isSelected = !!selectedEmployeeData
+        const isLocked = selectedEmployeeData?.locked || false
 
         // Get agent status from selected agent data or health data
-        const agentStatus = selectedAgentData?.status || agentHealth?.status || (isSelected ? "active" : "inactive")
+        const agentStatus = selectedEmployeeData?.status || agentHealth?.status || (isSelected ? "active" : "inactive")
 
         // Get configuration from selected agent data
-        const config = selectedAgentData?.configuration || {}
+        const config = selectedEmployeeData?.configuration || {}
         const customInstructions = config.custom_instructions || ""
         const configPreferences = config.preferences || {}
 
@@ -270,7 +270,7 @@ export default function AgentsOverviewTab() {
         const mergedSettings = { ...template.defaultSettings, ...configPreferences }
 
         // Determine if user can select this agent based on their plan
-        const canSelect = canUserSelectAgent(template.id, userPlan, selectedAgents)
+        const canSelect = canUserSelectAgent(template.id, userPlan, selectedEmployees)
 
         return {
           ...template,
@@ -283,14 +283,14 @@ export default function AgentsOverviewTab() {
           canSelect: canSelect,
           // Ensure color is always present (fallback to gray if missing)
           color: template.color || "bg-gray-500"
-        } as Agent
+        } as Employee
       })
 
-      setAgents(agentsWithRealData)
+      setEmployees(employeesWithRealData)
     } catch (error) {
-      console.error("Failed to load agents data:", error)
+      console.error("Failed to load employees data:", error)
       // Fallback to template data without task metrics
-      const fallbackAgents = agentTemplates.map(template => ({
+      const fallbackEmployees = employeeTemplates.map(template => ({
         ...template,
         status: "inactive" as const,
         lastActive: "Never",
@@ -304,28 +304,28 @@ export default function AgentsOverviewTab() {
           uptime: 0
         }
       }))
-      setAgents(fallbackAgents)
+      setEmployees(fallbackEmployees)
     } finally {
       setIsLoading(false)
       setRefreshing(false)
     }
   }
 
-  const filteredAgents = agents.filter(
+  const filteredEmployees = employees.filter(
     (agent) =>
       agent.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
       agent.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
       agent.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()),
   )
 
-  const handleToggleAgent = async (agentId: string) => {
+  const handleToggleEmployee = async (agentId: string) => {
     try {
-      const agent = agents.find(a => a.id === agentId)
+      const agent = employees.find(a => a.id === agentId)
       if (!agent) return
 
       // Check if user can select this agent
       if (!agent.isSelected && !agent.canSelect) {
-        console.log("User cannot select this agent due to plan limitations")
+        console.log("unlocked workforce limit")
         return
       }
 
@@ -333,7 +333,7 @@ export default function AgentsOverviewTab() {
       const newStatus = agent.status === "active" ? "paused" : "active"
 
       // Update local state immediately for better UX
-      setAgents(prev => prev.map(a =>
+      setEmployees(prev => prev.map(a =>
         a.id === agentId ? { ...a, status: newStatus } : a
       ))
 
@@ -344,7 +344,7 @@ export default function AgentsOverviewTab() {
       } catch (e) {
         console.warn('Backend toggle failed, reverting', e)
         // Revert the change on error
-        setAgents(prev => prev.map(a =>
+        setEmployees(prev => prev.map(a =>
           a.id === agentId ? { ...a, status: agent.status } : a
         ))
       }
@@ -352,18 +352,18 @@ export default function AgentsOverviewTab() {
     } catch (error) {
       console.error("Failed to toggle agent:", error)
       // Revert the change on error
-      const agent = agents.find(a => a.id === agentId)
+      const agent = employees.find(a => a.id === agentId)
       if (agent) {
-        setAgents(prev => prev.map(a =>
+        setEmployees(prev => prev.map(a =>
           a.id === agentId ? { ...a, status: agent.status } : a
         ))
       }
     }
   }
 
-  const handleEditAgent = async (agent: Agent) => {
-    setSelectedAgent(agent)
-    setAgentSettings(agent.settings)
+  const handleEditEmployee = async (agent: Employee) => {
+    setSelectedEmployee(agent)
+    setEmployeeSettings(agent.settings)
 
     // Load existing configuration from backend
     try {
@@ -373,7 +373,7 @@ export default function AgentsOverviewTab() {
 
       // Merge with existing settings
       if (config.preferences) {
-        setAgentSettings({ ...agent.settings, ...config.preferences })
+        setEmployeeSettings({ ...agent.settings, ...config.preferences })
       }
     } catch (error) {
       console.error("Failed to load agent configuration:", error)
@@ -382,7 +382,7 @@ export default function AgentsOverviewTab() {
   }
 
   const handleSaveSettings = async () => {
-    if (!selectedAgent) return
+    if (!selectedEmployee) return
 
     try {
       setIsSaving(true)
@@ -390,18 +390,18 @@ export default function AgentsOverviewTab() {
 
       // Persist to backend using configuration endpoint
       const response = await apiClient.updateAgentConfiguration(
-        selectedAgent.id,
+        selectedEmployee.id,
         customInstructions,
-        agentSettings
+        employeeSettings
       )
       console.log("Agent configuration updated successfully:", response)
 
       // Update local state
-      setAgents(prev => prev.map(agent =>
-        agent.id === selectedAgent.id
+      setEmployees(prev => prev.map(agent =>
+        agent.id === selectedEmployee.id
           ? {
             ...agent,
-            settings: agentSettings,
+            settings: employeeSettings,
             customInstructions
           }
           : agent
@@ -409,7 +409,7 @@ export default function AgentsOverviewTab() {
 
       setSaveStatus("success")
       setTimeout(() => {
-        setSelectedAgent(null)
+        setSelectedEmployee(null)
         setSaveStatus("idle")
       }, 1500)
 
@@ -434,7 +434,7 @@ export default function AgentsOverviewTab() {
 
   const handleRefresh = () => {
     setRefreshing(true)
-    loadAgentsData()
+    loadEmployeesData()
   }
 
   const handleIntercommunicationToggle = async (enabled: boolean) => {
@@ -453,27 +453,27 @@ export default function AgentsOverviewTab() {
     }
   }
 
-  const activeAgents = agents.filter((agent) => agent.status === "active").length
+  const activeWorkers = employees.filter((worker) => worker.status === "active").length
 
   return (
     <div className="p-3 sm:p-4 lg:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 ">AI Agents</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 ">Active Workforce</h1>
           <p className="text-gray-600  mt-1">
-            Manage and monitor your {agents.length} AI agents
-            {isLoading && <span className="ml-2 text-green-500">Loading...</span>}
+            Manage and monitor your {employees.length} AI team members
+            {isLoading && <span className="ml-2 text-green-500">Connecting...</span>}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
-            onClick={() => setShowAgentSelection(true)}
+            onClick={() => setShowTeamSelection(true)}
             className="flex items-center gap-2"
           >
             <Users className="w-4 h-4" />
-            Select Agents
+            Expand Team
           </Button>
           <Button
             variant="outline"
@@ -488,16 +488,16 @@ export default function AgentsOverviewTab() {
             <DialogTrigger asChild>
               <Button>
                 <Settings className="w-4 h-4 mr-2" />
-                Manage All
+                Staff Settings
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Manage All Agents</DialogTitle>
-                <DialogDescription>Configure settings for all your AI agents</DialogDescription>
+                <DialogTitle>Staff Configuration</DialogTitle>
+                <DialogDescription>Configure profiles for all your AI team members</DialogDescription>
               </DialogHeader>
               <div className="space-y-6">
-                {agents.map((agent) => (
+                {employees.map((agent) => (
                   <Card key={agent.id}>
                     <CardHeader>
                       <div className="flex items-center justify-between">
@@ -512,7 +512,7 @@ export default function AgentsOverviewTab() {
                         </div>
                         <Switch
                           checked={agent.status === "active"}
-                          onCheckedChange={() => handleToggleAgent(agent.id)}
+                          onCheckedChange={() => handleToggleEmployee(agent.id)}
                         />
                       </div>
                     </CardHeader>
@@ -544,7 +544,7 @@ export default function AgentsOverviewTab() {
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <Input
-          placeholder="Search agents..."
+          placeholder="Search workforce..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-10"
@@ -556,25 +556,25 @@ export default function AgentsOverviewTab() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Agent Intercommunication
+            Team Collaboration Mode
           </CardTitle>
           <CardDescription>
             {canUseIntercommunication
-              ? "Enable agents to communicate and collaborate with each other for maximum automation"
-              : "Upgrade to Starter or Pro plan to enable agent intercommunication"
+              ? "Enable employees to communicate and collaborate with each other for autonomous task completion"
+              : "Upgrade to Starter or Pro plan to enable autonomous team collaboration"
             }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-sm font-medium">Intercommunication</p>
+              <p className="text-sm font-medium">Collaboration Network</p>
               <p className="text-xs text-muted-foreground">
                 {canUseIntercommunication
                   ? (intercommunicationEnabled
-                    ? "Agents can communicate and collaborate"
-                    : "Agents work independently")
-                  : "Feature not available on Free plan"
+                    ? "Team members are connected and collaborating"
+                    : "Employees are working independently")
+                  : "Collaboration is restricted on the free tier"
                 }
               </p>
             </div>
@@ -587,7 +587,7 @@ export default function AgentsOverviewTab() {
           {!canUseIntercommunication && (
             <div className="mt-3 p-3 bg-green-50  rounded-lg">
               <p className="text-sm text-green-700 ">
-                💡 Upgrade to Starter or Pro plan to enable agent intercommunication and unlock maximum automation potential.
+                💡 Upgrade to Starter or Pro plan to enable team collaboration and unlock the full potential of your digital workforce.
               </p>
             </div>
           )}
@@ -598,49 +598,49 @@ export default function AgentsOverviewTab() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Agents</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Workers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{activeAgents}</div>
-            <p className="text-xs text-muted-foreground">of {agents.length} total agents</p>
+            <p className="text-xs text-muted-foreground">of {employees.length} staff members online</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Selected Agents</CardTitle>
+            <CardTitle className="text-sm font-medium">Hired Employees</CardTitle>
             <Bot className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{agents.filter(a => a.isSelected).length}</div>
-            <p className="text-xs text-muted-foreground">agents configured</p>
+            <div className="text-2xl font-bold">{employees.filter(a => a.isSelected).length}</div>
+            <p className="text-xs text-muted-foreground">profiles configured</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Paused Agents</CardTitle>
+            <CardTitle className="text-sm font-medium">Standby Mode</CardTitle>
             <Pause className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{agents.filter(a => a.status === "paused").length}</div>
-            <p className="text-xs text-muted-foreground">temporarily inactive</p>
+            <div className="text-2xl font-bold">{employees.filter(a => a.status === "paused").length}</div>
+            <p className="text-xs text-muted-foreground">currently on standby</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Online Agents</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Status</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{agents.filter(a => a.isOnline).length}</div>
-            <p className="text-xs text-muted-foreground">currently online</p>
+            <div className="text-2xl font-bold">{employees.filter(a => a.isOnline).length}</div>
+            <p className="text-xs text-muted-foreground">connected workers</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Agents Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredAgents.map((agent) => (
+        {filteredEmployees.map((agent) => (
           <Card key={agent.id} className="hover:shadow-lg transition-shadow">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -711,9 +711,9 @@ export default function AgentsOverviewTab() {
                     ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-300"
                     : "bg-transparent"
                     }`}
-                  onClick={() => handleToggleAgent(agent.id)}
+                  onClick={() => handleToggleEmployee(agent.id)}
                   disabled={isLoading || !agent.isSelected}
-                  title={!agent.isSelected ? "Select this agent first" : agent.status === "active" ? "Pause agent" : "Activate agent"}
+                  title={!agent.isSelected ? "Hire this employee first" : agent.status === "active" ? "Pause workflow" : "Resume workflow"}
                 >
                   {agent.status === "active" ? (
                     <>
@@ -734,7 +734,7 @@ export default function AgentsOverviewTab() {
                 </Button>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={() => handleEditAgent(agent)}>
+                    <Button variant="outline" size="sm" onClick={() => handleEditEmployee(agent)}>
                       <Settings className="w-4 h-4" />
                     </Button>
                   </DialogTrigger>
@@ -762,24 +762,24 @@ export default function AgentsOverviewTab() {
                             onChange={(e) => setCustomInstructions(e.target.value)}
                           />
                           <p className="text-xs text-gray-500 mt-2">
-                            💡 Be specific and clear. These instructions will be added to the agent's system prompt and followed strictly.
+                            💡 Be specific. These instructions act as the employee's standard operating procedures.
                           </p>
                         </div>
                       </div>
 
                       <div className="space-y-4">
-                        <h4 className="font-medium">Agent Preferences</h4>
+                        <h4 className="font-medium">Operational Preferences</h4>
                         <div className="grid grid-cols-2 gap-4">
-                          {Object.entries(agentSettings).map(([key, value]) => (
+                          {Object.entries(employeeSettings).map(([key, value]) => (
                             <div key={key} className="flex items-center justify-between p-3 border rounded-lg">
-                              <Label htmlFor={`${selectedAgent.id}-${key}`} className="text-sm capitalize cursor-pointer">
+                              <Label htmlFor={`${selectedEmployee.id}-${key}`} className="text-sm capitalize cursor-pointer">
                                 {key.replace(/([A-Z])/g, " $1").trim()}
                               </Label>
                               <Switch
-                                id={`${selectedAgent.id}-${key}`}
+                                id={`${selectedEmployee.id}-${key}`}
                                 checked={value as boolean}
                                 onCheckedChange={(checked) => {
-                                  setAgentSettings(prev => ({
+                                  setEmployeeSettings(prev => ({
                                     ...prev,
                                     [key]: checked
                                   }))
@@ -793,7 +793,7 @@ export default function AgentsOverviewTab() {
                     <div className="flex justify-end gap-2">
                       <Button
                         variant="outline"
-                        onClick={() => setSelectedAgent(null)}
+                        onClick={() => setSelectedEmployee(null)}
                         disabled={isSaving}
                       >
                         <X className="w-4 h-4 mr-1" />
@@ -861,23 +861,23 @@ export default function AgentsOverviewTab() {
         </div>
       )}
 
-      {!isLoading && filteredAgents.length === 0 && (
+      {!isLoading && filteredEmployees.length === 0 && (
         <Card>
           <CardContent className="p-8 text-center">
             <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No agents found</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No employees found</h3>
             <p className="text-gray-500">Try adjusting your search criteria</p>
           </CardContent>
         </Card>
       )}
 
       {/* Agent Selection Modal */}
-      <AgentSelectionModal
-        isOpen={showAgentSelection}
-        onClose={() => setShowAgentSelection(false)}
+      <TeamSelectionModal
+        isOpen={showTeamSelection}
+        onClose={() => setShowTeamSelection(false)}
         onConfirm={() => {
-          setShowAgentSelection(false)
-          loadAgentsData() // Refresh agents after selection
+          setShowTeamSelection(false)
+          loadEmployeesData() // Refresh employees after selection
         }}
       />
     </div>
