@@ -288,7 +288,7 @@ export default function EricFeaturesPage() {
             <Link href="/features">
               <Button variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Features
+                Back to Team Pool
               </Button>
             </Link>
           </div>
@@ -298,32 +298,32 @@ export default function EricFeaturesPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center">
                 <Target className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900">Eric Features</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Eric - AI Sales Representative</h1>
             </div>
             <p className="text-xl text-gray-600 mb-8">
-              Comprehensive sales automation with AI-powered lead generation, intelligent CRM management, and advanced
-              analytics to accelerate your sales pipeline.
+              Top-tier AI sales professional specializing in multi-channel lead generation, intelligent CRM management,
+              and data-driven deal closing strategy.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                AI-Powered Lead Scoring
+                Lead Gen Pro
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Multi-Channel Outreach
+                CRM Master
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Predictive Analytics
+                Pipeline Specialist
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                CRM Integration
+                High-Conversion AI
               </Badge>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Features Grid */}
+      {/* Skills Grid */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8">
           {featureCategories.map((category, categoryIndex) => {
@@ -336,7 +336,7 @@ export default function EricFeaturesPage() {
                   >
                     <IconComponent className="h-6 w-6 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900">{category.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{category.title.replace("Automation", "Operations").replace("Management", "Excellence")}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -360,23 +360,23 @@ export default function EricFeaturesPage() {
           })}
         </div>
 
-        {/* CTA Section */}
+        {/* Recruitment Section */}
         <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to Supercharge Your Sales?</h3>
+            <h3 className="text-2xl font-bold mb-4">Ready to recruit Eric?</h3>
             <p className="text-orange-100 mb-6 max-w-2xl mx-auto">
-              Join thousands of sales teams using Eric to automate their pipeline, close more deals, and accelerate
-              revenue growth with AI-powered sales intelligence.
+              Add Eric to your sales department and watch your pipeline grow.
+              He never sleeps, never misses a follow-up, and is always hunting for your next big deal.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/auth?tab=signup">
                 <Button size="lg" className="bg-white text-orange-600 hover:bg-gray-100">
-                  Start Free Trial
+                  Hire Eric Now
                 </Button>
               </Link>
               <Link href="/pricing">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  View Pricing
+                  View Compensation Plans
                 </Button>
               </Link>
             </div>

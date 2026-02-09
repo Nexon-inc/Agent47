@@ -174,7 +174,7 @@ class EventBus:
                     await asyncio.sleep(3)  # give broker time to propagate metadata
                 else:
                     logger.debug("health_check topic already exists")
-                await admin_client.stop()
+                await admin_client.close()
             except Exception as e:
                 logger.warning(f"Failed to ensure health_check topic: {str(e)}")
 

@@ -326,7 +326,7 @@ class PlatformManager:
                         if hasattr(existing_credentials, key):
                             setattr(existing_credentials, key, value)
                     existing_credentials.updated_at = datetime.utcnow()
-                    existing_credentials.status = CredentialStatus.VALID
+                    existing_credentials.status = CredentialStatus.valid
                     credentials = existing_credentials
                 else:
                     # Create new credentials
@@ -394,7 +394,7 @@ class PlatformManager:
                         and_(
                             SocialPlatform.name == platform_name,
                             PlatformCredential.user_id == user_id,
-                            PlatformCredential.status == CredentialStatus.VALID
+                            PlatformCredential.status == CredentialStatus.valid
                         )
                     )
                 )
@@ -407,7 +407,7 @@ class PlatformManager:
                 
                 # Check if credentials are expired
                 if cred.expires_at and cred.expires_at < datetime.utcnow():
-                    cred.status = CredentialStatus.EXPIRED
+                    cred.status = CredentialStatus.expired
                     await session.commit()
                     return {"valid": False, "error": "Credentials have expired"}
                 
@@ -419,7 +419,7 @@ class PlatformManager:
                     await session.commit()
                     return {"valid": True, "message": "Credentials are valid"}
                 else:
-                    cred.status = CredentialStatus.INVALID
+                    cred.status = CredentialStatus.invalid
                     await session.commit()
                     return {"valid": False, "error": api_test["error"]}
                 
@@ -514,7 +514,7 @@ class PlatformManager:
                         and_(
                             SocialPlatform.name == platform_name,
                             PlatformCredential.user_id == user_id,
-                            PlatformCredential.status == CredentialStatus.VALID
+                            PlatformCredential.status == CredentialStatus.valid
                         )
                     )
                 )
@@ -660,7 +660,7 @@ class PlatformManager:
                         and_(
                             SocialPlatform.name == platform_name,
                             PlatformCredential.user_id == user_id,
-                            PlatformCredential.status == CredentialStatus.VALID
+                            PlatformCredential.status == CredentialStatus.valid
                         )
                     )
                 )

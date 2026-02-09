@@ -40,7 +40,7 @@ class OAuthService:
         db = await get_supabase()
         async with db.get_session() as session:
             plat = (await session.execute(select(SocialPlatform).where(SocialPlatform.name == platform_name))).scalar_one_or_none()
-            cred = PlatformCredential(user_id=user_id, platform_id=plat.id, credential_type="oauth2", access_token=access_token, status=CredentialStatus.VALID)
+            cred = PlatformCredential(user_id=user_id, platform_id=plat.id, credential_type="oauth2", access_token=access_token, status=CredentialStatus.valid)
             session.add(cred)
             await session.commit()
             return {"success": True, "platform": platform_name}

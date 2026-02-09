@@ -295,7 +295,7 @@ export default function ClaraFeaturesPage() {
             <Link href="/features">
               <Button variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Features
+                Back to Team Pool
               </Button>
             </Link>
           </div>
@@ -305,32 +305,32 @@ export default function ClaraFeaturesPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-600 to-purple-700 flex items-center justify-center">
                 <Headphones className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900">Clara Features</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Clara - AI Support Specialist</h1>
             </div>
             <p className="text-xl text-gray-600 mb-8">
-              AI-powered customer support automation with omnichannel capabilities, intelligent ticket management, and
-              seamless human handoff.
+              Dedicated AI employee providing high-EQ customer support, technical troubleshooting, and omnichannel
+              assistance with seamless human collaboration.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                24/7 Support
+                Customer Raving Expert
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Omnichannel
+                Omnichannel Lead
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                NLP-Powered
+                Problem Solver
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                CRM Integration
+                Empathy-Driven AI
               </Badge>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Features Grid */}
+      {/* Skills Grid */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8">
           {featureCategories.map((category, categoryIndex) => {
@@ -343,7 +343,7 @@ export default function ClaraFeaturesPage() {
                   >
                     <IconComponent className="h-6 w-6 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900">{category.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{category.title.replace("Automation", "Intelligence").replace("Management", "Excellence")}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -367,23 +367,23 @@ export default function ClaraFeaturesPage() {
           })}
         </div>
 
-        {/* CTA Section */}
+        {/* Onboarding Section */}
         <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to Transform Your Customer Support?</h3>
+            <h3 className="text-2xl font-bold mb-4">Ready to onboard Clara?</h3>
             <p className="text-purple-100 mb-6 max-w-2xl mx-auto">
-              Join thousands of businesses using Clara to automate customer support and deliver exceptional service with
-              AI-powered tools.
+              Hire Clara to your support team and ensure your customers never wait for an answer again.
+              She handles the volume so your team can focus on the relationships.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/auth?tab=signup">
                 <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100">
-                  Start Free Trial
+                  Onboard Clara Now
                 </Button>
               </Link>
               <Link href="/pricing">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  View Pricing
+                  View Compensation Plans
                 </Button>
               </Link>
             </div>

@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, lazy } from "react"
 import { useSearchParams } from "next/navigation"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { apiClient } from "@/lib/api-client"
-import AgentSelectionModal from "@/components/dashboard/agent-selection-modal"
+import TeamSelectionModal from "@/components/dashboard/team-selection-modal"
 import { useToast } from "@/hooks/use-toast"
 import { ErrorBoundary } from "@/components/dashboard/error-boundary"
 import { SkeletonAgentGrid } from "@/components/dashboard/skeletons"
@@ -13,18 +13,18 @@ import { SkeletonAgentGrid } from "@/components/dashboard/skeletons"
 import HomeTab from "@/components/dashboard/tabs/home-tab"
 import TeamManagementTab from "@/components/dashboard/tabs/team-management-tab"
 import InboxTab from "@/components/dashboard/tabs/inbox-tab"
-import AgentsOverviewTab from "@/components/dashboard/tabs/agents-overview-tab"
+import TeamOverviewTab from "@/components/dashboard/tabs/agents-overview-tab"
 import HistoryTab from "@/components/dashboard/tabs/history-tab"
 import PlatformsOverviewTab from "@/components/dashboard/tabs/platforms-overview-tab"
-import ToolsAutomationOverviewTab from "@/components/dashboard/tabs/tools-automation-overview-tab"
+import EmployeeToolkitTab from "@/components/dashboard/tabs/tools-automation-overview-tab"
 import AccountOverviewTab from "@/components/dashboard/tabs/account-overview-tab"
 import AnalyticsTab from "@/components/dashboard/tabs/analytics-tab"
 import IntegrationsTab from "@/components/dashboard/tabs/integrations-tab"
 import SettingsTab from "@/components/dashboard/tabs/settings-tab"
 import SocialMediaTab from "@/components/dashboard/tabs/social-media-tab"
 import MarketingTab from "@/components/dashboard/tabs/marketing-tab"
-import MyAgentsTab from "@/components/dashboard/tabs/my-agents-tab"
-import ExploreAgentsTab from "@/components/dashboard/tabs/explore-agents-tab"
+import MyTeamTab from "@/components/dashboard/tabs/my-agents-tab"
+import RecruitmentTab from "@/components/dashboard/tabs/explore-agents-tab"
 import TeamChatTab from "@/components/dashboard/tabs/team-chat-tab"
 import UpgradeTab from "@/components/dashboard/tabs/upgrade-tab"
 
@@ -130,13 +130,13 @@ function DashboardContent() {
       case "inbox":
         return <InboxTab />
       case "agents-overview":
-        return <AgentsOverviewTab />
+        return <TeamOverviewTab />
       case "history":
         return <HistoryTab />
       case "platforms-overview":
         return <PlatformsOverviewTab />
       case "tools-automation-overview":
-        return <ToolsAutomationOverviewTab />
+        return <EmployeeToolkitTab />
       case "account-overview":
         return <AccountOverviewTab />
       case "upgrade":
@@ -204,9 +204,9 @@ function DashboardContent() {
       case "marketing":
         return <MarketingTab />
       case "my-agents":
-        return <MyAgentsTab />
+        return <MyTeamTab />
       case "explore-agents":
-        return <ExploreAgentsTab />
+        return <RecruitmentTab />
 
       default:
         return <HomeTab />
@@ -217,7 +217,7 @@ function DashboardContent() {
     <ErrorBoundary>
       {renderTabContent()}
       {!isCheckingAgents && (
-        <AgentSelectionModal
+        <TeamSelectionModal
           isOpen={showAgentSelection}
           onClose={() => setShowAgentSelection(false)}
           onConfirm={handleAgentSelectionComplete}

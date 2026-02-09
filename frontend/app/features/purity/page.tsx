@@ -257,10 +257,10 @@ export default function PurityFeaturesPage() {
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-4 mb-6">
-            <Link href="/">
+            <Link href="/features">
               <Button variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Home
+                Back to Team Pool
               </Button>
             </Link>
           </div>
@@ -270,32 +270,32 @@ export default function PurityFeaturesPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-gray-800 to-black flex items-center justify-center">
                 <Briefcase className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900">Purity Features</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Purity - AI Business Architect</h1>
             </div>
             <p className="text-xl text-gray-600 mb-8">
-              Comprehensive business development platform with AI-powered tools for ideation, validation, planning, and
-              scaling your venture from concept to exit.
+              Elite AI business strategist specialized in venture architecture, intelligent financial forecasting,
+              and data-driven scaling from concept to global exit.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Business Model Canvas
+                Venture Architect
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                AI-Powered Research
+                Financial Strategist
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Financial Forecasting
+                Growth Specialist
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Legal Compliance
+                Exit Consultant
               </Badge>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Features Grid */}
+      {/* Skills Grid */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8">
           {featureCategories.map((category, categoryIndex) => {
@@ -308,7 +308,7 @@ export default function PurityFeaturesPage() {
                   >
                     <IconComponent className="h-6 w-6 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900">{category.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{category.title.replace("Generation", "Strategy").replace("Development", "Intelligence")}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -339,31 +339,31 @@ export default function PurityFeaturesPage() {
 
         {/* Business Journey Section */}
         <div className="mt-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Complete Business Journey</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">The Founder's Journey with Purity</h2>
           <div className="grid md:grid-cols-4 gap-8">
             {[
               {
                 step: "1",
-                title: "Ideate & Validate",
-                description: "Generate business ideas and validate market opportunities",
+                title: "Ideate & Architect",
+                description: "Design your business model and validate market opportunities",
                 icon: Lightbulb,
               },
               {
                 step: "2",
-                title: "Plan & Structure",
-                description: "Create business models, legal structure, and financial forecasts",
+                title: "Plan & Strategize",
+                description: "Map legal frameworks and build complex financial forecasts",
                 icon: FileText,
               },
               {
                 step: "3",
-                title: "Build & Launch",
-                description: "Develop MVP, brand identity, and go-to-market strategy",
+                title: "Onboard & Scale",
+                description: "Deploy brand identity and executive growth tactics",
                 icon: Zap,
               },
               {
                 step: "4",
-                title: "Scale & Exit",
-                description: "Optimize operations, secure funding, and plan exit strategy",
+                title: "Mastery & Exit",
+                description: "Optimize global operations and execute exit strategies",
                 icon: TrendingUp,
               },
             ].map((phase, index) => {
@@ -374,7 +374,7 @@ export default function PurityFeaturesPage() {
                     <div className="w-16 h-16 rounded-full bg-gradient-to-r from-gray-800 to-black flex items-center justify-center mx-auto mb-4">
                       <IconComponent className="h-8 w-8 text-white" />
                     </div>
-                    <div className="text-sm font-medium text-gray-500 mb-2">Step {phase.step}</div>
+                    <div className="text-sm font-medium text-gray-500 mb-2">Phase {phase.step}</div>
                     <CardTitle className="text-xl">{phase.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -386,23 +386,23 @@ export default function PurityFeaturesPage() {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* Onboarding Section */}
         <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-gray-800 to-black rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to Launch Your Next Venture?</h3>
+            <h3 className="text-2xl font-bold mb-4">Ready to onboard Purity?</h3>
             <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
-              Join thousands of entrepreneurs using Purity to validate ideas, build business plans, and scale their
-              ventures with AI-powered insights and automation.
+              Hire Purity as your Chief Business Architect and gain a massive strategic advantage.
+              She turns ideas into profitable, scalable realities.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/auth?tab=signup">
                 <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
-                  Start Building Today
+                  Onboard Purity Now
                 </Button>
               </Link>
               <Link href="/pricing">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  View Pricing
+                  View Compensation Plans
                 </Button>
               </Link>
             </div>

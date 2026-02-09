@@ -69,7 +69,7 @@ class AnalyticsManager(LoggerMixin):
             self.database = get_database()
             self.redis = await get_redis()
             self.kafka = await get_kafka()
-            self.billing_manager = await get_billing_manager()
+            self.billing_manager = await get_billing()
             self.user_manager = await get_user_manager()
 
             await self._setup_analytics_tables()

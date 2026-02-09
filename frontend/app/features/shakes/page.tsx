@@ -310,7 +310,7 @@ export default function ShakesFeaturesPage() {
             <Link href="/features">
               <Button variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Features
+                Back to Team Pool
               </Button>
             </Link>
           </div>
@@ -320,32 +320,32 @@ export default function ShakesFeaturesPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-green-500 to-green-600 flex items-center justify-center">
                 <PenTool className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900">Shakes Features</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Shakes - AI Creative Director</h1>
             </div>
             <p className="text-xl text-gray-600 mb-8">
-              Comprehensive content creation platform with AI-powered writing, SEO optimization, video scripting, and
-              multi-format content generation for all your marketing needs.
+              World-class AI creative strategist specialized in high-performance narrative strategy,
+              multi-format content excellence, and brand storytelling that converts.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                AI Content Generation
+                Creative Visionary
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                SEO Optimization
+                Narrative Strategist
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Multi-Format Content
+                Multi-Format Expert
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Brand Voice Customization
+                Brand Storyteller
               </Badge>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Features Grid */}
+      {/* Skills Grid */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8">
           {featureCategories.map((category, categoryIndex) => {
@@ -358,7 +358,7 @@ export default function ShakesFeaturesPage() {
                   >
                     <IconComponent className="h-6 w-6 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900">{category.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{category.title.replace("Generation", "Excellence").replace("Creation", "Production")}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -387,23 +387,23 @@ export default function ShakesFeaturesPage() {
           })}
         </div>
 
-        {/* CTA Section */}
+        {/* Hiring Section */}
         <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to Transform Your Content Creation?</h3>
+            <h3 className="text-2xl font-bold mb-4">Ready to hire Shakes?</h3>
             <p className="text-green-100 mb-6 max-w-2xl mx-auto">
-              Join thousands of content creators and marketers using Shakes to streamline their content workflow and
-              create engaging, high-quality content at scale.
+              Bring Shakes onto your creative team and elevate your brand's voice.
+              He crafts the stories that stay with your audience long after they've clicked away.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/auth?tab=signup">
                 <Button size="lg" className="bg-white text-green-600 hover:bg-gray-100">
-                  Start Creating Today
+                  Hire Shakes Now
                 </Button>
               </Link>
               <Link href="/pricing">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  View Pricing
+                  View Compensation Plans
                 </Button>
               </Link>
             </div>

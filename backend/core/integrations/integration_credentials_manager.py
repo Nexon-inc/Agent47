@@ -77,7 +77,7 @@ class IntegrationCredentialsManager:
                     existing_credentials.refresh_token = encrypted_credentials.get('refresh_token')
                     existing_credentials.bearer_token = encrypted_credentials.get('bearer_token')
                     existing_credentials.scopes = scopes or []
-                    existing_credentials.status = CredentialStatus.VALID
+                    existing_credentials.status = CredentialStatus.valid
                     existing_credentials.last_updated = datetime.utcnow()
                     
                     # Set expiration if provided
@@ -97,7 +97,7 @@ class IntegrationCredentialsManager:
                         refresh_token=encrypted_credentials.get('refresh_token'),
                         bearer_token=encrypted_credentials.get('bearer_token'),
                         scopes=scopes or [],
-                        status=CredentialStatus.VALID
+                        status=CredentialStatus.valid
                     )
                     
                     # Set expiration if provided
@@ -138,7 +138,7 @@ class IntegrationCredentialsManager:
                     and_(
                         IntegrationCredentials.user_id == user_id,
                         Integration.name == integration_name,
-                        IntegrationCredentials.status == CredentialStatus.VALID
+                        IntegrationCredentials.status == CredentialStatus.valid
                     )
                 )
                 result = await session.execute(query)
@@ -151,7 +151,7 @@ class IntegrationCredentialsManager:
                 
                 # Check if credentials are expired
                 if credentials.expires_at and credentials.expires_at < datetime.utcnow():
-                    credentials.status = CredentialStatus.EXPIRED
+                    credentials.status = CredentialStatus.expired
                     await session.commit()
                     return None
                 
@@ -206,7 +206,7 @@ class IntegrationCredentialsManager:
                     and_(
                         IntegrationCredentials.user_id == user_id,
                         Integration.name == integration_name,
-                        IntegrationCredentials.status == CredentialStatus.VALID
+                        IntegrationCredentials.status == CredentialStatus.valid
                     )
                 )
                 result = await session.execute(query)
@@ -250,7 +250,7 @@ class IntegrationCredentialsManager:
                     )
                     
                     if response.status_code != 200:
-                        credentials.status = CredentialStatus.INVALID
+                        credentials.status = CredentialStatus.invalid
                         await session.commit()
                         return {"success": False, "error": f"Refresh failed: {response.text}"}
                     
@@ -293,7 +293,7 @@ class IntegrationCredentialsManager:
                 
                 if credentials_record:
                     credentials, integration = credentials_record
-                    credentials.status = CredentialStatus.REVOKED
+                    credentials.status = CredentialStatus.revoked
                     await session.commit()
                     
                     logger.info(f"Revoked credentials for user {user_id}, integration {integration_name}")
@@ -319,7 +319,7 @@ class IntegrationCredentialsManager:
                 query = select(IntegrationCredentials, Integration).join(Integration).where(
                     and_(
                         IntegrationCredentials.user_id == user_id,
-                        IntegrationCredentials.status == CredentialStatus.VALID
+                        IntegrationCredentials.status == CredentialStatus.valid
                     )
                 )
                 result = await session.execute(query)

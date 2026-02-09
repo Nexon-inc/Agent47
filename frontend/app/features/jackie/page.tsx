@@ -313,7 +313,7 @@ export default function JackieFeaturesPage() {
             <Link href="/features">
               <Button variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Features
+                Back to Team Pool
               </Button>
             </Link>
           </div>
@@ -323,32 +323,32 @@ export default function JackieFeaturesPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-pink-500 to-pink-600 flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900">Jackie Features</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Jackie - AI Marketing Director</h1>
             </div>
             <p className="text-xl text-gray-600 mb-8">
-              Comprehensive marketing automation platform with AI-powered campaign management, multi-channel
-              advertising, influencer marketing, and advanced analytics for complete marketing success.
+              Visionary AI marketing executive specialized in full-funnel campaign strategy,
+              cross-channel ad optimization, and data-driven brand growth.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Campaign Automation
+                Growth Director
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Multi-Channel Ads
+                Ad Spend Optimizer
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Influencer Marketing
+                Campaign Strategist
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Advanced Analytics
+                Marketing Visionary
               </Badge>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Features Grid */}
+      {/* Skills Grid */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8">
           {featureCategories.map((category, categoryIndex) => {
@@ -361,7 +361,7 @@ export default function JackieFeaturesPage() {
                   >
                     <IconComponent className="h-6 w-6 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900">{category.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{category.title.replace("Automation", "Intelligence").replace("Management", "Excellence")}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -385,23 +385,23 @@ export default function JackieFeaturesPage() {
           })}
         </div>
 
-        {/* CTA Section */}
+        {/* Hiring Section */}
         <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-pink-500 to-pink-600 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to Supercharge Your Marketing?</h3>
+            <h3 className="text-2xl font-bold mb-4">Ready to hire Jackie?</h3>
             <p className="text-pink-100 mb-6 max-w-2xl mx-auto">
-              Join thousands of marketers and businesses using Jackie to automate their campaigns, optimize ad spend,
-              and achieve better ROI across all marketing channels.
+              Bring Jackie onto your marketing team and transform your brand's reach.
+              She manages the complexity of modern marketing while you focus on the vision.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/auth?tab=signup">
                 <Button size="lg" className="bg-white text-pink-600 hover:bg-gray-100">
-                  Start Marketing Today
+                  Hire Jackie Now
                 </Button>
               </Link>
               <Link href="/pricing">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  View Pricing
+                  View Compensation Plans
                 </Button>
               </Link>
             </div>

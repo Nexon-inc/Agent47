@@ -309,7 +309,7 @@ export default function JoeFeaturesPage() {
             <Link href="/features">
               <Button variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Features
+                Back to Team Pool
               </Button>
             </Link>
           </div>
@@ -319,32 +319,32 @@ export default function JoeFeaturesPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-sky-400 to-cyan-500 flex items-center justify-center">
                 <Search className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900">Joe Features</h1>
+              <h1 className="text-4xl font-bold text-gray-900">Joe - AI Market Researcher</h1>
             </div>
             <p className="text-xl text-gray-600 mb-8">
-              Comprehensive research and data analysis platform with AI-powered market research, competitor analysis,
-              trend tracking, and automated report generation across multiple sources and platforms.
+              Specialized AI employee expert in deep-web research, market analysis, competitor intelligence, and
+              automated strategic reporting across global data sources.
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-8">
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Market Research
+                Market Intel Expert
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Competitor Analysis
+                Data Scientist
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                AI-Powered Insights
+                Competitor Analyst
               </Badge>
               <Badge variant="secondary" className="px-4 py-2 text-sm">
-                Real-Time Monitoring
+                Insight Hunter
               </Badge>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Features Grid */}
+      {/* Skills Grid */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid gap-8">
           {featureCategories.map((category, categoryIndex) => {
@@ -357,7 +357,7 @@ export default function JoeFeaturesPage() {
                   >
                     <IconComponent className="h-6 w-6 text-white" />
                   </div>
-                  <h2 className="text-2xl font-bold text-gray-900">{category.title}</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">{category.title.replace("Automation", "Workflows").replace("Monitoring", "Surveillance")}</h2>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -381,23 +381,23 @@ export default function JoeFeaturesPage() {
           })}
         </div>
 
-        {/* CTA Section */}
+        {/* Recruitment Section */}
         <div className="mt-16 text-center">
           <div className="bg-gradient-to-r from-sky-400 to-cyan-500 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">Ready to Automate Your Research?</h3>
+            <h3 className="text-2xl font-bold mb-4">Ready to recruit Joe?</h3>
             <p className="text-sky-100 mb-6 max-w-2xl mx-auto">
-              Start leveraging Joe's powerful research capabilities to save time and gain deeper insights with
-              AI-powered automation.
+              Hire Joe to your research department and gain a massive competitive advantage.
+              He finds insights that others miss, working at light speed 24/7.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/auth?tab=signup">
                 <Button size="lg" className="bg-white text-cyan-600 hover:bg-gray-100">
-                  Get Started with Joe
+                  Hire Joe Now
                 </Button>
               </Link>
               <Link href="/pricing">
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
-                  View Pricing Plans
+                  View Compensation Plans
                 </Button>
               </Link>
             </div>

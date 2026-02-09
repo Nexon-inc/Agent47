@@ -38,6 +38,7 @@ class LLMServiceMetrics:
     last_health_check: Optional[datetime] = None
     response_time_avg: float = 0.0
     error_rate: float = 0.0
+    last_error: Optional[str] = None
 
 @dataclass
 class LLMRequest:
@@ -205,12 +206,10 @@ class LLMServicePool:
 
         # All services failed
         error_details = []
-        if not self._is_service_healthy("groq"):
-            error_details.append(f"Groq: {self._init_errors.get('groq', 'Unknown error')}")
-        if not self._is_service_healthy("gemini"):
-            error_details.append(f"Gemini: {self._init_errors.get('gemini', 'Unknown error')}")
-        if not self._is_service_healthy("openai"):
-            error_details.append(f"OpenAI: {self._init_errors.get('openai', 'Not configured')}")
+        for name, metrics in self._metrics.items():
+            if not self._is_service_healthy(name):
+                error_msg = metrics.last_error or self._init_errors.get(name, "Unknown error")
+                error_details.append(f"{name.capitalize()}: {error_msg}")
             
         return LLMResponse(
             success=False,
@@ -379,6 +378,8 @@ class LLMServicePool:
                 metrics.status = LLMServiceStatus.DAILY_LIMIT_EXCEEDED
             else:
                 metrics.status = LLMServiceStatus.UNHEALTHY
+            
+            metrics.last_error = error
         
         # Update daily requests if available (Groq returns this in success response)
         if "daily_requests" in result:
@@ -402,13 +403,17 @@ class LLMServicePool:
                 groq_health = await self.groq_client.health_check()
                 if groq_health.get("healthy", False):
                     self._metrics["groq"].status = LLMServiceStatus.HEALTHY
+                    self._metrics["groq"].last_error = None
                 elif "rate limit" in groq_health.get("error", "").lower():
                     self._metrics["groq"].status = LLMServiceStatus.RATE_LIMITED
+                    self._metrics["groq"].last_error = groq_health.get("error")
                 else:
                     self._metrics["groq"].status = LLMServiceStatus.UNHEALTHY
+                    self._metrics["groq"].last_error = groq_health.get("error")
                 self._metrics["groq"].last_health_check = datetime.utcnow()
             else:
                 self._metrics["groq"].status = LLMServiceStatus.UNHEALTHY
+                self._metrics["groq"].last_error = self._init_errors.get("groq", "Client not initialized")
                 self._metrics["groq"].last_health_check = datetime.utcnow()
             
             # OpenAI health is assumed healthy if API key exists
@@ -461,6 +466,7 @@ class LLMServicePool:
                     "daily_limit": metrics.daily_limit,
                     "error_rate": metrics.error_rate,
                     "response_time_avg": metrics.response_time_avg,
+                    "last_error": metrics.last_error,
                     "last_health_check": metrics.last_health_check.isoformat() if metrics.last_health_check else None
                 }
                 for name, metrics in self._metrics.items()

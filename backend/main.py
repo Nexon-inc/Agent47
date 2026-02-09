@@ -138,8 +138,8 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI app
 app = FastAPI(
-    title="Agent47 API",
-    description="AI Automation Platform API",
+    title="Agent47 AI Employee API",
+    description="Digital AI Workforce Automation Platform API",
     version=settings.version,
     lifespan=lifespan,
     docs_url="/docs",
@@ -190,6 +190,8 @@ app.include_router(admin_router)
 app.include_router(system_debug_router)
 app.include_router(websocket_router)
 app.include_router(billing_router)
+app.include_router(intercommunication_router)
+app.include_router(intercommunication_router, prefix="/intercommunication", tags=["intercommunication-compat"])
 try:
     from core.ai import debug
     app.include_router(debug.router)
@@ -240,13 +242,13 @@ async def health_check():
 
         return {
             "status": overall_status,
-            "service": "Agent47 API",
+            "service": "Agent47 AI Employee API",
             "version": settings.version,
             "environment": settings.environment,
             "components": {
                 "supabase": "healthy" if supabase_healthy else "unhealthy",
                 "redis": "healthy" if redis_healthy else "unhealthy",
-                "agents": agent_status
+                "employees": agent_status
             },
             "timestamp": datetime.utcnow().isoformat()
         }
@@ -267,7 +269,7 @@ async def health_check():
 async def root():
     """Root endpoint"""
     return {
-        "message": "Welcome to Agent47 API",
+        "message": "Welcome to Agent47 AI Employee API",
         "version": settings.version,
         "docs": "/docs",
         "health": "/health"

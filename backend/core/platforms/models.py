@@ -22,10 +22,10 @@ class PlatformStatus(enum.Enum):
     MAINTENANCE = "maintenance"
 
 class CredentialStatus(enum.Enum):
-    VALID = "valid"
-    EXPIRED = "expired"
-    INVALID = "invalid"
-    REVOKED = "revoked"
+    valid = "valid"
+    expired = "expired"
+    invalid = "invalid"
+    revoked = "revoked"
 
 class SocialPlatform(Base):
     __tablename__ = "social_platforms"
@@ -81,7 +81,7 @@ class PlatformCredential(Base):
     scopes = Column(JSON, default=[])
     # `metadata` is reserved on Declarative base; store in DB column 'metadata' but expose as `extra_metadata`
     extra_metadata = Column('metadata', JSON, default={})
-    status = Column(Enum(CredentialStatus), default=CredentialStatus.VALID)
+    status = Column(Enum(CredentialStatus, values_callable=lambda obj: [e.value for e in obj], native_enum=True), default=CredentialStatus.valid)
     last_used = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
