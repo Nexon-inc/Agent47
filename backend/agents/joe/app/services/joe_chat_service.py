@@ -381,22 +381,64 @@ Start response now.
                 messages[1:1] = history_messages
 
             # Execute LLM Call
-            ai_manager = await self._get_ai_service_manager()
-            from core.config import settings
-            
-            ai_response = await ai_manager.generate_text(
-                messages=messages,
-                max_tokens=settings.groq.groq_max_tokens,
-                temperature=0.2
-            )
+            try:
+                ai_manager = await self._get_ai_service_manager()
+                from core.config import settings
+                
+                # Get agent name for logging
+                agent_name = self.__class__.__name__.replace('ChatService', '')
+                
+                logger.info(f"🤖 {agent_name}: Calling Groq API with {len(messages)} messages")
+                
+                # Try to get max_tokens from settings, fallback to 4000
+                try:
+                    max_tokens = settings.groq.groq_max_tokens
+                except AttributeError:
+                    try:
+                        max_tokens = settings.GROQ_MAX_TOKENS
+                    except AttributeError:
+                        max_tokens = 4000
+                        logger.warning(f"⚠️ {agent_name}: Could not find groq_max_tokens in settings, using default 4000")
+                
+                logger.info(f"📊 {agent_name}: Using max_tokens={max_tokens}, temperature=0.2")
+                
+                ai_response = await ai_manager.generate_text(
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=0.2
+                )
+                
+                # Log the response structure
+                logger.info(f"📥 {agent_name}: Groq response keys: {list(ai_response.keys()) if isinstance(ai_response, dict) else type(ai_response)}")
+                
+                # Handle response (check multiple possible keys)
+                success = ai_response.get("success", False) if isinstance(ai_response, dict) else False
+                text_content = ai_response.get("text_content") or ai_response.get("content") if isinstance(ai_response, dict) else None
+                
+                if success and text_content:
+                    response_text = text_content
+                    confidence = 0.95
+                    logger.info(f"✅ {agent_name}: LLM SUCCESS - Generated {len(response_text)} characters")
+                else:
+                    error_msg = ai_response.get("error", "Unknown error") if isinstance(ai_response, dict) else "Invalid response format"
+                    logger.error(f"❌ {agent_name}: LLM FAILED - {error_msg}")
+                    logger.error(f"🔍 {agent_name}: Full response: {ai_response}")
+                    
+                    # Return error message to user instead of generic fallback
+                    response_text = (
+                        f"I'm having trouble connecting to my AI processing right now. "
+                        f"Technical details: {error_msg}. Please try again in a moment, "
+                        f"or contact support if this issue persists."
+                    )
+                    confidence = 0.0
 
-            if ai_response.success and ai_response.text_content:
-                response_text = ai_response.text_content
-                confidence = 0.95
-            else:
-                logger.error(f"LLM Failure: {ai_response.error}")
-                response_text = self._get_fallback_response(simple_intent)
-                confidence = 0.5
+            except Exception as e:
+                logger.error(f"💥 {agent_name if 'agent_name' in locals() else 'Joe'}: EXCEPTION during LLM call: {str(e)}", exc_info=True)
+                response_text = (
+                    f"I encountered a technical error while processing your message. "
+                    f"Error: {str(e)}. Please try again or contact support."
+                )
+                confidence = 0.0
             
             # Update session
             session["last_intent"] = simple_intent
