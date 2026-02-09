@@ -25,7 +25,7 @@ export default function ContactPage() {
     {
       question: "How do I get started with Agent47?",
       answer:
-        "Getting started is easy! Simply sign up for a free account, choose your AI agents based on your workflow needs, and follow our guided setup process. You'll be automating tasks in minutes.",
+        "Getting started is easy! Simply sign up for a free account, choose your AI personnel based on your workflow needs, and follow our guided setup process. You'll be automating tasks in minutes.",
       isOpen: true,
     },
     {
@@ -237,9 +237,8 @@ export default function ContactPage() {
                           <button
                             type="submit"
                             disabled={formStatus === "submitting"}
-                            className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-green-400 to-green-600 hover:shadow-lg hover:shadow-green-500/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 font-semibold transition-all duration-300 ${
-                              formStatus === "submitting" ? "opacity-70 cursor-not-allowed" : ""
-                            }`}
+                            className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-gradient-to-r from-green-400 to-green-600 hover:shadow-lg hover:shadow-green-500/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 font-semibold transition-all duration-300 ${formStatus === "submitting" ? "opacity-70 cursor-not-allowed" : ""
+                              }`}
                           >
                             {formStatus === "submitting" ? (
                               <>

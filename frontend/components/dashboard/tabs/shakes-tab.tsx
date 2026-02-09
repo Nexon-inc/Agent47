@@ -127,7 +127,7 @@ interface Task {
 
 interface TaskSummary {
   id: string
-    title: string
+  title: string
   summary: string
   status: string
   created_at: string
@@ -139,17 +139,17 @@ interface TaskSummary {
 export default function ShakesTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
-  
+
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  
+
   // Data state
   const [contentIdeas, setContentIdeas] = useState<ContentIdea[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskSummaries, setTaskSummaries] = useState<TaskSummary[]>([])
-  
+
   // Settings state
   const [automateEnabled, setAutomateEnabled] = useState(false)
   const [customInstructions, setCustomInstructions] = useState("")
@@ -164,7 +164,7 @@ export default function ShakesTab() {
   // Subscribe to real-time task updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -182,7 +182,7 @@ export default function ShakesTab() {
     try {
       setIsLoadingData(true)
       setIsRefreshing(true)
-      
+
       // Load all data in parallel
       const [ideasResponse, analyticsResponse, tasksResponse, summariesResponse] = await Promise.all([
         apiClient.get("/api/agents/shakes/content-ideas").catch(() => ({ data: [] })),
@@ -190,13 +190,13 @@ export default function ShakesTab() {
         apiClient.get("/api/agents/shakes/tasks").catch(() => ({ data: [] })),
         apiClient.get("/api/agents/shakes/task-summaries").catch(() => ({ data: [] }))
       ])
-      
+
       setContentIdeas(ideasResponse.data || [])
       setAnalyticsData(analyticsResponse.data)
       setTasks(tasksResponse.data || [])
       setTaskSummaries(summariesResponse.data || [])
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load Shakes data:", error)
     } finally {
@@ -211,7 +211,7 @@ export default function ShakesTab() {
         apiClient.get("/api/agents/shakes/settings/automate").catch(() => ({ data: { enabled: false } })),
         apiClient.get("/api/agents/shakes/settings/instructions").catch(() => ({ data: { instructions: "" } }))
       ])
-      
+
       setAutomateEnabled(automateResponse.data?.enabled || false)
       setCustomInstructions(instructionsResponse.data?.instructions || "")
     } catch (error) {
@@ -268,9 +268,9 @@ export default function ShakesTab() {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading Shakes data...</span>
-              </div>
-          </div>
+          <span>Onboarding Shakes specialized data...</span>
+        </div>
+      </div>
     )
   }
 
@@ -282,9 +282,9 @@ export default function ShakesTab() {
           <div className="p-2 bg-yellow-100 rounded-lg">
             <Lightbulb className="h-6 w-6 text-yellow-600" />
           </div>
-        <div>
-            <h2 className="text-2xl font-bold text-gray-900">Shakes - Content Creation Agent</h2>
-            <p className="text-gray-600">AI-powered content ideation and creative writing</p>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Shakes - AI Content Specialist</h2>
+            <p className="text-gray-600">AI-powered creative writing and strategic content ideation</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -296,7 +296,7 @@ export default function ShakesTab() {
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
-        </Button>
+          </Button>
           {lastUpdated && (
             <span className="text-sm text-gray-500">
               Last updated: {lastUpdated.toLocaleTimeString()}
@@ -310,7 +310,7 @@ export default function ShakesTab() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Agent Settings</span>
+            <span>Personnel Settings</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -330,7 +330,7 @@ export default function ShakesTab() {
               disabled={isSavingSettings}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="instructions" className="text-sm font-medium">
               Custom Instructions
@@ -361,8 +361,8 @@ export default function ShakesTab() {
       {/* Analytics Overview */}
       {analyticsData && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Lightbulb className="h-8 w-8 text-yellow-600" />
                 <div className="ml-4">
@@ -370,13 +370,13 @@ export default function ShakesTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.total_ideas.toLocaleString()}
                   </p>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <CheckCircle2 className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
@@ -384,13 +384,13 @@ export default function ShakesTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.approved_ideas.toLocaleString()}
                   </p>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <TrendingUp className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
@@ -398,13 +398,13 @@ export default function ShakesTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.average_engagement}%
                   </p>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-orange-600" />
                 <div className="ml-4">
@@ -412,11 +412,11 @@ export default function ShakesTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.total_reach.toLocaleString()}
                   </p>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Recent Content Ideas */}
@@ -427,9 +427,9 @@ export default function ShakesTab() {
             <span>Recent Content Ideas</span>
           </CardTitle>
         </CardHeader>
-            <CardContent>
+        <CardContent>
           {contentIdeas.length > 0 ? (
-              <div className="space-y-4">
+            <div className="space-y-4">
               {contentIdeas.slice(0, 5).map((idea) => (
                 <div key={idea.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -437,39 +437,39 @@ export default function ShakesTab() {
                     <div className="flex items-center space-x-2">
                       <Badge className={getStatusColor(idea.status)}>
                         {idea.status}
-                        </Badge>
+                      </Badge>
                       <span className="text-sm font-medium">{idea.potential_reach} reach</span>
-                      </div>
                     </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-2">{idea.description}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Type: {idea.type}</span>
                     <span>Audience: {idea.target_audience}</span>
                     <span>Effort: {idea.estimated_effort}</span>
-                    </div>
+                  </div>
                   {idea.keywords.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {idea.keywords.slice(0, 3).map((keyword, index) => (
                         <Badge key={index} variant="outline" className="text-xs">
-                            {keyword}
-                          </Badge>
-                        ))}
+                          {keyword}
+                        </Badge>
+                      ))}
                       {idea.keywords.length > 3 && (
                         <Badge variant="outline" className="text-xs">
                           +{idea.keywords.length - 3} more
                         </Badge>
                       )}
-                      </div>
+                    </div>
                   )}
-                    </div>
+                </div>
               ))}
-                    </div>
+            </div>
           ) : (
             <div className="text-center py-8">
               <Lightbulb className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No content ideas found</p>
               <p className="text-sm text-gray-500">Content ideas will appear here when Shakes generates them</p>
-                  </div>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -484,7 +484,7 @@ export default function ShakesTab() {
         </CardHeader>
         <CardContent>
           {tasks.length > 0 ? (
-          <div className="space-y-4">
+            <div className="space-y-4">
               {tasks.filter(task => task.status !== 'completed').slice(0, 5).map((task) => (
                 <div key={task.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -492,41 +492,41 @@ export default function ShakesTab() {
                     <div className="flex items-center space-x-2">
                       <Badge className={getPriorityColor(task.priority)}>
                         {task.priority}
-                        </Badge>
+                      </Badge>
                       <Badge className={getStatusColor(task.status)}>
                         {task.status}
-                        </Badge>
-                      </div>
+                      </Badge>
                     </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-2">{task.description}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
                     {task.due_date && (
                       <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>
                     )}
-                    </div>
                   </div>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No active tasks</p>
               <p className="text-sm text-gray-500">Tasks will appear here when Shakes creates them</p>
-                </div>
+            </div>
           )}
         </CardContent>
       </Card>
 
       {/* Task Summaries */}
-        <Card>
-          <CardHeader>
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
             <span>Task Summaries</span>
           </CardTitle>
-          </CardHeader>
-            <CardContent>
+        </CardHeader>
+        <CardContent>
           {taskSummaries.length > 0 ? (
             <div className="space-y-4">
               {taskSummaries.slice(0, 3).map((summary) => (
@@ -549,23 +549,23 @@ export default function ShakesTab() {
                           </li>
                         ))}
                       </ul>
-                          </div>
+                    </div>
                   )}
                   <div className="mt-3 text-sm text-gray-500">
                     Created: {new Date(summary.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No task summaries</p>
               <p className="text-sm text-gray-500">Summaries will appear here when tasks are completed</p>
-                  </div>
+            </div>
           )}
-          </CardContent>
-        </Card>
+        </CardContent>
+      </Card>
     </div>
   )
 }

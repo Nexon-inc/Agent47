@@ -136,7 +136,7 @@ export default function FeaturesPage() {
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Agent47 Features</h1>
             <p className="text-xl text-gray-600 mb-8">
-              Explore our comprehensive suite of AI agents designed to automate and enhance every aspect of your digital
+              Explore our comprehensive suite of AI personnel designed to automate and enhance every aspect of your digital
               presence.
             </p>
           </div>

@@ -14,7 +14,7 @@ export default function Footer() {
               </span>
             </Link>
             <p className="text-white/70 text-lg mb-6 max-w-md">
-              Automate smarter with 47 AI agents designed to streamline your workflows and boost productivity.
+              Automate smarter with specialized AI personnel designed to streamline your workflows and boost productivity.
             </p>
             <div className="flex space-x-4">
               <Link

@@ -220,7 +220,7 @@ ARIA_SEO_OPTIMIZATION_ENABLED=true
 ### **Metrics Dashboard**
 - **Prometheus**: Metrics collection and storage
 - **Grafana**: Visualization and alerting
-- **Custom Dashboards**: Per-agent performance metrics
+- **Custom Dashboards**: Per-employee performance metrics
 
 ### **Health Checks**
 - **Service Health**: All services have health endpoints
@@ -343,7 +343,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### **Q1 2024**
 - [ ] Mobile app (React Native)
 - [ ] Advanced analytics dashboard
-- [ ] Custom agent creation tools
+- [ ] Custom employee creation tools
 
 ### **Q2 2024**
 - [ ] Multi-language support

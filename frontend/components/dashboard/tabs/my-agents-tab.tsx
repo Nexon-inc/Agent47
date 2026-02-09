@@ -533,7 +533,7 @@ export default function MyTeamTab() {
                                 Schedule Availability
                               </button>
                               <button className="w-full text-left py-2 text-sm text-gray-700  hover:text-[#1E90FF] transition-colors">
-                                Export Agent Data
+                                Export Employee Data
                               </button>
                             </div>
                           </div>

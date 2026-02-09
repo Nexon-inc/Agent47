@@ -169,8 +169,8 @@ export default function RecruitmentTab() {
     },
     {
       id: "future1",
-      name: "Agent #7",
-      title: "Data Analysis Agent",
+      name: "Personnel #7",
+      title: "AI Data Analyst",
       description: "Transform your data into insights",
       category: ["marketing", "sales"],
       icon: BarChart3,
@@ -190,8 +190,8 @@ export default function RecruitmentTab() {
     },
     {
       id: "future2",
-      name: "Agent #8",
-      title: "Project Management Agent",
+      name: "Personnel #8",
+      title: "AI Project Manager",
       description: "Keep your projects on track",
       category: ["support"],
       icon: FileText,

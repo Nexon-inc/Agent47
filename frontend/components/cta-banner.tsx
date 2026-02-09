@@ -23,7 +23,7 @@ export default function CtaBanner() {
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Workflow?</h2>
           <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl mx-auto">
-            Join thousands of businesses saving 47+ hours per week with our AI agents. Start free, scale as you grow.
+            Join thousands of businesses saving 47+ hours per week with our AI employees. Start free, scale as you grow.
           </p>
 
           <div className="flex flex-col sm:flex-row justify-center gap-4">

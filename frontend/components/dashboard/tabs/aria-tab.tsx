@@ -211,8 +211,8 @@ export default function AriaTab() {
               <Users className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Aria Dashboard</h1>
-              <p className="text-gray-600">Social Media Management</p>
+              <h1 className="text-2xl font-bold text-gray-900">Aria - AI Social Media Specialist</h1>
+              <p className="text-gray-600">AI-powered content strategy and social media management</p>
             </div>
           </div>
 
@@ -430,7 +430,7 @@ export default function AriaTab() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Sparkles className="w-5 h-5 mr-2" />
-                    AI Content Generator
+                    AI Content Specialist
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">

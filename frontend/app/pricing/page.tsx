@@ -45,17 +45,17 @@ const PRICING_PLANS: Record<PricingTier, PricingPlan> = {
     price: 0,
     yearlyPrice: 0,
     period: "month",
-    description: "Perfect for trying out Agent47",
+    description: "Perfect for trying out our AI employees",
     color: "from-green-400 to-green-600",
     agents: 1,
     support: "Community support only",
     integrations: "Basic integrations",
     features: [
-      "1 Agent (user chooses)",
+      "1 AI Employee (your choice)",
       "14-day full access trial",
       "Then limited to 5 actions/day",
       "Basic functionality",
-      "No inter-agent communication",
+      "No inter-personnel communication",
       "Basic Content Creation",
       "Basic Analytics",
       "Community Support",
@@ -73,11 +73,11 @@ const PRICING_PLANS: Record<PricingTier, PricingPlan> = {
     support: "Email support (24h response)",
     integrations: "5 platforms",
     features: [
-      "4 Agents (Purity excluded)",
-      "Full agent features",
+      "4 AI Employees (Purity excluded)",
+      "Full employee features",
       "Basic analytics",
       "Advanced Content Creation",
-      "Social Media Automation",
+      "Workflow Automation",
       "Lead Generation Tools",
       "Customer Support Automation",
       "Market Research Insights",
@@ -92,13 +92,13 @@ const PRICING_PLANS: Record<PricingTier, PricingPlan> = {
     period: "month",
     description: "For agencies and growing businesses",
     color: "from-green-500 to-green-700",
-    agents: "All 7 agents",
+    agents: "Full team (7 employees)",
     support: "Priority support (12h response)",
     integrations: "Unlimited",
     teamMembers: "Up to 5 team members",
     features: [
-      "All 7 Agents Available",
-      "Inter-agent communication",
+      "Full AI Team Available",
+      "Inter-employee communication",
       "Advanced analytics",
       "Advanced Content Creation",
       "Team Collaboration (5 members)",
@@ -115,13 +115,13 @@ const PRICING_PLANS: Record<PricingTier, PricingPlan> = {
 
 const COMPARISON_FEATURES: ComparisonFeature[] = [
   {
-    name: "Number of agents",
+    name: "Number of team members",
     free: 1,
     starter: "4 (Purity excluded)",
-    pro: "All 7 agents",
+    pro: "Full team (7 employees)",
   },
   {
-    name: "Agent Communication",
+    name: "Personnel Communication",
     free: false,
     starter: false,
     pro: true,
@@ -432,9 +432,9 @@ export default function PricingPage() {
         <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4 2xl:px-12 3xl:px-16 max-w-7xl 2xl:max-w-[1400px] 3xl:max-w-[1600px]">
             <div className="text-center max-w-3xl mx-auto">
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Choose Your Agent47 Plan</h1>
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Hire Your Digital Workforce</h1>
               <p className="text-lg text-gray-600 mb-8">
-                Select the plan that best fits your needs. All plans include access to our powerful AI agents.
+                Select the plan that best fits your needs. All plans include access to our powerful AI employees.
               </p>
 
               {/* Billing Period Toggle */}
@@ -527,8 +527,8 @@ export default function PricingPage() {
                                   <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0" />
                                   <span>
                                     {plan.features.agents.max_count ?
-                                      `${plan.features.agents.max_count} agents` :
-                                      'Unlimited agents'
+                                      `${plan.features.agents.max_count} AI employees` :
+                                      'Full AI workforce'
                                     }
                                   </span>
                                 </li>
@@ -738,7 +738,7 @@ export default function PricingPage() {
                                 <div className="space-y-2">
                                   <div className="flex items-start text-sm text-gray-600">
                                     <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                                    <span>{PRICING_PLANS[selectedTier].agents} Agents</span>
+                                    <span>{PRICING_PLANS[selectedTier].agents} Personnel</span>
                                   </div>
                                   <div className="flex items-start text-sm text-gray-600">
                                     <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />

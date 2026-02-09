@@ -19,7 +19,7 @@ const defaultPlans = [
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      { included: true, text: "1 AI Employee (Limited Access)" },
+      { included: true, text: "1 AI Personnel (Limited Access)" },
       { included: true, text: "100 Tasks per Month" },
       { included: true, text: "Basic Platform Access" },
       { included: true, text: "Community Support" },
@@ -40,7 +40,7 @@ const defaultPlans = [
       { included: true, text: "Hire 3 Specialized AI Employees" },
       { included: true, text: "14-Day Free Trial" },
       { included: true, text: "Full Platform & Tool Access" },
-      { included: true, text: "Unlimited Tasks for your Agents" },
+      { included: true, text: "Unlimited Tasks for your Personnel" },
       { included: true, text: "Email Support (24h response)" },
     ],
     cta: "Hire Your First Team",
@@ -55,10 +55,10 @@ const defaultPlans = [
     monthlyPrice: 149.0,
     yearlyPrice: 1609.2, // 10% discount: (149 * 12) * 0.9
     features: [
-      { included: true, text: "Hire All 7 AI Employees" },
+      { included: true, text: "Hire All 7 AI Personnel" },
       { included: true, text: "Inter-Employee Communication" },
       { included: true, text: "Team Strategic Briefing" },
-      { included: true, text: "Unlimited Multi-Agent Workflows" },
+      { included: true, text: "Unlimited Multi-Specialist Workflows" },
       { included: true, text: "Priority Support (12h response)" },
     ],
     cta: "Hire Your Full Team",
@@ -113,7 +113,7 @@ export default function Pricing({ plans = defaultPlans, isLoading = false, error
           transition={{ duration: 0.5 }}
         >
           <h2 className="text-3xl md:text-5xl font-extrabold mb-6 text-slate-900">
-            Hire Your <span className="gradient-text">AI Workforce</span>
+            Hire Your <span className="gradient-text">Personnel</span>
           </h2>
           <p className="text-xl text-gray-600 max-w-[800px] mx-auto font-medium">
             Stop overpaying for local operations. Hire specialized AI employees at 1/100th of the cost.

@@ -23,17 +23,17 @@ import { Home, BarChart3, Globe, Zap, Settings, Inbox, Users, LogOut, Bot, Histo
 
 const navigationItems = [
   {
-    title: "Overview",
+    title: "Dashboard",
     icon: Home,
     href: "/dashboard?tab=home",
   },
   {
-    title: "AI Workforce",
+    title: "AI Personnel",
     icon: Bot,
     href: "/dashboard?tab=agents-overview",
   },
   {
-    title: "Strategy Center",
+    title: "Teams",
     icon: Users,
     href: "/dashboard?tab=team-chat",
   },
@@ -43,7 +43,7 @@ const navigationItems = [
     href: "/dashboard?tab=platforms-overview",
   },
   {
-    title: "Employee Toolkit",
+    title: "Tools",
     icon: Zap,
     href: "/dashboard?tab=tools-automation-overview",
   },
@@ -78,9 +78,6 @@ const navigationItems = [
     href: "/dashboard?tab=account-overview",
   },
   {
-    title: "Payroll & Billing",
-    icon: TrendingUp,
-    href: "/dashboard?tab=upgrade",
   },
 ]
 

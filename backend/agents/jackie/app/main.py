@@ -7,7 +7,6 @@ from .routers import (
     campaigns, content, seo, analytics, ads, social_media, email_marketing,
     influencer_marketing, market_research, customer_segmentation, ab_testing, crm_integration,
     customer_engagement, omnichannel, predictive_analytics, voice_video_marketing,
-    agent_integration, brand_voice, localized_marketing, campaign_collaboration, campaign_calendar,
     campaign_ideation, accessibility, ecommerce_integration, ethical_guidelines,
     organic_marketing, mobile_campaign, deep_analytics, onboarding, interactive_elements,
     platform_optimization, launch_assistant, customer_search, human_chatbot, dynamic_personalization,
@@ -44,7 +43,7 @@ def build_app() -> FastAPI:
     app.include_router(omnichannel.router, prefix="/jackie/omnichannel", tags=["Omnichannel Marketing"])
     app.include_router(predictive_analytics.router, prefix="/jackie/predictive-analytics", tags=["Predictive Analytics"])
     app.include_router(voice_video_marketing.router, prefix="/jackie/voice-video", tags=["Voice & Video Marketing"])
-    app.include_router(agent_integration.router, prefix="/jackie/agent-integration", tags=["Agent Integration"])
+    # app.include_router(agent_integration.router, prefix="/jackie/agent-integration", tags=["Specialist Integration"])
     app.include_router(brand_voice.router, prefix="/jackie/brand-voice", tags=["Brand Voice Customization"])
     app.include_router(localized_marketing.router, prefix="/jackie/localized-marketing", tags=["Localized Marketing"])
     app.include_router(campaign_collaboration.router, prefix="/jackie/campaign-collaboration", tags=["JackieCampaign Collaboration"])
@@ -91,7 +90,7 @@ def build_app() -> FastAPI:
             status_code=200,
             content={
                 "status": "healthy",
-                "agent": "Jackie",
+                "employee": "Jackie",
                 "version": "1.0.0",
                 "features": [
                     "automated_marketing_campaigns",
@@ -177,8 +176,8 @@ def build_app() -> FastAPI:
         return JSONResponse(
             status_code=200,
             content={
-                "agent": "Jackie",
-                "description": "AI-Powered Marketing Automation Agent",
+                "employee": "Jackie",
+                "description": "AI Marketing Specialist",
                 "version": "1.0.0",
                 "endpoints": {
                     "health": "/jackie/health",
@@ -233,7 +232,7 @@ def build_app() -> FastAPI:
                      "multi_language": "/jackie/multi-language",
                      "enhanced_video_voice": "/jackie/enhanced-video-voice"
                 },
-                "message": "Welcome to Jackie - Your AI Marketing Assistant!"
+                "message": "Welcome to Jackie - Your AI Marketing Specialist!"
             }
         )
 

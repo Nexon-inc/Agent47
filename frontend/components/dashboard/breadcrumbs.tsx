@@ -17,7 +17,7 @@ const tabDisplayNames: Record<string, string> = {
   home: "Dashboard",
   "team-management": "Team Management",
   inbox: "Inbox",
-  "agents-overview": "AI Agents",
+  "agents-overview": "AI Personnel",
   "my-agents": "My Agents",
   history: "History",
   "platforms-overview": "Platforms",
@@ -72,7 +72,7 @@ export default function DashboardBreadcrumbs() {
   // Add current tab
   const displayName = tabDisplayNames[tab] || tab
   const isAgentTab = ["aria", "clara", "eric", "jackie", "shakes", "joe", "purity", "janice"].includes(tab)
-  
+
   if (isAgentTab) {
     // For agent tabs, add "My Agents" as intermediate step
     breadcrumbs.push({

@@ -57,8 +57,8 @@ def create_app() -> FastAPI:
     from core.config import settings
     
     app = FastAPI(
-        title=f"{settings.project_name} - Purity",
-        description="AI-Powered Business Creator & Money Maker",
+        title=f"{settings.project_name} - Purity (Business Specialist)",
+        description="AI Business Architect & Creator",
         version="1.0.0",
         lifespan=lifespan
     )

@@ -157,7 +157,7 @@ export default function TeamSelectionModal({ isOpen, onClose, onConfirm }: TeamS
 
   const handleConfirm = async () => {
     if (selectedEmployees.length === 0) {
-      setError("Please select at least one agent")
+      setError("Please select at least one personnel")
       return
     }
 

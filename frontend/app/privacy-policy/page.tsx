@@ -328,7 +328,7 @@ export default function PrivacyPolicyPage() {
           <div className="max-w-3xl mx-auto mb-8">
             <p className="text-gray-700 text-lg leading-relaxed">
               At Agent47, we value your privacy. This Privacy Policy explains how we collect, use, disclose, and protect
-              your personal information when you use our platform, including our AI agents (e.g., Aria, Jackie, Shakes,
+              your personal information when you use our platform, including our AI personnel (e.g., Aria, Jackie, Shakes,
               Clara, Eric) and services.
             </p>
           </div>
@@ -344,9 +344,8 @@ export default function PrivacyPolicyPage() {
                   className="mb-8 scroll-mt-24"
                 >
                   <button
-                    className={`flex justify-between items-center w-full text-left text-xl font-semibold text-slate-900 mb-4 ${
-                      isMobile ? "cursor-pointer" : "cursor-default"
-                    }`}
+                    className={`flex justify-between items-center w-full text-left text-xl font-semibold text-slate-900 mb-4 ${isMobile ? "cursor-pointer" : "cursor-default"
+                      }`}
                     onClick={() => isMobile && toggleSection(section.id)}
                   >
                     <h2>{section.title}</h2>
@@ -397,11 +396,10 @@ export default function PrivacyPolicyPage() {
                           <li key={section.id}>
                             <button
                               onClick={() => scrollToSection(section.id)}
-                              className={`text-left w-full ${
-                                activeSection === section.id
+                              className={`text-left w-full ${activeSection === section.id
                                   ? "text-green-600 font-semibold"
                                   : "text-green-600 hover:text-green-700"
-                              } transition-colors`}
+                                } transition-colors`}
                             >
                               {section.title}
                             </button>

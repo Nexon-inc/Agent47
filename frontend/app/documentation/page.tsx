@@ -68,7 +68,7 @@ export default function DocumentationPage() {
               {[
                 {
                   title: "REST API",
-                  description: "Full REST API access to all Agent47 features and AI agents",
+                  description: "Full REST API access to all Agent47 features and AI personnel",
                   icon: Code,
                   color: "from-blue-500 to-cyan-500",
                 },
@@ -128,7 +128,7 @@ export default function DocumentationPage() {
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-6">API Preview</h2>
             <p className="text-gray-700 mb-6">
-              Get a sneak peek at how our API will work. Here's an example of sending a task to an AI agent:
+              Get a sneak peek at how our API will work. Here's an example of sending a task to an AI personnel:
             </p>
             <div className="bg-gray-900 rounded-xl p-6 overflow-x-auto">
               <pre className="text-sm text-gray-100">

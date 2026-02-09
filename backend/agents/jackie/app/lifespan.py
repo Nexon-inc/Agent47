@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("🚀 Starting Jackie - Marketing Agent...")
+    logger.info("🚀 Starting Jackie - AI Marketing Specialist...")
     
     try:
         logger.info("📊 Initializing core services...")
@@ -47,8 +47,8 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title="Jackie - AI-Powered Marketing Agent",
-        description="Intelligent marketing automation platform with AI-powered optimization",
+        title="Jackie - AI Marketing Specialist",
+        description="Intelligent marketing automation platform with AI specialists",
         version="1.0.0",
         lifespan=lifespan
     )

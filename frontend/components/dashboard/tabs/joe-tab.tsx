@@ -138,17 +138,17 @@ interface TaskSummary {
 export default function JoeTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
-  
+
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  
+
   // Data state
   const [keywords, setKeywords] = useState<Keyword[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskSummaries, setTaskSummaries] = useState<TaskSummary[]>([])
-  
+
   // Settings state
   const [automateEnabled, setAutomateEnabled] = useState(false)
   const [customInstructions, setCustomInstructions] = useState("")
@@ -163,7 +163,7 @@ export default function JoeTab() {
   // Subscribe to real-time task updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -181,7 +181,7 @@ export default function JoeTab() {
     try {
       setIsLoadingData(true)
       setIsRefreshing(true)
-      
+
       // Load all data in parallel
       const [keywordsResponse, analyticsResponse, tasksResponse, summariesResponse] = await Promise.all([
         apiClient.get("/api/agents/joe/keywords").catch(() => ({ data: [] })),
@@ -189,13 +189,13 @@ export default function JoeTab() {
         apiClient.get("/api/agents/joe/tasks").catch(() => ({ data: [] })),
         apiClient.get("/api/agents/joe/task-summaries").catch(() => ({ data: [] }))
       ])
-      
+
       setKeywords(keywordsResponse.data || [])
       setAnalyticsData(analyticsResponse.data)
       setTasks(tasksResponse.data || [])
       setTaskSummaries(summariesResponse.data || [])
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load Joe data:", error)
     } finally {
@@ -210,7 +210,7 @@ export default function JoeTab() {
         apiClient.get("/api/agents/joe/settings/automate").catch(() => ({ data: { enabled: false } })),
         apiClient.get("/api/agents/joe/settings/instructions").catch(() => ({ data: { instructions: "" } }))
       ])
-      
+
       setAutomateEnabled(automateResponse.data?.enabled || false)
       setCustomInstructions(instructionsResponse.data?.instructions || "")
     } catch (error) {
@@ -264,7 +264,7 @@ export default function JoeTab() {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading Joe data...</span>
+          <span>Onboarding Joe specialized data...</span>
         </div>
       </div>
     )
@@ -279,8 +279,8 @@ export default function JoeTab() {
             <Search className="h-6 w-6 text-indigo-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Joe - SEO Agent</h2>
-            <p className="text-gray-600">AI-powered SEO optimization and keyword research</p>
+            <h2 className="text-2xl font-bold text-gray-900">Joe - AI SEO Specialist</h2>
+            <p className="text-gray-600">AI-powered strategic keyword research and SEO optimization</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -306,7 +306,7 @@ export default function JoeTab() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Agent Settings</span>
+            <span>Personnel Settings</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -326,7 +326,7 @@ export default function JoeTab() {
               disabled={isSavingSettings}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="instructions" className="text-sm font-medium">
               Custom Instructions
@@ -370,7 +370,7 @@ export default function JoeTab() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -384,7 +384,7 @@ export default function JoeTab() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -398,7 +398,7 @@ export default function JoeTab() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">

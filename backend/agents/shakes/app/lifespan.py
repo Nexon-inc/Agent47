@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage Shakes application lifespan"""
-    logger.info("🚀 Starting Shakes - Content Creation Agent...")
+    logger.info("🚀 Starting Shakes - AI Content Specialist...")
     
     try:
         # Initialize core services
@@ -54,8 +54,8 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Create Shakes FastAPI application with lifespan management"""
     app = FastAPI(
-        title="Shakes - AI-Powered Content Creation",
-        description="Intelligent content creation agent with AI-powered writing, SEO optimization, and multi-platform content generation",
+        title="Shakes - AI Content Specialist",
+        description="Intelligent AI content creation specialist with AI writing, SEO optimization, and multi-platform generation",
         version="1.0.0",
         lifespan=lifespan
     )

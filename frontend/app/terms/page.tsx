@@ -11,7 +11,7 @@ const sections = [
     content: (
       <>
         <p className="mb-4">
-          By accessing or using Agent47's platform, including our AI agents (e.g., Aria, Jackie, Shakes, Clara, Eric)
+          By accessing or using Agent47's platform, including our AI personnel (e.g., Aria, Jackie, Shakes, Clara, Eric)
           and services, you agree to be bound by these Terms and Conditions.
         </p>
         <ul className="list-disc pl-5 mb-4 space-y-2">
@@ -27,20 +27,20 @@ const sections = [
     title: "Services",
     content: (
       <>
-        <p className="mb-4">Agent47 provides access to AI-powered agents designed to automate various workflows:</p>
+        <p className="mb-4">Agent47 provides access to AI-powered personnel designed to automate various workflows:</p>
         <ul className="list-disc pl-5 mb-4 space-y-2">
           <li>
-            <strong>Available Agents:</strong> Aria (social media), Jackie (customer support), Shakes (content
+            <strong>Available Personnel:</strong> Aria (social media), Jackie (customer support), Shakes (content
             creation), Clara (marketing), Eric (sales), and others.
           </li>
           <li>
             <strong>Service Tiers:</strong> Features vary by plan (Free, Starter, Pro, Ecosystem).
           </li>
           <li>
-            <strong>Beta Features:</strong> Some agents or features may be in beta and have limited functionality.
+            <strong>Beta Features:</strong> Some personnel or features may be in beta and have limited functionality.
           </li>
         </ul>
-        <p className="text-gray-700 italic">Note: We may update agents without notice to improve performance.</p>
+        <p className="text-gray-700 italic">Note: We may update personnel without notice to improve performance.</p>
       </>
     ),
   },
@@ -110,7 +110,7 @@ const sections = [
             <strong>API Usage:</strong> Respect integration limits (e.g., don't overload Zapier APIs).
           </li>
           <li>
-            <strong>Data Accuracy:</strong> Provide accurate data for agents (e.g., Clara's campaigns).
+            <strong>Data Accuracy:</strong> Provide accurate data for personnel (e.g., Clara's campaigns).
           </li>
         </ul>
         <p className="text-gray-700 italic">Note: Misuse may lead to account suspension.</p>
@@ -125,7 +125,7 @@ const sections = [
         <p className="mb-4">Ownership and rights regarding content and technology:</p>
         <ul className="list-disc pl-5 mb-4 space-y-2">
           <li>
-            <strong>Platform Ownership:</strong> Agent47 owns the platform, agents, and underlying code.
+            <strong>Platform Ownership:</strong> Agent47 owns the platform, personnel, and underlying code.
           </li>
           <li>
             <strong>User Content:</strong> You retain ownership of your data and content (e.g., Shakes' generated
@@ -136,7 +136,7 @@ const sections = [
             improve our services.
           </li>
           <li>
-            <strong>Restrictions:</strong> No reverse-engineering, copying, or creating derivative works of our agents.
+            <strong>Restrictions:</strong> No reverse-engineering, copying, or creating derivative works of our personnel.
           </li>
         </ul>
         <p className="text-gray-700 italic">Note: Contact us for licensing inquiries.</p>
@@ -198,7 +198,7 @@ const sections = [
         <p className="mb-4">Limitations on Agent47's liability:</p>
         <ul className="list-disc pl-5 mb-4 space-y-2">
           <li>
-            <strong>Service Accuracy:</strong> We don't guarantee 100% accuracy of agent outputs (e.g., Eric's
+            <strong>Service Accuracy:</strong> We don't guarantee 100% accuracy of personnel outputs (e.g., Eric's
             forecasts).
           </li>
           <li>
@@ -210,7 +210,7 @@ const sections = [
             months.
           </li>
         </ul>
-        <p className="text-gray-700 italic">Note: Use agents at your own risk.</p>
+        <p className="text-gray-700 italic">Note: Use personnel at your own risk.</p>
       </>
     ),
   },
@@ -386,7 +386,7 @@ export default function TermsPage() {
 
           <div className="max-w-3xl mx-auto mb-8">
             <p className="text-gray-700 text-lg leading-relaxed">
-              These Terms and Conditions govern your use of Agent47's platform, including our AI agents (e.g., Aria,
+              These Terms and Conditions govern your use of Agent47's platform, including our AI personnel (e.g., Aria,
               Jackie, Shakes, Clara, Eric) and services. By using Agent47, you agree to these terms.
             </p>
           </div>
@@ -402,9 +402,8 @@ export default function TermsPage() {
                   className="mb-8 scroll-mt-24"
                 >
                   <button
-                    className={`flex justify-between items-center w-full text-left text-xl font-semibold text-slate-900 mb-4 ${
-                      isMobile ? "cursor-pointer" : "cursor-default"
-                    }`}
+                    className={`flex justify-between items-center w-full text-left text-xl font-semibold text-slate-900 mb-4 ${isMobile ? "cursor-pointer" : "cursor-default"
+                      }`}
                     onClick={() => isMobile && toggleSection(section.id)}
                   >
                     <h2>{section.title}</h2>
@@ -455,11 +454,10 @@ export default function TermsPage() {
                           <li key={section.id}>
                             <button
                               onClick={() => scrollToSection(section.id)}
-                              className={`text-left w-full ${
-                                activeSection === section.id
+                              className={`text-left w-full ${activeSection === section.id
                                   ? "text-green-600 font-semibold"
                                   : "text-green-600 hover:text-green-700"
-                              } transition-colors`}
+                                } transition-colors`}
                             >
                               {section.title}
                             </button>

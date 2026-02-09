@@ -170,7 +170,7 @@ export default function AuthPage() {
             Agent<span className="text-green-500">47</span>
           </span>
         </Link>
-        <h2 className="text-gray-500 text-lg">Automate Your Business with AI Agents</h2>
+        <h2 className="text-gray-500 text-lg">Automate Your Business with AI Workforce</h2>
       </div>
 
       {/* Main Card */}

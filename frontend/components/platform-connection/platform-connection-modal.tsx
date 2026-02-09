@@ -7,10 +7,10 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
-import { 
-  Search, 
-  ExternalLink, 
-  CheckCircle, 
+import {
+  Search,
+  ExternalLink,
+  CheckCircle,
   AlertCircle,
   Loader2,
   Globe,
@@ -29,11 +29,11 @@ interface PlatformConnectionModalProps {
   connectedPlatforms: string[]
 }
 
-export function PlatformConnectionModal({ 
-  isOpen, 
-  onClose, 
-  onConnect, 
-  connectedPlatforms 
+export function PlatformConnectionModal({
+  isOpen,
+  onClose,
+  onConnect,
+  connectedPlatforms
 }: PlatformConnectionModalProps) {
   const [platforms, setPlatforms] = useState<PlatformConfig[]>([])
   const [filteredPlatforms, setFilteredPlatforms] = useState<PlatformConfig[]>([])
@@ -55,7 +55,7 @@ export function PlatformConnectionModal({
   const loadPlatforms = async () => {
     setIsLoading(true)
     setError(null)
-    
+
     try {
       const availablePlatforms = await platformOAuthService.getAvailablePlatforms()
       setPlatforms(availablePlatforms)
@@ -139,7 +139,7 @@ export function PlatformConnectionModal({
         <DialogHeader>
           <DialogTitle>Connect Platform</DialogTitle>
           <DialogDescription>
-            Connect your accounts to enable AI agents to work with your data and automate tasks.
+            Connect your accounts to enable AI personnel to work with your data and automate tasks.
           </DialogDescription>
         </DialogHeader>
 
@@ -199,8 +199,8 @@ export function PlatformConnectionModal({
                     key={platform.name}
                     className={cn(
                       "border rounded-lg p-4 transition-all duration-200 hover:shadow-md",
-                      isConnected 
-                        ? "border-green-200 bg-green-50/50" 
+                      isConnected
+                        ? "border-green-200 bg-green-50/50"
                         : "border-gray-200 hover:border-gray-300"
                     )}
                   >

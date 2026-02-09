@@ -87,7 +87,7 @@ export default function SecurityPage() {
                   {[
                     "We only collect data necessary for service functionality",
                     "All data collection is transparent and disclosed",
-                    "You control what data you share with our AI agents",
+                    "You control what data you share with our AI personnel",
                     "No selling or sharing of personal data with third parties",
                   ].map((item, i) => (
                     <li key={i} className="flex items-start">

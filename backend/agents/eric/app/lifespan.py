@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    logger.info("Starting Eric - Sales Agent...")
+    logger.info("Starting Eric - AI Sales Specialist...")
     try:
         # Initialize Eric database (connects to core)
         await init_eric_database()
@@ -48,7 +48,7 @@ async def lifespan(app: FastAPI):
         await platform_manager.initialize()
         logger.info("✅ Platform Manager initialized")
         
-        logger.info("🚀 Eric - Sales Agent is ready!")
+        logger.info("🚀 Eric - AI Sales Specialist is ready!")
         
     except Exception as e:
         logger.error(f"Failed to start Eric - Sales Agent: {e}")
@@ -93,8 +93,8 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Create FastAPI app with lifespan"""
     app = FastAPI(
-        title="Eric - Sales Agent",
-        description="AI-Powered Sales Automation and EricLead Management",
+        title="Eric - AI Sales Specialist",
+        description="AI-Powered Sales Automation and Personnel Management",
         version="1.0.0",
         lifespan=lifespan
     )

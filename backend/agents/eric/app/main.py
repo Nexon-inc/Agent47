@@ -54,8 +54,8 @@ logger = logging.getLogger(__name__)
 
 # Create FastAPI app with lifespan
 app = FastAPI(
-    title="Eric - Sales Agent API",
-    description="AI-powered sales automation and lead management system",
+    title="Eric - AI Sales Specialist API",
+    description="AI-powered sales automation and personnel management system",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -114,7 +114,7 @@ app.include_router(voice_pitch_simulator.router)
 async def root():
     """Root endpoint for Eric - Sales Agent"""
     return {
-        "message": "Welcome to Eric - Sales Agent API",
+        "message": "Welcome to Eric - AI Sales Specialist API",
         "version": "1.0.0",
         "status": "operational",
         "services": [
@@ -170,7 +170,7 @@ async def health_check():
     try:
         return {
             "status": "healthy",
-            "agent": "Eric - Sales Agent",
+            "employee": "Eric - AI Sales Specialist",
             "version": "1.0.0",
             "services": {
                 "lead_generation": "operational",
@@ -228,8 +228,8 @@ async def health_check():
 async def status():
     """Detailed status information"""
     return {
-        "agent": "Eric - Sales Agent",
-        "description": "AI-powered sales automation and lead management system",
+        "employee": "Eric - AI Sales Specialist",
+        "description": "AI-powered sales automation and personnel management system",
         "capabilities": {
             "lead_generation": {
                 "description": "Identify and qualify leads from multiple sources",

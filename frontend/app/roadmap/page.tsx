@@ -40,15 +40,15 @@ const phases: Phase[] = [
     gradient: "from-blue-600 to-cyan-400",
     icon: Zap,
     goals: [
-      "Launch core AI automation platform with 7 essential agents",
+      "Launch core AI automation platform with 7 essential personnel",
       "Build strong community and gather user feedback",
       "Establish brand presence and market positioning",
       "Test system stability and performance at scale",
       "Refine agent collaboration and intercommunication",
-      "Expand to 15 agents by January 2026",
+      "Expand to 15 personnel by January 2026",
     ],
     features: [
-      "7 Core AI Agents (Aria, Clara, Eric, Jackie, Shakes, Joe, Purity)",
+      "7 Core AI Personnel (Aria, Clara, Eric, Jackie, Shakes, Joe, Purity)",
       "Aria: Social Media Automation - Post scheduling, AI captions, media generation, engagement analytics",
       "Clara: Customer Support - 24/7 support, multichannel, automated responses, sentiment analysis",
       "Eric: Sales Automation - Lead generation, CRM automation, sales outreach, forecasting",
@@ -57,13 +57,13 @@ const phases: Phase[] = [
       "Joe: Research Agent - Data collection, web scraping, document processing, NLP summarization",
       "Purity: Business Development - Idea generator, validation tool, business model canvas, brand builder",
       "Chat & Voice Control Interface",
-      "Agent Intercommunication System",
+      "Workforce Intercommunication System",
       "Basic Analytics Dashboard",
       "Email & Slack Integrations",
       "24/7 Customer Support",
       "Web & Mobile Apps",
       "User Feedback Portal",
-      "Target: 15 Agents by January 2026",
+      "Target: 15 Personnel by January 2026",
     ],
     agentCount: 7,
     targetAgentCount: 15,
@@ -88,18 +88,18 @@ const phases: Phase[] = [
     goals: [
       "Achieve peak automation efficiency across all workflows",
       "Launch comprehensive API and documentation",
-      "Introduce custom agent builder for enterprise clients",
+      "Introduce custom personnel builder for enterprise clients",
       "Replace underperforming agents with advanced alternatives",
       "Scale infrastructure for 100,000+ concurrent users",
       "Integrate advanced AI models (GPT-5, Claude 3.5)",
-      "Expand to 15 specialized agents",
+      "Expand to 15 specialized personnel",
     ],
     features: [
-      "15 Specialized AI Agents",
-      "Custom Agent Builder (No-Code)",
+      "15 Specialized AI Personnel",
+      "Custom Personnel Builder (No-Code)",
       "REST API & SDKs (Python, JavaScript, Go)",
       "Comprehensive Documentation Portal",
-      "Advanced Agent Analytics & Insights",
+      "Advanced Personnel Analytics & Insights",
       "Workflow Automation Templates",
       "Multi-Language Support (50+ languages)",
       "Enterprise SSO & RBAC",
@@ -120,26 +120,26 @@ const phases: Phase[] = [
     gradient: "from-green-500 to-emerald-600",
     icon: Rocket,
     goals: [
-      "Deploy AGI-adjacent agents with reasoning capabilities",
+      "Deploy AGI-adjacent personnel with reasoning capabilities",
       "Enable true autonomous decision-making",
       "Integrate quantum computing for complex problem-solving",
-      "Create self-evolving agents that improve without human input",
+      "Create self-evolving personnel that improve without human input",
       "Establish Agent47 as the world's most advanced AI platform",
       "Push the boundaries of what's possible with AI automation",
-      "Expand to 17 advanced specialized agents",
+      "Expand to 17 advanced specialized personnel",
     ],
     features: [
-      "17 Advanced Specialized AI Agents",
+      "17 Advanced Specialized AI Personnel",
       "AGI-Adjacent Reasoning Engines",
       "Quantum Computing Integration",
-      "Self-Evolving Agent Architecture",
+      "Self-Evolving Workforce Architecture",
       "Autonomous Decision-Making Systems",
       "Neural Interface Compatibility",
       "Holographic AI Interfaces",
       "Multi-Modal AI (Text, Voice, Vision, Touch)",
       "Predictive Scenario Modeling",
       "Real-Time Language Translation (200+ languages)",
-      "Cross-Platform Universal Agents",
+      "Cross-Platform Universal Personnel",
       "Zero-Latency Global Infrastructure",
       "Blockchain-Verified AI Actions",
     ],
@@ -180,7 +180,7 @@ export default function RoadmapPage() {
             </Badge>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">Agent47 Roadmap</h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our journey to deploy 47 specialized AI agents across three transformative phases, revolutionizing
+              Our journey to deploy 47 specialized AI personnel across three transformative phases, revolutionizing
               automation and pushing the boundaries of artificial intelligence.
             </p>
           </motion.div>
@@ -326,12 +326,12 @@ export default function RoadmapPage() {
                               </div>
                             </div>
 
-                            {/* Agents */}
+                            {/* AI Personnel */}
                             {phase.agents.length > 0 && (
                               <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                   <Rocket className="w-5 h-5 mr-2 text-orange-500" />
-                                  AI Agents ({phase.agentCount}{phase.targetAgentCount && phase.targetAgentCount > phase.agentCount ? ` → ${phase.targetAgentCount}` : ""})
+                                  AI Personnel ({phase.agentCount}{phase.targetAgentCount && phase.targetAgentCount > phase.agentCount ? ` → ${phase.targetAgentCount}` : ""})
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                   {phase.agents.map((agent, i) => (
@@ -361,10 +361,10 @@ export default function RoadmapPage() {
                               <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                   <Rocket className="w-5 h-5 mr-2 text-orange-500" />
-                                  Target: {phase.targetAgentCount} Agents
+                                  Target: {phase.targetAgentCount} Personnel
                                 </h3>
                                 <p className="text-gray-600">
-                                  This phase aims to expand our agent ecosystem to {phase.targetAgentCount} specialized AI agents, each designed to handle specific business functions and workflows.
+                                  This phase aims to expand our personnel ecosystem to {phase.targetAgentCount} specialized AI personnel, each designed to handle specific business functions and workflows.
                                 </p>
                               </div>
                             )}

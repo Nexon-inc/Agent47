@@ -138,7 +138,7 @@ export default function PlatformsPage() {
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Platform Connections</h1>
             <p className="text-slate-800 mt-2 font-medium">
-              Manage your connected platforms and enable AI agents to work with your data.
+              Manage your connected platforms and enable AI personnel to work with your data.
             </p>
           </div>
           <Button onClick={() => setShowConnectModal(true)} className="flex items-center space-x-2">
@@ -236,7 +236,7 @@ export default function PlatformsPage() {
               <ExternalLink className="h-12 w-12 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-semibold mb-2">No platforms connected</h3>
               <p className="text-slate-700 mb-4 font-medium">
-                Connect your first platform to start using AI agents with your data.
+                Connect your first platform to start using AI personnel with your data.
               </p>
               <Button onClick={() => setShowConnectModal(true)}>
                 <Plus className="h-4 w-4 mr-2" />

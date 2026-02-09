@@ -256,7 +256,7 @@ async def health_check():
         logger.error(f"Health check failed: {e}")
         return {
             "status": "unhealthy",
-            "service": "Agent47 API",
+            "service": "Agent47 AI Employee Platform API",
             "version": settings.version,
             "environment": settings.environment,
             "error": str(e),

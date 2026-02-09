@@ -152,18 +152,18 @@ interface TaskSummary {
 export default function ClaraTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
-  
+
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  
+
   // Data state
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([])
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskSummaries, setTaskSummaries] = useState<TaskSummary[]>([])
-  
+
   // Settings state
   const [automateEnabled, setAutomateEnabled] = useState(false)
   const [customInstructions, setCustomInstructions] = useState("")
@@ -178,7 +178,7 @@ export default function ClaraTab() {
   // Subscribe to real-time task updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -196,7 +196,7 @@ export default function ClaraTab() {
     try {
       setIsLoadingData(true)
       setIsRefreshing(true)
-      
+
       // Load all data in parallel
       const [ticketsResponse, chatsResponse, analyticsResponse, tasksResponse, summariesResponse] = await Promise.all([
         apiClient.get("/api/agents/clara/tickets").catch(() => ({ data: [] })),
@@ -205,14 +205,14 @@ export default function ClaraTab() {
         apiClient.get("/api/agents/clara/tasks").catch(() => ({ data: [] })),
         apiClient.get("/api/agents/clara/task-summaries").catch(() => ({ data: [] }))
       ])
-      
+
       setSupportTickets(ticketsResponse.data || [])
       setChatSessions(chatsResponse.data || [])
       setAnalyticsData(analyticsResponse.data)
       setTasks(tasksResponse.data || [])
       setTaskSummaries(summariesResponse.data || [])
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load Clara data:", error)
     } finally {
@@ -227,7 +227,7 @@ export default function ClaraTab() {
         apiClient.get("/api/agents/clara/settings/automate").catch(() => ({ data: { enabled: false } })),
         apiClient.get("/api/agents/clara/settings/instructions").catch(() => ({ data: { instructions: "" } }))
       ])
-      
+
       setAutomateEnabled(automateResponse.data?.enabled || false)
       setCustomInstructions(instructionsResponse.data?.instructions || "")
     } catch (error) {
@@ -285,7 +285,7 @@ export default function ClaraTab() {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading Clara data...</span>
+          <span>Syncing with Clara's data...</span>
         </div>
       </div>
     )
@@ -294,16 +294,16 @@ export default function ClaraTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-          <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-purple-100 rounded-lg">
             <Headphones className="h-6 w-6 text-purple-600" />
           </div>
-                <div>
-            <h2 className="text-2xl font-bold text-gray-900">Clara - Customer Support Agent</h2>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Clara - AI Customer Support Specialist</h2>
             <p className="text-gray-600">AI-powered customer support and ticket management</p>
-                </div>
-              </div>
+          </div>
+        </div>
         <div className="flex items-center space-x-2">
           <Button
             variant="outline"
@@ -313,21 +313,21 @@ export default function ClaraTab() {
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
-                  </Button>
+          </Button>
           {lastUpdated && (
             <span className="text-sm text-gray-500">
               Last updated: {lastUpdated.toLocaleTimeString()}
             </span>
           )}
-            </div>
-          </div>
+        </div>
+      </div>
 
       {/* Settings Panel */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Agent Settings</span>
+            <span>Personnel Settings</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -347,7 +347,7 @@ export default function ClaraTab() {
               disabled={isSavingSettings}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="instructions" className="text-sm font-medium">
               Custom Instructions
@@ -378,8 +378,8 @@ export default function ClaraTab() {
       {/* Analytics Overview */}
       {analyticsData && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <MessageSquare className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
@@ -387,13 +387,13 @@ export default function ClaraTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.total_tickets.toLocaleString()}
                   </p>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Clock className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
@@ -401,13 +401,13 @@ export default function ClaraTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.average_resolution_time}h
                   </p>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <TrendingUp className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
@@ -415,13 +415,13 @@ export default function ClaraTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.customer_satisfaction}%
                   </p>
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-orange-600" />
                 <div className="ml-4">
@@ -429,22 +429,22 @@ export default function ClaraTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.active_chats}
                   </p>
-                  </div>
+                </div>
               </div>
-              </CardContent>
-                </Card>
-          </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Recent Support Tickets */}
-          <Card>
-            <CardHeader>
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <MessageSquare className="h-5 w-5" />
             <span>Recent Support Tickets</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           {supportTickets.length > 0 ? (
             <div className="space-y-4">
               {supportTickets.slice(0, 5).map((ticket) => (
@@ -474,10 +474,10 @@ export default function ClaraTab() {
               <MessageSquare className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No support tickets</p>
               <p className="text-sm text-gray-500">Tickets will appear here when customers submit them</p>
-              </div>
+            </div>
           )}
-            </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
 
       {/* Active Chat Sessions */}
       <Card>
@@ -508,28 +508,28 @@ export default function ClaraTab() {
                       <span>Satisfaction: {session.satisfaction_score}/5</span>
                     )}
                   </div>
-              </div>
-              ))}
                 </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No active chat sessions</p>
               <p className="text-sm text-gray-500">Chat sessions will appear here when customers start conversations</p>
-              </div>
+            </div>
           )}
-            </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
 
       {/* Active Tasks */}
-          <Card>
-            <CardHeader>
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Target className="h-5 w-5" />
             <span>Active Tasks</span>
           </CardTitle>
-            </CardHeader>
-            <CardContent>
+        </CardHeader>
+        <CardContent>
           {tasks.length > 0 ? (
             <div className="space-y-4">
               {tasks.filter(task => task.status !== 'completed').slice(0, 5).map((task) => (
@@ -560,20 +560,20 @@ export default function ClaraTab() {
               <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No active tasks</p>
               <p className="text-sm text-gray-500">Tasks will appear here when Clara creates them</p>
-              </div>
+            </div>
           )}
-            </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
 
       {/* Task Summaries */}
-          <Card>
-            <CardHeader>
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
             <span>Task Summaries</span>
           </CardTitle>
-            </CardHeader>
-            <CardContent>
+        </CardHeader>
+        <CardContent>
           {taskSummaries.length > 0 ? (
             <div className="space-y-4">
               {taskSummaries.slice(0, 3).map((summary) => (
@@ -609,10 +609,10 @@ export default function ClaraTab() {
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No task summaries</p>
               <p className="text-sm text-gray-500">Summaries will appear here when tasks are completed</p>
-              </div>
+            </div>
           )}
-            </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -158,18 +158,18 @@ interface TaskSummary {
 export default function EricTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
-  
+
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  
+
   // Data state
   const [leads, setLeads] = useState<Lead[]>([])
   const [deals, setDeals] = useState<Deal[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskSummaries, setTaskSummaries] = useState<TaskSummary[]>([])
-  
+
   // Settings state
   const [automateEnabled, setAutomateEnabled] = useState(false)
   const [customInstructions, setCustomInstructions] = useState("")
@@ -184,7 +184,7 @@ export default function EricTab() {
   // Subscribe to real-time task updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -202,7 +202,7 @@ export default function EricTab() {
     try {
       setIsLoadingData(true)
       setIsRefreshing(true)
-      
+
       // Load all data in parallel
       const [leadsResponse, dealsResponse, analyticsResponse, tasksResponse, summariesResponse] = await Promise.all([
         apiClient.get("/api/agents/eric/leads").catch(() => ({ data: [] })),
@@ -211,14 +211,14 @@ export default function EricTab() {
         apiClient.get("/api/agents/eric/tasks").catch(() => ({ data: [] })),
         apiClient.get("/api/agents/eric/task-summaries").catch(() => ({ data: [] }))
       ])
-      
+
       setLeads(leadsResponse.data || [])
       setDeals(dealsResponse.data || [])
       setAnalyticsData(analyticsResponse.data)
       setTasks(tasksResponse.data || [])
       setTaskSummaries(summariesResponse.data || [])
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load Eric data:", error)
     } finally {
@@ -233,7 +233,7 @@ export default function EricTab() {
         apiClient.get("/api/agents/eric/settings/automate").catch(() => ({ data: { enabled: false } })),
         apiClient.get("/api/agents/eric/settings/instructions").catch(() => ({ data: { instructions: "" } }))
       ])
-      
+
       setAutomateEnabled(automateResponse.data?.enabled || false)
       setCustomInstructions(instructionsResponse.data?.instructions || "")
     } catch (error) {
@@ -287,9 +287,9 @@ export default function EricTab() {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading Eric data...</span>
-              </div>
-          </div>
+          <span>Syncing with Eric's data...</span>
+        </div>
+      </div>
     )
   }
 
@@ -302,7 +302,7 @@ export default function EricTab() {
             <DollarSign className="h-6 w-6 text-amber-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Eric - Sales Agent</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Eric - AI Sales Representative</h2>
             <p className="text-gray-600">AI-powered sales automation and lead management</p>
           </div>
         </div>
@@ -329,7 +329,7 @@ export default function EricTab() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Agent Settings</span>
+            <span>Personnel Settings</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -349,7 +349,7 @@ export default function EricTab() {
               disabled={isSavingSettings}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="instructions" className="text-sm font-medium">
               Custom Instructions
@@ -380,8 +380,8 @@ export default function EricTab() {
       {/* Analytics Overview */}
       {analyticsData && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
@@ -389,13 +389,13 @@ export default function EricTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.total_leads.toLocaleString()}
                   </p>
-                  </div>
                 </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Target className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
@@ -403,13 +403,13 @@ export default function EricTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.conversion_rate}%
                   </p>
-                  </div>
                 </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <DollarSign className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
@@ -417,13 +417,13 @@ export default function EricTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     ${analyticsData.total_revenue.toLocaleString()}
                   </p>
-                  </div>
                 </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <BarChart3 className="h-8 w-8 text-orange-600" />
                 <div className="ml-4">
@@ -431,46 +431,46 @@ export default function EricTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     ${analyticsData.average_deal_size.toLocaleString()}
                   </p>
-                  </div>
                 </div>
-          </CardContent>
-        </Card>
-      </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
-          {/* Recent Leads */}
-          <Card>
-            <CardHeader>
+      {/* Recent Leads */}
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Users className="h-5 w-5" />
             <span>Recent Leads</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           {leads.length > 0 ? (
-              <div className="space-y-4">
-                {leads.slice(0, 5).map((lead) => (
+            <div className="space-y-4">
+              {leads.slice(0, 5).map((lead) => (
                 <div key={lead.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">{lead.name}</h3>
                     <div className="flex items-center space-x-2">
                       <Badge className={getPriorityColor(lead.priority)}>
                         {lead.priority}
-                        </Badge>
+                      </Badge>
                       <Badge className={getStatusColor(lead.status)}>
                         {lead.status}
                       </Badge>
-                      </div>
                     </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-2">{lead.company} • {lead.email}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Source: {lead.source}</span>
                     <span>Value: ${lead.value.toLocaleString()}</span>
                     <span>Created: {new Date(lead.created_at).toLocaleDateString()}</span>
-                    </div>
                   </div>
-                ))}
-                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -478,8 +478,8 @@ export default function EricTab() {
               <p className="text-sm text-gray-500">Leads will appear here when Eric generates them</p>
             </div>
           )}
-                </CardContent>
-              </Card>
+        </CardContent>
+      </Card>
 
       {/* Active Deals */}
       <Card>
@@ -491,7 +491,7 @@ export default function EricTab() {
         </CardHeader>
         <CardContent>
           {deals.length > 0 ? (
-          <div className="space-y-4">
+            <div className="space-y-4">
               {deals.filter(deal => deal.stage !== 'closed-won' && deal.stage !== 'closed-lost').slice(0, 5).map((deal) => (
                 <div key={deal.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -499,24 +499,24 @@ export default function EricTab() {
                     <div className="flex items-center space-x-2">
                       <Badge className={getStatusColor(deal.stage)}>
                         {deal.stage}
-                        </Badge>
+                      </Badge>
                       <span className="text-sm font-medium">${deal.value.toLocaleString()}</span>
-                      </div>
                     </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-2">{deal.notes}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Probability: {deal.probability}%</span>
                     <span>Close Date: {new Date(deal.close_date).toLocaleDateString()}</span>
-                    </div>
                   </div>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No active deals</p>
               <p className="text-sm text-gray-500">Deals will appear here when Eric creates them</p>
-          </div>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -531,7 +531,7 @@ export default function EricTab() {
         </CardHeader>
         <CardContent>
           {tasks.length > 0 ? (
-          <div className="space-y-4">
+            <div className="space-y-4">
               {tasks.filter(task => task.status !== 'completed').slice(0, 5).map((task) => (
                 <div key={task.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -542,38 +542,38 @@ export default function EricTab() {
                       </Badge>
                       <Badge className={getStatusColor(task.status)}>
                         {task.status}
-                        </Badge>
-                      </div>
+                      </Badge>
+                    </div>
                   </div>
                   <p className="text-sm text-gray-600 mb-2">{task.description}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
                     {task.due_date && (
                       <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>
-                        )}
-                      </div>
+                    )}
                   </div>
+                </div>
               ))}
-                    </div>
+            </div>
           ) : (
             <div className="text-center py-8">
               <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No active tasks</p>
               <p className="text-sm text-gray-500">Tasks will appear here when Eric creates them</p>
-                    </div>
+            </div>
           )}
-                </CardContent>
-              </Card>
+        </CardContent>
+      </Card>
 
       {/* Task Summaries */}
-            <Card>
-              <CardHeader>
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
             <span>Task Summaries</span>
           </CardTitle>
-              </CardHeader>
-              <CardContent>
+        </CardHeader>
+        <CardContent>
           {taskSummaries.length > 0 ? (
             <div className="space-y-4">
               {taskSummaries.slice(0, 3).map((summary) => (
@@ -600,19 +600,19 @@ export default function EricTab() {
                   )}
                   <div className="mt-3 text-sm text-gray-500">
                     Created: {new Date(summary.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                      ))}
                   </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No task summaries</p>
               <p className="text-sm text-gray-500">Summaries will appear here when tasks are completed</p>
-                  </div>
+            </div>
           )}
-              </CardContent>
-            </Card>
+        </CardContent>
+      </Card>
     </div>
   )
 }

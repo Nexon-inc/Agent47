@@ -61,7 +61,7 @@ def build_app() -> FastAPI:
 
     # Include medium-priority feature routers
     app.include_router(proactive_notifications.router, prefix="/clara/proactive-notifications", tags=["Proactive Support Notifications"])
-    app.include_router(agent_training.router, prefix="/clara/agent-training", tags=["Agent Training Tools"])
+    app.include_router(agent_training.router, prefix="/clara/agent-training", tags=["Specialist Training Tools"])
     app.include_router(ai_faq_builder.router, prefix="/clara/ai-faq-builder", tags=["AI-Driven ClaraFAQ Builder"])
     app.include_router(predictive_issue_detection.router, prefix="/clara/predictive-issues", tags=["Predictive Issue Detection"])
     app.include_router(multi_ticket_resolution.router, prefix="/clara/multi-ticket-resolution", tags=["Multi-Ticket Resolution"])
@@ -85,9 +85,8 @@ def build_app() -> FastAPI:
         """Health check endpoint to verify Clara is running"""
         return JSONResponse(
             status_code=200,
-            content={
                 "status": "healthy",
-                "agent": "Clara",
+                "employee": "Clara",
                 "version": "1.0.0",
                 "features": [
                     "24_7_customer_support",
@@ -121,7 +120,7 @@ def build_app() -> FastAPI:
                           "multi_brand_support",
                           "customer_journey_tracking",
                           "proactive_support_notifications",
-                          "agent_training_tools",
+                          "personnel_training_tools",
                           "ai_driven_faq_builder",
                           "predictive_issue_detection",
                           "multi_ticket_resolution",
@@ -142,16 +141,16 @@ def build_app() -> FastAPI:
         return JSONResponse(
             status_code=200,
             content={
-                "message": "Welcome to Clara - AI-Powered Customer Support",
-                "agent": "Clara",
+                "message": "Welcome to Clara - AI Customer Support Specialist",
+                "employee": "Clara",
                 "version": "1.0.0",
-                "description": "Your intelligent, 24/7 customer support partner with advanced features",
+                "description": "Your intelligent, 24/7 AI customer support specialist with advanced features",
                 "docs": "/docs",
                 "health": "/clara/health",
                 "features": "24/7 support, AI chatbot, voice support, ticket management, knowledge base, sentiment analysis, predictive analytics, gamified performance, self-service portal, proactive chat, accessibility, offline support, customizable chat widgets, geo-targeting, multi-language support, and more!",
                 "advanced_capabilities": [
                     "Predictive Analytics & Issue Detection",
-                    "Gamified Agent Performance",
+                    "Gamified Specialist Performance",
                     "Self-Service Customer Portal",
                     "Proactive Chat Engagement",
                     "Accessibility & Screen Reader Support",

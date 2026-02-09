@@ -82,14 +82,14 @@ export default function HistoryTab() {
   const [selectedAgent, setSelectedAgent] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
-  
+
   // Data states
   const [conversationHistory, setConversationHistory] = useState<Conversation[]>([])
   const [taskHistory, setTaskHistory] = useState<Task[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  
+
   // Account and navigation history
   const [accountHistory, setAccountHistory] = useState<any[]>([])
   const [navigationHistory, setNavigationHistory] = useState<any[]>([])
@@ -133,7 +133,7 @@ export default function HistoryTab() {
   // Subscribe to real-time task updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -152,7 +152,7 @@ export default function HistoryTab() {
     // Load account creation and signup history
     if (user) {
       const history: any[] = []
-      
+
       // Account created event
       if (user.created_at) {
         history.push({
@@ -169,7 +169,7 @@ export default function HistoryTab() {
           }
         })
       }
-      
+
       // Last login event
       if (user.last_login) {
         history.push({
@@ -182,7 +182,7 @@ export default function HistoryTab() {
           details: {}
         })
       }
-      
+
       // Onboarding completed event
       if (user.onboarding_completed) {
         history.push({
@@ -195,7 +195,7 @@ export default function HistoryTab() {
           details: user.onboarding_data
         })
       }
-      
+
       // Sort by timestamp (newest first)
       history.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       setAccountHistory(history)
@@ -223,7 +223,7 @@ export default function HistoryTab() {
       timestamp: new Date(),
       icon: getTabIcon(tabName)
     }
-    
+
     const updated = [newEntry, ...currentHistory].slice(0, 50) // Keep last 50 navigation items
     setNavigationHistory(updated)
     localStorage.setItem('navigationHistory', JSON.stringify(updated))
@@ -248,20 +248,20 @@ export default function HistoryTab() {
     try {
       setIsLoading(true)
       setIsRefreshing(true)
-      
+
       // Load tasks and summaries to create history
       const [tasksResponse, summariesResponse] = await Promise.all([
         apiClient.get("/api/intercommunication/tasks"),
         apiClient.get("/api/intercommunication/summaries")
       ])
-      
+
       const tasks = tasksResponse.data
       const summaries = summariesResponse.data
-      
+
       // Create conversation history from tasks
       const conversations: Conversation[] = []
       const taskHistoryData: Task[] = []
-      
+
       // Group tasks by conversation/session
       const taskGroups = new Map<string, any[]>()
       tasks.forEach((task: any) => {
@@ -271,19 +271,19 @@ export default function HistoryTab() {
         }
         taskGroups.get(key)!.push(task)
       })
-      
+
       // Create conversations from task groups
       taskGroups.forEach((groupTasks, key) => {
         const firstTask = groupTasks[0]
         const agentId = firstTask.agent_id
         const agentName = agentId.charAt(0).toUpperCase() + agentId.slice(1)
-        
+
         // Find corresponding summary
-        const summary = summaries.find((s: any) => 
-          s.agent_id === agentId && 
+        const summary = summaries.find((s: any) =>
+          s.agent_id === agentId &&
           new Date(s.created_at).toDateString() === new Date(firstTask.created_at).toDateString()
         )
-        
+
         const conversation: Conversation = {
           id: key,
           agent: agentName,
@@ -301,15 +301,15 @@ export default function HistoryTab() {
             time: new Date(task.created_at).toLocaleTimeString()
           }))
         }
-        
+
         conversations.push(conversation)
       })
-      
+
       // Create task history from individual tasks
       tasks.forEach((task: any) => {
         const agentId = task.agent_id
         const agentName = agentId.charAt(0).toUpperCase() + agentId.slice(1)
-        
+
         const taskItem: Task = {
           id: task.id,
           agent: agentName,
@@ -320,18 +320,18 @@ export default function HistoryTab() {
           status: task.status,
           details: task.description || "Task completed"
         }
-        
+
         taskHistoryData.push(taskItem)
       })
-      
+
       // Sort by timestamp (newest first)
       conversations.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       taskHistoryData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      
+
       setConversationHistory(conversations)
       setTaskHistory(taskHistoryData)
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load history data:", error)
       // Generate fallback data
@@ -353,7 +353,7 @@ export default function HistoryTab() {
   const formatTimeAgo = (date: Date): string => {
     const now = new Date()
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-    
+
     if (diffInSeconds < 60) return "Just now"
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
@@ -377,7 +377,7 @@ export default function HistoryTab() {
         timestamp: conv.timestamp,
         lastMessage: conv.lastMessage
       }))
-      
+
       // Also include task history
       const tasksData = filteredTasks.map(task => ({
         id: task.id,
@@ -387,17 +387,17 @@ export default function HistoryTab() {
         timestamp: task.timestamp,
         details: task.details
       }))
-      
+
       const csvContent = [
         "Type,Agent,Title/Task,Status,Messages,Timestamp,Details",
-        ...conversationsData.map(conv => 
+        ...conversationsData.map(conv =>
           `"Conversation","${conv.agent}","${conv.title}","${conv.status}",${conv.messageCount},"${conv.timestamp}","${conv.lastMessage}"`
         ),
-        ...tasksData.map(task => 
+        ...tasksData.map(task =>
           `"Task","${task.agent}","${task.task}","${task.status}",,"${task.timestamp}","${task.details}"`
         )
       ].join("\n")
-      
+
       const blob = new Blob([csvContent], { type: 'text/csv' })
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -407,7 +407,7 @@ export default function HistoryTab() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-      
+
       toast({
         title: "Export successful",
         description: "History exported to CSV file",
@@ -449,7 +449,7 @@ export default function HistoryTab() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 ">History</h1>
           <p className="text-gray-600  mt-1">
-            View your conversation and task history with AI agents
+            View your conversation and task history with your AI workforce
             {lastUpdated && (
               <span className="ml-2 text-sm text-gray-500">
                 Last updated: {lastUpdated.toLocaleTimeString()}
@@ -493,7 +493,7 @@ export default function HistoryTab() {
                 <SelectValue placeholder="Filter by agent" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Agents</SelectItem>
+                <SelectItem value="all">All Personnel</SelectItem>
                 <SelectItem value="aria">Aria</SelectItem>
                 <SelectItem value="clara">Clara</SelectItem>
                 <SelectItem value="eric">Eric</SelectItem>
@@ -570,7 +570,7 @@ export default function HistoryTab() {
                           </div>
                         )}
                         <span className="text-xs text-gray-500 mt-2 block">
-                          {activity.timestamp instanceof Date 
+                          {activity.timestamp instanceof Date
                             ? activity.timestamp.toLocaleString()
                             : new Date(activity.timestamp).toLocaleString()}
                         </span>
@@ -605,7 +605,7 @@ export default function HistoryTab() {
                         </div>
                       </div>
                       <span className="text-sm text-gray-500">
-                        {nav.timestamp instanceof Date 
+                        {nav.timestamp instanceof Date
                           ? nav.timestamp.toLocaleTimeString()
                           : new Date(nav.timestamp).toLocaleTimeString()}
                       </span>
@@ -624,8 +624,8 @@ export default function HistoryTab() {
             <EmptyState
               icon={History}
               title={EmptyStates.noHistory.title}
-              description={debouncedSearchTerm || selectedAgent !== "all" || selectedStatus !== "all" 
-                ? "Try adjusting your search or filter criteria" 
+              description={debouncedSearchTerm || selectedAgent !== "all" || selectedStatus !== "all"
+                ? "Try adjusting your search or filter criteria"
                 : EmptyStates.noHistory.description}
               action={debouncedSearchTerm || selectedAgent !== "all" || selectedStatus !== "all" ? {
                 label: "Clear Filters",
@@ -707,9 +707,8 @@ export default function HistoryTab() {
                                     className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
                                   >
                                     <div
-                                      className={`max-w-[80%] rounded-lg p-3 ${
-                                        msg.type === "user" ? "bg-gradient-to-br from-green-400 to-green-600 text-white" : "bg-gray-50 border"
-                                      }`}
+                                      className={`max-w-[80%] rounded-lg p-3 ${msg.type === "user" ? "bg-gradient-to-br from-green-400 to-green-600 text-white" : "bg-gray-50 border"
+                                        }`}
                                     >
                                       <p className="text-sm">{msg.content}</p>
                                       <p className="text-xs opacity-70 mt-1">{msg.time}</p>
@@ -736,9 +735,9 @@ export default function HistoryTab() {
             <EmptyState
               icon={CheckCircle}
               title="No tasks found"
-              description={debouncedSearchTerm || selectedAgent !== "all" || selectedStatus !== "all" 
-                ? "Try adjusting your search or filter criteria" 
-                : "Your completed tasks will appear here once agents start working."}
+              description={debouncedSearchTerm || selectedAgent !== "all" || selectedStatus !== "all"
+                ? "Try adjusting your search or filter criteria"
+                : "Your completed tasks will appear here once your workforce starts working."}
               action={debouncedSearchTerm || selectedAgent !== "all" || selectedStatus !== "all" ? {
                 label: "Clear Filters",
                 onClick: () => {

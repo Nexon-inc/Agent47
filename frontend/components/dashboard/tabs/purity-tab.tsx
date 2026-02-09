@@ -107,7 +107,7 @@ interface MarketResearch {
 }
 
 interface AnalyticsData {
-    total_ideas: number
+  total_ideas: number
   analyzed_ideas: number
   average_feasibility: number
   total_market_size: number
@@ -139,7 +139,7 @@ interface Task {
 
 interface TaskSummary {
   id: string
-    title: string
+  title: string
   summary: string
   status: string
   created_at: string
@@ -151,18 +151,18 @@ interface TaskSummary {
 export default function PurityTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
-  
+
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  
+
   // Data state
   const [businessIdeas, setBusinessIdeas] = useState<BusinessIdea[]>([])
   const [marketResearch, setMarketResearch] = useState<MarketResearch[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskSummaries, setTaskSummaries] = useState<TaskSummary[]>([])
-  
+
   // Settings state
   const [automateEnabled, setAutomateEnabled] = useState(false)
   const [customInstructions, setCustomInstructions] = useState("")
@@ -177,7 +177,7 @@ export default function PurityTab() {
   // Subscribe to real-time task updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -195,7 +195,7 @@ export default function PurityTab() {
     try {
       setIsLoadingData(true)
       setIsRefreshing(true)
-      
+
       // Load all data in parallel
       const [ideasResponse, researchResponse, analyticsResponse, tasksResponse, summariesResponse] = await Promise.all([
         apiClient.get("/api/agents/purity/business-ideas").catch(() => ({ data: [] })),
@@ -204,14 +204,14 @@ export default function PurityTab() {
         apiClient.get("/api/agents/purity/tasks").catch(() => ({ data: [] })),
         apiClient.get("/api/agents/purity/task-summaries").catch(() => ({ data: [] }))
       ])
-      
+
       setBusinessIdeas(ideasResponse.data || [])
       setMarketResearch(researchResponse.data || [])
       setAnalyticsData(analyticsResponse.data)
       setTasks(tasksResponse.data || [])
       setTaskSummaries(summariesResponse.data || [])
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load Purity data:", error)
     } finally {
@@ -226,7 +226,7 @@ export default function PurityTab() {
         apiClient.get("/api/agents/purity/settings/automate").catch(() => ({ data: { enabled: false } })),
         apiClient.get("/api/agents/purity/settings/instructions").catch(() => ({ data: { instructions: "" } }))
       ])
-      
+
       setAutomateEnabled(automateResponse.data?.enabled || false)
       setCustomInstructions(instructionsResponse.data?.instructions || "")
     } catch (error) {
@@ -289,9 +289,9 @@ export default function PurityTab() {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading Purity data...</span>
-              </div>
-          </div>
+          <span>Onboarding Purity specialized data...</span>
+        </div>
+      </div>
     )
   }
 
@@ -304,8 +304,8 @@ export default function PurityTab() {
             <FileText className="h-6 w-6 text-emerald-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Purity - Business Intelligence Agent</h2>
-            <p className="text-gray-600">AI-powered business idea analysis and market research</p>
+            <h2 className="text-2xl font-bold text-gray-900">Purity - AI Business Intelligence Specialist</h2>
+            <p className="text-gray-600">AI-powered strategic market research and business intelligence</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
@@ -331,7 +331,7 @@ export default function PurityTab() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Agent Settings</span>
+            <span>Personnel Settings</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -351,7 +351,7 @@ export default function PurityTab() {
               disabled={isSavingSettings}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="instructions" className="text-sm font-medium">
               Custom Instructions
@@ -382,8 +382,8 @@ export default function PurityTab() {
       {/* Analytics Overview */}
       {analyticsData && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <FileText className="h-8 w-8 text-emerald-600" />
                 <div className="ml-4">
@@ -391,13 +391,13 @@ export default function PurityTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.total_ideas.toLocaleString()}
                   </p>
-                  </div>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <BarChart3 className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
@@ -405,13 +405,13 @@ export default function PurityTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.analyzed_ideas.toLocaleString()}
                   </p>
-                  </div>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Target className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
@@ -419,13 +419,13 @@ export default function PurityTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.average_feasibility}%
                   </p>
-                  </div>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <DollarSign className="h-8 w-8 text-orange-600" />
                 <div className="ml-4">
@@ -433,24 +433,24 @@ export default function PurityTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     ${analyticsData.total_market_size.toLocaleString()}B
                   </p>
-                  </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
-          {/* Recent Business Ideas */}
+      {/* Recent Business Ideas */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
             <span>Recent Business Ideas</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           {businessIdeas.length > 0 ? (
-              <div className="space-y-4">
+            <div className="space-y-4">
               {businessIdeas.slice(0, 5).map((idea) => (
                 <div key={idea.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -458,25 +458,25 @@ export default function PurityTab() {
                     <div className="flex items-center space-x-2">
                       <Badge className={getFeasibilityColor(idea.feasibility_score)}>
                         {idea.feasibility_score}% feasible
-                        </Badge>
+                      </Badge>
                       <Badge className={getStatusColor(idea.status)}>
                         {idea.status}
-                        </Badge>
-                      </div>
+                      </Badge>
                     </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-2">{idea.description}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Industry: {idea.industry}</span>
                     <span>Market: ${idea.market_size.toLocaleString()}B</span>
-                        <span>Revenue: ${idea.revenue_potential.toLocaleString()}</span>
-                    </div>
+                    <span>Revenue: ${idea.revenue_potential.toLocaleString()}</span>
+                  </div>
                   {idea.tags.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {idea.tags.slice(0, 3).map((tag, index) => (
                         <Badge key={index} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
+                          {tag}
+                        </Badge>
+                      ))}
                       {idea.tags.length > 3 && (
                         <Badge variant="outline" className="text-xs">
                           +{idea.tags.length - 3} more
@@ -484,18 +484,18 @@ export default function PurityTab() {
                       )}
                     </div>
                   )}
-                    </div>
+                </div>
               ))}
-                    </div>
+            </div>
           ) : (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No business ideas found</p>
               <p className="text-sm text-gray-500">Business ideas will appear here when Purity generates them</p>
-                  </div>
+            </div>
           )}
-                </CardContent>
-              </Card>
+        </CardContent>
+      </Card>
 
       {/* Market Research */}
       <Card>
@@ -507,7 +507,7 @@ export default function PurityTab() {
         </CardHeader>
         <CardContent>
           {marketResearch.length > 0 ? (
-          <div className="space-y-4">
+            <div className="space-y-4">
               {marketResearch.slice(0, 3).map((research) => (
                 <div key={research.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -515,12 +515,12 @@ export default function PurityTab() {
                     <div className="flex items-center space-x-2">
                       <Badge className="bg-blue-100 text-blue-800">
                         {research.growth_rate}% growth
-                        </Badge>
+                      </Badge>
                       <span className="text-sm font-medium">${research.market_size.toLocaleString()}B</span>
                     </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
                       <p className="font-medium text-gray-700 mb-1">Opportunities:</p>
                       <ul className="text-gray-600 space-y-1">
                         {research.opportunities.slice(0, 2).map((opp, index) => (
@@ -530,8 +530,8 @@ export default function PurityTab() {
                           </li>
                         ))}
                       </ul>
-                      </div>
-                      <div>
+                    </div>
+                    <div>
                       <p className="font-medium text-gray-700 mb-1">Threats:</p>
                       <ul className="text-gray-600 space-y-1">
                         {research.threats.slice(0, 2).map((threat, index) => (
@@ -541,20 +541,20 @@ export default function PurityTab() {
                           </li>
                         ))}
                       </ul>
-                          </div>
-                        </div>
-                      </div>
-              ))}
                     </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No market research found</p>
               <p className="text-sm text-gray-500">Market research will appear here when Purity analyzes ideas</p>
-                      </div>
+            </div>
           )}
-                </CardContent>
-              </Card>
+        </CardContent>
+      </Card>
 
       {/* Active Tasks */}
       <Card>
@@ -578,17 +578,17 @@ export default function PurityTab() {
                       <Badge className={getStatusColor(task.status)}>
                         {task.status}
                       </Badge>
-          </div>
-                </div>
+                    </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-2">{task.description}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
                     {task.due_date && (
                       <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>
                     )}
-              </div>
-            </div>
-          ))}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="text-center py-8">
@@ -631,20 +631,20 @@ export default function PurityTab() {
                           </li>
                         ))}
                       </ul>
-                  </div>
+                    </div>
                   )}
                   <div className="mt-3 text-sm text-gray-500">
                     Created: {new Date(summary.created_at).toLocaleDateString()}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No task summaries</p>
               <p className="text-sm text-gray-500">Summaries will appear here when tasks are completed</p>
-                  </div>
+            </div>
           )}
         </CardContent>
       </Card>

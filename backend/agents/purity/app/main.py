@@ -99,7 +99,7 @@ def build_app() -> FastAPI:
             status_code=200,
             content={
                 "status": "healthy",
-                "agent": "Purity",
+                "employee": "Purity",
                 "version": "1.0.0",
                 "features": [
                     "business_idea_generator",
@@ -139,12 +139,10 @@ def build_app() -> FastAPI:
     
     # Root endpoint
     @app.get("/")
-    async def root():
-        """Root endpoint with Purity information"""
         return {
-            "message": "Welcome to Purity - AI-Powered Business Creator & Money Maker",
+            "message": "Welcome to Purity - AI Business Architect",
             "version": "1.0.0",
-            "description": "Your intelligent business creation and money-making partner",
+            "description": "Your intelligent AI business architect and creation partner",
             "documentation": "/docs",
             "health_check": "/health"
         }

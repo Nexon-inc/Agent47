@@ -143,17 +143,17 @@ interface TaskSummary {
 export default function JackieTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
-  
+
   const [isLoadingData, setIsLoadingData] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  
+
   // Data state
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [taskSummaries, setTaskSummaries] = useState<TaskSummary[]>([])
-  
+
   // Settings state
   const [automateEnabled, setAutomateEnabled] = useState(false)
   const [customInstructions, setCustomInstructions] = useState("")
@@ -168,7 +168,7 @@ export default function JackieTab() {
   // Subscribe to real-time task updates via WebSocket
   useEffect(() => {
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -186,7 +186,7 @@ export default function JackieTab() {
     try {
       setIsLoadingData(true)
       setIsRefreshing(true)
-      
+
       // Load all data in parallel
       const [campaignsResponse, analyticsResponse, tasksResponse, summariesResponse] = await Promise.all([
         apiClient.get("/api/agents/jackie/campaigns").catch(() => ({ data: [] })),
@@ -194,13 +194,13 @@ export default function JackieTab() {
         apiClient.get("/api/agents/jackie/tasks").catch(() => ({ data: [] })),
         apiClient.get("/api/agents/jackie/task-summaries").catch(() => ({ data: [] }))
       ])
-      
+
       setCampaigns(campaignsResponse.data || [])
       setAnalyticsData(analyticsResponse.data)
       setTasks(tasksResponse.data || [])
       setTaskSummaries(summariesResponse.data || [])
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load Jackie data:", error)
     } finally {
@@ -215,7 +215,7 @@ export default function JackieTab() {
         apiClient.get("/api/agents/jackie/settings/automate").catch(() => ({ data: { enabled: false } })),
         apiClient.get("/api/agents/jackie/settings/instructions").catch(() => ({ data: { instructions: "" } }))
       ])
-      
+
       setAutomateEnabled(automateResponse.data?.enabled || false)
       setCustomInstructions(instructionsResponse.data?.instructions || "")
     } catch (error) {
@@ -271,9 +271,9 @@ export default function JackieTab() {
       <div className="flex items-center justify-center h-64">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading Jackie data...</span>
-              </div>
-          </div>
+          <span>Syncing with Jackie's data...</span>
+        </div>
+      </div>
     )
   }
 
@@ -286,7 +286,7 @@ export default function JackieTab() {
             <Megaphone className="h-6 w-6 text-pink-600" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Jackie - Marketing Agent</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Jackie - AI Marketing Director</h2>
             <p className="text-gray-600">AI-powered marketing campaigns and advertising management</p>
           </div>
         </div>
@@ -313,7 +313,7 @@ export default function JackieTab() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Settings className="h-5 w-5" />
-            <span>Agent Settings</span>
+            <span>Personnel Settings</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -333,7 +333,7 @@ export default function JackieTab() {
               disabled={isSavingSettings}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="instructions" className="text-sm font-medium">
               Custom Instructions
@@ -364,8 +364,8 @@ export default function JackieTab() {
       {/* Analytics Overview */}
       {analyticsData && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Megaphone className="h-8 w-8 text-pink-600" />
                 <div className="ml-4">
@@ -373,13 +373,13 @@ export default function JackieTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.total_campaigns}
                   </p>
-                  </div>
                 </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <DollarSign className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
@@ -387,13 +387,13 @@ export default function JackieTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     ${analyticsData.total_spend.toLocaleString()}
                   </p>
-                  </div>
                 </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <Target className="h-8 w-8 text-purple-600" />
                 <div className="ml-4">
@@ -401,13 +401,13 @@ export default function JackieTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.conversion_rate}%
                   </p>
-                  </div>
                 </div>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-        <Card>
-              <CardContent className="p-6">
+          <Card>
+            <CardContent className="p-6">
               <div className="flex items-center">
                 <TrendingUp className="h-8 w-8 text-orange-600" />
                 <div className="ml-4">
@@ -415,44 +415,44 @@ export default function JackieTab() {
                   <p className="text-2xl font-bold text-gray-900">
                     {analyticsData.return_on_ad_spend}x
                   </p>
-                  </div>
                 </div>
-          </CardContent>
-        </Card>
-      </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
-          {/* Recent Campaigns */}
-          <Card>
-            <CardHeader>
+      {/* Recent Campaigns */}
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Megaphone className="h-5 w-5" />
             <span>Recent Campaigns</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
           {campaigns.length > 0 ? (
-              <div className="space-y-4">
-                {campaigns.slice(0, 5).map((campaign) => (
+            <div className="space-y-4">
+              {campaigns.slice(0, 5).map((campaign) => (
                 <div key={campaign.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium">{campaign.name}</h3>
                     <div className="flex items-center space-x-2">
                       <Badge className={getStatusColor(campaign.status)}>
                         {campaign.status}
-                        </Badge>
+                      </Badge>
                       <span className="text-sm font-medium">${campaign.spent.toLocaleString()}</span>
-                      </div>
                     </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-2">{campaign.type} • {campaign.platforms.join(", ")}</p>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <span>Impressions: {campaign.impressions.toLocaleString()}</span>
                     <span>Clicks: {campaign.clicks.toLocaleString()}</span>
                     <span>Conversions: {campaign.conversions}</span>
-                    </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <Megaphone className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -460,8 +460,8 @@ export default function JackieTab() {
               <p className="text-sm text-gray-500">Campaigns will appear here when Jackie creates them</p>
             </div>
           )}
-            </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
 
       {/* Active Tasks */}
       <Card>
@@ -473,7 +473,7 @@ export default function JackieTab() {
         </CardHeader>
         <CardContent>
           {tasks.length > 0 ? (
-          <div className="space-y-4">
+            <div className="space-y-4">
               {tasks.filter(task => task.status !== 'completed').slice(0, 5).map((task) => (
                 <div key={task.id} className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -494,28 +494,28 @@ export default function JackieTab() {
                       <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>
                     )}
                   </div>
-                    </div>
-                          ))}
-                    </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No active tasks</p>
               <p className="text-sm text-gray-500">Tasks will appear here when Jackie creates them</p>
-                      </div>
+            </div>
           )}
-                </CardContent>
-              </Card>
+        </CardContent>
+      </Card>
 
       {/* Task Summaries */}
-          <Card>
-            <CardHeader>
+      <Card>
+        <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <FileText className="h-5 w-5" />
             <span>Task Summaries</span>
           </CardTitle>
-            </CardHeader>
-            <CardContent>
+        </CardHeader>
+        <CardContent>
           {taskSummaries.length > 0 ? (
             <div className="space-y-4">
               {taskSummaries.slice(0, 3).map((summary) => (
@@ -525,7 +525,7 @@ export default function JackieTab() {
                     <Badge className={getStatusColor(summary.status)}>
                       {summary.status}
                     </Badge>
-                            </div>
+                  </div>
                   <p className="text-sm text-gray-600 mb-3">{summary.summary}</p>
                   {summary.next_steps && summary.next_steps.length > 0 && (
                     <div className="mt-3">
@@ -538,23 +538,23 @@ export default function JackieTab() {
                           </li>
                         ))}
                       </ul>
-                          </div>
+                    </div>
                   )}
                   <div className="mt-3 text-sm text-gray-500">
                     Created: {new Date(summary.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">No task summaries</p>
               <p className="text-sm text-gray-500">Summaries will appear here when tasks are completed</p>
-                  </div>
+            </div>
           )}
-            </CardContent>
-          </Card>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -87,7 +87,7 @@ def build_app() -> FastAPI:
             status_code=200,
             content={
                 "status": "healthy",
-                "agent": "Shakes",
+                "employee": "Shakes",
                 "version": "1.0.0",
                 "features": [
                     "blog_article_writing",
@@ -133,10 +133,10 @@ def build_app() -> FastAPI:
         return JSONResponse(
             status_code=200,
             content={
-                "message": "Welcome to Shakes - AI-Powered Content Creation",
-                "agent": "Shakes",
+                "message": "Welcome to Shakes - AI Content Specialist",
+                "employee": "Shakes",
                 "version": "1.0.0",
-                "description": "Your intelligent content creation partner with AI-powered writing, SEO optimization, and multi-platform content generation",
+                "description": "Your intelligent AI content creation specialist with AI-powered writing, SEO optimization, and multi-platform content generation",
                 "docs": "/docs",
                 "health": "/shakes/health",
                 "features": "Blog writing, social media content, SEO optimization, video scripting, ad copywriting, email writing, website content, content repurposing, AI generation, and more!",

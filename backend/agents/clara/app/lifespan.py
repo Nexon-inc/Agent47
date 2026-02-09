@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage Clara application lifespan"""
-    logger.info("🚀 Starting Clara - Customer Support Agent...")
+    logger.info("🚀 Starting Clara - AI Customer Support Specialist...")
     
     try:
         # Initialize core services
@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
         logger.error(f"❌ Failed to start Clara: {e}")
         raise
     finally:
-        logger.info("🛑 Shutting down Clara...")
+        logger.info("🛑 Shutting down Clara Specialists...")
         
         # Cleanup
         if hasattr(app.state, 'event_bus'):
@@ -54,8 +54,8 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Create Clara FastAPI application with lifespan management"""
     app = FastAPI(
-        title="Clara - AI-Powered Customer Support",
-        description="Intelligent, 24/7 customer support agent with AI chatbot, voice support, and ticket management",
+        title="Clara - AI Customer Support Specialist",
+        description="Intelligent, 24/7 AI customer support specialist with AI chatbot, voice support, and ticket management",
         version="1.0.0",
         lifespan=lifespan
     )

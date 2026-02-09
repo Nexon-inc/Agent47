@@ -230,7 +230,7 @@ export default function InboxTab() {
           sender_type: "system",
           sender_id: "system",
           title: `Welcome to Agent47, ${user.username || user.email.split('@')[0]}!`,
-          content: `Hello ${user.username || user.email.split('@')[0]}! 👋\n\nWelcome to Agent47, your AI-powered agent platform. We're excited to have you on board!\n\nHere's what you can do:\n• Select and configure your AI agents\n• Connect to your favorite platforms and tools\n• Automate your workflows\n• Track your activity and history\n\nGet started by exploring the Agents tab and selecting the agents that best fit your needs. If you have any questions, check out our documentation or contact support.\n\nHappy automating!`,
+          content: `Hello ${user.username || user.email.split('@')[0]}! 👋\n\nWelcome to Agent47, your AI-powered workforce platform. We're excited to have you on board!\n\nHere's what you can do:\n• Select and onboard your AI employees\n• Connect to your favorite platforms and tools\n• Automate your workflows\n• Track your activity and history\n\nGet started by exploring the Personnel tab and selecting the employees that best fit your needs. If you have any questions, check out our documentation or contact support.\n\nHappy automating!`,
           message_type: "welcome",
           priority: "high",
           status: "unread",
@@ -640,7 +640,7 @@ export default function InboxTab() {
                   title="No messages found"
                   description={searchTerm || typeFilter !== "all" || priorityFilter !== "all" || statusFilter !== "all" || showUnreadOnly
                     ? "Try adjusting your search or filter criteria."
-                    : "Your inbox is empty. Messages from your agents and system will appear here."}
+                    : "Your inbox is empty. Messages from your workforce and system will appear here."}
                 />
               ) : (
                 <div className="space-y-4">

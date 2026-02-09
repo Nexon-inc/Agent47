@@ -64,7 +64,7 @@ def build_app() -> FastAPI:
             status_code=200,
             content={
                 "status": "healthy",
-                "agent": "Aria",
+                "employee": "Aria",
                 "version": "1.0.0",
                 "features": [
                     "social_media_management",
@@ -86,10 +86,10 @@ def build_app() -> FastAPI:
         return JSONResponse(
             status_code=200,
             content={
-                "message": "Welcome to Aria - AI-Powered Social Media Management",
-                "agent": "Aria",
+                "message": "Welcome to Aria - AI Social Media Specialist",
+                "employee": "Aria",
                 "version": "1.0.0",
-                "description": "Your intelligent, autonomous social media management partner",
+                "description": "Your intelligent, autonomous AI social media specialist",
                 "docs": "/docs",
                 "health": "/health",
                 "features": "Multi-platform posting, AI content creation, smart scheduling, trend monitoring, geo-targeting, analytics, and more!"

@@ -11,13 +11,13 @@ import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { useAdminStore } from '@/lib/stores/admin-store'
 import { adminAPI } from '@/lib/services/admin-api'
-import { 
-  Activity, 
-  Users, 
-  Server, 
-  Zap, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Activity,
+  Users,
+  Server,
+  Zap,
+  CheckCircle,
+  XCircle,
   Clock,
   Settings,
   Play,
@@ -60,12 +60,12 @@ export default function AgentsAdminPage() {
   const [statusFilter, setStatusFilter] = useState('all')
 
   // Check permissions
-  const hasAccess = currentAdmin?.permissions?.includes("super_admin") || 
-                    currentAdmin?.permissions?.includes("system_admin")
+  const hasAccess = currentAdmin?.permissions?.includes("super_admin") ||
+    currentAdmin?.permissions?.includes("system_admin")
 
   const fetchData = async () => {
     if (!hasAccess) return
-    
+
     setLoading(true)
     try {
       const response = await adminAPI.getAgents()
@@ -112,7 +112,7 @@ export default function AgentsAdminPage() {
     if (!hasAccess) return
 
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -140,7 +140,7 @@ export default function AgentsAdminPage() {
 
   const filteredAgents = agents.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         agent.type.toLowerCase().includes(searchTerm.toLowerCase())
+      agent.type.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = statusFilter === 'all' || agent.status === statusFilter
     return matchesSearch && matchesStatus
   })
@@ -160,8 +160,8 @@ export default function AgentsAdminPage() {
   const onlineAgents = agents.filter(a => a.status === 'online').length
   const errorAgents = agents.filter(a => a.status === 'error').length
   const totalTasks = agents.reduce((sum, agent) => sum + agent.metrics.total_tasks, 0)
-  const avgSuccessRate = agents.length > 0 
-    ? agents.reduce((sum, agent) => sum + agent.metrics.success_rate, 0) / agents.length 
+  const avgSuccessRate = agents.length > 0
+    ? agents.reduce((sum, agent) => sum + agent.metrics.success_rate, 0) / agents.length
     : 0
 
   if (!hasAccess) {
@@ -181,159 +181,159 @@ export default function AgentsAdminPage() {
   if (loading) {
     return (
       <AdminLayout>
-      <div className="flex items-center justify-center h-64">
+        <div className="flex items-center justify-center h-64">
           <div className="text-gray-400">Loading agents...</div>
-      </div>
+        </div>
       </AdminLayout>
     )
   }
 
   return (
     <AdminLayout>
-    <div className="space-y-6">
-      {/* Header */}
+      <div className="space-y-6">
+        {/* Header */}
         <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Agent Management</h1>
-        <p className="text-gray-400">Monitor and manage your AI agents</p>
-      </div>
+          <h1 className="text-3xl font-bold text-white mb-2">Agent Management</h1>
+          <p className="text-gray-400">Monitor and manage your AI personnel</p>
+        </div>
 
-      <Tabs defaultValue="agents" className="w-full">
-        <TabsList className="bg-gray-900/50 border-gray-800">
-          <TabsTrigger value="agents" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400">
-            <Activity className="h-4 w-4 mr-2" />
-            Agents
-          </TabsTrigger>
-          <TabsTrigger value="chat" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400">
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Chat with Agents
-          </TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="agents" className="w-full">
+          <TabsList className="bg-gray-900/50 border-gray-800">
+            <TabsTrigger value="agents" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400">
+              <Activity className="h-4 w-4 mr-2" />
+              Agents
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="data-[state=active]:bg-gray-800 data-[state=active]:text-white text-gray-400">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Chat with Agents
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="agents" className="space-y-6">
-      {/* Stats Cards */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-green-500/50 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <Bot className="w-8 h-8 text-green-500" />
-                <span className="text-sm text-gray-400">Total</span>
-              </div>
-              <div className="text-3xl font-bold text-white">{totalAgents}</div>
-              <div className="text-sm text-gray-400 mt-2">{onlineAgents} online, {errorAgents} errors</div>
-        </Card>
-        
-            <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-green-500/50 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <Activity className="w-8 h-8 text-green-500" />
-                <span className="text-sm text-gray-400">Tasks</span>
-              </div>
-              <div className="text-3xl font-bold text-white">{totalTasks}</div>
-              <div className="text-sm text-gray-400 mt-2">{avgSuccessRate.toFixed(1)}% success rate</div>
-        </Card>
-        
-            <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-blue-500/50 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <Server className="w-8 h-8 text-blue-500" />
-                <span className="text-sm text-gray-400">Services</span>
-              </div>
-              <div className="text-3xl font-bold text-white">{agents.filter(a => a.status === 'online').length}</div>
-              <div className="text-sm text-gray-400 mt-2">Active services</div>
-        </Card>
-        
-            <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-yellow-500/50 transition-colors">
-              <div className="flex items-center justify-between mb-4">
-                <Zap className="w-8 h-8 text-yellow-500" />
-                <span className="text-sm text-gray-400">Performance</span>
-              </div>
-              <div className="text-3xl font-bold text-white">{avgSuccessRate.toFixed(0)}%</div>
-              <div className="text-sm text-gray-400 mt-2">Average success rate</div>
-        </Card>
-      </div>
+          <TabsContent value="agents" className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-green-500/50 transition-colors">
+                <div className="flex items-center justify-between mb-4">
+                  <Bot className="w-8 h-8 text-green-500" />
+                  <span className="text-sm text-gray-400">Total</span>
+                </div>
+                <div className="text-3xl font-bold text-white">{totalAgents}</div>
+                <div className="text-sm text-gray-400 mt-2">{onlineAgents} online, {errorAgents} errors</div>
+              </Card>
 
-      {/* Agents List */}
-          <Card className="bg-gray-900/50 border-gray-800">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-                  <CardTitle className="text-white">Agent Status</CardTitle>
-                  <CardDescription className="text-gray-400">Monitor and manage your AI agents</CardDescription>
+              <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-green-500/50 transition-colors">
+                <div className="flex items-center justify-between mb-4">
+                  <Activity className="w-8 h-8 text-green-500" />
+                  <span className="text-sm text-gray-400">Tasks</span>
+                </div>
+                <div className="text-3xl font-bold text-white">{totalTasks}</div>
+                <div className="text-sm text-gray-400 mt-2">{avgSuccessRate.toFixed(1)}% success rate</div>
+              </Card>
+
+              <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-blue-500/50 transition-colors">
+                <div className="flex items-center justify-between mb-4">
+                  <Server className="w-8 h-8 text-blue-500" />
+                  <span className="text-sm text-gray-400">Services</span>
+                </div>
+                <div className="text-3xl font-bold text-white">{agents.filter(a => a.status === 'online').length}</div>
+                <div className="text-sm text-gray-400 mt-2">Active services</div>
+              </Card>
+
+              <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-yellow-500/50 transition-colors">
+                <div className="flex items-center justify-between mb-4">
+                  <Zap className="w-8 h-8 text-yellow-500" />
+                  <span className="text-sm text-gray-400">Performance</span>
+                </div>
+                <div className="text-3xl font-bold text-white">{avgSuccessRate.toFixed(0)}%</div>
+                <div className="text-sm text-gray-400 mt-2">Average success rate</div>
+              </Card>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search agents..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 w-64 bg-gray-800 border-gray-700 text-white"
-                />
-              </div>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-                {filteredAgents.length === 0 ? (
-                  <div className="text-center py-12">
-                    <Bot className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-300 mb-2">No agents found</h3>
-                    <p className="text-gray-500">No agents match your search criteria</p>
-                  </div>
-                ) : (
-                  filteredAgents.map(agent => (
-                    <div key={agent.id} className="flex items-center justify-between p-4 border border-gray-800 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors">
-                <div className="flex items-center space-x-4">
-                  <div className={`w-3 h-3 rounded-full ${getStatusColor(agent.status)}`} />
+
+            {/* Agents List */}
+            <Card className="bg-gray-900/50 border-gray-800">
+              <CardHeader>
+                <div className="flex items-center justify-between">
                   <div>
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(agent.status)}
-                            <h3 className="font-medium text-white">{agent.name}</h3>
-                            <Badge variant="outline" className="border-gray-700 text-gray-300">{agent.type}</Badge>
-                      <Badge variant={agent.status === 'online' ? 'default' : 'destructive'}>
-                        {agent.status}
-                      </Badge>
-                    </div>
-                          <p className="text-sm text-gray-400">{agent.description}</p>
-                          <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                            <span>Tasks: {agent.metrics.total_tasks}</span>
-                            <span>Success: {agent.metrics.success_rate}%</span>
-                            <span>Response: {agent.metrics.avg_response_time}ms</span>
+                    <CardTitle className="text-white">Agent Status</CardTitle>
+                    <CardDescription className="text-gray-400">Monitor and manage your AI personnel</CardDescription>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <Input
+                        placeholder="Search agents..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 w-64 bg-gray-800 border-gray-700 text-white"
+                      />
                     </div>
                   </div>
                 </div>
-                
-                <div className="flex items-center space-x-2">
-                        <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-700">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Configure
-                  </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="border-gray-700 text-gray-300 hover:bg-gray-700"
-                          onClick={async () => {
-                            try {
-                              await adminAPI.restartAgent(agent.name)
-                            } catch (error) {
-                              console.error('Failed to restart agent:', error)
-                            }
-                          }}
-                        >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Restart
-                  </Button>
-                </div>
-              </div>
-                  ))
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {filteredAgents.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Bot className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-300 mb-2">No agents found</h3>
+                      <p className="text-gray-500">No agents match your search criteria</p>
+                    </div>
+                  ) : (
+                    filteredAgents.map(agent => (
+                      <div key={agent.id} className="flex items-center justify-between p-4 border border-gray-800 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors">
+                        <div className="flex items-center space-x-4">
+                          <div className={`w-3 h-3 rounded-full ${getStatusColor(agent.status)}`} />
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              {getStatusIcon(agent.status)}
+                              <h3 className="font-medium text-white">{agent.name}</h3>
+                              <Badge variant="outline" className="border-gray-700 text-gray-300">{agent.type}</Badge>
+                              <Badge variant={agent.status === 'online' ? 'default' : 'destructive'}>
+                                {agent.status}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-400">{agent.description}</p>
+                            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                              <span>Tasks: {agent.metrics.total_tasks}</span>
+                              <span>Success: {agent.metrics.success_rate}%</span>
+                              <span>Response: {agent.metrics.avg_response_time}ms</span>
+                            </div>
+                          </div>
+                        </div>
 
-        <TabsContent value="chat" className="space-y-6">
-          <AgentChatInterface agents={agents} />
-        </TabsContent>
-      </Tabs>
+                        <div className="flex items-center space-x-2">
+                          <Button variant="outline" size="sm" className="border-gray-700 text-gray-300 hover:bg-gray-700">
+                            <Settings className="h-4 w-4 mr-2" />
+                            Configure
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-700 text-gray-300 hover:bg-gray-700"
+                            onClick={async () => {
+                              try {
+                                await adminAPI.restartAgent(agent.name)
+                              } catch (error) {
+                                console.error('Failed to restart agent:', error)
+                              }
+                            }}
+                          >
+                            <RefreshCw className="h-4 w-4 mr-2" />
+                            Restart
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="chat" className="space-y-6">
+            <AgentChatInterface agents={agents} />
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   )
@@ -354,7 +354,7 @@ const getStatusColor = (status: string) => {
 // Agent Chat Interface Component
 function AgentChatInterface({ agents }: { agents: Agent[] }) {
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
-  const [messages, setMessages] = useState<Array<{id: string, type: 'user' | 'agent' | 'system', content: string, timestamp: Date, agentId?: string, imageUrl?: string}>>([])
+  const [messages, setMessages] = useState<Array<{ id: string, type: 'user' | 'agent' | 'system', content: string, timestamp: Date, agentId?: string, imageUrl?: string }>>([])
   const [inputMessage, setInputMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -382,7 +382,7 @@ function AgentChatInterface({ agents }: { agents: Agent[] }) {
     try {
       const sessionId = `admin_${currentAdmin?.user_id || 'admin'}_${selectedAgent.id}_${Date.now()}`
       const endpoint = `${API_BASE_URL}/api/agents/${selectedAgent.id}/${selectedAgent.id}-chat/message`
-      
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -468,11 +468,10 @@ function AgentChatInterface({ agents }: { agents: Agent[] }) {
                     setSelectedAgent(agent)
                     setMessages([])
                   }}
-                  className={`w-full p-3 rounded-lg border transition-colors text-left ${
-                    selectedAgent?.id === agent.id
+                  className={`w-full p-3 rounded-lg border transition-colors text-left ${selectedAgent?.id === agent.id
                       ? 'bg-green-600/20 border-green-500 text-white'
                       : 'bg-gray-800/50 border-gray-700 text-gray-300 hover:bg-gray-800'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full ${getStatusColor(agent.status)}`} />
@@ -520,20 +519,19 @@ function AgentChatInterface({ agents }: { agents: Agent[] }) {
                       className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                          msg.type === 'user'
+                        className={`max-w-[80%] rounded-lg px-4 py-2 ${msg.type === 'user'
                             ? 'bg-green-600 text-white'
                             : msg.type === 'system'
-                            ? 'bg-gray-800 text-gray-300 border border-gray-700'
-                            : 'bg-gray-800 text-white'
-                        }`}
+                              ? 'bg-gray-800 text-gray-300 border border-gray-700'
+                              : 'bg-gray-800 text-white'
+                          }`}
                       >
                         {msg.type === 'system' && msg.content.includes('💭') ? (
                           <div className="text-sm">{msg.content}</div>
                         ) : (
                           <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
                         )}
-                        
+
                         {/* Display generated images */}
                         {msg.imageUrl && (
                           <div className="mt-3 rounded-lg overflow-hidden border border-gray-600 max-w-md">
@@ -558,7 +556,7 @@ function AgentChatInterface({ agents }: { agents: Agent[] }) {
                             </a>
                           </div>
                         )}
-                        
+
                         <div className="text-xs opacity-70 mt-1">
                           {msg.timestamp.toLocaleTimeString()}
                         </div>

@@ -602,7 +602,7 @@ export default function TeamOverviewTab() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeAgents}</div>
+            <div className="text-2xl font-bold">{activeWorkers}</div>
             <p className="text-xs text-muted-foreground">of {employees.length} staff members online</p>
           </CardContent>
         </Card>
@@ -753,7 +753,7 @@ export default function TeamOverviewTab() {
                         <div>
                           <h4 className="font-medium mb-2">Custom Instructions / Tweaks</h4>
                           <p className="text-sm text-gray-600 mb-3">
-                            Add specific instructions or tweaks for this agent. The agent will strictly follow these instructions when processing your requests.
+                            Add specific instructions or tweaks for this personnel. The AI will strictly follow these instructions when processing your requests.
                           </p>
                           <Textarea
                             placeholder="Example: Always use a professional tone, focus on B2B clients, prioritize email communication over social media, etc."

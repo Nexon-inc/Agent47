@@ -96,7 +96,7 @@ def build_app() -> FastAPI:
             status_code=200,
             content={
                 "status": "healthy",
-                "agent": "Joe",
+                "employee": "Joe",
                 "version": "1.0.0",
                 "features": [
                     "market_trend_analysis",

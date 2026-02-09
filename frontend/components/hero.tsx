@@ -65,14 +65,14 @@ export default function Hero() {
     {
       type: "bot",
       agent: "Aria",
-      message: "✅ Automation Setup Complete!\n\n📊 Created\n• 21 LinkedIn posts scheduled\n• 35 Twitter posts scheduled\n• 14 Instagram posts + 21 stories scheduled\n\n📋 Next Steps\n1. Review scheduled content (I'll send you a preview)\n2. Adjust timing if needed\n3. Monitor engagement metrics\n\nYour social media is now fully automated for the next 7 days! 🚀",
+      message: "✅ Automation Setup Complete!\n\n📊 Created\n• 21 LinkedIn posts scheduled\n• 35 Twitter posts scheduled\n• 14 Instagram posts + 21 stories scheduled\n\n📋 Next Steps\n1. Review scheduled content (I'll send you a preview)\n2. Adjust timing if needed\n3. Monitor engagement metrics\n\nYour social media is now fully automated! 🚀",
       time: "2:37 PM",
       color: "from-orange-400 to-orange-600",
       avatar: "AR",
     },
     {
       type: "system",
-      message: "🤝 Aria is coordinating with other agents for enhanced automation...",
+      message: "🤝 Aria is coordinating with other specialists for enhanced automation...",
       time: "2:37 PM",
     },
     {
@@ -206,14 +206,14 @@ export default function Hero() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                Introducing Agent47 — Meet Your 24/7 AI Workforce
+                Introducing Agent47 — Meet Your 24/7 AI Personnel
               </motion.div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight">
-                Hire Your <span className="gradient-text">24/7 AI Team</span>
+                Hire Your <span className="gradient-text">Digital Personnel</span>
               </h1>
             </div>
             <p className="text-lg md:text-xl text-gray-600 max-w-[500px] mx-auto md:mx-0">
-              Stop overpaying for local operations. Hire specialized AI employees that work 24/7 across marketing, sales, and support for 1/100th of the cost.
+              Stop overpaying for local operations. Hire specialized AI personnel that work 24/7 across marketing, sales, and support for 1/100th of the cost.
             </p>
 
             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
@@ -228,7 +228,7 @@ export default function Hero() {
                 href="#features"
                 className="bg-white text-green-600 border border-green-600/20 font-semibold px-8 py-4 rounded-lg hover:bg-green-50 transition-all duration-300"
               >
-                Explore Agents
+                Explore Specialists
               </Link>
             </div>
 
@@ -281,14 +281,14 @@ export default function Hero() {
                           animate={{ opacity: [1, 0.5, 1] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         />
-                        {showIntercommunication ? "🤝 Agents Collaborating" : "🟢 Online & Ready"}
+                        {showIntercommunication ? "🤝 Personnel Collaborating" : "🟢 Online & Ready"}
                       </div>
                     </div>
                   </div>
                   <motion.button
                     className={`p-3 rounded-full transition-all duration-300 ${isVoiceActive
-                        ? "bg-red-500 text-white shadow-lg shadow-red-500/50 ring-2 ring-red-300"
-                        : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+                      ? "bg-red-500 text-white shadow-lg shadow-red-500/50 ring-2 ring-red-300"
+                      : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
                       }`}
                     animate={{
                       scale: isVoiceActive ? [1, 1.1, 1] : 1,
@@ -408,8 +408,8 @@ export default function Hero() {
                               ) : (
                                 <div
                                   className={`rounded-2xl px-4 py-3 shadow-sm ${msg.type === "user"
-                                      ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
-                                      : "bg-white border border-gray-200 text-gray-800"
+                                    ? "bg-gradient-to-br from-green-400 to-green-600 text-white"
+                                    : "bg-white border border-gray-200 text-gray-800"
                                     }`}
                                 >
                                   {msg.isVoice && (
@@ -449,8 +449,8 @@ export default function Hero() {
                                     })}
                                   </div>
                                   <p className={`text-xs mt-2 ${msg.type === "user"
-                                      ? "text-white/70"
-                                      : "text-gray-500"
+                                    ? "text-white/70"
+                                    : "text-gray-500"
                                     }`}>
                                     {msg.time}
                                   </p>
@@ -528,8 +528,8 @@ export default function Hero() {
                   </div>
                   <motion.button
                     className={`p-3 rounded-xl transition-all duration-300 ${isVoiceActive
-                        ? "bg-red-500 text-white shadow-lg shadow-red-500/50"
-                        : "bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30"
+                      ? "bg-red-500 text-white shadow-lg shadow-red-500/50"
+                      : "bg-gradient-to-r from-green-400 to-green-600 text-white hover:shadow-lg hover:shadow-green-500/30"
                       }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

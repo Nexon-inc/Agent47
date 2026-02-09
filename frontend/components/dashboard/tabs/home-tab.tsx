@@ -80,7 +80,7 @@ const agents = [
   {
     id: "aria",
     name: "Aria",
-    title: "Social Media Agent",
+    title: "AI Social Media Specialist",
     description: "I help automate your social media workflow with intelligent posting, engagement tracking, and content optimization across all major platforms.",
     icon: Globe,
     color: "bg-orange-500",
@@ -88,7 +88,7 @@ const agents = [
   {
     id: "clara",
     name: "Clara",
-    title: "Customer Support Agent",
+    title: "AI Customer Support Specialist",
     description: "I handle customer inquiries and support tickets with AI-powered responses, intelligent routing, and 24/7 availability.",
     icon: Headphones,
     color: "bg-purple-500",
@@ -96,7 +96,7 @@ const agents = [
   {
     id: "eric",
     name: "Eric",
-    title: "Sales Agent",
+    title: "AI Sales Representative",
     description: "I boost your sales and conversions with intelligent lead scoring, proposal generation, and pipeline management.",
     icon: DollarSign,
     color: "bg-amber-500",
@@ -104,7 +104,7 @@ const agents = [
   {
     id: "jackie",
     name: "Jackie",
-    title: "Marketing Agent",
+    title: "AI Marketing Director",
     description: "I optimize your marketing campaigns with data-driven insights, audience segmentation, and automated workflows.",
     icon: Megaphone,
     color: "bg-pink-500",
@@ -112,7 +112,7 @@ const agents = [
   {
     id: "shakes",
     name: "Shakes",
-    title: "Content Creation Agent",
+    title: "AI Creative Director",
     description: "I create engaging content for your audience with AI-powered writing, editing, and optimization tools.",
     icon: FileText,
     color: "bg-green-500",
@@ -120,7 +120,7 @@ const agents = [
   {
     id: "joe",
     name: "Joe",
-    title: "Research Agent",
+    title: "AI Research Analyst",
     description: "I conduct comprehensive market research and competitive analysis with AI-powered data collection and insights.",
     icon: Search,
     color: "bg-blue-500",
@@ -128,7 +128,7 @@ const agents = [
   {
     id: "purity",
     name: "Purity",
-    title: "Business Maker Agent",
+    title: "AI Business Architect",
     description: "I help launch and scale businesses with AI-powered insights, from idea validation to business model creation.",
     icon: Lightbulb,
     color: "bg-indigo-500",
@@ -573,7 +573,7 @@ export default function HomeTab() {
       const errorMessage: ChatMessage = {
         id: Date.now().toString(),
         type: "system",
-        content: `${selectedAgent.name} is not available in your current plan. Please select an agent from your available agents or upgrade your plan.`,
+        content: `${selectedAgent.name} is not available in your current plan. Please select a specialist from your available workforce or upgrade your plan.`,
         timestamp: new Date(),
       }
       setChatMessages(prev => [...prev, errorMessage])
@@ -599,7 +599,7 @@ export default function HomeTab() {
         const errorMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           type: "agent",
-          content: `${selectedAgent.name} is not selected. Please select this agent in the Agents tab first.`,
+          content: `${selectedAgent.name} is not on your team. Please hire this specialist in the Recruitment tab first.`,
           timestamp: new Date(),
           agentId: selectedAgent.id,
         }
@@ -612,7 +612,7 @@ export default function HomeTab() {
         const errorMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           type: "agent",
-          content: `${selectedAgent.name} is currently paused. Please activate the agent in the Agents tab to start chatting.`,
+          content: `${selectedAgent.name} is currently off-duty. Please activate this specialist in the My Team tab to start chatting.`,
           timestamp: new Date(),
           agentId: selectedAgent.id,
         }
@@ -898,8 +898,8 @@ export default function HomeTab() {
       await apiClient.updateIntercommunicationSetting(newValue)
       setIntercommunicationEnabled(newValue)
       toast({
-        title: newValue ? "Inter-Unit Link Established" : "Inter-Unit Link Severed",
-        description: newValue ? "Agents are now coordinating via shared memory." : "Agents are now operating in isolation.",
+        title: newValue ? "Workforce Unity Established" : "Team Isolation Protocol Active",
+        description: newValue ? "Your specialists are now coordinating via shared workforce intelligence." : "Specialists are now operating in standard isolated mode.",
       })
     } catch (error) {
       console.error("Failed to toggle intercommunication:", error)
@@ -1152,7 +1152,7 @@ export default function HomeTab() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" side="top" sideOffset={12} className="w-72 bg-white border border-slate-100 p-2 rounded-3xl shadow-2xl">
-                  <DropdownMenuLabel className="text-[10px] uppercase tracking-widest font-black text-slate-400 px-4 py-3">Select Agent</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-[10px] uppercase tracking-widest font-black text-slate-400 px-4 py-3">Select Personnel</DropdownMenuLabel>
                   <div className="max-h-[350px] overflow-y-auto space-y-1">
                     {userAgents.map((ua: any) => {
                       const a = agents.find(ag => ag.id === ua.agent_id)
@@ -1168,7 +1168,7 @@ export default function HomeTab() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className={cn("font-bold text-sm", isSelected ? "text-emerald-900" : "text-slate-700")}>{a.title}</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase truncate">Protocolized Unit</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase truncate">Specialized Personnel</p>
                           </div>
                           {isSelected && <div className="h-2 w-2 rounded-full bg-emerald-500" />}
                         </DropdownMenuItem>
@@ -1237,7 +1237,7 @@ export default function HomeTab() {
           </div>
           <div className="mt-4 text-center">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
-              Agent47 Intelligence Engine • Precision & Speed
+              Agent47 Intelligence Engine • Digital Workforce Command
             </p>
           </div>
         </div>

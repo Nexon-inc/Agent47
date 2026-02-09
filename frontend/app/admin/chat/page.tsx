@@ -973,7 +973,7 @@ Based on your query: "${query}"
 Here are my recommendations:
 
 1. **System Health**: Run 'system.status detailed' to check current system state
-2. **Agent Performance**: Use 'agents.list' to monitor AI agent status
+2. **Agent Performance**: Use 'agents.list' to monitor AI personnel status
 3. **User Activity**: Execute 'users.list active' to see active users
 4. **Revenue Analysis**: Try 'analytics.overview 30d' for recent performance
 5. **Security Check**: Run 'security.audit' to ensure system security
