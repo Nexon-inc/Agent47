@@ -76,6 +76,7 @@ class LLMServicePool:
         self._fallback_active = False
         self._image_generation_enabled = True
         self._metrics: Dict[str, LLMServiceMetrics] = {}
+        self._init_errors: Dict[str, str] = {}
         self._last_health_check = datetime.utcnow()
         
         # Initialize metrics
@@ -107,6 +108,7 @@ class LLMServicePool:
                 logger.info("Groq LLM client initialized successfully")
             except Exception as e:
                 logger.warning(f"Failed to initialize Groq client: {e}. Will use fallback.")
+                self._init_errors["groq"] = str(e)
                 self.groq_client = None
             
             # Initialize Ollama LLM client with Llama 3 8B (fallback)
@@ -116,6 +118,7 @@ class LLMServicePool:
                 logger.info("Ollama LLM client initialized successfully")
             except Exception as e:
                 logger.warning(f"Failed to initialize Ollama client: {e}")
+                self._init_errors["ollama"] = str(e)
                 self.ollama_client = None
             
             # Perform initial health checks
@@ -232,9 +235,17 @@ class LLMServicePool:
                         return response
         
         # All services failed
+        error_details = []
+        if not self._is_service_healthy("groq"):
+            error_details.append(f"Groq: {self._init_errors.get('groq', 'Unknown error')}")
+        if not self._is_service_healthy("ollama"):
+            error_details.append(f"Ollama: {self._init_errors.get('ollama', 'Unknown error')}")
+        if not self._is_service_healthy("openai"):
+            error_details.append(f"OpenAI: {self._init_errors.get('openai', 'Not configured')}")
+            
         return LLMResponse(
             success=False,
-            error="All LLM services are unavailable"
+            error=f"All LLM services are unavailable. Details: {'; '.join(error_details)}"
         )
     
     # Chutes generation method removed

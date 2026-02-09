@@ -190,6 +190,11 @@ app.include_router(admin_router)
 app.include_router(system_debug_router)
 app.include_router(websocket_router)
 app.include_router(billing_router)
+try:
+    from core.ai import debug
+    app.include_router(debug.router)
+except Exception as e:
+    logger.warning(f"Failed to include AI debug router: {e}")
 
 # Mount agent applications
 app.mount("/api/agents/aria", aria_app)
