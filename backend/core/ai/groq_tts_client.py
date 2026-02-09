@@ -155,10 +155,19 @@ class GroqTTSClient:
             self._health_status = "error"
             return {"healthy": False, "error": str(e)}
     
+# African voices (shared from English pool for now, but with specific mapping if available)
+AFRICAN_VOICES = [
+    "onyx", "echo", "nova", "shimmer" # Using clearer voices for diverse accents
+]
+
+# ...
+
     def get_available_voices(self, language: str = "en") -> List[str]:
         """Get available voices for a given language"""
         if language.startswith("ar"):
             return ARABIC_VOICES
+        elif language in ["sw", "yo", "ig", "ha", "am", "zu", "xh", "so", "af", "mg", "sn"]: # Swahili, Yoruba, Igbo, Hausa, Amharic, Zulu, Xhosa, Somali, Afrikaans, Malagasy, Shona
+            return AFRICAN_VOICES
         else:
             return ENGLISH_VOICES
     
@@ -167,7 +176,8 @@ class GroqTTSClient:
         # If voice is explicitly provided and valid, use it
         if voice:
             available_voices = self.get_available_voices(language)
-            if voice in available_voices:
+            # Allow fallback to English voices if specific list doesn't have it
+            if voice in available_voices or voice in ENGLISH_VOICES:
                 return voice
         
         # Use voice style mapping if provided
@@ -179,6 +189,8 @@ class GroqTTSClient:
         # Default based on language
         if language.startswith("ar"):
             return ARABIC_VOICES[0]  # Default Arabic voice
+        elif language in ["sw", "yo", "ig", "ha", "am", "zu", "xh", "so", "af", "mg", "sn"]:
+             return "onyx" # Default African voice (deep/clear)
         else:
             return "alloy"  # Default English voice
     

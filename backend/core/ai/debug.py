@@ -24,6 +24,12 @@ async def check_ai_config():
             "groq_settings": {
                 "max_tokens": getattr(settings.groq, 'groq_max_tokens', 'MISSING') if hasattr(settings, 'groq') else 'NO GROQ OBJECT',
                 "default_model": getattr(settings.groq, 'groq_default_model', 'MISSING') if hasattr(settings, 'groq') else 'NO GROQ OBJECT',
+                "tts_model": getattr(settings.groq, 'groq_tts_model', 'MISSING') if hasattr(settings, 'groq') else 'NO GROQ OBJECT',
+                "stt_model": getattr(settings.groq, 'groq_stt_model', 'MISSING') if hasattr(settings, 'groq') else 'NO GROQ OBJECT',
+            },
+            "gemini_config": {
+                "api_key_exists": bool(getattr(settings.google_gemini_llm, 'google_gemini_api_key', None)),
+                "default_model": getattr(settings.google_gemini_llm, 'default_model', 'MISSING') if hasattr(settings, 'google_gemini_llm') else 'NO GEMINI OBJECT',
             }
         }
     except Exception as e:

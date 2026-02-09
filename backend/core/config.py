@@ -567,6 +567,29 @@ class GoogleGeminiImageSettings(BaseSettings):
     
     model_config = SettingsConfigDict(env_prefix="GOOGLE_GEMINI_", extra="allow")
 
+class GoogleGeminiLLMSettings(BaseSettings):
+    """Configuration for Google Gemini LLM (Text Generation)"""
+    # Reuse the same env var as Image Settings
+    google_gemini_api_key: str = os.getenv("GOOGLE_GEMINI_API_KEY", "")
+    google_gemini_api_base_url: str = os.getenv("GOOGLE_GEMINI_API_BASE_URL", "https://generativelanguage.googleapis.com/v1beta")
+    
+    # Text Generation Models
+    google_gemini_flash_model: str = os.getenv("GOOGLE_GEMINI_FLASH_MODEL", "gemini-2.0-flash")
+    google_gemini_pro_model: str = os.getenv("GOOGLE_GEMINI_PRO_MODEL", "gemini-1.5-pro")
+    
+    # Defaults
+    default_model: str = os.getenv("GOOGLE_GEMINI_DEFAULT_MODEL", "gemini-2.0-flash")
+    max_tokens: int = int(os.getenv("GOOGLE_GEMINI_MAX_TOKENS", "8192"))
+    temperature: float = float(os.getenv("GOOGLE_GEMINI_TEMPERATURE", "0.7"))
+    top_p: float = float(os.getenv("GOOGLE_GEMINI_TOP_P", "0.95"))
+    top_k: int = int(os.getenv("GOOGLE_GEMINI_TOP_K", "40"))
+    
+    request_timeout: int = int(os.getenv("GOOGLE_GEMINI_REQUEST_TIMEOUT", "60"))
+    max_retries: int = int(os.getenv("GOOGLE_GEMINI_MAX_RETRIES", "3"))
+    retry_delay: int = int(os.getenv("GOOGLE_GEMINI_RETRY_DELAY", "1"))
+    
+    model_config = SettingsConfigDict(env_prefix="GOOGLE_GEMINI_", extra="allow")
+
 def _parse_backend_cors_origins() -> List[str]:
     """
     Parse BACKEND_CORS_ORIGINS from the environment.
@@ -666,6 +689,7 @@ class Settings(BaseSettings):
     geolocation: GeolocationSettings = GeolocationSettings()
     
     google_gemini_image: GoogleGeminiImageSettings = GoogleGeminiImageSettings()
+    google_gemini_llm: GoogleGeminiLLMSettings = GoogleGeminiLLMSettings()
     
     admin_default_email: str = os.getenv("ADMIN_DEFAULT_EMAIL", "agent47assist@gmail.com")
     admin_default_password: str = os.getenv("ADMIN_DEFAULT_PASSWORD", "G.z.t.i.p.0,1,0")

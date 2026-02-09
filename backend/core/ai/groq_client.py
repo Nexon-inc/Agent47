@@ -53,7 +53,7 @@ class GroqLLMClient:
             self.session = aiohttp.ClientSession(
                 timeout=aiohttp.ClientTimeout(total=self.timeout),
                 headers={
-                    "Authorization": f"Bearer {self.api_key}",
+                    "Authorization": f"Bearer {self.api_key.strip()}",
                     "Content-Type": "application/json",
                     "User-Agent": "Agent47-Groq-Client/1.0"
                 }

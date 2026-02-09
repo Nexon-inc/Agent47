@@ -2,7 +2,7 @@
 LLM Service Pool Manager
 
 This module provides a centralized LLM service pool with automatic failover
-between Ollama Llama 3 8B (primary) and OpenAI (fallback).
+between Groq (primary) and Google Gemini (fallback).
 """
 
 import asyncio
@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 from ..config import settings
-from ..utils.nlp_utils import OllamaLLMClient
+from .gemini_client import GeminiLLMClient
 from .groq_client import GroqLLMClient
 from ..logs import get_logger
 
@@ -68,8 +68,8 @@ class LLMServicePool:
     def __init__(self):
         # Groq client (primary)
         self.groq_client: Optional[GroqLLMClient] = None
-        # Ollama client for Llama 3 8B (fallback)
-        self.ollama_client: Optional[OllamaLLMClient] = None
+        # Gemini client for fallback
+        self.gemini_client: Optional[GeminiLLMClient] = None
         self._initialized = False
         # Use configured primary LLM provider
         self._current_primary = settings.primary_llm_provider
@@ -90,10 +90,10 @@ class LLMServicePool:
             status=LLMServiceStatus.UNKNOWN,
             daily_limit=1000000
         )
-        self._metrics["ollama"] = LLMServiceMetrics(
-            service_name="ollama",
+        self._metrics["gemini"] = LLMServiceMetrics(
+            service_name="gemini",
             status=LLMServiceStatus.UNKNOWN,
-            daily_limit=100000  # Ollama has no daily limit
+            daily_limit=settings.google_gemini_llm.google_gemini_rate_limit_per_day if hasattr(settings, 'google_gemini_llm') else 1000
         )
     
     async def initialize(self) -> bool:
@@ -111,15 +111,18 @@ class LLMServicePool:
                 self._init_errors["groq"] = str(e)
                 self.groq_client = None
             
-            # Initialize Ollama LLM client with Llama 3 8B (fallback)
+            # Initialize Gemini LLM client (fallback)
             try:
-                self.ollama_client = OllamaLLMClient()
-                await self.ollama_client.initialize()
-                logger.info("Ollama LLM client initialized successfully")
+                self.gemini_client = GeminiLLMClient()
+                if await self.gemini_client.initialize():
+                    logger.info("Gemini LLM client initialized successfully")
+                else:
+                    logger.warning("Gemini LLM client failed to initialize")
+                    self.gemini_client = None
             except Exception as e:
-                logger.warning(f"Failed to initialize Ollama client: {e}")
-                self._init_errors["ollama"] = str(e)
-                self.ollama_client = None
+                logger.warning(f"Failed to initialize Gemini client: {e}")
+                self._init_errors["gemini"] = str(e)
+                self.gemini_client = None
             
             # Perform initial health checks
             await self._perform_health_checks()
@@ -139,8 +142,8 @@ class LLMServicePool:
         """Close all LLM clients"""
         if self.groq_client:
             await self.groq_client.close()
-        if self.ollama_client:
-            await self.ollama_client.close()
+        if self.gemini_client:
+            await self.gemini_client.close()
         self._initialized = False
     
     async def generate_text(self, request: LLMRequest) -> LLMResponse:
@@ -155,7 +158,7 @@ class LLMServicePool:
         if request.require_image_generation and not self._image_generation_enabled:
             return LLMResponse(
                 success=False,
-                error="Image generation is disabled (Grok fallback active)",
+                error="Image generation is disabled",
                 image_generation_disabled=True
             )
         
@@ -166,80 +169,46 @@ class LLMServicePool:
                 return response
             else:
                 logger.warning(f"Groq LLM failed: {response.error}")
-                # Try Ollama fallback
-                if self._is_service_healthy("ollama"):
-                    response = await self._try_ollama_generation(request)
+                # Try Gemini fallback
+                if self._is_service_healthy("gemini"):
+                    response = await self._try_gemini_generation(request)
                     if response.success:
                         response.fallback_used = True
                         return response
                 # Try OpenAI fallback
                 if self._is_service_healthy("openai"):
                     response = await self._try_openai_generation(request)
-                    if response.success:
-                        response.fallback_used = True
-                        return response
-        elif self._current_primary == "ollama" and self._is_service_healthy("ollama"):
-            response = await self._try_ollama_generation(request)
-            if response.success:
-                return response
-            else:
-                logger.warning(f"Ollama LLM failed: {response.error}")
-                # Try Groq fallback
-                if self._is_service_healthy("groq"):
-                    response = await self._try_groq_generation(request)
-                    if response.success:
-                        response.fallback_used = True
-                        return response
-                # Try OpenAI fallback
-                if self._is_service_healthy("openai"):
-                    response = await self._try_openai_generation(request)
-                    if response.success:
-                        response.fallback_used = True
-                        return response
-        elif self._current_primary == "grok" and self._is_service_healthy("ollama"):
-            # Legacy "grok" provider name maps to Ollama
-            response = await self._try_ollama_generation(request)
-            if response.success:
-                return response
-            else:
-                logger.warning(f"Ollama LLM failed: {response.error}")
-                # Try Groq fallback
-                if self._is_service_healthy("groq"):
-                    response = await self._try_groq_generation(request)
-                    if response.success:
-                        response.fallback_used = True
-                        return response
-                # Try OpenAI fallback
-                if self._is_service_healthy("openai"):
-                    response = await self._try_openai_generation(request)
-                    if response.success:
-                        response.fallback_used = True
-                        return response
-        elif self._current_primary == "openai" and self._is_service_healthy("openai"):
-            response = await self._try_openai_generation(request)
-            if response.success:
-                return response
-            else:
-                logger.warning(f"OpenAI failed: {response.error}")
-                # Try Groq fallback
-                if self._is_service_healthy("groq"):
-                    response = await self._try_groq_generation(request)
-                    if response.success:
-                        response.fallback_used = True
-                        return response
-                # Try Ollama fallback
-                if self._is_service_healthy("ollama"):
-                    response = await self._try_ollama_generation(request)
                     if response.success:
                         response.fallback_used = True
                         return response
         
+        # Default/Fallback logic if primary is not Groq or unhealthy
+        # Try Gemini fallback
+        if self._is_service_healthy("gemini"):
+            response = await self._try_gemini_generation(request)
+            if response.success:
+                return response
+            else:
+                logger.warning(f"Gemini LLM failed: {response.error}")
+        
+        # Try OpenAI fallback
+        if self._is_service_healthy("openai"):
+            response = await self._try_openai_generation(request)
+            if response.success:
+                return response
+
+        # Try Groq fallback (if it wasn't primary)
+        if self._current_primary != "groq" and self._is_service_healthy("groq"):
+             response = await self._try_groq_generation(request)
+             if response.success:
+                 return response
+
         # All services failed
         error_details = []
         if not self._is_service_healthy("groq"):
             error_details.append(f"Groq: {self._init_errors.get('groq', 'Unknown error')}")
-        if not self._is_service_healthy("ollama"):
-            error_details.append(f"Ollama: {self._init_errors.get('ollama', 'Unknown error')}")
+        if not self._is_service_healthy("gemini"):
+            error_details.append(f"Gemini: {self._init_errors.get('gemini', 'Unknown error')}")
         if not self._is_service_healthy("openai"):
             error_details.append(f"OpenAI: {self._init_errors.get('openai', 'Not configured')}")
             
@@ -331,31 +300,29 @@ class LLMServicePool:
                 error=str(e)
             )
     
-    async def _try_ollama_generation(self, request: LLMRequest) -> LLMResponse:
-        """Try to generate text using Ollama LLM"""
+    async def _try_gemini_generation(self, request: LLMRequest) -> LLMResponse:
+        """Try to generate text using Google Gemini LLM"""
         try:
-            if not self.ollama_client:
-                return LLMResponse(success=False, error="Ollama client not initialized")
+            if not self.gemini_client:
+                return LLMResponse(success=False, error="Gemini client not initialized")
             
-            result = await self.ollama_client.generate_text(
+            result = await self.gemini_client.generate_text(
                 messages=request.messages,
                 max_tokens=request.max_tokens,
-                temperature=request.temperature,
-                stream=request.stream
+                temperature=request.temperature
             )
             
             # Update metrics
-            self._update_service_metrics("ollama", result)
+            self._update_service_metrics("gemini", result)
             
             if result.get("success"):
-                # Ollama returns both "text" and "content" for compatibility
                 content = result.get("content") or result.get("text", "")
                 return LLMResponse(
                     success=True,
                     content=content,
                     usage=result.get("usage"),
-                    model_used=result.get("model", "llama3:8b"),
-                    service_used="ollama",
+                    model_used=result.get("model", self.gemini_client.model),
+                    service_used="gemini",
                     response_time_ms=result.get("response_time_ms")
                 )
             else:
@@ -365,25 +332,23 @@ class LLMServicePool:
                 )
                 
         except Exception as e:
-            logger.error(f"Ollama LLM generation error: {e}")
+            logger.error(f"Gemini LLM generation error: {e}")
             return LLMResponse(
                 success=False,
                 error=str(e)
             )
     
     async def _activate_fallback(self):
-        """Activate Grok LLM as fallback and disable image generation"""
+        """Activate fallback and disable image generation"""
         if not self._fallback_active:
             self._fallback_active = True
-            self._image_generation_enabled = False
-            logger.warning("Activated Grok LLM fallback - Image generation disabled")
+            logger.warning("Activated fallback mode")
     
     async def _deactivate_fallback(self):
-        """Deactivate fallback and re-enable image generation"""
+        """Deactivate fallback"""
         if self._fallback_active:
             self._fallback_active = False
-            self._image_generation_enabled = True
-            logger.info("Deactivated Grok LLM fallback - Image generation re-enabled")
+            logger.info("Deactivated fallback mode")
     
     def _is_service_healthy(self, service_name: str) -> bool:
         """Check if a service is healthy"""
@@ -408,7 +373,7 @@ class LLMServicePool:
             metrics.failed_requests += 1
             error = result.get("error", "")
             
-            if "rate limit" in error.lower():
+            if "rate limit" in error.lower() or "429" in error:
                 metrics.status = LLMServiceStatus.RATE_LIMITED
             elif "daily limit" in error.lower():
                 metrics.status = LLMServiceStatus.DAILY_LIMIT_EXCEEDED
@@ -420,7 +385,7 @@ class LLMServicePool:
             metrics.daily_requests = result["daily_requests"]
         
         # Update response time
-        if "response_time_ms" in result:
+        if "response_time_ms" in result and result["response_time_ms"]:
             if metrics.response_time_avg == 0:
                 metrics.response_time_avg = result["response_time_ms"]
             else:
@@ -454,14 +419,14 @@ class LLMServicePool:
                 self._metrics["openai"].status = LLMServiceStatus.UNHEALTHY
                 self._metrics["openai"].last_health_check = datetime.utcnow()
             
-            # Check Ollama LLM
-            if self.ollama_client:
-                ollama_health = await self.ollama_client.health_check()
-                self._metrics["ollama"].status = LLMServiceStatus.HEALTHY if ollama_health.get("healthy", False) else LLMServiceStatus.UNHEALTHY
-                self._metrics["ollama"].last_health_check = datetime.utcnow()
+            # Check Gemini LLM
+            if self.gemini_client:
+                gemini_health = await self.gemini_client.health_check()
+                self._metrics["gemini"].status = LLMServiceStatus.HEALTHY if gemini_health.get("healthy", False) else LLMServiceStatus.UNHEALTHY
+                self._metrics["gemini"].last_health_check = datetime.utcnow()
             else:
-                self._metrics["ollama"].status = LLMServiceStatus.UNHEALTHY
-                self._metrics["ollama"].last_health_check = datetime.utcnow()
+                self._metrics["gemini"].status = LLMServiceStatus.UNHEALTHY
+                self._metrics["gemini"].last_health_check = datetime.utcnow()
             
             self._last_health_check = datetime.utcnow()
             
