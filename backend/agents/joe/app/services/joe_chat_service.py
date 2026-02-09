@@ -409,18 +409,23 @@ Start response now.
                 )
                 
                 # Log the response structure
-                logger.info(f"📥 {agent_name}: Groq response keys: {list(ai_response.keys()) if isinstance(ai_response, dict) else type(ai_response)}")
+                logger.info(f"📥 {agent_name}: Groq response type: {type(ai_response)}")
                 
-                # Handle response (check multiple possible keys)
-                success = ai_response.get("success", False) if isinstance(ai_response, dict) else False
-                text_content = ai_response.get("text_content") or ai_response.get("content") if isinstance(ai_response, dict) else None
+                # Handle response (check multiple possible keys/attributes)
+                if isinstance(ai_response, dict):
+                    success = ai_response.get("success", False)
+                    text_content = ai_response.get("text_content") or ai_response.get("content")
+                    error_msg = ai_response.get("error", "Unknown error")
+                else:
+                    success = getattr(ai_response, "success", False)
+                    text_content = getattr(ai_response, "text_content", None) or getattr(ai_response, "content", None)
+                    error_msg = getattr(ai_response, "error", "Unknown error")
                 
                 if success and text_content:
                     response_text = text_content
                     confidence = 0.95
                     logger.info(f"✅ {agent_name}: LLM SUCCESS - Generated {len(response_text)} characters")
                 else:
-                    error_msg = ai_response.get("error", "Unknown error") if isinstance(ai_response, dict) else "Invalid response format"
                     logger.error(f"❌ {agent_name}: LLM FAILED - {error_msg}")
                     logger.error(f"🔍 {agent_name}: Full response: {ai_response}")
                     
