@@ -274,7 +274,7 @@ export default function Hero() {
                       <Bot className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-white">Agent47 Chat</h3>
+                      <h3 className="text-lg font-bold text-white">Personnel Tactical Link</h3>
                       <div className="text-sm text-white/90 flex items-center">
                         <motion.div
                           className="w-2 h-2 rounded-full bg-white mr-2"

@@ -46,10 +46,16 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   {
-    name: "Dashboard",
+    name: "Command Center",
     path: "/admin",
     icon: LayoutDashboard,
     permissions: ["super_admin", "system_admin", "basic_admin", "read_only"],
+  },
+  {
+    name: "Strategy Room",
+    path: "/admin/strategy",
+    icon: Target,
+    permissions: ["super_admin", "system_admin", "basic_admin"],
   },
   {
     name: "Users",
@@ -58,9 +64,9 @@ const menuItems: MenuItem[] = [
     permissions: ["super_admin", "system_admin", "basic_admin"],
   },
   {
-    name: "Agents",
+    name: "Personnel List",
     path: "/admin/agents",
-    icon: Bot,
+    icon: Users,
     permissions: ["super_admin", "system_admin"],
   },
   {

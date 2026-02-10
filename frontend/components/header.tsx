@@ -67,15 +67,15 @@ export default function Header() {
               )
             }
             return (
-            <Link
-              key={index}
-              href={item.href}
-              prefetch={true}
-              className="text-slate-900 hover:text-green-600 transition-colors duration-300 font-normal text-base relative group"
-            >
-              {item.name}
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-400 to-green-600 group-hover:w-full transition-all duration-300"></span>
-            </Link>
+              <Link
+                key={index}
+                href={item.href}
+                prefetch={true}
+                className="text-slate-900 hover:text-green-600 transition-colors duration-300 font-normal text-base relative group"
+              >
+                {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-green-400 to-green-600 group-hover:w-full transition-all duration-300"></span>
+              </Link>
             )
           })}
         </nav>
@@ -150,13 +150,13 @@ export default function Header() {
                       {item.name}
                     </a>
                   ) : (
-                  <Link
-                    href={item.href}
-                    className="text-slate-900 text-xl font-normal"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {item.name}
-                  </Link>
+                    <Link
+                      href={item.href}
+                      className="text-slate-900 text-xl font-normal"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
                   )}
                 </motion.div>
               ))}
