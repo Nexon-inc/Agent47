@@ -83,7 +83,7 @@ class IntegrationCredentials(Base):
     scopes = Column(JSON, default=[])
     # 'metadata' is reserved in SQLAlchemy Declarative API; use a different attribute name
     extra_metadata = Column('metadata', JSON, default={})
-    status = Column(Enum(CredentialStatus, values_callable=lambda obj: [e.value for e in obj], native_enum=True), default=CredentialStatus.VALID)
+    status = Column(Enum(CredentialStatus, values_callable=lambda obj: [e.value for e in obj], native_enum=True), default=CredentialStatus.valid)
     last_used = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

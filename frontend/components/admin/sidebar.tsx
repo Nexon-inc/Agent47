@@ -253,7 +253,7 @@ export default function AdminSidebar({ onCollapseChange }: AdminSidebarProps) {
 
   // Get user initials for avatar
   const getInitials = (name: string) => {
-    return name
+    return (name || "")
       .split(" ")
       .map((n) => n[0])
       .join("")
@@ -412,7 +412,7 @@ export default function AdminSidebar({ onCollapseChange }: AdminSidebarProps) {
           >
             <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
               {currentAdmin?.email ? (
-                getInitials(currentAdmin.email.split("@")[0] || "Admin")
+                getInitials(currentAdmin?.email?.split("@")[0] || "Admin")
               ) : (
                 "A"
               )}

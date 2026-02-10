@@ -88,7 +88,7 @@ export default function DashboardSidebar() {
   const router = useRouter()
 
   const isActive = (href: string) => {
-    const tab = new URLSearchParams(href.split("?")[1]).get("tab")
+    const tab = new URLSearchParams(href.includes("?") ? href.split("?")[1] : "").get("tab")
     return tab === currentTab
   }
 

@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { 
-  Users, 
+import {
+  Users,
   UserPlus,
   Search,
   Filter,
@@ -78,7 +78,7 @@ export default function AdminUsersPage() {
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [isLoadingDetails, setIsLoadingDetails] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  
+
   const { currentAdmin } = useAdminStore()
 
   const [usersData, setUsersData] = useState<any>(null)
@@ -88,7 +88,7 @@ export default function AdminUsersPage() {
   // Load initial data
   useEffect(() => {
     if (!currentAdmin) return
-    
+
     const loadUsers = async () => {
       try {
         setIsLoading(true)
@@ -108,7 +108,7 @@ export default function AdminUsersPage() {
     if (!currentAdmin) return
 
     const { websocketService } = require('@/lib/websocket-service')
-    
+
     if (!websocketService.getConnectionStatus()) {
       websocketService.connect()
     }
@@ -179,19 +179,19 @@ export default function AdminUsersPage() {
   const filteredUsers = users.filter(user => {
     const userId = user.id || user.user_id || ""
     const isAdmin = adminUsers.includes(userId)
-    
-    const matchesSearch = !searchQuery || 
-                         user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         user.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesRole = filterRole === "all" || 
-                       (filterRole === "admin" && isAdmin) ||
-                       (filterRole === "user" && !isAdmin)
-    const matchesStatus = filterStatus === "all" || 
-                        (filterStatus === "active" && user.is_active) ||
-                        (filterStatus === "inactive" && !user.is_active) ||
-                        (filterStatus === "suspended" && user.status === "suspended")
-    
+
+    const matchesSearch = !searchQuery ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesRole = filterRole === "all" ||
+      (filterRole === "admin" && isAdmin) ||
+      (filterRole === "user" && !isAdmin)
+    const matchesStatus = filterStatus === "all" ||
+      (filterStatus === "active" && user.is_active) ||
+      (filterStatus === "inactive" && !user.is_active) ||
+      (filterStatus === "suspended" && user.status === "suspended")
+
     return matchesSearch && matchesRole && matchesStatus
   })
 
@@ -257,8 +257,8 @@ export default function AdminUsersPage() {
             <p className="text-gray-400">Manage users, view credentials, and monitor activity</p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              onClick={() => refetch()} 
+            <Button
+              onClick={() => refetch()}
               disabled={isLoading}
               className="bg-gray-800 hover:bg-gray-700"
             >
@@ -289,7 +289,7 @@ export default function AdminUsersPage() {
             <div className="text-3xl font-bold text-white">{users.length}</div>
             <div className="text-sm text-gray-400 mt-2">Total users</div>
           </Card>
-          
+
           <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-green-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <Activity className="w-8 h-8 text-green-500" />
@@ -300,7 +300,7 @@ export default function AdminUsersPage() {
             </div>
             <div className="text-sm text-gray-400 mt-2">Active users</div>
           </Card>
-          
+
           <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-red-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <Shield className="w-8 h-8 text-red-500" />
@@ -311,7 +311,7 @@ export default function AdminUsersPage() {
             </div>
             <div className="text-sm text-gray-400 mt-2">Admin users</div>
           </Card>
-          
+
           <Card className="bg-gray-900/50 border-gray-800 p-6 hover:border-blue-500/50 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <CreditCard className="w-8 h-8 text-blue-500" />
@@ -394,7 +394,7 @@ export default function AdminUsersPage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <h3 className="font-medium text-white">
-                              {user.full_name || user.username || user.email.split("@")[0]}
+                              {user.full_name || user.username || (user.email || "").split("@")[0]}
                             </h3>
                             {isAdmin && (
                               <Badge className="bg-red-900/50 text-red-300 border-red-700">
@@ -433,8 +433,8 @@ export default function AdminUsersPage() {
                           </p>
                         </div>
                         <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleViewDetails(user)}
                             disabled={isLoadingDetails}
@@ -443,8 +443,8 @@ export default function AdminUsersPage() {
                             <Eye className="h-4 w-4 mr-1" />
                             Details
                           </Button>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             onClick={() => handleEditUser(user)}
                             className="border-gray-700 hover:bg-gray-700"
@@ -453,8 +453,8 @@ export default function AdminUsersPage() {
                             Edit
                           </Button>
                           {!isAdmin && (
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => handleDeleteUser(userId)}
                               className="border-red-700 hover:bg-red-900/20 text-red-400"
@@ -504,14 +504,14 @@ export default function AdminUsersPage() {
                     </select>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
+                    <Button
                       className="flex-1"
                       onClick={() => setShowCreateModal(false)}
                     >
                       Create User
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="flex-1"
                       onClick={() => setShowCreateModal(false)}
                     >
@@ -724,7 +724,7 @@ export default function AdminUsersPage() {
                     <div className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
                       <p className="text-xs text-gray-400 mb-1">Last Login</p>
                       <p className="text-white">
-                        {userDetails.last_login || selectedUser.last_login 
+                        {userDetails.last_login || selectedUser.last_login
                           ? new Date(userDetails.last_login || selectedUser.last_login).toLocaleString()
                           : "Never"}
                       </p>
@@ -787,7 +787,7 @@ export default function AdminUsersPage() {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Role
                     </label>
-                    <select 
+                    <select
                       defaultValue={selectedUser.role}
                       className="w-full px-3 py-2 border border-gray-700 rounded-md text-sm bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
@@ -801,7 +801,7 @@ export default function AdminUsersPage() {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       Status
                     </label>
-                    <select 
+                    <select
                       defaultValue={selectedUser.status}
                       className="w-full px-3 py-2 border border-gray-700 rounded-md text-sm bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                     >
@@ -811,14 +811,14 @@ export default function AdminUsersPage() {
                     </select>
                   </div>
                   <div className="flex gap-2">
-                    <Button 
+                    <Button
                       className="flex-1"
                       onClick={() => setShowEditModal(false)}
                     >
                       Save Changes
                     </Button>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="flex-1"
                       onClick={() => setShowEditModal(false)}
                     >

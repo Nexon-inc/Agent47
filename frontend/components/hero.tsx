@@ -419,7 +419,7 @@ export default function Hero() {
                                     </div>
                                   )}
                                   <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                                    {msg.message.split('\n').map((line, idx) => {
+                                    {(msg.message || "").split('\n').map((line, idx) => {
                                       // Format lines with emojis/icons
                                       if (line.trim().startsWith('📅') || line.trim().startsWith('📊') || line.trim().startsWith('📝') || line.trim().startsWith('⚡') || line.trim().startsWith('✅') || line.trim().startsWith('📋')) {
                                         return (

@@ -26,7 +26,7 @@ export default function AdminNavbar() {
 
   // Get breadcrumb from pathname
   const getBreadcrumb = () => {
-    const paths = pathname.split("/").filter(Boolean)
+    const paths = (pathname || "").split("/").filter(Boolean)
 
     if (paths.length === 0) return []
 
