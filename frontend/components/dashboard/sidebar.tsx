@@ -77,8 +77,6 @@ const navigationItems = [
     icon: Settings,
     href: "/dashboard?tab=account-overview",
   },
-  {
-  },
 ]
 
 export default function DashboardSidebar() {
@@ -88,6 +86,7 @@ export default function DashboardSidebar() {
   const router = useRouter()
 
   const isActive = (href: string) => {
+    if (!href) return false
     const tab = new URLSearchParams(href.includes("?") ? href.split("?")[1] : "").get("tab")
     return tab === currentTab
   }

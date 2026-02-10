@@ -213,7 +213,7 @@ export default function RecruitmentTab() {
 
   // Filter and sort employees
   const filteredEmployees = employees
-    .filter((agent) => category === "all" || agent.category.includes(category))
+    .filter((agent) => category === "all" || (agent.category || "").includes(category))
     .sort((a, b) => {
       if (sortBy === "popularity") return b.popularity - a.popularity
       if (sortBy === "newest") return a.isNew ? -1 : b.isNew ? 1 : 0

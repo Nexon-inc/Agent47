@@ -126,7 +126,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
                                                     href={item.href}
                                                     className={cn(
                                                         "flex items-center px-2 py-1.5 text-sm rounded-md transition-colors",
-                                                        (pathname || "") + (item.href.includes("#") ? item.href.split("#")[1] : "") === item.href
+                                                        (pathname || "") + (item.href?.includes("#") ? item.href.split("#")[1] : "") === item.href
                                                             ? "bg-green-50 text-green-700 font-medium"
                                                             : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                                                     )}
