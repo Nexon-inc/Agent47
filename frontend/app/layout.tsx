@@ -15,8 +15,8 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Agent47 - AI Automation Platform",
-  description: "Automate your workflows with 47 specialized AI personnel",
+  title: "Agent47 - AI Workforce & Employees",
+  description: "Scale your business with 47 specialized AI employees and automated workflows",
   icons: {
     icon: "/icon.svg",
   },
