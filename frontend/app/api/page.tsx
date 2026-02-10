@@ -9,15 +9,20 @@ export default function ApiPage() {
   return (
     <DocsLayout>
       <header className="mb-12">
-        <Badge className="mb-4 bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-100">
-          API v1.0 (BETA)
-        </Badge>
+        <div className="flex items-center gap-3 mb-4">
+          <Badge className="bg-blue-100 text-blue-700 border-blue-200">
+            API v1.0 (BETA)
+          </Badge>
+          <Badge className="bg-amber-100 text-amber-700 border-amber-200">
+            Coming Soon
+          </Badge>
+        </div>
         <h1 id="introduction" className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-6">
           API Reference
         </h1>
         <p className="text-xl text-gray-600 leading-relaxed">
-          The Agent47 API provides a RESTful interface for interacting with your AI employees, managing workflows,
-          and retrieving analytics programmatically.
+          The Agent47 API provides a RESTful interface for interacting with your AI employees.
+          <span className="block mt-2 font-semibold text-amber-600">Public API Access Launching Q4 2025.</span>
         </p>
       </header>
 
