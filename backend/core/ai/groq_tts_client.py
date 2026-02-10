@@ -32,6 +32,11 @@ ARABIC_VOICES = [
     "arabic-male-1", "arabic-male-2", "arabic-female-1", "arabic-female-2"
 ]
 
+# African voices (shared from English pool for now)
+AFRICAN_VOICES = [
+    "onyx", "echo", "nova", "shimmer" # Using clearer voices for diverse accents
+]
+
 # Voice mapping for common styles
 VOICE_STYLE_MAPPING = {
     "professional": "alloy",
@@ -155,12 +160,6 @@ class GroqTTSClient:
             self._health_status = "error"
             return {"healthy": False, "error": str(e)}
     
-# African voices (shared from English pool for now, but with specific mapping if available)
-AFRICAN_VOICES = [
-    "onyx", "echo", "nova", "shimmer" # Using clearer voices for diverse accents
-]
-
-# ...
 
     def get_available_voices(self, language: str = "en") -> List[str]:
         """Get available voices for a given language"""
