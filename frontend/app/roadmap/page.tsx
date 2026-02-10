@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Check, ChevronDown, ChevronUp, Calendar, Target, Zap, Rocket, Sparkles } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import DocsLayout from "@/components/docs-layout"
+import { cn } from "@/lib/utils"
 
 interface Member {
   name: string
