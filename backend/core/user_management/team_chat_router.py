@@ -24,7 +24,7 @@ router = APIRouter(prefix="/api/v1/team/chat", tags=["team-chat"])
 
 async def get_db():
     """Get database session"""
-    db = await get_database()
+    db = get_database()
     async with db.get_session() as session:
         yield session
 

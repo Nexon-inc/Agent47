@@ -49,7 +49,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                             from ..database import get_database
                             from ..database.models import User, UserTier
                             from sqlalchemy import select
-                            db = await get_database()
+                            db = get_database()
                             async with db.get_session() as session:
                                 result = await session.execute(select(User).where(User.email == user_email))
                                 db_user = result.scalar_one_or_none()

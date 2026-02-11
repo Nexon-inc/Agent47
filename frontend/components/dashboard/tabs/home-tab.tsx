@@ -947,298 +947,186 @@ export default function HomeTab() {
       </div>
 
       {/* Main Chat Content        {/* Chat History Area */}
-      <div className="flex-1 overflow-y-auto pt-24 pb-48 custom-scrollbar bg-white">
-        <div className="max-w-4xl mx-auto px-4 w-full">
-          {chatMessages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-1000">
-              <div className="h-20 w-20 bg-slate-50 rounded-full flex items-center justify-center border border-slate-100 mb-8 shadow-sm">
-                <Sparkles className="h-10 w-10 text-emerald-500" />
-              </div>
-              <h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">How can I help you today?</h3>
-              <p className="text-slate-500 max-w-sm text-lg font-medium leading-relaxed mb-8">
-                Your AI-powered business command center is ready.
+      {/* Main Command Center Content */}
+      <div className="flex-1 overflow-y-auto px-6 py-8 bg-slate-50/30">
+        <div className="max-w-6xl mx-auto space-y-8">
+
+          {/* Welcome & Status Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">
+                Intelligence <span className="text-emerald-600">Hub</span>
+              </h1>
+              <p className="text-slate-500 font-medium text-lg max-w-xl leading-relaxed">
+                Your AI-powered business command center. Monitor performance, coordinate specialists, and scale operations.
               </p>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mt-4">
-                {[
-                  "Optimize my social media engagement",
-                  "Create a lead generation strategy",
-                  "Analyze my competitor's presence",
-                  "Draft a content repurposing plan"
-                ].map((prompt, i) => (
-                  <Button
-                    key={i}
-                    variant="outline"
-                    onClick={() => {
-                      setMessage(prompt)
-                      const input = document.getElementById('chat-input-home')
-                      if (input) input.focus()
-                    }}
-                    className="justify-start text-left h-auto py-3 px-4 rounded-xl border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all text-slate-600 font-medium text-sm"
-                  >
-                    {prompt}
-                  </Button>
-                ))}
-              </div>
             </div>
-          ) : (
-            chatMessages.map((msg: any, index: number) => {
-              const agent = msg.agentId ? agents.find(a => a.id === msg.agentId) : null
-              const isUserMessage = msg.type === "user"
-              const isSystemMessage = msg.type === "system"
-              const isThinking = msg.type === "thinking"
-              const isSameAuthor = index > 0 && chatMessages[index - 1].agentId === msg.agentId && chatMessages[index - 1].type === msg.type
-
-              return (
-                <div
-                  key={msg.id}
-                  className={cn(
-                    "flex w-full mb-8 animate-in fade-in slide-in-from-bottom-2 duration-300",
-                    isUserMessage ? "justify-end" : "justify-start"
-                  )}
-                >
-                  <div className={cn(
-                    "flex items-start max-w-[90%] sm:max-w-[85%] lg:max-w-[80%] space-x-4",
-                    isUserMessage && "flex-row-reverse space-x-reverse"
-                  )}>
-                    {/* Avatar */}
-                    <div className="flex-shrink-0 mt-1">
-                      {agent ? (
-                        <div className={cn(
-                          "h-10 w-10 rounded-full flex items-center justify-center border border-slate-100 shadow-sm bg-white",
-                          isThinking && "animate-pulse ring-2 ring-emerald-50"
-                        )}>
-                          <agent.icon className={cn("h-5 w-5", agent.color.replace('bg-', 'text-'))} />
-                        </div>
-                      ) : isUserMessage ? (
-                        <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm overflow-hidden">
-                          {user?.avatar_url ? (
-                            <img src={user.avatar_url} alt={user.username} className="h-full w-full object-cover" />
-                          ) : (
-                            <User className="h-5 w-5 text-slate-400" />
-                          )}
-                        </div>
-                      ) : isSystemMessage ? (
-                        <div className="h-10 w-10 rounded-full bg-amber-50 flex items-center justify-center border border-amber-200">
-                          <AlertCircle className="h-5 w-5 text-amber-600" />
-                        </div>
-                      ) : null}
+            <div className="flex items-center space-x-3 bg-white border border-slate-100 p-2 rounded-2xl shadow-sm">
+              <div className="flex -space-x-2">
+                {userAgents.slice(0, 3).map((ua, i) => {
+                  const a = agents.find(ag => ag.id === ua.agent_id);
+                  return (
+                    <div key={i} className={cn("h-8 w-8 rounded-full border-2 border-white flex items-center justify-center shadow-sm text-white", a?.color)}>
+                      {a && <a.icon className="h-4 w-4" />}
                     </div>
-
-                    {/* Bubble & Content */}
-                    <div className={cn(
-                      "flex flex-col group",
-                      isUserMessage ? "items-end" : "items-start"
-                    )}>
-                      {/* Bubble with specific Grok styling */}
-                      <div className={cn(
-                        "px-6 py-4 text-[16px] leading-relaxed shadow-sm",
-                        isUserMessage
-                          ? "bg-[#f1f1f1] text-[#1a1a1a] rounded-3xl rounded-tr-sm border border-transparent"
-                          : "bg-white text-[#0d0d0d] border border-[#e5e7eb] rounded-3xl rounded-tl-sm"
-                      )}>
-                        {isThinking ? (
-                          <div className="space-y-4 min-w-[280px]">
-                            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                              <div className="flex items-center space-x-2.5 text-emerald-600">
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                                <span className="text-[12px] font-bold uppercase tracking-widest">{msg.content}</span>
-                              </div>
-                            </div>
-
-                            {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
-                              <div className="space-y-3 pt-1">
-                                {msg.thinkingSteps.map((step: string, i: number) => {
-                                  const isLast = i === msg.thinkingSteps.length - 1
-                                  const getIcon = (text: string) => {
-                                    if (text.toLowerCase().includes('search')) return <Search className="h-3.5 w-3.5" />
-                                    if (text.toLowerCase().includes('plan')) return <Target className="h-3.5 w-3.5" />
-                                    if (text.toLowerCase().includes('task')) return <CheckCircle2 className="h-3.5 w-3.5" />
-                                    return <Activity className="h-3.5 w-3.5" />
-                                  }
-
-                                  return (
-                                    <motion.div
-                                      key={i}
-                                      initial={{ opacity: 0, x: -10 }}
-                                      animate={{ opacity: 1, x: 0 }}
-                                      transition={{ delay: i * 0.1 }}
-                                      className="flex items-start space-x-3"
-                                    >
-                                      <div className={cn(
-                                        "h-6 w-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5",
-                                        isLast ? "bg-emerald-100 text-emerald-600" : "bg-slate-50 text-slate-300"
-                                      )}>
-                                        {getIcon(step)}
-                                      </div>
-                                      <div className="flex-1">
-                                        <p className={cn(
-                                          "text-[13px] leading-snug",
-                                          isLast ? "text-slate-900 font-bold" : "text-slate-700 font-medium"
-                                        )}>
-                                          {step}
-                                        </p>
-                                      </div>
-                                    </motion.div>
-                                  )
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="prose prose-slate prose-lg max-w-none prose-p:leading-relaxed prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-100 prose-pre:rounded-2xl selection:bg-emerald-500/20">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                              {msg.content}
-                            </ReactMarkdown>
-                          </div>
-                        )}
-
-                        {/* Image Preview */}
-                        {msg.imageUrl && (
-                          <div className="mt-4 rounded-2xl overflow-hidden border border-slate-100 shadow-xl group relative max-w-md">
-                            <img src={msg.imageUrl} alt="AI Generated" className="w-full h-auto" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Button variant="secondary" size="sm" asChild className="rounded-full bg-white/90 text-slate-900 hover:bg-white">
-                                <a href={msg.imageUrl} target="_blank" rel="noopener noreferrer">View Full Size</a>
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Tooltip Metrics - Minimalist */}
-                      <div className="mt-2 flex items-center space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <span className="text-[11px] text-slate-500 font-bold tracking-widest uppercase">
-                          {formatTime(msg.timestamp.toISOString())}
-                        </span>
-                        <div className="flex items-center space-x-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-500 hover:text-emerald-500 hover:bg-emerald-50 rounded-full" onClick={() => handleCopyMessage(msg.content)}>
-                            <Copy className="h-3.5 w-3.5" />
-                          </Button>
-                          {isUserMessage && (
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-full" onClick={() => handleEditMessage(msg)}>
-                              <Pencil className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  );
+                })}
+              </div>
+              <div className="px-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Status</p>
+                <div className="flex items-center space-x-1.5">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-bold text-slate-900">{userAgents.length} Personnel Active</span>
                 </div>
-              )
-            })
-          )}
-          {isLoading && !chatMessages.some((m: any) => m.type === "thinking") && (
-            <div className="flex justify-start mb-8 pl-1">
-              <div className="h-10 w-10 rounded-full flex items-center justify-center border border-slate-100 bg-white shadow-sm">
-                <Loader2 className="h-5 w-5 text-emerald-500 animate-spin" />
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} className="h-1" />
-        </div>
-      </div>
-
-      {/* Floating Action Bar - Grok Minimalist Style */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-8 pt-4 bg-gradient-to-t from-white via-white/80 to-transparent">
-        <div className="max-w-3xl mx-auto w-full">
-          <div className="bg-white border border-slate-200 rounded-[32px] p-2 shadow-[0_10px_40px_rgba(0,0,0,0.04)] transition-all duration-300 focus-within:border-emerald-500 focus-within:shadow-[0_10px_40px_rgba(16,185,129,0.08)]">
-            <div className="flex items-end gap-2 px-2">
-              {/* Agent Quick Select */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10 text-emerald-500 hover:bg-emerald-50 rounded-full flex-shrink-0 mb-1 transition-colors">
-                    <PlusCircle className="h-6 w-6" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" side="top" sideOffset={12} className="w-72 bg-white border border-slate-100 p-2 rounded-3xl shadow-2xl">
-                  <DropdownMenuLabel className="text-[10px] uppercase tracking-widest font-black text-slate-400 px-4 py-3">Select Personnel</DropdownMenuLabel>
-                  <div className="max-h-[350px] overflow-y-auto space-y-1">
-                    {userAgents.map((ua: any) => {
-                      const a = agents.find(ag => ag.id === ua.agent_id)
-                      if (!a) return null
-                      const isSelected = selectedAgent?.id === a.id
-                      return (
-                        <DropdownMenuItem key={a.id} onClick={() => handleAgentSwitch(a.id)} className={cn(
-                          "rounded-2xl flex items-center gap-4 p-3 cursor-pointer focus:bg-slate-50",
-                          isSelected && "bg-emerald-50/50"
-                        )}>
-                          <div className={cn("h-10 w-10 rounded-full flex items-center justify-center bg-white border border-slate-100 shadow-sm", isSelected && "border-emerald-200 text-emerald-600")}>
-                            <a.icon className="h-5 w-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={cn("font-bold text-sm", isSelected ? "text-emerald-900" : "text-slate-700")}>{a.title}</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase truncate">Specialized Personnel</p>
-                          </div>
-                          {isSelected && <div className="h-2 w-2 rounded-full bg-emerald-500" />}
-                        </DropdownMenuItem>
-                      )
-                    })}
-                  </div>
-                  <DropdownMenuSeparator className="my-2 bg-slate-50" />
-                  <DropdownMenuItem onClick={() => handleIntercommunicate()} className="rounded-2xl p-3 flex items-center gap-4 text-emerald-600 focus:bg-emerald-50">
-                    <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                      <Network className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-black uppercase tracking-widest flex-1">Intercommunication</span>
-                    {intercommunicationEnabled && <span className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse" />}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Message Input - Auto-growing textarea or multiline-aware input */}
-              <div className="flex-1 min-h-[48px] flex items-center">
-                <Textarea
-                  id="chat-input-home"
-                  value={message}
-                  onChange={(e: any) => setMessage(e.target.value)}
-                  onKeyDown={(e: any) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault()
-                      handleSendMessage()
-                    }
-                  }}
-                  placeholder={isRecording ? "Listening..." : "Tell A47 anything..."}
-                  className="bg-transparent border-0 focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 min-h-[48px] max-h-[200px] text-[16px] py-3.5 px-2 font-medium resize-none scrollbar-hide"
-                  rows={1}
-                />
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-1 mb-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={isRecording ? stopRecording : startRecording}
-                  className={cn(
-                    "h-10 w-10 rounded-full transition-all",
-                    isRecording ? "text-red-500 bg-red-50 animate-pulse" : "text-slate-400 hover:text-emerald-500 hover:bg-emerald-50"
-                  )}
-                >
-                  <Mic className="h-5 w-5" />
-                </Button>
-
-                <label htmlFor="file-upload-home" className="cursor-pointer">
-                  <div className="h-10 w-10 flex items-center justify-center rounded-full text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all">
-                    <Paperclip className="h-5 w-5" />
-                  </div>
-                  <input id="file-upload-home" type="file" className="hidden" onChange={(e: any) => handleFileUpload(e)} />
-                </label>
-
-                <Button
-                  onClick={editingMessageId ? handleUpdateMessage : handleSendMessage}
-                  disabled={isLoading || !message.trim()}
-                  className="h-10 w-10 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl shadow-emerald-500/20 flex items-center justify-center transition-all active:scale-90 disabled:opacity-30 disabled:shadow-none ml-1"
-                >
-                  {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-                </Button>
               </div>
             </div>
           </div>
-          <div className="mt-4 text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300">
-              Agent47 Intelligence Engine • Digital Workforce Command
-            </p>
+
+          {/* Core Metrics Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card className="border-slate-100 shadow-sm rounded-[32px] overflow-hidden group hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-12 w-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                    <TrendingUp className="h-6 w-6" />
+                  </div>
+                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 rounded-lg">+12.4%</Badge>
+                </div>
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Growth Index</h3>
+                <p className="text-3xl font-black text-slate-900">84.2%</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-100 shadow-sm rounded-[32px] overflow-hidden group hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                    <Activity className="h-6 w-6" />
+                  </div>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 rounded-lg">Operational</Badge>
+                </div>
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Active Cycles</h3>
+                <p className="text-3xl font-black text-slate-900">4,281</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-100 shadow-sm rounded-[32px] overflow-hidden group hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-12 w-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600">
+                    <Target className="h-6 w-6" />
+                  </div>
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100 rounded-lg">98% Success</Badge>
+                </div>
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Mission Accuracy</h3>
+                <p className="text-3xl font-black text-slate-900">Elite</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-100 shadow-sm rounded-[32px] overflow-hidden group hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-12 w-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600">
+                    <Zap className="h-6 w-6" />
+                  </div>
+                  <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-100 rounded-lg">Fast</Badge>
+                </div>
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Avg. Response</h3>
+                <p className="text-3xl font-black text-slate-900">240ms</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Operational Area */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            {/* Strategy Room Entry */}
+            <Card className="lg:col-span-2 border-slate-100 shadow-sm rounded-[40px] overflow-hidden bg-white group border-2 border-transparent hover:border-emerald-500/20 transition-all">
+              <CardContent className="p-8">
+                <div className="flex flex-col md:flex-row gap-8 items-center">
+                  <div className="flex-1 space-y-4">
+                    <div className="inline-flex items-center space-x-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">
+                      <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Team Comms Active</span>
+                    </div>
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                      Coordinate your Digital Workforce from the Strategy Room
+                    </h2>
+                    <p className="text-slate-500 font-medium leading-relaxed">
+                      Cross-examine personnel, issue tactical commands, and monitor live operational feeds.
+                    </p>
+                    <Button
+                      onClick={() => window.location.href = "/dashboard?tab=team-chat"}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest text-xs px-8 h-12 rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition-all"
+                    >
+                      Enter Strategy Room
+                    </Button>
+                  </div>
+                  <div className="w-full md:w-64 h-64 bg-slate-50 rounded-[32px] border border-slate-100 flex items-center justify-center relative shadow-inner overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent" />
+                    <Bot className="h-24 w-24 text-emerald-100 animate-pulse" />
+                    <Network className="absolute bottom-8 right-8 h-12 w-12 text-emerald-200/50" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Personnel Status */}
+            <Card className="border-slate-100 shadow-sm rounded-[40px] overflow-hidden bg-slate-900 text-white">
+              <CardHeader className="p-8 pb-0">
+                <CardTitle className="text-lg font-black uppercase tracking-widest text-slate-400">Specialists Inline</CardTitle>
+                <CardDescription className="text-slate-500 font-bold uppercase text-[10px]">Neural Status Monitor</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8 pt-6">
+                <div className="space-y-6">
+                  {userAgents.slice(0, 4).map((ua) => {
+                    const a = agents.find(ag => ag.id === ua.agent_id);
+                    if (!a) return null;
+                    return (
+                      <div key={ua.id} className="flex items-center justify-between group">
+                        <div className="flex items-center space-x-4">
+                          <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shadow-lg", a.color)}>
+                            <a.icon className="h-5 w-5 text-white" />
+                          </div>
+                          <div>
+                            <p className="font-black text-sm tracking-tight">{a.name}</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">{a.title}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <div className="h-1 w-12 bg-slate-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-500 w-[85%] animate-pulse" />
+                          </div>
+                          <span className="text-[10px] font-black text-emerald-500 uppercase">Live</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <Button
+                    variant="ghost"
+                    onClick={() => window.location.href = "/dashboard?tab=agents-overview"}
+                    className="w-full bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl py-6 font-black uppercase tracking-widest text-[10px] mt-4 border border-slate-800"
+                  >
+                    View All Personnel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Footer Branding */}
+      <div className="px-6 py-8 border-t border-slate-100 bg-white">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-300">
+            Agent47 Intelligence Engine • Command Center v2.0
+          </p>
+          <div className="flex items-center space-x-6 text-[10px] font-black uppercase tracking-widest text-slate-500">
+            <a href="#" className="hover:text-emerald-600 transition-colors">Documentation</a>
+            <a href="#" className="hover:text-emerald-600 transition-colors">API Access</a>
+            <a href="#" className="hover:text-emerald-600 transition-colors">System Status</a>
           </div>
         </div>
       </div>

@@ -462,3 +462,12 @@ class DatabaseAdminManager(LoggerMixin):
         if self.database:
             await self.database.close()
         self.logger.info("DatabaseAdminManager shutdown complete")
+
+# Global instance for admin database management
+_db_admin_manager = DatabaseAdminManager()
+
+async def get_database_admin_manager() -> DatabaseAdminManager:
+    """Async accessor for the database admin manager"""
+    if not _db_admin_manager.database:
+        await _db_admin_manager.initialize()
+    return _db_admin_manager

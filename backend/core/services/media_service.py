@@ -119,7 +119,7 @@ class MediaService:
             
             if user_id:
                 try:
-                    db = await get_database()
+                    db = get_database()
                     async with db.get_session() as session:
                         from sqlalchemy import text, select
                         from core.database.models import Team, TeamMember

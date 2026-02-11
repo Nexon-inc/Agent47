@@ -28,14 +28,14 @@ const navigationItems = [
     href: "/dashboard?tab=home",
   },
   {
+    title: "Strategy Room",
+    icon: Users,
+    href: "/dashboard?tab=team-chat",
+  },
+  {
     title: "AI Personnel",
     icon: Bot,
     href: "/dashboard?tab=agents-overview",
-  },
-  {
-    title: "Teams",
-    icon: Users,
-    href: "/dashboard?tab=team-chat",
   },
   {
     title: "Platforms",
@@ -46,11 +46,6 @@ const navigationItems = [
     title: "Tools",
     icon: Zap,
     href: "/dashboard?tab=tools-automation-overview",
-  },
-  {
-    title: "Talent Recruitment",
-    icon: UserPlus,
-    href: "/dashboard?tab=explore-agents",
   },
   {
     title: "Organization",

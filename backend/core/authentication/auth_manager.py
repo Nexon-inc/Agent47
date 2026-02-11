@@ -324,7 +324,7 @@ class AuthManager:
         if await should_get_pro_tier(current_user.email):
             if current_user.tier != UserTier.PRO:
                 # Get database session to update tier
-                db = await get_database()
+                db = get_database()
                 async with db.get_session() as session:
                     from sqlalchemy import select
                     result = await session.execute(select(User).where(User.id == current_user.id))

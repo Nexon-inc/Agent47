@@ -130,7 +130,7 @@ async def get_call_history(
     try:
         # Query call history from database
         from ..database import get_database
-        db = await get_database()
+        db = get_database()
         async with db.get_session() as session:
             from sqlalchemy import text
             result = await session.execute(
@@ -176,7 +176,7 @@ async def get_call_details(
     try:
         # Query call details from database
         from ..database import get_database
-        db = await get_database()
+        db = get_database()
         async with db.get_session() as session:
             from sqlalchemy import text
             result = await session.execute(

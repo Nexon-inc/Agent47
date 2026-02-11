@@ -275,7 +275,7 @@ async def broadcast_team_chat_message(team_id: int, message: Dict[str, Any]):
     from sqlalchemy import select, and_
     from core.database.models import TeamMember
     
-    db = await get_database()
+    db = get_database()
     async with db.get_session() as session:
         result = await session.execute(
             select(TeamMember.user_id).where(

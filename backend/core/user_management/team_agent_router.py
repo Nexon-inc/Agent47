@@ -22,7 +22,7 @@ router = APIRouter(prefix="/api/v1/team/agent-requests", tags=["team-agent-reque
 
 async def get_db():
     """Get database session"""
-    db = await get_database()
+    db = get_database()
     async with db.get_session() as session:
         yield session
 
