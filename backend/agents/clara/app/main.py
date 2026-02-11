@@ -85,6 +85,7 @@ def build_app() -> FastAPI:
         """Health check endpoint to verify Clara is running"""
         return JSONResponse(
             status_code=200,
+            content={
                 "status": "healthy",
                 "employee": "Clara",
                 "version": "1.0.0",
