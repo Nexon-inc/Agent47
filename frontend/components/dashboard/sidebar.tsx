@@ -19,7 +19,7 @@ import {
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useRouter } from "next/navigation"
 
-import { Home, BarChart3, Globe, Zap, Settings, Inbox, Users, LogOut, Bot, History, UserPlus, TrendingUp } from "lucide-react"
+import { Home, BarChart3, Globe, Zap, Settings, Inbox, Users, LogOut, Bot, History, UserPlus, TrendingUp, MessageSquare } from "lucide-react"
 
 const navigationItems = [
   {
@@ -29,7 +29,7 @@ const navigationItems = [
   },
   {
     title: "Strategy Room",
-    icon: Users,
+    icon: MessageSquare,
     href: "/dashboard?tab=team-chat",
   },
   {

@@ -31,6 +31,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
+import { useUserStore } from "@/lib/stores/user-store"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { websocketService } from "@/lib/websocket-service"
@@ -118,6 +119,8 @@ export default function TeamChatTab() {
   const [isRecording, setIsRecording] = useState(false)
   const [hasTeam, setHasTeam] = useState(true)
   const [isCoordinatorActive, setIsCoordinatorActive] = useState(false)
+  const [userSelectedEmployees, setUserSelectedEmployees] = useState<any[]>([])
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const unsubscribeRef = useRef<(() => void) | null>(null)
@@ -131,6 +134,11 @@ export default function TeamChatTab() {
       })
     }
   }, [messages])
+
+  // Load user's selected AI employees
+  useEffect(() => {
+    loadUserSelectedEmployees()
+  }, [])
 
   // Load initial messages and setup WebSocket
   useEffect(() => {
@@ -161,6 +169,19 @@ export default function TeamChatTab() {
       }
     }
   }, [])
+
+  const loadUserSelectedEmployees = async () => {
+    try {
+      setIsLoadingEmployees(true)
+      const response = await apiClient.getSelectedAgents()
+      setUserSelectedEmployees(response || [])
+    } catch (error) {
+      console.error("Failed to load selected AI employees:", error)
+      setUserSelectedEmployees([])
+    } finally {
+      setIsLoadingEmployees(false)
+    }
+  }
 
   // Handle slash command detection
   useEffect(() => {
@@ -326,6 +347,18 @@ export default function TeamChatTab() {
   }
 
   const handleAgentSelect = (agent: Agent) => {
+    // Check if this employee is available (hired and active)
+    const isAvailable = availableEmployees.some(a => a.key === agent.key)
+
+    if (!isAvailable) {
+      toast({
+        title: "AI Employee Not Available",
+        description: `${agent.name} is not in your workforce. Visit AI Personnel to hire them.`,
+        variant: "destructive"
+      })
+      return
+    }
+
     setInputMessage(`/${agent.key} `)
     setShowAgentAutocomplete(false)
     inputRef.current?.focus()
@@ -351,7 +384,15 @@ export default function TeamChatTab() {
   }
 
 
-  const filteredAgents = AVAILABLE_AGENTS.filter(
+  // Filter to show only user's hired and active AI employees
+  const availableEmployees = AVAILABLE_AGENTS.filter(agent =>
+    userSelectedEmployees.some(emp =>
+      emp.agent_id === agent.key &&
+      emp.status === 'active'
+    )
+  )
+
+  const filteredAgents = availableEmployees.filter(
     (agent) =>
       agent.key.toLowerCase().startsWith(autocompleteQuery) ||
       agent.name.toLowerCase().startsWith(autocompleteQuery)
@@ -388,31 +429,43 @@ export default function TeamChatTab() {
 
         {/* Employee Activity Bar */}
         <div className="px-6 py-3 border-t border-slate-100 flex items-center space-x-6 overflow-x-auto no-scrollbar scroll-smooth">
-          {AVAILABLE_AGENTS.map((agent) => (
-            <button
-              key={agent.key}
-              onClick={() => handleAgentSelect(agent)}
-              className="flex items-center space-x-2 group shrink-0 transition-opacity hover:opacity-100 opacity-80"
-            >
-              <div className={cn(
-                "h-8 w-8 rounded-lg flex items-center justify-center border transition-all text-sm",
-                agent.color.replace("text-", "border-").replace("-500", "-200"),
-                agent.color.replace("text-", "bg-").replace("-500", "-50/50"),
-                "group-hover:scale-110 group-hover:shadow-sm"
-              )}>
-                {agent.icon}
-              </div>
-              <div className="flex flex-col items-start leading-none">
-                <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{agent.name}</span>
-                <div className="flex items-center space-x-1 mt-0.5">
-                  <div className={cn("h-1 w-1 rounded-full", isCoordinatorActive ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
-                  <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
-                    {isCoordinatorActive ? "Synthesizing" : "Ready"}
-                  </span>
+          {isLoadingEmployees ? (
+            <div className="flex items-center space-x-2 text-slate-400">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span className="text-xs font-medium">Loading AI Personnel...</span>
+            </div>
+          ) : availableEmployees.length === 0 ? (
+            <div className="flex items-center space-x-2 text-slate-400">
+              <AlertCircle className="h-4 w-4" />
+              <span className="text-xs font-medium">No AI Personnel hired. Visit AI Personnel tab to hire your team.</span>
+            </div>
+          ) : (
+            availableEmployees.map((agent) => (
+              <button
+                key={agent.key}
+                onClick={() => handleAgentSelect(agent)}
+                className="flex items-center space-x-2 group shrink-0 transition-opacity hover:opacity-100 opacity-80"
+              >
+                <div className={cn(
+                  "h-8 w-8 rounded-lg flex items-center justify-center border transition-all text-sm",
+                  agent.color.replace("text-", "border-").replace("-500", "-200"),
+                  agent.color.replace("text-", "bg-").replace("-500", "-50/50"),
+                  "group-hover:scale-110 group-hover:shadow-sm"
+                )}>
+                  {agent.icon}
                 </div>
-              </div>
-            </button>
-          ))}
+                <div className="flex flex-col items-start leading-none">
+                  <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{agent.name}</span>
+                  <div className="flex items-center space-x-1 mt-0.5">
+                    <div className={cn("h-1 w-1 rounded-full", isCoordinatorActive ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+                      {isCoordinatorActive ? "Synthesizing" : "Ready"}
+                    </span>
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
         </div>
       </div>
 
@@ -424,28 +477,46 @@ export default function TeamChatTab() {
               <Loader2 className="h-6 w-6 animate-spin text-slate-300" />
             </div>
           ) : messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200">
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                <MessageSquare className="h-8 w-8 text-slate-200" />
+            availableEmployees.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
+                  <Users className="h-8 w-8 text-slate-200" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">No AI Personnel Hired</h3>
+                <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed font-medium">
+                  Visit the AI Personnel tab to hire your first employee and start coordinating your digital workforce.
+                </p>
+                <Button
+                  onClick={() => window.location.href = "/dashboard?tab=agents-overview"}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest text-xs px-8 h-12 rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition-all"
+                >
+                  Hire AI Personnel
+                </Button>
               </div>
-              <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Strategy Room Initialized</h3>
-              <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed font-medium">
-                The secure line is open. Brief your workforce or select an employee below to begin the mission.
-              </p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                {AVAILABLE_AGENTS.map((agent) => (
-                  <Button
-                    key={agent.key}
-                    variant="outline"
-                    onClick={() => handleAgentSelect(agent)}
-                    className="h-12 bg-white border-slate-200 text-slate-900 hover:bg-slate-50 rounded-xl font-black uppercase tracking-tight text-[10px] px-5 group"
-                  >
-                    <span className="mr-2 text-base group-hover:scale-125 transition-transform">{agent.icon}</span>
-                    Call {agent.name}
-                  </Button>
-                ))}
+            ) : (
+              <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
+                  <MessageSquare className="h-8 w-8 text-slate-200" />
+                </div>
+                <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Strategy Room Initialized</h3>
+                <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed font-medium">
+                  The secure line is open. Brief your workforce or select an employee below to begin the mission.
+                </p>
+                <div className="flex flex-wrap gap-3 justify-center">
+                  {availableEmployees.map((agent) => (
+                    <Button
+                      key={agent.key}
+                      variant="outline"
+                      onClick={() => handleAgentSelect(agent)}
+                      className="h-12 bg-white border-slate-200 text-slate-900 hover:bg-slate-50 rounded-xl font-black uppercase tracking-tight text-[10px] px-5 group"
+                    >
+                      <span className="mr-2 text-base group-hover:scale-125 transition-transform">{agent.icon}</span>
+                      Call {agent.name}
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )
           ) : (
             messages.map((message, index) => {
               const isAgent = !!message.agent_key
@@ -681,7 +752,7 @@ export default function TeamChatTab() {
                     <div className="flex items-center space-x-2">
                       <span className="font-semibold text-slate-900">{agent.name}</span>
                       <div className="bg-slate-100 border border-slate-200 text-slate-500 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md font-bold">
-                        Agent
+                        Employee
                       </div>
                     </div>
                     <p className="text-xs text-slate-500">{agent.description}</p>
@@ -701,8 +772,8 @@ export default function TeamChatTab() {
                 onKeyDown={handleKeyPress}
                 placeholder={
                   showAgentAutocomplete
-                    ? "Select an agent..."
-                    : "Message #team-chat or /agent-name"
+                    ? "Select an employee..."
+                    : "Message #strategy-room or /employee-name"
                 }
                 className="bg-transparent border-0 focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 h-12 text-base px-4"
               />
@@ -744,7 +815,7 @@ export default function TeamChatTab() {
           <div className="mt-3 text-center">
             <span className="inline-flex items-center space-x-2 text-[10px] uppercase tracking-widest text-slate-400 font-bold">
               <Sparkles className="h-3 w-3 text-indigo-500" />
-              <span>Type /agent-name to call an assistant</span>
+              <span>Type /employee-name to call an employee</span>
             </span>
           </div>
         </div>

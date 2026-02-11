@@ -25,7 +25,7 @@ import SocialMediaTab from "@/components/dashboard/tabs/social-media-tab"
 import MarketingTab from "@/components/dashboard/tabs/marketing-tab"
 import MyTeamTab from "@/components/dashboard/tabs/my-agents-tab"
 import RecruitmentTab from "@/components/dashboard/tabs/explore-agents-tab"
-import TeamChatTab from "@/components/dashboard/tabs/team-chat-tab"
+import TeamChatTab from "@/components/dashboard/tabs/chat-tab"
 import UpgradeTab from "@/components/dashboard/tabs/upgrade-tab"
 
 // Lazy load individual agent tabs (code splitting)

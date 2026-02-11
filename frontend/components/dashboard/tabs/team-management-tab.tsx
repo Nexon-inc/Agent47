@@ -123,7 +123,7 @@ import {
   Megaphone as MegaphoneIcon,
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import TeamChatTab from "./team-chat-tab"
+import TeamChatTab from "./chat-tab"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useUserStore } from "@/lib/stores/user-store"
@@ -153,8 +153,8 @@ interface TeamMember {
 }
 
 interface TeamInvitation {
-    id: number
-    email: string
+  id: number
+  email: string
   role: string
   status: string
   invited_by: number
@@ -195,7 +195,7 @@ interface Task {
 export default function TeamManagementTab() {
   const { user } = useAuthStore()
   const { userPlan } = useUserStore()
-  
+
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([])
   const [teamInvitations, setTeamInvitations] = useState<TeamInvitation[]>([])
   const [teamStats, setTeamStats] = useState<TeamStats | null>(null)
@@ -203,28 +203,28 @@ export default function TeamManagementTab() {
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
-  
+
   // Dialog states
   const [showInviteDialog, setShowInviteDialog] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
-  
+
   // Form states
   const [inviteEmail, setInviteEmail] = useState("")
   const [inviteRole, setInviteRole] = useState("member")
   const [inviteMessage, setInviteMessage] = useState("")
   const [isInviting, setIsInviting] = useState(false)
-  
+
   // Search and filter states
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
   const [roleFilter, setRoleFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
-  
+
   // Bulk selection states
   const [selectedMembers, setSelectedMembers] = useState<number[]>([])
   const [isSelecting, setIsSelecting] = useState(false)
-  
+
   const { toast } = useToast()
 
   // Debounce search term
@@ -255,7 +255,7 @@ export default function TeamManagementTab() {
   // Load data on mount
   useEffect(() => {
     if (userPlan !== "free") {
-    loadTeamData()
+      loadTeamData()
     } else {
       setIsLoading(false)
     }
@@ -265,7 +265,7 @@ export default function TeamManagementTab() {
     try {
       setIsLoading(true)
       setIsRefreshing(true)
-      
+
       // Load team data in parallel
       const [membersResponse, invitationsResponse, statsResponse, tasksResponse] = await Promise.all([
         apiClient.get("/api/team/members").catch(() => ({ data: [] })),
@@ -273,13 +273,13 @@ export default function TeamManagementTab() {
         apiClient.get("/api/team/stats").catch(() => ({ data: null })),
         apiClient.get("/api/team/tasks").catch(() => ({ data: [] }))
       ])
-      
+
       setTeamMembers(membersResponse.data || [])
       setTeamInvitations(invitationsResponse.data || [])
       setTeamStats(statsResponse.data)
       setTeamTasks(tasksResponse.data || [])
       setLastUpdated(new Date())
-      
+
     } catch (error) {
       console.error("Failed to load team data:", error)
       // Set empty data when API is not available
@@ -294,7 +294,7 @@ export default function TeamManagementTab() {
     }
   }
 
-      const handleInviteMember = async () => {
+  const handleInviteMember = async () => {
     if (!inviteEmail || !canInviteMembers) return
 
     try {
@@ -304,18 +304,18 @@ export default function TeamManagementTab() {
         role: inviteRole,
         message: inviteMessage
       })
-      
+
       toast({
         title: "Invitation sent",
         description: `Invitation sent to ${inviteEmail}`,
       })
-      
+
       // Reset form
       setInviteEmail("")
       setInviteRole("member")
       setInviteMessage("")
       setShowInviteDialog(false)
-      
+
       // Reload data
       await loadTeamData()
     } catch (error) {
@@ -389,7 +389,7 @@ export default function TeamManagementTab() {
   const filteredMembers = useMemo(() => {
     return teamMembers.filter(member => {
       const matchesSearch = member.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-                           member.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+        member.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
       const matchesRole = roleFilter === "all" || member.role === roleFilter
       const matchesStatus = statusFilter === "all" || member.status === statusFilter
       return matchesSearch && matchesRole && matchesStatus
@@ -397,8 +397,8 @@ export default function TeamManagementTab() {
   }, [teamMembers, debouncedSearchTerm, roleFilter, statusFilter])
 
   const handleSelectMember = (memberId: number) => {
-    setSelectedMembers(prev => 
-      prev.includes(memberId) 
+    setSelectedMembers(prev =>
+      prev.includes(memberId)
         ? prev.filter(id => id !== memberId)
         : [...prev, memberId]
     )
@@ -442,12 +442,12 @@ export default function TeamManagementTab() {
       })
 
       await Promise.all(promises)
-      
+
       toast({
         title: "Success",
         description: `${selectedMembers.length} member(s) updated successfully`,
       })
-      
+
       setSelectedMembers([])
       setIsSelecting(false)
       await loadTeamData()
@@ -523,14 +523,14 @@ export default function TeamManagementTab() {
           <div className="p-2 bg-blue-100 rounded-lg">
             <Users className="h-6 w-6 text-blue-600" />
           </div>
-        <div>
+          <div>
             <h2 className="text-2xl font-bold text-gray-900">Team Management</h2>
             <p className="text-gray-600">Manage your team members and collaborate effectively</p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             onClick={loadTeamData}
             disabled={isRefreshing}
@@ -540,30 +540,30 @@ export default function TeamManagementTab() {
           </Button>
           {canInviteMembers && (
             <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
-            <DialogTrigger asChild>
-              <Button>
+              <DialogTrigger asChild>
+                <Button>
                   <UserPlus className="h-4 w-4 mr-2" />
                   Invite Member
-              </Button>
-            </DialogTrigger>
+                </Button>
+              </DialogTrigger>
               <DialogContent>
-              <DialogHeader>
+                <DialogHeader>
                   <DialogTitle>Invite Team Member</DialogTitle>
-                <DialogDescription>
+                  <DialogDescription>
                     Send an invitation to join your team. You can invite up to {tierLimits.maxMembers} members on your {userPlan} plan.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
                   <div>
                     <Label htmlFor="email">Email Address</Label>
-                  <Input
+                    <Input
                       id="email"
                       type="email"
                       value={inviteEmail}
                       onChange={(e) => setInviteEmail(e.target.value)}
                       placeholder="colleague@company.com"
-                  />
-                </div>
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="role">Role</Label>
                     <Select value={inviteRole} onValueChange={setInviteRole}>
@@ -586,12 +586,12 @@ export default function TeamManagementTab() {
                       placeholder="Welcome to our team!"
                       rows={3}
                     />
+                  </div>
                 </div>
-              </div>
-              <DialogFooter>
+                <DialogFooter>
                   <Button variant="outline" onClick={() => setShowInviteDialog(false)}>
-                  Cancel
-                </Button>
+                    Cancel
+                  </Button>
                   <Button onClick={handleInviteMember} disabled={isInviting || !inviteEmail}>
                     {isInviting ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -599,10 +599,10 @@ export default function TeamManagementTab() {
                       <Send className="h-4 w-4 mr-2" />
                     )}
                     Send Invitation
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           )}
           {lastUpdated && (
             <span className="text-sm text-gray-500">
@@ -627,358 +627,358 @@ export default function TeamManagementTab() {
 
         <TabsContent value="members" className="space-y-6 mt-6">
           {/* Stats Overview */}
-      {teamStats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Users className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Team Members</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {teamStats.total_members}/{tierLimits.maxMembers}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active Members</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {teamStats.active_members}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Clock className="h-8 w-8 text-yellow-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pending Invitations</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {teamStats.pending_invitations}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <Target className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Completed Tasks</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {teamStats.completed_tasks}/{teamStats.total_tasks}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Pending Invitations */}
-      {teamInvitations.length > 0 && (
-        <Card>
-                <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Mail className="h-5 w-5" />
-              <span>Pending Invitations</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {teamInvitations.map((invitation) => (
-                <div key={invitation.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Avatar>
-                        <AvatarFallback>
-                          {invitation.email.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{invitation.email}</p>
-                        <p className="text-sm text-gray-600">
-                          Role: {invitation.role} • Invited {new Date(invitation.invited_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge className={getStatusColor(invitation.status)}>
-                        {invitation.status}
-                    </Badge>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleCancelInvitation(invitation.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+          {teamStats && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <Users className="h-8 w-8 text-green-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Team Members</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {teamStats.total_members}/{tierLimits.maxMembers}
+                      </p>
                     </div>
                   </div>
-                  {invitation.message && (
-                    <p className="text-sm text-gray-600 mt-2">{invitation.message}</p>
-                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Active Members</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {teamStats.active_members}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <Clock className="h-8 w-8 text-yellow-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Pending Invitations</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {teamStats.pending_invitations}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center">
+                    <Target className="h-8 w-8 text-green-600" />
+                    <div className="ml-4">
+                      <p className="text-sm font-medium text-gray-600">Completed Tasks</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {teamStats.completed_tasks}/{teamStats.total_tasks}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Pending Invitations */}
+          {teamInvitations.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Mail className="h-5 w-5" />
+                  <span>Pending Invitations</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {teamInvitations.map((invitation) => (
+                    <div key={invitation.id} className="border rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Avatar>
+                            <AvatarFallback>
+                              {invitation.email.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{invitation.email}</p>
+                            <p className="text-sm text-gray-600">
+                              Role: {invitation.role} • Invited {new Date(invitation.invited_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={getStatusColor(invitation.status)}>
+                            {invitation.status}
+                          </Badge>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCancelInvitation(invitation.id)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {invitation.message && (
+                        <p className="text-sm text-gray-600 mt-2">{invitation.message}</p>
+                      )}
+                    </div>
+                  ))}
                 </div>
-            ))}
-          </div>
               </CardContent>
             </Card>
           )}
 
-      {/* Team Members */}
-      <Card>
-        <CardHeader>
+          {/* Team Members */}
+          <Card>
+            <CardHeader>
               <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
-              {isSelecting && (
-                <Checkbox
-                  checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
-                  onCheckedChange={handleSelectAll}
-                  className="mr-2"
-                />
-              )}
-              <Users className="h-5 w-5" />
-              <span>Team Members</span>
-              {selectedMembers.length > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {selectedMembers.length} selected
-                </Badge>
-              )}
-            </CardTitle>
+                <CardTitle className="flex items-center space-x-2">
+                  {isSelecting && (
+                    <Checkbox
+                      checked={selectedMembers.length === filteredMembers.length && filteredMembers.length > 0}
+                      onCheckedChange={handleSelectAll}
+                      className="mr-2"
+                    />
+                  )}
+                  <Users className="h-5 w-5" />
+                  <span>Team Members</span>
+                  {selectedMembers.length > 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      {selectedMembers.length} selected
+                    </Badge>
+                  )}
+                </CardTitle>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2 w-full sm:w-auto">
-              <Input
-                placeholder="Search members..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full sm:w-48 lg:w-64"
-              />
-              <div className="flex gap-2">
-                <Select value={roleFilter} onValueChange={setRoleFilter}>
+                  <Input
+                    placeholder="Search members..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full sm:w-48 lg:w-64"
+                  />
+                  <div className="flex gap-2">
+                    <Select value={roleFilter} onValueChange={setRoleFilter}>
                       <SelectTrigger className="w-full sm:w-28 lg:w-32">
-                    <SelectValue />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Roles</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
+                        <SelectItem value="manager">Manager</SelectItem>
                         <SelectItem value="member">Member</SelectItem>
-                    <SelectItem value="viewer">Viewer</SelectItem>
+                        <SelectItem value="viewer">Viewer</SelectItem>
                       </SelectContent>
                     </Select>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
                       <SelectTrigger className="w-full sm:w-28 lg:w-32">
-                    <SelectValue />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Status</SelectItem>
                         <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setIsSelecting(!isSelecting)
+                        setSelectedMembers([])
+                      }}
+                      className="whitespace-nowrap"
+                    >
+                      {isSelecting ? "Cancel" : "Select"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              {isSelecting && selectedMembers.length > 0 && (
+                <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2 p-3 bg-green-50 rounded-lg">
+                  <span className="text-sm font-medium">
+                    {selectedMembers.length} member(s) selected
+                  </span>
+                  <div className="flex flex-wrap gap-2 sm:ml-auto">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleBulkAction("activate")}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      Activate
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleBulkAction("deactivate")}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      Deactivate
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" variant="outline" className="flex-1 sm:flex-initial">
+                          <span className="hidden sm:inline">Change Role</span>
+                          <span className="sm:hidden">Role</span>
+                          <ChevronDown className="w-4 h-4 ml-2" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => handleBulkAction("changeRole", "member")}>
+                          Member
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleBulkAction("changeRole", "manager")}>
+                          Manager
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleBulkAction("changeRole", "admin")}>
+                          Admin
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleBulkAction("remove")}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      <Trash2 className="w-4 h-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Remove</span>
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardHeader>
+            <CardContent>
+              {filteredMembers.length > 0 ? (
+                <div className="space-y-4">
+                  {filteredMembers.map((member) => (
+                    <div key={member.id} className={`border rounded-lg p-4 ${selectedMembers.includes(member.id) ? 'bg-green-50 border-green-300' : ''}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          {isSelecting && (
+                            <Checkbox
+                              checked={selectedMembers.includes(member.id)}
+                              onCheckedChange={() => handleSelectMember(member.id)}
+                            />
+                          )}
+                          <Avatar>
+                            <AvatarImage src={member.avatar_url} />
+                            <AvatarFallback>
+                              {member.name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">{member.name}</p>
+                            <p className="text-sm text-gray-600">{member.email}</p>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Badge className={getRoleColor(member.role)}>
+                                {member.role}
+                              </Badge>
+                              <Badge className={getStatusColor(member.status)}>
+                                {member.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <div className="text-right text-sm">
+                            <p className="text-gray-600">Tasks Completed</p>
+                            <p className="font-medium">{member.tasks_completed}</p>
+                          </div>
+                          <div className="text-right text-sm">
+                            <p className="text-gray-600">Performance</p>
+                            <p className="font-medium">{member.performance_score}%</p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Select
+                              value={member.role}
+                              onValueChange={(newRole) => handleUpdateMemberRole(member.id, newRole)}
+                            >
+                              <SelectTrigger className="w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="member">Member</SelectItem>
+                                <SelectItem value="manager">Manager</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
                               </SelectContent>
                             </Select>
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => {
-                                setIsSelecting(!isSelecting)
-                                setSelectedMembers([])
-                              }}
-                              className="whitespace-nowrap"
+                              onClick={() => handleRemoveMember(member.id)}
                             >
-                              {isSelecting ? "Cancel" : "Select"}
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </div>
-                        </div>
-                        {isSelecting && selectedMembers.length > 0 && (
-                          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2 p-3 bg-green-50 rounded-lg">
-                            <span className="text-sm font-medium">
-                              {selectedMembers.length} member(s) selected
-                            </span>
-                            <div className="flex flex-wrap gap-2 sm:ml-auto">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleBulkAction("activate")}
-                                className="flex-1 sm:flex-initial"
-                              >
-                                Activate
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleBulkAction("deactivate")}
-                                className="flex-1 sm:flex-initial"
-                              >
-                                Deactivate
-                              </Button>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button size="sm" variant="outline" className="flex-1 sm:flex-initial">
-                                    <span className="hidden sm:inline">Change Role</span>
-                                    <span className="sm:hidden">Role</span>
-                                    <ChevronDown className="w-4 h-4 ml-2" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                  <DropdownMenuItem onClick={() => handleBulkAction("changeRole", "member")}>
-                                    Member
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleBulkAction("changeRole", "manager")}>
-                                    Manager
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem onClick={() => handleBulkAction("changeRole", "admin")}>
-                                    Admin
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => handleBulkAction("remove")}
-                                className="flex-1 sm:flex-initial"
-                              >
-                                <Trash2 className="w-4 h-4 sm:mr-2" />
-                                <span className="hidden sm:inline">Remove</span>
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-        </CardHeader>
-        <CardContent>
-          {filteredMembers.length > 0 ? (
-            <div className="space-y-4">
-                {filteredMembers.map((member) => (
-                <div key={member.id} className={`border rounded-lg p-4 ${selectedMembers.includes(member.id) ? 'bg-green-50 border-green-300' : ''}`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        {isSelecting && (
-                          <Checkbox
-                            checked={selectedMembers.includes(member.id)}
-                            onCheckedChange={() => handleSelectMember(member.id)}
-                          />
-                        )}
-                        <Avatar>
-                        <AvatarImage src={member.avatar_url} />
-                          <AvatarFallback>
-                          {member.name.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      <div>
-                        <p className="font-medium">{member.name}</p>
-                        <p className="text-sm text-gray-600">{member.email}</p>
-                        <div className="flex items-center space-x-2 mt-1">
-                        <Badge className={getRoleColor(member.role)}>
-                            {member.role}
-                        </Badge>
-                        <Badge className={getStatusColor(member.status)}>
-                          {member.status}
-                        </Badge>
                       </div>
+                      <div className="mt-3 text-sm text-gray-600">
+                        <p>Joined: {new Date(member.joined_at).toLocaleDateString()}</p>
+                        <p>Last active: {new Date(member.last_active).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right text-sm">
-                        <p className="text-gray-600">Tasks Completed</p>
-                        <p className="font-medium">{member.tasks_completed}</p>
-                      </div>
-                      <div className="text-right text-sm">
-                        <p className="text-gray-600">Performance</p>
-                        <p className="font-medium">{member.performance_score}%</p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Select
-                          value={member.role}
-                          onValueChange={(newRole) => handleUpdateMemberRole(member.id, newRole)}
-                        >
-                          <SelectTrigger className="w-24">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="member">Member</SelectItem>
-                            <SelectItem value="manager">Manager</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRemoveMember(member.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-3 text-sm text-gray-600">
-                    <p>Joined: {new Date(member.joined_at).toLocaleDateString()}</p>
-                    <p>Last active: {new Date(member.last_active).toLocaleDateString()}</p>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">No team members found</p>
-              <p className="text-sm text-gray-500">
-                {searchTerm ? "Try adjusting your search criteria" : "Invite team members to get started"}
-              </p>
-            </div>
-          )}
+              ) : (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No team members found</p>
+                  <p className="text-sm text-gray-500">
+                    {searchTerm ? "Try adjusting your search criteria" : "Invite team members to get started"}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Team Tasks */}
+          {teamTasks.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="h-5 w-5" />
+                  <span>Recent Team Tasks</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {teamTasks.slice(0, 5).map((task) => {
+                    const assignee = teamMembers.find(member => member.id === task.assigned_to)
+                    return (
+                      <div key={task.id} className="border rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-medium">{task.title}</h3>
+                          <div className="flex items-center space-x-2">
+                            <Badge className={getPriorityColor(task.priority)}>
+                              {task.priority}
+                            </Badge>
+                            <Badge className={getStatusColor(task.status)}>
+                              {task.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+                        <div className="flex items-center justify-between text-sm text-gray-500">
+                          <span>Assigned to: {assignee?.name || "Unknown"}</span>
+                          <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               </CardContent>
             </Card>
-
-      {/* Team Tasks */}
-      {teamTasks.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Target className="h-5 w-5" />
-              <span>Recent Team Tasks</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-          <div className="space-y-4">
-              {teamTasks.slice(0, 5).map((task) => {
-                const assignee = teamMembers.find(member => member.id === task.assigned_to)
-                return (
-                  <div key={task.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-medium">{task.title}</h3>
-                      <div className="flex items-center space-x-2">
-                        <Badge className={getPriorityColor(task.priority)}>
-                          {task.priority}
-                        </Badge>
-                        <Badge className={getStatusColor(task.status)}>
-                          {task.status}
-                    </Badge>
-                  </div>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{task.description}</p>
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <span>Assigned to: {assignee?.name || "Unknown"}</span>
-                      <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-                </CardContent>
-              </Card>
-            )}
+          )}
         </TabsContent>
 
         <TabsContent value="chat" className="mt-6">

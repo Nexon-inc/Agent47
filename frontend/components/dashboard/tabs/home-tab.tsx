@@ -188,6 +188,8 @@ export default function HomeTab() {
   const [intercommunicationEnabled, setIntercommunicationEnabled] = useState(false)
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [editContent, setEditContent] = useState("")
+  const [analyticsData, setAnalyticsData] = useState<any>(null)
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
@@ -282,6 +284,7 @@ export default function HomeTab() {
       loadTaskSummaries()
       loadUserAgents()
       loadIntercommunicationSetting()
+      loadAnalytics()
     }
   }, [user, isAuthenticated])
 
@@ -398,6 +401,23 @@ export default function HomeTab() {
       setIntercommunicationEnabled(response.data?.enabled || false)
     } catch (error) {
       console.error("Failed to load intercommunication setting:", error)
+    }
+  }
+
+  const loadAnalytics = async () => {
+    try {
+      setIsLoadingAnalytics(true)
+      const response = await apiClient.get('/api/v1/analytics/summary')
+      setAnalyticsData(response.data || response)
+    } catch (error) {
+      console.error("Failed to load analytics:", error)
+      setAnalyticsData({
+        total_tasks: 0,
+        success_rate: 0,
+        recent_events: 0
+      })
+    } finally {
+      setIsLoadingAnalytics(false)
     }
   }
 
@@ -915,39 +935,7 @@ export default function HomeTab() {
   return (
     <div className="flex flex-col min-h-screen bg-white text-slate-900 font-sans selection:bg-emerald-500/30 relative">
 
-      {/* Header - Minimalist Top Bar */}
-      <div className="sticky top-0 z-[60] bg-white/95 backdrop-blur-xl border-b border-slate-100 px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center">
-            <span className="text-sm font-black uppercase tracking-[0.3em] text-emerald-600">BETA</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-colors h-10 w-10"
-              onClick={() => {
-                setChatMessages([])
-                toast({
-                  title: "New Chat Started",
-                  description: "Protocol initialized for a fresh session.",
-                })
-              }}
-            >
-              <SquarePen className="h-6 w-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-full transition-colors h-10 w-10"
-            >
-              <History className="h-6 w-6" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Chat Content        {/* Chat History Area */}
+      {/* Main Content */}
       {/* Main Command Center Content */}
       <div className="flex-1 overflow-y-auto px-6 py-8 bg-slate-50/30">
         <div className="max-w-6xl mx-auto space-y-8">
@@ -991,10 +979,14 @@ export default function HomeTab() {
                   <div className="h-12 w-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
                     <TrendingUp className="h-6 w-6" />
                   </div>
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 rounded-lg">+12.4%</Badge>
+                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 rounded-lg">
+                    {isLoadingAnalytics ? "..." : analyticsData?.recent_events ? `+${analyticsData.recent_events}` : "+0"}
+                  </Badge>
                 </div>
-                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Growth Index</h3>
-                <p className="text-3xl font-black text-slate-900">84.2%</p>
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Recent Activity</h3>
+                <p className="text-3xl font-black text-slate-900">
+                  {isLoadingAnalytics ? "--" : analyticsData?.recent_events || 0}
+                </p>
               </CardContent>
             </Card>
 
@@ -1004,10 +996,12 @@ export default function HomeTab() {
                   <div className="h-12 w-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
                     <Activity className="h-6 w-6" />
                   </div>
-                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 rounded-lg">Operational</Badge>
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 rounded-lg">Active</Badge>
                 </div>
-                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Active Cycles</h3>
-                <p className="text-3xl font-black text-slate-900">4,281</p>
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Total Tasks</h3>
+                <p className="text-3xl font-black text-slate-900">
+                  {isLoadingAnalytics ? "--" : analyticsData?.total_tasks?.toLocaleString() || 0}
+                </p>
               </CardContent>
             </Card>
 
@@ -1017,10 +1011,14 @@ export default function HomeTab() {
                   <div className="h-12 w-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600">
                     <Target className="h-6 w-6" />
                   </div>
-                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100 rounded-lg">98% Success</Badge>
+                  <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100 rounded-lg">
+                    {isLoadingAnalytics ? "..." : `${analyticsData?.success_rate || 0}%`}
+                  </Badge>
                 </div>
-                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Mission Accuracy</h3>
-                <p className="text-3xl font-black text-slate-900">Elite</p>
+                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-1">Success Rate</h3>
+                <p className="text-3xl font-black text-slate-900">
+                  {isLoadingAnalytics ? "--" : analyticsData?.success_rate >= 90 ? "Elite" : analyticsData?.success_rate >= 70 ? "Good" : "Fair"}
+                </p>
               </CardContent>
             </Card>
 
