@@ -19,6 +19,7 @@ const agents = [
   {
     name: "Aria - Social Media Manager",
     icon: Globe,
+    image: "/personnel/aria.png",
     color: "bg-gradient-to-br from-[#FF1493] to-[#FF69B4]", // Pink/Magenta
     lightColor: "bg-pink-50",
     textColor: "text-[#FF1493]",
@@ -37,6 +38,7 @@ const agents = [
   {
     name: "Clara - Support Specialist",
     icon: Headphones,
+    image: "/personnel/clara.png",
     color: "bg-gradient-to-br from-green-400 to-green-600", // Green
     lightColor: "bg-green-50",
     textColor: "text-green-600",
@@ -55,6 +57,7 @@ const agents = [
   {
     name: "Shakes - Content Creator",
     icon: FileText,
+    image: "/personnel/shakes.png",
     color: "bg-gradient-to-br from-teal-400 to-cyan-500", // Teal
     lightColor: "bg-teal-50",
     textColor: "text-teal-600",
@@ -73,6 +76,7 @@ const agents = [
   {
     name: "Jackie - Marketing Executive",
     icon: BarChart3,
+    image: "/personnel/jackie.png",
     color: "bg-gradient-to-br from-orange-400 to-orange-600", // Orange
     lightColor: "bg-orange-50",
     textColor: "text-orange-600",
@@ -91,6 +95,7 @@ const agents = [
   {
     name: "Eric - Sales Director",
     icon: DollarSign,
+    image: "/personnel/eric.png",
     color: "bg-gradient-to-br from-blue-500 to-blue-700", // Blue
     lightColor: "bg-blue-50",
     textColor: "text-blue-600",
@@ -109,6 +114,7 @@ const agents = [
   {
     name: "Purity - Strategic Advisor",
     icon: Lightbulb,
+    image: "/personnel/purity.png",
     color: "bg-gradient-to-br from-amber-400 to-yellow-600", // Gold
     lightColor: "bg-amber-50",
     textColor: "text-amber-600",
@@ -127,6 +133,7 @@ const agents = [
   {
     name: "Joe - Research Analyst",
     icon: Search,
+    image: "/personnel/joe.png",
     color: "bg-gradient-to-br from-purple-500 to-purple-700", // Purple
     lightColor: "bg-purple-50",
     textColor: "text-purple-600",
@@ -209,8 +216,29 @@ export default function Features() {
               <div className={`${agents[activeTab].color} px-8 py-6 text-white`}>
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                   <div className="flex items-center mb-4 md:mb-0">
-                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
-                      {React.createElement(agents[activeTab].icon, { size: 24 })}
+                    <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mr-6 overflow-hidden border border-white/30">
+                      {(() => {
+                        const Icon = agents[activeTab].icon;
+                        return agents[activeTab].image ? (
+                          <div className="relative w-full h-full">
+                            <img
+                              src={agents[activeTab].image}
+                              alt={agents[activeTab].name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                const fallback = (e.target as HTMLImageElement).nextElementSibling;
+                                if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                              }}
+                            />
+                            <div className="absolute inset-0 hidden items-center justify-center bg-black/10" style={{ display: 'none' }}>
+                              <Icon size={28} />
+                            </div>
+                          </div>
+                        ) : (
+                          <Icon size={28} />
+                        );
+                      })()}
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold">{agents[activeTab].name}</h3>
@@ -296,8 +324,29 @@ export default function Features() {
                   </button>
 
                   <div className="flex items-center mb-6">
-                    <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center mr-6">
-                      {React.createElement(agents[selectedAgent].icon, { size: 32 })}
+                    <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mr-8 overflow-hidden border border-white/30 shadow-inner">
+                      {(() => {
+                        const Icon = agents[selectedAgent].icon;
+                        return agents[selectedAgent].image ? (
+                          <div className="relative w-full h-full">
+                            <img
+                              src={agents[selectedAgent].image}
+                              alt={agents[selectedAgent].name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                                const fallback = (e.target as HTMLImageElement).nextElementSibling;
+                                if (fallback) (fallback as HTMLElement).style.display = 'flex';
+                              }}
+                            />
+                            <div className="absolute inset-0 hidden items-center justify-center bg-black/10" style={{ display: 'none' }}>
+                              <Icon size={36} />
+                            </div>
+                          </div>
+                        ) : (
+                          <Icon size={36} />
+                        );
+                      })()}
                     </div>
                     <div>
                       <h3 className="text-3xl font-bold">{agents[selectedAgent].name}</h3>

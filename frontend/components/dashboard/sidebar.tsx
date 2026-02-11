@@ -48,7 +48,7 @@ const navigationItems = [
     href: "/dashboard?tab=tools-automation-overview",
   },
   {
-    title: "Organization",
+    title: "Teams",
     icon: Users,
     href: "/dashboard?tab=team-management",
   },

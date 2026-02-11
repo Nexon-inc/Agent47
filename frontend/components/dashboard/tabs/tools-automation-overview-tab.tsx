@@ -865,10 +865,10 @@ export default function EmployeeToolkitTab() {
           {filteredIntegrations.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {filteredIntegrations.map((integration) => {
-                const isConnected = integrationUsage.some(usage =>
+                const isConnected = Array.isArray(integrationUsage) && integrationUsage.some(usage =>
                   usage.integration_id === integration.id && usage.status === "connected"
                 )
-                const usage = integrationUsage.find(usage => usage.integration_id === integration.id)
+                const usage = Array.isArray(integrationUsage) ? integrationUsage.find(usage => usage.integration_id === integration.id) : undefined
 
                 return (
                   <div key={integration.id} className="border rounded-lg p-4">

@@ -350,34 +350,12 @@ export default function TeamChatTab() {
     return date.toLocaleDateString([], { month: "short", day: "numeric" })
   }
 
+
   const filteredAgents = AVAILABLE_AGENTS.filter(
     (agent) =>
       agent.key.toLowerCase().startsWith(autocompleteQuery) ||
       agent.name.toLowerCase().startsWith(autocompleteQuery)
   )
-
-  // Check if user has team access
-  const userPlan = user?.tier || "free"
-  const canAccessTeam = userPlan !== "free"
-
-  if (!canAccessTeam) {
-    return (
-      <div className="flex flex-col h-full bg-white text-slate-900 items-center justify-center p-8">
-        <Lock className="h-16 w-16 text-slate-200 mb-4" />
-        <h3 className="text-xl font-semibold text-slate-900 mb-2">Team Chat Not Available</h3>
-        <p className="text-slate-500 text-center max-w-md mb-6">
-          Team chat is only available for Starter and Pro plans. Upgrade to collaborate with your team and use agents in team chat.
-        </p>
-        <Button
-          onClick={() => window.location.href = '/pricing'}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
-        >
-          <Crown className="h-4 w-4 mr-2" />
-          Upgrade Plan
-        </Button>
-      </div>
-    )
-  }
 
   if (!hasTeam && !isLoading) {
     return (

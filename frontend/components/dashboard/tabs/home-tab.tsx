@@ -57,6 +57,7 @@ import {
   History,
   Pencil,
   SquarePen,
+  Zap,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth-store"

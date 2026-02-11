@@ -27,6 +27,7 @@ export default function Hero() {
       time: "2:34 PM",
       color: "from-orange-400 to-orange-600",
       avatar: "AR",
+      image: "/personnel/aria.png",
       thinkingSteps: [
         "Checking connected social media platforms...",
         "Found: LinkedIn, Twitter, Instagram",
@@ -41,6 +42,7 @@ export default function Hero() {
       time: "2:35 PM",
       color: "from-orange-400 to-orange-600",
       avatar: "AR",
+      image: "/personnel/aria.png",
     },
     {
       type: "user",
@@ -55,6 +57,7 @@ export default function Hero() {
       time: "2:36 PM",
       color: "from-orange-400 to-orange-600",
       avatar: "AR",
+      image: "/personnel/aria.png",
       thinkingSteps: [
         "Creating content calendar for next 7 days...",
         "Generating post ideas based on your brand...",
@@ -69,6 +72,7 @@ export default function Hero() {
       time: "2:37 PM",
       color: "from-orange-400 to-orange-600",
       avatar: "AR",
+      image: "/personnel/aria.png",
     },
     {
       type: "system",
@@ -82,6 +86,7 @@ export default function Hero() {
       time: "2:38 PM",
       color: "from-pink-400 to-pink-600",
       avatar: "JA",
+      image: "/personnel/jackie.png",
       thinkingSteps: [
         "Reviewing social media performance data...",
         "Identifying target audience segments...",
@@ -96,6 +101,7 @@ export default function Hero() {
       time: "2:38 PM",
       color: "from-pink-400 to-pink-600",
       avatar: "JA",
+      image: "/personnel/jackie.png",
     },
     {
       type: "thinking",
@@ -104,6 +110,7 @@ export default function Hero() {
       time: "2:39 PM",
       color: "from-green-400 to-green-600",
       avatar: "SH",
+      image: "/personnel/shakes.png",
       thinkingSteps: [
         "Analyzing content performance patterns...",
         "Generating SEO-optimized captions...",
@@ -118,6 +125,7 @@ export default function Hero() {
       time: "2:39 PM",
       color: "from-green-400 to-green-600",
       avatar: "SH",
+      image: "/personnel/shakes.png",
     },
   ]
 
@@ -328,9 +336,20 @@ export default function Hero() {
                           >
                             {/* Avatar */}
                             {(msg.type === "bot" || msg.type === "thinking") && (
-                              <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${msg.color} flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 ${isThinking ? "animate-pulse" : ""
+                              <div className={`w-9 h-9 rounded-full bg-gradient-to-r ${msg.color} flex items-center justify-center text-white text-xs font-bold shadow-md flex-shrink-0 overflow-hidden ${isThinking ? "animate-pulse" : ""
                                 }`}>
-                                {msg.avatar || msg.agent?.slice(0, 2) || "AI"}
+                                {(msg as any).image ? (
+                                  <img
+                                    src={(msg as any).image}
+                                    alt={msg.agent}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).style.display = 'none';
+                                    }}
+                                  />
+                                ) : (
+                                  msg.avatar || msg.agent?.slice(0, 2) || "AI"
+                                )}
                               </div>
                             )}
                             {msg.type === "user" && (
