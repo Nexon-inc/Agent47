@@ -13,7 +13,8 @@ from .routers import (
     performance_forecasting, budget_control, campaign_storyboard, influencer_tracking,
     dynamic_budget, influencer_roi_predictor, voice_ad_generator, geo_targeted,
     customer_feedback, ethical_ad_scanner, cross_channel_analytics, interactive_widgets,
-    campaign_version_control, multi_language, enhanced_video_voice, jackie_dashboard, jackie_chat
+    campaign_version_control, multi_language, enhanced_video_voice, jackie_dashboard, jackie_chat,
+    brand_voice, localized_marketing, campaign_collaboration, campaign_calendar
 )
 
 def build_app() -> FastAPI:
