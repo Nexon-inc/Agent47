@@ -41,7 +41,8 @@ import {
     Target,
     Layout,
     Scissors,
-    Database
+    Database,
+    Image as ImageIcon
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -330,8 +331,8 @@ export default function TeamChatTab() {
         try {
             setIsHiredLoading(true)
             const hired = await apiClient.getSelectedAgents()
-            // Backend might return agent objects with key or id
-            const keys = hired.map((a: any) => a.key || a.agent_key || a.id)
+            // Backend might return agent objects with key, agent_key, or agent_id
+            const keys = hired.map((a: any) => a.key || a.agent_key || a.agent_id || a.id)
             setHiredAgentKeys(keys)
         } catch (error) {
             console.error("Failed to fetch hired agents", error)
@@ -692,7 +693,7 @@ export default function TeamChatTab() {
                                                     PDF / Docs
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <Image className="mr-2 h-3.5 w-3.5 text-emerald-500" />
+                                                    <ImageIcon className="mr-2 h-3.5 w-3.5 text-emerald-500" />
                                                     Assets / Img
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
@@ -789,7 +790,7 @@ export default function TeamChatTab() {
                                         <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
                                             <div className="p-3 space-y-3 border-t border-slate-100">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-[10px] font-bold text-slate-700 uppercase font-mono">Link Workforce</span>
+                                                    <span className="text-[10px] font-bold text-slate-700 uppercase font-mono">Neural Link</span>
                                                     <Switch
                                                         checked={intercomEnabled}
                                                         onCheckedChange={toggleIntercom}

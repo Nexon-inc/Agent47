@@ -505,7 +505,7 @@ export default function TeamManagementTab() {
                 <p className="text-sm text-gray-600">Up to 14 team members, 100 tasks per month</p>
               </div>
             </div>
-            <Button className="mt-6" onClick={() => window.location.href = '/pricing'}>
+            <Button className="mt-6" onClick={() => window.location.href = '/dashboard?tab=upgrade'}>
               <Crown className="h-4 w-4 mr-2" />
               Upgrade Plan
             </Button>
