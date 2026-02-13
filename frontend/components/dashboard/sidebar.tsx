@@ -30,7 +30,7 @@ const navigationItems = [
   {
     title: "Strategy Room",
     icon: MessageSquare,
-    href: "/dashboard?tab=team-chat",
+    href: "/dashboard?tab=chat",
   },
   {
     title: "AI Personnel",
@@ -71,6 +71,11 @@ const navigationItems = [
     title: "Account Settings",
     icon: Settings,
     href: "/dashboard?tab=account-overview",
+  },
+  {
+    title: "Upgrade",
+    icon: TrendingUp,
+    href: "/dashboard?tab=upgrade",
   },
 ]
 

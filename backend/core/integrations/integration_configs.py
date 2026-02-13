@@ -94,7 +94,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=False,
                     oauth_url="https://login.mailchimp.com/oauth2/authorize",
                     token_url="https://login.mailchimp.com/oauth2/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/mailchimp"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/mailchimp"
                 ),
                 "convertkit": IntegrationConfig(
                     name="convertkit",
@@ -201,7 +201,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=False,
                     oauth_url="https://accounts.google.com/o/oauth2/v2/auth",
                     token_url="https://oauth2.googleapis.com/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/google_analytics"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/google_analytics"
                 ),
                 "mixpanel": IntegrationConfig(
                     name="mixpanel",
@@ -309,7 +309,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=False,
                     oauth_url="https://app.hubspot.com/oauth/authorize",
                     token_url="https://api.hubapi.com/oauth/v1/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/hubspot"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/hubspot"
                 ),
                 "salesforce": IntegrationConfig(
                     name="salesforce",
@@ -347,7 +347,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=False,
                     oauth_url="https://login.salesforce.com/services/oauth2/authorize",
                     token_url="https://login.salesforce.com/services/oauth2/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/salesforce"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/salesforce"
                 ),
                 "pipedrive": IntegrationConfig(
                     name="pipedrive",
@@ -492,7 +492,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=True,
                     oauth_url="https://api.notion.com/v1/oauth/authorize",
                     token_url="https://api.notion.com/v1/oauth/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/notion"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/notion"
                 ),
                 
                 # Design Tools
@@ -532,7 +532,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=True,
                     oauth_url="https://www.figma.com/oauth",
                     token_url="https://www.figma.com/api/oauth/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/figma"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/figma"
                 ),
                 "canva": IntegrationConfig(
                     name="canva",
@@ -570,7 +570,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=False,
                     oauth_url="https://www.canva.com/api/oauth/authorize",
                     token_url="https://api.canva.com/oauth/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/canva"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/canva"
                 ),
                 
                 # Communication Tools
@@ -610,7 +610,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=True,
                     oauth_url="https://slack.com/oauth/v2/authorize",
                     token_url="https://slack.com/api/oauth.v2.access",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/slack"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/slack"
                 ),
                 "trello": IntegrationConfig(
                     name="trello",
@@ -648,7 +648,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=True,
                     oauth_url="https://trello.com/1/OAuthAuthorizeToken",
                     token_url="https://trello.com/1/OAuthGetAccessToken",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/trello"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/trello"
                 ),
                 "asana": IntegrationConfig(
                     name="asana",
@@ -686,7 +686,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=True,
                     oauth_url="https://app.asana.com/-/oauth_authorize",
                     token_url="https://app.asana.com/-/oauth_token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/asana"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/asana"
                 ),
                 
                 # Finance Tools
@@ -726,7 +726,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=False,
                     oauth_url="https://connect.stripe.com/oauth/authorize",
                     token_url="https://connect.stripe.com/oauth/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/stripe"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/stripe"
                 ),
                 "paypal": IntegrationConfig(
                     name="paypal",
@@ -764,7 +764,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=True,
                     oauth_url="https://www.paypal.com/signin/authorize",
                     token_url="https://api-m.paypal.com/v1/oauth2/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/paypal"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/paypal"
                 ),
                 
                 # AI Tools
@@ -877,7 +877,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=True,
                     oauth_url="https://zapier.com/oauth/authorize",
                     token_url="https://zapier.com/oauth/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/zapier"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/zapier"
                 ),
                 "ifttt": IntegrationConfig(
                     name="ifttt",
@@ -915,7 +915,7 @@ class IntegrationConfigManager:
                     supports_bearer_token=True,
                     oauth_url="https://ifttt.com/oauth/authorize",
                     token_url="https://ifttt.com/oauth/token",
-                    redirect_uri=f"{settings.base_url}/integrations/callback/ifttt"
+                    redirect_uri=f"{settings.base_url}{settings.api_v1_prefix}/integrations/callback/ifttt"
                 )
             }
             

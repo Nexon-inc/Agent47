@@ -1,826 +1,439 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import {
-  BarChart3,
-  Send,
-  Mic,
-  Paperclip,
-  Smile,
-  Loader2,
-  Bot,
-  User,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Hash,
-  Users,
-  MessageSquare,
-  Sparkles,
-  Lock,
-  Crown,
-  Trophy,
-  Target,
-  Zap,
+    BarChart3,
+    Send,
+    Mic,
+    Paperclip,
+    Bot,
+    User,
+    Zap,
+    Activity,
+    Shield,
+    Cpu,
+    Radio,
+    Terminal,
+    FileText,
+    Clock,
+    ChevronRight,
+    MoreVertical,
+    Search,
+    Lock
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
-import { useUserStore } from "@/lib/stores/user-store"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { websocketService } from "@/lib/websocket-service"
 
+// --- Interfaces ---
+
 interface ChatMessage {
-  id: number
-  team_id: number
-  user_id: number
-  user_name: string
-  agent_key?: string | null
-  message_type: string
-  content: string
-  audio_url?: string | null
-  file_url?: string | null
-  file_name?: string | null
-  reply_to_message_id?: number | null
-  created_at: string
-  avatar_url?: string
-  thinking_steps?: string[]
+    id: number
+    team_id: number
+    user_id: number
+    user_name: string
+    agent_key?: string | null
+    message_type: string
+    content: string
+    audio_url?: string | null
+    file_url?: string | null
+    file_name?: string | null
+    reply_to_message_id?: number | null
+    created_at: string
+    avatar_url?: string
+    thinking_steps?: string[]
 }
 
 interface Agent {
-  key: string
-  name: string
-  description: string
-  icon: string
-  color: string
+    key: string
+    name: string
+    description: string
+    icon: string
+    color: string
+    status: "idle" | "working" | "offline"
+    specialty: string
 }
 
 const AVAILABLE_AGENTS: Agent[] = [
-  {
-    key: "aria",
-    name: "Aria",
-    description: "PR & Communications Director",
-    icon: "📱",
-    color: "text-blue-500",
-  },
-  {
-    key: "clara",
-    name: "Clara",
-    description: "Customer Success Lead",
-    icon: "🤝",
-    color: "text-green-500",
-  },
-  {
-    key: "eric",
-    name: "Eric",
-    description: "Senior Sales Representative",
-    icon: "💼",
-    color: "text-red-500",
-  },
-  {
-    key: "jackie",
-    name: "Jackie",
-    description: "Growth Marketing Manager",
-    icon: "🚀",
-    color: "text-orange-500",
-  },
-  {
-    key: "purity",
-    name: "Purity",
-    description: "Operations Strategist",
-    icon: "🧠",
-    color: "text-indigo-500",
-  },
-  {
-    key: "shakes",
-    name: "Shakes",
-    description: "Lead Creative Designer",
-    icon: "✍️",
-    color: "text-purple-500",
-  },
+    { key: "aria", name: "Aria", description: "PR & Communications", icon: "📱", color: "text-blue-600", status: "idle", specialty: "Communications" },
+    { key: "clara", name: "Clara", description: "Customer Success", icon: "🤝", color: "text-green-600", status: "idle", specialty: "Retention" },
+    { key: "eric", name: "Eric", description: "Sales Representative", icon: "💼", color: "text-red-600", status: "idle", specialty: "Closing" },
+    { key: "jackie", name: "Jackie", description: "Growth Marketing", icon: "🚀", color: "text-orange-600", status: "idle", specialty: "Growth" },
+    { key: "purity", name: "Purity", description: "Operations Strategist", icon: "🧠", color: "text-indigo-600", status: "idle", specialty: "Strategy" },
+    { key: "shakes", name: "Shakes", description: "Creative Designer", icon: "✍️", color: "text-purple-600", status: "idle", specialty: "Design" },
+    { key: "joe", name: "Joe", description: "Software Engineer", icon: "💻", color: "text-cyan-600", status: "idle", specialty: "Engineering" },
 ]
 
-export default function TeamChatTab() {
-  const { user } = useAuthStore()
-  const { toast } = useToast()
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [inputMessage, setInputMessage] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSending, setIsSending] = useState(false)
-  const [showAgentAutocomplete, setShowAgentAutocomplete] = useState(false)
-  const [autocompleteQuery, setAutocompleteQuery] = useState("")
-  const [selectedAgentIndex, setSelectedAgentIndex] = useState(0)
-  const [isRecording, setIsRecording] = useState(false)
-  const [hasTeam, setHasTeam] = useState(true)
-  const [isCoordinatorActive, setIsCoordinatorActive] = useState(false)
-  const [userSelectedEmployees, setUserSelectedEmployees] = useState<any[]>([])
-  const [isLoadingEmployees, setIsLoadingEmployees] = useState(true)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const unsubscribeRef = useRef<(() => void) | null>(null)
+// --- Components ---
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    if (messages.length > 0) {
-      // Use requestAnimationFrame to ensure the DOM has updated before scrolling
-      requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-      })
-    }
-  }, [messages])
-
-  // Load user's selected AI employees
-  useEffect(() => {
-    loadUserSelectedEmployees()
-  }, [])
-
-  // Load initial messages and setup WebSocket
-  useEffect(() => {
-    loadMessages()
-
-    // Subscribe to team chat messages via WebSocket
-    const unsubscribe = websocketService.subscribe('team_chat_message', (message: any) => {
-      // Reload messages when new team chat message is received
-      setTimeout(loadMessages, 300) // Small delay to ensure DB is updated
-
-      // If it's a coordinator message, show activity
-      if (message.agent_key === 'system') {
-        setIsCoordinatorActive(true)
-        setTimeout(() => setIsCoordinatorActive(false), 5000)
-      }
-    })
-
-    unsubscribeRef.current = unsubscribe
-
-    // Ensure WebSocket is connected
-    if (!websocketService.getConnectionStatus()) {
-      websocketService.connect()
-    }
-
-    return () => {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current()
-      }
-    }
-  }, [])
-
-  const loadUserSelectedEmployees = async () => {
-    try {
-      setIsLoadingEmployees(true)
-      const response = await apiClient.getSelectedAgents()
-      setUserSelectedEmployees(response || [])
-    } catch (error) {
-      console.error("Failed to load selected AI employees:", error)
-      setUserSelectedEmployees([])
-    } finally {
-      setIsLoadingEmployees(false)
-    }
-  }
-
-  // Handle slash command detection
-  useEffect(() => {
-    if (inputMessage.startsWith("/")) {
-      const query = inputMessage.slice(1).toLowerCase()
-      setAutocompleteQuery(query)
-      setShowAgentAutocomplete(true)
-
-      // Filter agents based on query
-      const filtered = AVAILABLE_AGENTS.filter(
-        (agent) =>
-          agent.key.toLowerCase().startsWith(query) ||
-          agent.name.toLowerCase().startsWith(query)
-      )
-
-      if (filtered.length === 0) {
-        setShowAgentAutocomplete(false)
-      } else {
-        setSelectedAgentIndex(0)
-      }
-    } else {
-      setShowAgentAutocomplete(false)
-    }
-  }, [inputMessage])
-
-  const loadMessages = async () => {
-    try {
-      setIsLoading(true)
-      const response = await apiClient.get("/api/v1/team/chat/messages?limit=100").catch((error: any) => {
-        // Check if it's a 403 (no team access) or 404 (no team)
-        if (error?.response?.status === 403 || error?.response?.status === 404) {
-          setHasTeam(false)
-          return { data: { messages: [] } }
-        }
-        return { data: { messages: [] } }
-      })
-      if (response.data?.messages) {
-        setMessages(response.data.messages.reverse()) // Reverse to show oldest first
-        setHasTeam(true)
-      } else {
-        setMessages([])
-      }
-    } catch (error: any) {
-      console.error("Failed to load messages:", error)
-      if (error?.response?.status === 403 || error?.response?.status === 404) {
-        setHasTeam(false)
-      }
-      setMessages([])
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-
-  const parseSlashCommand = (message: string): { agentKey: string | null; content: string } | null => {
-    if (!message.startsWith("/")) return null
-
-    const parts = message.trim().split(/\s+/)
-    const command = parts[0].slice(1).toLowerCase() // Remove '/'
-    const content = parts.slice(1).join(" ")
-
-    // Find matching agent
-    const agent = AVAILABLE_AGENTS.find(
-      (a) => a.key.toLowerCase() === command || a.name.toLowerCase() === command
-    )
-
-    if (agent) {
-      return { agentKey: agent.key, content }
-    }
-
-    return null
-  }
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() && !isSending) return
-
-    try {
-      setIsSending(true)
-
-      // Check if it's a slash command
-      const command = parseSlashCommand(inputMessage)
-
-      if (command && command.agentKey) {
-        // Send agent request
-        await apiClient.post("/api/v1/team/agent-requests/create", {
-          agent_key: command.agentKey,
-          request_type: "chat",
-          request_data: {
-            message: command.content || "Hello",
-            context: {},
-          },
-        })
-
-        // Also send a user message showing what was requested
-        await apiClient.post("/api/v1/team/chat/message", {
-          content: inputMessage,
-          message_type: "text",
-          agent_key: command.agentKey,
-        })
-
-        toast({
-          title: "Agent Requested",
-          description: `${AVAILABLE_AGENTS.find((a) => a.key === command.agentKey)?.name} is processing your request...`,
-        })
-      } else {
-        // Regular message
-        await apiClient.post("/api/v1/team/chat/message", {
-          content: inputMessage,
-          message_type: "text",
-        })
-      }
-
-      setInputMessage("")
-      setShowAgentAutocomplete(false)
-
-      // Reload messages to show new one
-      setTimeout(loadMessages, 500)
-    } catch (error: any) {
-      console.error("Failed to send message:", error)
-      toast({
-        title: "Error",
-        description: error?.response?.data?.detail || "Failed to send message",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSending(false)
-    }
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      if (showAgentAutocomplete && e.key === "Enter") {
-        // Select agent from autocomplete
-        const filtered = AVAILABLE_AGENTS.filter(
-          (agent) =>
-            agent.key.toLowerCase().startsWith(autocompleteQuery) ||
-            agent.name.toLowerCase().startsWith(autocompleteQuery)
-        )
-        if (filtered.length > 0) {
-          const selected = filtered[selectedAgentIndex]
-          setInputMessage(`/${selected.key} `)
-          setShowAgentAutocomplete(false)
-          inputRef.current?.focus()
-        }
-      } else {
-        handleSendMessage()
-      }
-    } else if (e.key === "ArrowDown" && showAgentAutocomplete) {
-      e.preventDefault()
-      const filtered = AVAILABLE_AGENTS.filter(
-        (agent) =>
-          agent.key.toLowerCase().startsWith(autocompleteQuery) ||
-          agent.name.toLowerCase().startsWith(autocompleteQuery)
-      )
-      setSelectedAgentIndex((prev) => Math.min(prev + 1, filtered.length - 1))
-    } else if (e.key === "ArrowUp" && showAgentAutocomplete) {
-      e.preventDefault()
-      setSelectedAgentIndex((prev) => Math.max(prev - 1, 0))
-    } else if (e.key === "Escape") {
-      setShowAgentAutocomplete(false)
-    }
-  }
-
-  const handleAgentSelect = (agent: Agent) => {
-    // Check if this employee is available (hired and active)
-    const isAvailable = availableEmployees.some(a => a.key === agent.key)
-
-    if (!isAvailable) {
-      toast({
-        title: "AI Employee Not Available",
-        description: `${agent.name} is not in your workforce. Visit AI Personnel to hire them.`,
-        variant: "destructive"
-      })
-      return
-    }
-
-    setInputMessage(`/${agent.key} `)
-    setShowAgentAutocomplete(false)
-    inputRef.current?.focus()
-  }
-
-  const getAgentInfo = (agentKey: string | null | undefined): Agent | null => {
-    if (!agentKey) return null
-    return AVAILABLE_AGENTS.find((a) => a.key === agentKey) || null
-  }
-
-  const formatTime = (timestamp: string) => {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-
-    if (minutes < 1) return "just now"
-    if (minutes < 60) return `${minutes}m ago`
-    if (date.toDateString() === now.toDateString()) {
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    }
-    return date.toLocaleDateString([], { month: "short", day: "numeric" })
-  }
-
-
-  // Filter to show only user's hired and active AI employees
-  const availableEmployees = AVAILABLE_AGENTS.filter(agent =>
-    userSelectedEmployees.some(emp =>
-      emp.agent_id === agent.key &&
-      emp.status === 'active'
-    )
-  )
-
-  const filteredAgents = availableEmployees.filter(
-    (agent) =>
-      agent.key.toLowerCase().startsWith(autocompleteQuery) ||
-      agent.name.toLowerCase().startsWith(autocompleteQuery)
-  )
-
-  if (!hasTeam && !isLoading) {
-    return (
-      <div className="flex flex-col h-full bg-white text-slate-900 items-center justify-center p-8">
-        <Users className="h-16 w-16 text-slate-200 mb-4" />
-        <h3 className="text-xl font-semibold text-slate-900 mb-2">No Team Found</h3>
-        <p className="text-slate-500 text-center max-w-md mb-6">
-          You need to create or join a team to use team chat. Go to the Members tab to invite team members.
-        </p>
-      </div>
-    )
-  }
-
-  return (
-    <div className="flex flex-col min-h-[calc(100vh-8rem)] bg-white text-slate-900 font-sans selection:bg-indigo-500/30 relative">
-      {/* Header - Fixed Sticky behavior */}
-      <div className="flex flex-col border-b border-slate-200 bg-white/95 backdrop-blur-xl sticky top-0 z-50 -mx-4 md:-mx-6 shadow-sm">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center space-x-2">
-            <Hash className="h-5 w-5 text-slate-400" />
-            <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Strategy Room</h2>
-          </div>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Secure Line</span>
+const TacticalHeader = () => (
+    <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-white/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="flex items-center space-x-3">
+            <div className="h-8 w-8 bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center">
+                <Radio className="h-4 w-4 text-emerald-600 animate-pulse" />
             </div>
-          </div>
-        </div>
-
-        {/* Employee Activity Bar */}
-        <div className="px-6 py-3 border-t border-slate-100 flex items-center space-x-6 overflow-x-auto no-scrollbar scroll-smooth">
-          {isLoadingEmployees ? (
-            <div className="flex items-center space-x-2 text-slate-400">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span className="text-xs font-medium">Loading AI Personnel...</span>
-            </div>
-          ) : availableEmployees.length === 0 ? (
-            <div className="flex items-center space-x-2 text-slate-400">
-              <AlertCircle className="h-4 w-4" />
-              <span className="text-xs font-medium">No AI Personnel hired. Visit AI Personnel tab to hire your team.</span>
-            </div>
-          ) : (
-            availableEmployees.map((agent) => (
-              <button
-                key={agent.key}
-                onClick={() => handleAgentSelect(agent)}
-                className="flex items-center space-x-2 group shrink-0 transition-opacity hover:opacity-100 opacity-80"
-              >
-                <div className={cn(
-                  "h-8 w-8 rounded-lg flex items-center justify-center border transition-all text-sm",
-                  agent.color.replace("text-", "border-").replace("-500", "-200"),
-                  agent.color.replace("text-", "bg-").replace("-500", "-50/50"),
-                  "group-hover:scale-110 group-hover:shadow-sm"
-                )}>
-                  {agent.icon}
-                </div>
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{agent.name}</span>
-                  <div className="flex items-center space-x-1 mt-0.5">
-                    <div className={cn("h-1 w-1 rounded-full", isCoordinatorActive ? "bg-green-500 animate-pulse" : "bg-slate-300")} />
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
-                      {isCoordinatorActive ? "Synthesizing" : "Ready"}
-                    </span>
-                  </div>
-                </div>
-              </button>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-6 w-6 animate-spin text-slate-300" />
-            </div>
-          ) : messages.length === 0 ? (
-            availableEmployees.length === 0 ? (
-              <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                  <Users className="h-8 w-8 text-slate-200" />
-                </div>
-                <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">No AI Personnel Hired</h3>
-                <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed font-medium">
-                  Visit the AI Personnel tab to hire your first employee and start coordinating your digital workforce.
+            <div>
+                <h1 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none">Strategy Room</h1>
+                <p className="text-[10px] items-center mt-1 font-mono text-emerald-600 font-medium flex gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    SECURE CHANNEL ACTIVE
                 </p>
-                <Button
-                  onClick={() => window.location.href = "/dashboard?tab=agents-overview"}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest text-xs px-8 h-12 rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition-all"
-                >
-                  Hire AI Personnel
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center min-h-[400px] text-center bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                  <MessageSquare className="h-8 w-8 text-slate-200" />
-                </div>
-                <h3 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tight">Strategy Room Initialized</h3>
-                <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed font-medium">
-                  The secure line is open. Brief your workforce or select an employee below to begin the mission.
-                </p>
-                <div className="flex flex-wrap gap-3 justify-center">
-                  {availableEmployees.map((agent) => (
-                    <Button
-                      key={agent.key}
-                      variant="outline"
-                      onClick={() => handleAgentSelect(agent)}
-                      className="h-12 bg-white border-slate-200 text-slate-900 hover:bg-slate-50 rounded-xl font-black uppercase tracking-tight text-[10px] px-5 group"
-                    >
-                      <span className="mr-2 text-base group-hover:scale-125 transition-transform">{agent.icon}</span>
-                      Call {agent.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )
-          ) : (
-            messages.map((message, index) => {
-              const isAgent = !!message.agent_key
-              const agentInfo = getAgentInfo(message.agent_key)
-              const isUser = message.user_id === user?.id && !isAgent
-              const isSameAuthor = index > 0 &&
-                (isAgent ? messages[index - 1].agent_key === message.agent_key : messages[index - 1].user_id === message.user_id) &&
-                !messages[index - 1].agent_key === !message.agent_key
-
-              return (
-                <div
-                  key={message.id}
-                  className={cn(
-                    "flex w-full mb-6 animate-in fade-in slide-in-from-bottom-2 duration-300",
-                    isUser ? "justify-end" : "justify-start"
-                  )}
-                >
-                  <div className={cn(
-                    "flex items-start max-w-[85%] sm:max-w-[75%] space-x-3",
-                    isUser && "flex-row-reverse space-x-reverse"
-                  )}>
-                    {/* Avatar */}
-                    <div className="flex-shrink-0 mt-1">
-                      {isAgent ? (
-                        <div className={cn(
-                          "h-9 w-9 rounded-xl flex items-center justify-center border border-slate-200 shadow-sm bg-white",
-                          agentInfo?.color.replace("text-", "bg-").replace("-500", "-50")
-                        )}>
-                          <span className="text-xl">{agentInfo?.icon}</span>
-                        </div>
-                      ) : (
-                        <Avatar className="h-9 w-9 rounded-xl border border-slate-200 shadow-sm">
-                          <AvatarImage src={message.avatar_url} />
-                          <AvatarFallback className="bg-indigo-600 text-white font-bold text-xs">
-                            {message.user_name.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                    </div>
-
-                    {/* Bubble & Content */}
-                    <div className={cn(
-                      "flex flex-col",
-                      isUser ? "items-end" : "items-start"
-                    )}>
-                      {!isSameAuthor && (
-                        <div className="flex items-center space-x-2 mb-1.5 px-1">
-                          <span className={cn(
-                            "text-sm font-semibold tracking-tight",
-                            isAgent ? "text-slate-900" : "text-slate-600"
-                          )}>
-                            {isAgent ? agentInfo?.name : message.user_name}
-                          </span>
-                          {isAgent && (
-                            <div className="flex items-center space-x-1 bg-slate-50 border border-slate-200 px-1.5 py-0.5 rounded-md">
-                              <Bot className="h-3 w-3 text-indigo-600" />
-                              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Assistant</span>
-                            </div>
-                          )}
-                          <span className="text-[10px] text-slate-400 font-medium">{formatTime(message.created_at)}</span>
-                        </div>
-                      )}
-
-                      <div className={cn(
-                        "px-5 py-4 rounded-[24px] text-[15px] leading-relaxed relative overflow-hidden group/bubble transition-all",
-                        isUser
-                          ? "bg-slate-50 text-slate-900 border border-slate-200/50 rounded-tr-none shadow-sm"
-                          : cn(
-                            "bg-white border-2 rounded-tl-none shadow-md",
-                            agentInfo?.color.replace("text-", "border-").replace("-500", "-100")
-                          )
-                      )}>
-                        {/* Agent Decorative Background Gradient */}
-                        {isAgent && (
-                          <div className={cn(
-                            "absolute top-0 right-0 w-32 h-32 opacity-[0.03] pointer-events-none -mr-16 -mt-16 rounded-full blur-3xl",
-                            agentInfo?.color.replace("text-", "bg-")
-                          )} />
-                        )}
-
-                        <div className="whitespace-pre-wrap break-words relative z-10">
-                          {message.content.split('\n').map((line: string, idx: number) => {
-                            // Specialized Rich Card Rendering for specific line starts
-                            if (line.trim().startsWith('📊') || line.trim().startsWith('📈')) {
-                              return (
-                                <div key={idx} className="my-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center space-x-4 shadow-inner">
-                                  <div className={cn("p-3 rounded-xl", agentInfo?.color.replace("text-", "bg-").replace("-500", "-100"))}>
-                                    <BarChart3 className={cn("h-5 w-5", agentInfo?.color)} />
-                                  </div>
-                                  <div>
-                                    <h4 className="text-xs font-black text-slate-900 uppercase tracking-widest leading-none mb-1">Impact Metric</h4>
-                                    <p className="text-lg font-black text-slate-800 tracking-tight">{line.replace(/^[📊📈]\s*/, '')}</p>
-                                  </div>
-                                </div>
-                              )
-                            }
-
-                            if (line.trim().startsWith('🚀') || line.trim().startsWith('⚡')) {
-                              return (
-                                <div key={idx} className={cn(
-                                  "my-4 p-4 rounded-2xl border-2 flex flex-col space-y-2 shadow-sm",
-                                  agentInfo?.color.replace("text-", "border-").replace("-500", "-200"),
-                                  agentInfo?.color.replace("text-", "bg-").replace("-500", "-50/30")
-                                )}>
-                                  <div className="flex items-center space-x-2">
-                                    <Zap className={cn("h-4 w-4", agentInfo?.color)} />
-                                    <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Recommended Action</h4>
-                                  </div>
-                                  <p className="font-bold text-slate-800 leading-tight">{line.replace(/^[🚀⚡]\s*/, '')}</p>
-                                  <Button size="sm" className={cn("mt-2 h-8 rounded-lg font-black uppercase tracking-tighter text-[10px] w-fit", agentInfo?.color.replace("text-", "bg-"))}>
-                                    Execute Now
-                                  </Button>
-                                </div>
-                              )
-                            }
-
-                            // Standard Line Formatting
-                            if (line.trim().startsWith('📅') || line.trim().startsWith('📝') || line.trim().startsWith('✅') || line.trim().startsWith('✨')) {
-                              return (
-                                <div key={idx} className="mt-4 first:mt-0 mb-2">
-                                  <span className="font-black text-slate-900 flex items-center gap-2 uppercase text-xs tracking-tight bg-slate-50 w-fit px-2 py-1 rounded-md border border-slate-100">
-                                    {line}
-                                  </span>
-                                </div>
-                              )
-                            } else if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
-                              return (
-                                <div key={idx} className="flex items-start gap-3 mt-2 ml-1">
-                                  <div className={cn("w-1.5 h-1.5 rounded-full mt-2 shrink-0", agentInfo ? agentInfo.color.replace("text-", "bg-") : "bg-indigo-500")} />
-                                  <span className="text-slate-700 font-medium">{line.replace(/^[•-]\s*/, '')}</span>
-                                </div>
-                              )
-                            } else if (line.trim().match(/^\d+\./)) {
-                              return (
-                                <div key={idx} className="flex items-start gap-3 mt-2 ml-1">
-                                  <span className={cn("font-black shrink-0 text-sm", agentInfo?.color)}>{line.match(/^\d+\./)?.[0]}</span>
-                                  <span className="text-slate-700 font-medium">{line.replace(/^\d+\.\s*/, '')}</span>
-                                </div>
-                              )
-                            } else if (line.trim() === '') {
-                              return <div key={idx} className="h-3" />
-                            }
-                            return <div key={idx} className={cn(idx === 0 ? '' : 'mt-1.5', isAgent ? "font-medium text-slate-700" : "text-slate-800")}>{line}</div>
-                          })}
-                        </div>
-
-                        {/* Thinking Steps Rendering */}
-                        {isAgent && message.thinking_steps && (
-                          <div className="mt-6 pt-4 border-t border-slate-100 space-y-2 relative z-10">
-                            <div className="flex items-center gap-2 text-[10px] uppercase font-black text-slate-400 tracking-widest mb-3">
-                              <Sparkles className={cn("h-3 w-3", agentInfo?.color)} />
-                              Strategic Calculation
-                            </div>
-                            <div className="space-y-1.5">
-                              {message.thinking_steps.map((step: string, sIdx: number) => (
-                                <motion.div
-                                  key={sIdx}
-                                  initial={{ opacity: 0, x: -5 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: sIdx * 0.1 }}
-                                  className="flex items-center gap-2.5 text-[11px] text-slate-500 font-bold uppercase tracking-tight"
-                                >
-                                  <div className={cn("h-1 w-1 rounded-full", agentInfo?.color.replace("text-", "bg-"))} />
-                                  <span>{step}</span>
-                                </motion.div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* File Attachments */}
-                        {message.file_url && (
-                          <div className="mt-3">
-                            {message.file_url.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i) ||
-                              message.file_url.includes('storage') ||
-                              message.file_url.includes('supabase') ? (
-                              <div className="rounded-xl overflow-hidden border border-slate-200 max-w-md shadow-lg">
-                                <img
-                                  src={message.file_url}
-                                  alt="Attached image"
-                                  className="w-full h-auto transition-transform hover:scale-[1.02]"
-                                />
-                              </div>
-                            ) : (
-                              <a
-                                href={message.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center space-x-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-indigo-600 hover:text-indigo-700 hover:bg-slate-100 transition-all"
-                              >
-                                <Paperclip className="h-4 w-4" />
-                                <span className="text-sm font-medium">{message.file_name || "Attachment"}</span>
-                              </a>
-                            )}
-                          </div>
-                        )}
-
-                        {message.audio_url && (
-                          <div className="mt-3 bg-slate-50 p-2 rounded-xl border border-slate-200 shadow-inner">
-                            <audio controls className="h-8 max-w-full">
-                              <source src={message.audio_url} />
-                            </audio>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })
-          )}
+            </div>
         </div>
-        <div ref={messagesEndRef} className="h-24" />
-      </div>
-
-      {/* Floating Sticky Input Area */}
-      <div className="sticky bottom-4 md:bottom-6 z-50 pb-8 pt-4 -mx-4 md:-mx-6 px-4 pointer-events-none">
-        <div className="max-w-3xl mx-auto">
-          {/* Agent Autocomplete */}
-          {showAgentAutocomplete && filteredAgents.length > 0 && (
-            <div className="mb-4 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-2 duration-300">
-              {filteredAgents.map((agent, index) => (
-                <button
-                  key={agent.key}
-                  onClick={() => handleAgentSelect(agent)}
-                  className={cn(
-                    "w-full flex items-center space-x-3 px-5 py-3 text-left hover:bg-slate-50 transition-colors",
-                    index === selectedAgentIndex && "bg-slate-50"
-                  )}
-                >
-                  <div className={cn("text-2xl", agent.color)}>{agent.icon}</div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <span className="font-semibold text-slate-900">{agent.name}</span>
-                      <div className="bg-slate-100 border border-slate-200 text-slate-500 text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md font-bold">
-                        Employee
-                      </div>
-                    </div>
-                    <p className="text-xs text-slate-500">{agent.description}</p>
-                  </div>
-                  <span className="text-xs font-mono text-slate-400">/{agent.key}</span>
-                </button>
-              ))}
-            </div>
-          )}
-
-          <div className="bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl p-2 shadow-[0_20px_50px_rgba(0,0,0,0.1)] flex items-end space-x-2">
-            <div className="flex-1 relative">
-              <Input
-                ref={inputRef}
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder={
-                  showAgentAutocomplete
-                    ? "Select an employee..."
-                    : "Message #strategy-room or /employee-name"
-                }
-                className="bg-transparent border-0 focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 h-12 text-base px-4"
-              />
-            </div>
-            <div className="flex items-center pb-1 pr-1 space-x-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl h-10 w-10 transition-all"
-              >
-                <Paperclip className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-xl h-10 w-10 transition-all",
-                  isRecording && "text-red-600 bg-red-50"
-                )}
-                onClick={() => setIsRecording(!isRecording)}
-              >
-                <Mic className="h-5 w-5" />
-              </Button>
-              <Button
-                onClick={handleSendMessage}
-                disabled={!inputMessage.trim() || isSending}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl h-10 w-10 p-0 shadow-lg shadow-indigo-500/20 transition-all active:scale-95"
-              >
-                {isSending ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Send className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          {/* Help Tooltip */}
-          <div className="mt-3 text-center">
-            <span className="inline-flex items-center space-x-2 text-[10px] uppercase tracking-widest text-slate-400 font-bold">
-              <Sparkles className="h-3 w-3 text-indigo-500" />
-              <span>Type /employee-name to call an employee</span>
-            </span>
-          </div>
+        <div className="flex items-center space-x-3">
+            <Badge variant="outline" className="font-mono text-[10px] text-slate-500 border-slate-200 bg-slate-50">
+                ENC: AES-256
+            </Badge>
+            <Badge variant="outline" className="font-mono text-[10px] text-slate-500 border-slate-200 bg-slate-50">
+                LAT: 12ms
+            </Badge>
         </div>
-      </div>
     </div>
-  )
+)
+
+const RosterItem = ({ agent, onClick }: { agent: Agent; onClick: () => void }) => (
+    <button
+        onClick={onClick}
+        className="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 transition-colors group text-left"
+    >
+        <div className="relative">
+            <div className={cn(
+                "h-10 w-10 number-lg flex items-center justify-center rounded-lg border bg-white shadow-sm group-hover:scale-105 transition-transform",
+                agent.color.replace("text-", "border-").replace("-600", "-100")
+            )}>
+                <span className="text-lg">{agent.icon}</span>
+            </div>
+            <div className={cn(
+                "absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white",
+                agent.status === "working" ? "bg-amber-400 animate-pulse" : "bg-emerald-400"
+            )} />
+        </div>
+        <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-tight truncate">{agent.name}</span>
+                <span className="text-[9px] font-mono text-slate-400">{agent.status === "working" ? "BUSY" : "RDY"}</span>
+            </div>
+            <p className="text-[10px] text-slate-500 truncate">{agent.specialty}</p>
+        </div>
+    </button>
+)
+
+const MessageBlock = ({ message, agentInfo }: { message: ChatMessage; agentInfo?: Agent | null }) => {
+    const isAgent = !!message.agent_key
+    const { user } = useAuthStore()
+    const isMe = message.user_id === user?.id && !isAgent
+
+    return (
+        <div className={cn(
+            "flex gap-4 p-4 mb-2 rounded-xl transition-colors border border-transparent",
+            isMe ? "bg-slate-50/50" : "hover:bg-slate-50/50 hover:border-slate-100"
+        )}>
+            <div className="shrink-0 pt-1">
+                {isAgent ? (
+                    <div className={cn(
+                        "h-8 w-8 rounded-lg flex items-center justify-center border shadow-sm bg-white",
+                        agentInfo?.color.replace("text-", "border-").replace("-600", "-200")
+                    )}>
+                        <span className="text-sm">{agentInfo?.icon}</span>
+                    </div>
+                ) : (
+                    <Avatar className="h-8 w-8 rounded-lg border border-slate-200">
+                        <AvatarImage src={message.avatar_url} />
+                        <AvatarFallback className="text-[10px] font-bold bg-slate-100 text-slate-600">
+                            {message.user_name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
+                )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                    <span className={cn(
+                        "text-xs font-bold uppercase tracking-tight",
+                        isAgent ? "text-slate-900" : "text-slate-700"
+                    )}>
+                        {isAgent ? agentInfo?.name : message.user_name}
+                    </span>
+                    {isAgent && (
+                        <Badge variant="secondary" className="h-4 px-1 text-[9px] font-mono text-indigo-600 bg-indigo-50 border-indigo-100 rounded-sm">
+                            AI UNIT
+                        </Badge>
+                    )}
+                    <span className="text-[9px] font-mono text-slate-400 ml-auto">
+                        {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                </div>
+
+                <div className="text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">
+                    {message.content}
+                </div>
+
+                {isAgent && message.thinking_steps && message.thinking_steps.length > 0 && (
+                    <div className="mt-3 pl-3 border-l-2 border-slate-200/60 space-y-1">
+                        {message.thinking_steps.map((step, i) => (
+                            <div key={i} className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+                                <Cpu className="h-3 w-3 opacity-50" />
+                                <span>{step}</span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    )
 }
 
+
+export default function TeamChatTab() {
+    const { user } = useAuthStore()
+    const { toast } = useToast()
+
+    // State
+    const [messages, setMessages] = useState<ChatMessage[]>([])
+    const [inputMessage, setInputMessage] = useState("")
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSending, setIsSending] = useState(false)
+    const [isRecording, setIsRecording] = useState(false)
+    const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null)
+
+    // Scroll to bottom
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [messages])
+
+    // Initial Load
+    useEffect(() => {
+        loadMessages()
+
+        // WebSocket
+        websocketService.subscribe('team_chat_message', () => {
+            setTimeout(loadMessages, 300)
+        })
+
+        if (!websocketService.getConnectionStatus()) {
+            websocketService.connect()
+        }
+    }, [])
+
+    const loadMessages = async () => {
+        try {
+            setIsLoading(true)
+            const response = await apiClient.get("/api/v1/team/chat/messages?limit=50").catch(() => ({ data: { messages: [] } }))
+            if (response.data?.messages) {
+                setMessages(response.data.messages.reverse())
+            }
+        } catch (error) {
+            console.error("Failed to load messages", error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleSendMessage = async () => {
+        if (!inputMessage.trim() && !isSending) return
+        setIsSending(true)
+
+        try {
+            let msg = inputMessage
+            let agentKey = null
+
+            // Quick slash command check
+            if (selectedAgent) {
+                msg = `/${selectedAgent.key} ${msg}`
+                agentKey = selectedAgent.key
+                setSelectedAgent(null) // Reset selection
+            } else if (msg.startsWith("/")) {
+                // Basic parsing handled by backend helper usually, but here we just send
+            }
+
+            // If it starts with /, we try to parse it for the visual update immediately
+            if (msg.startsWith("/")) {
+                const parts = msg.split(" ")
+                const key = parts[0].slice(1)
+                const agent = AVAILABLE_AGENTS.find(a => a.key === key)
+                if (agent) agentKey = agent.key
+            }
+
+            if (agentKey) {
+                // Agent Request
+                await apiClient.post("/api/v1/team/agent-requests/create", {
+                    agent_key: agentKey,
+                    request_type: "chat",
+                    request_data: { message: msg.replace(/^\/\w+\s/, ""), context: {} },
+                })
+                // Optimistic UI update or just wait for socket? Let's just send the user message to chat too
+                await apiClient.post("/api/v1/team/chat/message", {
+                    content: msg,
+                    message_type: "text",
+                    agent_key: agentKey
+                })
+            } else {
+                // Normal message
+                await apiClient.post("/api/v1/team/chat/message", {
+                    content: msg,
+                    message_type: "text"
+                })
+            }
+
+            setInputMessage("")
+            setTimeout(loadMessages, 300)
+
+        } catch (error) {
+            console.error(error)
+            toast({ title: "Error sending message", variant: "destructive" })
+        } finally {
+            setIsSending(false)
+        }
+    }
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault()
+            handleSendMessage()
+        }
+    }
+
+    return (
+        <div className="flex h-[calc(100vh-6rem)] bg-slate-50/50 overflow-hidden font-sans">
+
+            {/* LEFT PANE: ROSTER */}
+            <div className="w-64 border-r border-slate-200 bg-white flex flex-col hidden md:flex">
+                <div className="p-4 border-b border-slate-100">
+                    <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Personnel Roster</h2>
+                    <div className="relative">
+                        <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                        <Input className="h-8 pl-8 text-xs bg-slate-50 border-slate-200" placeholder="Filter agents..." />
+                    </div>
+                </div>
+                <ScrollArea className="flex-1 p-3">
+                    <div className="space-y-1">
+                        {AVAILABLE_AGENTS.map(agent => (
+                            <RosterItem
+                                key={agent.key}
+                                agent={agent}
+                                onClick={() => {
+                                    setInputMessage(`/${agent.key} `)
+                                    inputRef.current?.focus()
+                                }}
+                            />
+                        ))}
+                    </div>
+                </ScrollArea>
+                <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                        <span>ONLINE: 7/7</span>
+                        <span>CPU: 12%</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* CENTER PANE: EXECUTION FLOOR */}
+            <div className="flex-1 flex flex-col min-w-0 bg-white relative">
+                <TacticalHeader />
+
+                <div className="flex-1 overflow-y-auto px-4 py-4" id="messages-container">
+                    <div className="max-w-3xl mx-auto space-y-6">
+                        <div className="flex items-center justify-center my-8">
+                            <span className="text-[10px] font-mono text-slate-300 uppercase tracking-widest">--- MISSION START ---</span>
+                        </div>
+                        {messages.map(msg => (
+                            <MessageBlock key={msg.id} message={msg} agentInfo={AVAILABLE_AGENTS.find(a => a.key === msg.agent_key)} />
+                        ))}
+                        <div ref={messagesEndRef} />
+                    </div>
+                </div>
+
+                {/* INPUT AREA */}
+                <div className="p-4 border-t border-slate-200 bg-white/80 backdrop-blur-md">
+                    <div className="max-w-3xl mx-auto flex items-end gap-3">
+                        <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-2 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all shadow-inner">
+                            <Input
+                                ref={inputRef}
+                                className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-900 placeholder:text-slate-400 h-10"
+                                placeholder="Transmit command..."
+                                value={inputMessage}
+                                onChange={e => setInputMessage(e.target.value)}
+                                onKeyDown={handleKeyPress}
+                            />
+                            <div className="flex items-center justify-between px-2 pt-2 border-t border-slate-200/50 mt-1">
+                                <div className="flex gap-1">
+                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-emerald-600"><Paperclip className="h-3.5 w-3.5" /></Button>
+                                    <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-emerald-600"><Mic className="h-3.5 w-3.5" /></Button>
+                                </div>
+                                <span className="text-[10px] font-mono text-slate-300">SECURE // ENCRYPTED</span>
+                            </div>
+                        </div>
+                        <Button
+                            className="h-12 w-12 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white shadow-lg transition-colors"
+                            onClick={handleSendMessage}
+                            disabled={isSending}
+                        >
+                            <Send className="h-5 w-5" />
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT PANE: COMMAND SIDEBAR */}
+            <div className="w-72 border-l border-slate-200 bg-slate-50 flex flex-col hidden xl:flex">
+                <div className="p-4 border-b border-slate-200">
+                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-emerald-600" />
+                        Active Operations
+                    </h3>
+                </div>
+                <div className="flex-1 p-4 space-y-4">
+                    {/* Example Active Mission Card */}
+                    <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
+                        <div className="flex items-start justify-between mb-2">
+                            <span className="text-[10px] font-mono text-blue-600 bg-blue-50 px-1.5 rounded-sm">TASK-402</span>
+                            <Badge variant="outline" className="text-[9px] h-4 border-amber-200 text-amber-700 bg-amber-50">IN PROGRESS</Badge>
+                        </div>
+                        <h4 className="text-xs font-bold text-slate-900 leading-tight mb-1">Market Analysis: Q3 Trends</h4>
+                        <div className="flex items-center gap-2 mt-3">
+                            <Avatar className="h-5 w-5 border border-slate-100">
+                                <div className="bg-indigo-100 flex items-center justify-center w-full h-full text-[10px]">🧠</div>
+                            </Avatar>
+                            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-blue-500 w-[65%]" />
+                            </div>
+                            <span className="text-[9px] font-mono text-slate-500">65%</span>
+                        </div>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div>
+                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 mt-6">Tactical Actions</h3>
+                        <div className="grid grid-cols-2 gap-2">
+                            <Button variant="outline" size="sm" className="h-20 flex flex-col gap-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 bg-white">
+                                <Zap className="h-5 w-5 text-amber-500" />
+                                <span className="text-[10px] font-bold">Fast Track</span>
+                            </Button>
+                            <Button variant="outline" size="sm" className="h-20 flex flex-col gap-2 border-slate-200 hover:border-red-500 hover:bg-red-50 bg-white">
+                                <Shield className="h-5 w-5 text-red-500" />
+                                <span className="text-[10px] font-bold">Lockdown</span>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    )
+}

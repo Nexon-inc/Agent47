@@ -125,7 +125,7 @@ function DashboardContent() {
         return <HomeTab />
       case "team-management":
         return <TeamManagementTab />
-      case "team-chat":
+      case "chat":
         return <TeamChatTab />
       case "inbox":
         return <InboxTab />
