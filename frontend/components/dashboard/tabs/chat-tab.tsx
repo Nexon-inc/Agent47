@@ -263,6 +263,7 @@ export default function TeamChatTab() {
     const [opsOpen, setOpsOpen] = useState(true)
     const [actionsOpen, setActionsOpen] = useState(true)
     const [isRecording, setIsRecording] = useState(false)
+    const [hiredAgentKeys, setHiredAgentKeys] = useState<string[]>([])
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const audioChunksRef = useRef<Blob[]>([])
 
@@ -286,6 +287,7 @@ export default function TeamChatTab() {
     useEffect(() => {
         loadMessages()
         checkIntercomStatus()
+        fetchHiredAgents()
 
         // WebSocket Setup
         const status = websocketService.getConnectionStatus()
@@ -322,6 +324,21 @@ export default function TeamChatTab() {
             setIsLoading(false)
         }
     }
+
+    const fetchHiredAgents = async () => {
+        try {
+            const hired = await apiClient.getSelectedAgents()
+            // Backend might return agent objects with key or id
+            const keys = hired.map((a: any) => a.key || a.agent_key || a.id)
+            setHiredAgentKeys(keys)
+        } catch (error) {
+            console.error("Failed to fetch hired agents", error)
+        }
+    }
+
+    const filteredAgents = AVAILABLE_AGENTS.filter(agent =>
+        hiredAgentKeys.length === 0 || hiredAgentKeys.includes(agent.key)
+    )
 
     const checkIntercomStatus = async () => {
         try {
@@ -485,7 +502,19 @@ export default function TeamChatTab() {
     }
 
     return (
-        <div className="flex h-screen bg-slate-50 overflow-hidden font-sans border-0 shadow-none">
+        <div className="flex w-full h-[calc(100vh-64px)] overflow-hidden bg-white select-none relative">
+            <style jsx global>{`
+                /* Hide scrollbar for Chrome, Safari and Opera */
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+
+                /* Hide scrollbar for IE, Edge and Firefox */
+                .no-scrollbar {
+                    -ms-overflow-style: none;  /* IE and Edge */
+                    scrollbar-width: none;  /* Firefox */
+                }
+            `}</style>
 
             {/* LEFT PANE: WORKFORCE ROSTER (COLLAPSIBLE) */}
             <AnimatePresence initial={false}>
@@ -513,10 +542,10 @@ export default function TeamChatTab() {
                             </div>
                         </div>
 
-                        <ScrollArea className="flex-1">
+                        <ScrollArea className="flex-1 no-scrollbar">
                             <div className="p-2 space-y-1">
                                 {!intercomEnabled ? (
-                                    AVAILABLE_AGENTS.map((agent) => (
+                                    filteredAgents.map((agent) => (
                                         <button
                                             key={agent.key}
                                             onClick={() => {
@@ -583,7 +612,7 @@ export default function TeamChatTab() {
                             <ChevronRight className="h-4 w-4" />
                         </Button>
                         <div className="flex flex-col gap-3">
-                            {AVAILABLE_AGENTS.map((agent) => (
+                            {filteredAgents.map((agent) => (
                                 <button key={agent.key} onClick={() => {
                                     setIsLeftSidebarOpen(true)
                                     setSelectedAgent(agent)
@@ -607,7 +636,7 @@ export default function TeamChatTab() {
                     onHistory={handleViewHistory}
                 />
 
-                <div className="flex-1 overflow-y-auto px-4 py-8 scroll-smooth isolate" id="messages-container">
+                <div className="flex-1 overflow-y-auto px-4 py-8 scroll-smooth isolate no-scrollbar" id="messages-container">
                     <div className="max-w-3xl mx-auto space-y-6">
                         <div className="flex items-center justify-center my-8">
                             <span className="text-[10px] font-mono text-slate-400 uppercase tracking-[0.5em]">--- MISSION_OPERATIONS_INITIATED ---</span>
@@ -734,7 +763,7 @@ export default function TeamChatTab() {
                             </h3>
                         </div>
 
-                        <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-slate-50/30">
+                        <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-slate-50/30 no-scrollbar">
                             {/* ACTIVE OPERATION SECTION */}
                             <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:border-emerald-500/30">
                                 <button
