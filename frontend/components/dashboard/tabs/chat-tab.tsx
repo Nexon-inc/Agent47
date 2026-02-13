@@ -264,6 +264,7 @@ export default function TeamChatTab() {
     const [actionsOpen, setActionsOpen] = useState(true)
     const [isRecording, setIsRecording] = useState(false)
     const [hiredAgentKeys, setHiredAgentKeys] = useState<string[]>([])
+    const [isHiredLoading, setIsHiredLoading] = useState(true)
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const audioChunksRef = useRef<Blob[]>([])
 
@@ -327,18 +328,25 @@ export default function TeamChatTab() {
 
     const fetchHiredAgents = async () => {
         try {
+            setIsHiredLoading(true)
             const hired = await apiClient.getSelectedAgents()
             // Backend might return agent objects with key or id
             const keys = hired.map((a: any) => a.key || a.agent_key || a.id)
             setHiredAgentKeys(keys)
         } catch (error) {
             console.error("Failed to fetch hired agents", error)
+        } finally {
+            setIsHiredLoading(false)
         }
     }
 
     const filteredAgents = AVAILABLE_AGENTS.filter(agent =>
-        hiredAgentKeys.length === 0 || hiredAgentKeys.includes(agent.key)
+        !isHiredLoading && hiredAgentKeys.includes(agent.key)
     )
+
+    // If loading or we have none, we might want to default to nothing 
+    // but keep a fallback for development if needed. 
+    // The user wants strictly "chosen employees only".
 
     const checkIntercomStatus = async () => {
         try {
