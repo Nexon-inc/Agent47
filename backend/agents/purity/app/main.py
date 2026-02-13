@@ -139,6 +139,7 @@ def build_app() -> FastAPI:
     
     # Root endpoint
     @app.get("/")
+    async def root():
         return {
             "message": "Welcome to Purity - AI Business Architect",
             "version": "1.0.0",
