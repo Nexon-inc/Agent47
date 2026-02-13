@@ -314,14 +314,21 @@ export default function TeamChatTab() {
     }, [])
 
     const loadMessages = async () => {
+        // Skip team chat history if an individual agent is selected and no team context exists
+        if (agentKey) {
+            console.log(`[Chat] Individual engagement with ${agentKey}. Skipping team history sync.`);
+            setIsLoading(false);
+            return;
+        }
+
         try {
             setIsLoading(true)
             const response = await apiClient.get("/api/v1/team/chat/messages?limit=50").catch(() => ({ data: { messages: [] } }))
             if (response.data?.messages) {
                 setMessages(response.data.messages.reverse())
             }
-        } catch (error) {
-            console.error("Failed to load messages", error)
+        } catch (error: any) {
+            console.error("Failed to load command history:", error)
         } finally {
             setIsLoading(false)
         }
@@ -403,53 +410,82 @@ export default function TeamChatTab() {
             }
 
             if (agentKey) {
-                // Individual Agent Engagement - Call Direct Endpoint
-                // We also save the user's message to the team chat log for history
-                await apiClient.post("/api/v1/team/chat/message", {
-                    content: msg,
+                // Individual Agent Engagement - Call Direct Endpoint ONLY
+                // We no longer hit the team chat endpoints to avoid 404s when no team exists.
+
+                // 1. Manually add user message to local UI state for immediate feedback
+                const userMessage: ChatMessage = {
+                    id: Date.now(),
+                    team_id: 0,
+                    user_id: user?.id || 0,
+                    user_name: user?.username || "You",
+                    agent_key: null,
                     message_type: "text",
-                    agent_key: agentKey
-                })
+                    content: msg,
+                    created_at: new Date().toISOString()
+                }
+                setMessages(prev => [...prev, userMessage])
+                setInputMessage("")
 
                 try {
-                    // Call the direct agent endpoint for immediate response
+                    // 2. Call the direct agent endpoint for immediate response
                     const response = await apiClient.post(`/api/agents/${agentKey}/${agentKey}-chat/message`, {
                         message: msg.replace(/^\/\w+\s/, ""),
-                        session_id: "default-session" // Standardize session handling if needed
+                        session_id: "default-session"
                     })
 
                     // Handle response Data
                     const responseData = response.data?.data || response.data
                     const responseText = responseData?.response || responseData?.content || responseData?.text_content || "I have processed your request."
 
-                    // Save the agent's response to the team chat log for consistency
-                    await apiClient.post("/api/v1/team/chat/agent-output", {
+                    // 3. Manually add agent response to local UI state
+                    const agentMessage: ChatMessage = {
+                        id: Date.now() + 1,
+                        team_id: 0,
+                        user_id: 0, // System/Agent
+                        user_name: agentKey.charAt(0).toUpperCase() + agentKey.slice(1),
                         agent_key: agentKey,
-                        content: responseText
-                    })
+                        message_type: "agent_output",
+                        content: responseText,
+                        created_at: new Date().toISOString()
+                    }
+                    setMessages(prev => [...prev, agentMessage])
+
+                    // We skip saving to team-output to bypass the 404 team check
                 } catch (agentErr: any) {
                     console.error("Direct agent communication failed:", agentErr)
-                    // Fallback to legacy team request if direct fails (resilience)
-                    await apiClient.post("/api/v1/team/agent-requests/create", {
-                        agent_key: agentKey,
-                        request_type: "chat",
-                        request_data: { message: msg.replace(/^\/\w+\s/, ""), context: {} },
+                    toast({
+                        title: "Agent Offline",
+                        description: `${agentKey} is not responding via direct link.`,
+                        variant: "destructive"
                     })
                 }
             } else {
-                // Normal generalized team message
-                await apiClient.post("/api/v1/team/chat/message", {
-                    content: msg,
-                    message_type: "text"
-                })
+                // Normal generalized team message (requires a team)
+                try {
+                    await apiClient.post("/api/v1/team/chat/message", {
+                        content: msg,
+                        message_type: "text"
+                    })
+                    setInputMessage("")
+                    setTimeout(loadMessages, 300)
+                } catch (err: any) {
+                    if (err.response?.status === 404) {
+                        toast({
+                            title: "Team Required",
+                            description: "Strategic coordination requires a Strategic Command (Team). Select an individual agent for 1-on-1 tactics.",
+                            variant: "destructive"
+                        })
+                    } else {
+                        throw err
+                    }
+                }
             }
-
-            setInputMessage("")
-            setTimeout(loadMessages, 300)
-
-        } catch (error) {
-            console.error(error)
-            toast({ title: "Error sending message", variant: "destructive" })
+        } catch (error: any) {
+            console.error("Message transmission error:", error)
+            if (error.response?.status !== 404) {
+                toast({ title: "Signal Lost", description: "Failed to transmit command sequence.", variant: "destructive" })
+            }
         } finally {
             setIsSending(false)
         }
