@@ -42,7 +42,7 @@ class LLMServiceMetrics:
 
 @dataclass
 class LLMRequest:
-    messages: List[Dict[str, str]]
+    messages: List[Dict[str, Any]]
     max_tokens: Optional[int] = None
     temperature: Optional[float] = None
     top_p: Optional[float] = None
@@ -50,6 +50,7 @@ class LLMRequest:
     presence_penalty: Optional[float] = None
     stream: bool = False
     require_image_generation: bool = False
+    extra_params: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class LLMResponse:
@@ -229,16 +230,23 @@ class LLMServicePool:
             client = openai.OpenAI(api_key=api_key, base_url=settings.openai.openai_api_base or None)
 
             start = datetime.utcnow()
-            completion = client.chat.completions.create(
-                model=settings.openai.openai_default_model,
-                messages=request.messages,  # type: ignore
-                max_tokens=request.max_tokens or 16000,
-                temperature=request.temperature or 0.7,
-                top_p=request.top_p or 0.9,
-                frequency_penalty=request.frequency_penalty or 0.0,
-                presence_penalty=request.presence_penalty or 0.0,
-                stream=False
-            )
+            # Prepare OpenAI base parameters
+            openai_params = {
+                "model": settings.openai.openai_default_model,
+                "messages": request.messages,  # type: ignore
+                "max_tokens": request.max_tokens or 16000,
+                "temperature": request.temperature or 0.7,
+                "top_p": request.top_p or 0.9,
+                "frequency_penalty": request.frequency_penalty or 0.0,
+                "presence_penalty": request.presence_penalty or 0.0,
+                "stream": False
+            }
+            
+            # Inject specialized parameters
+            if request.extra_params:
+                openai_params.update(request.extra_params)
+
+            completion = client.chat.completions.create(**openai_params)
 
             text = completion.choices[0].message.content if completion.choices else ""
             elapsed = int((datetime.utcnow() - start).total_seconds() * 1000)
@@ -270,7 +278,8 @@ class LLMServicePool:
                 messages=request.messages,
                 max_tokens=request.max_tokens,
                 temperature=request.temperature,
-                top_p=request.top_p
+                top_p=request.top_p,
+                **request.extra_params
             )
             
             # Update metrics
@@ -308,7 +317,8 @@ class LLMServicePool:
             result = await self.gemini_client.generate_text(
                 messages=request.messages,
                 max_tokens=request.max_tokens,
-                temperature=request.temperature
+                temperature=request.temperature,
+                **request.extra_params
             )
             
             # Update metrics

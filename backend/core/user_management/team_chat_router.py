@@ -56,14 +56,9 @@ async def send_chat_message(
 ):
     """Send a chat message to team (Discord-style)"""
     try:
-        # Get user's team (check if user is owner or member)
+        # Get user's team (check if user is creator)
         team_result = await db.execute(
-            select(Team).where(
-                or_(
-                    Team.created_by == current_user.id,
-                    Team.owner_id == current_user.id
-                )
-            )
+            select(Team).where(Team.created_by == current_user.id)
         )
         team = team_result.scalar_one_or_none()
         
@@ -112,7 +107,7 @@ async def send_chat_message(
             )
         
         # Verify user is team member or owner
-        is_owner = (hasattr(team, 'owner_id') and team.owner_id == current_user.id) or team.created_by == current_user.id
+        is_owner = team.created_by == current_user.id
         if not is_owner:
             member_result = await db.execute(
                 select(TeamMember).where(

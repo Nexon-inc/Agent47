@@ -50,39 +50,63 @@ async def create_agent_request(
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Create a new agent request from team member"""
+    """Create a new agent request from team member with auto-provisioning and tier enforcement"""
     check_team_access(current_user)
     
     try:
-        # Get user's team
+        # Get or Create user's team
         result = await db.execute(
             select(Team).where(Team.created_by == current_user.id)
         )
         team = result.scalar_one_or_none()
         
         if not team:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Team not found"
+            logger.info(f"Auto-provisioning Personal Workspace for user {current_user.id}")
+            team = Team(
+                name="Personal Workspace",
+                description="Your private AI team environment",
+                created_by=current_user.id,
+                tier="free",
+                is_active=True
             )
-        
-        # Verify user is team member
-        member_result = await db.execute(
-            select(TeamMember).where(
-                and_(
-                    TeamMember.team_id == team.id,
-                    TeamMember.user_id == current_user.id,
-                    TeamMember.is_active == True
+            db.add(team)
+            await db.flush() # Get ID before adding member
+            
+            # Add user as admin member
+            admin_member = TeamMember(
+                team_id=team.id,
+                user_id=current_user.id,
+                role="admin",
+                is_active=True
+            )
+            db.add(admin_member)
+            await db.commit()
+            await db.refresh(team)
+            team_member = admin_member
+        else:
+            # Verify user is team member
+            member_result = await db.execute(
+                select(TeamMember).where(
+                    and_(
+                        TeamMember.team_id == team.id,
+                        TeamMember.user_id == current_user.id,
+                        TeamMember.is_active == True
+                    )
                 )
             )
-        )
-        team_member = member_result.scalar_one_or_none()
-        
-        if not team_member:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not a member of this team"
-            )
+            team_member = member_result.scalar_one_or_none()
+            
+            if not team_member:
+                # If they are the creator but not a member (edge case), add them
+                team_member = TeamMember(
+                    team_id=team.id,
+                    user_id=current_user.id,
+                    role="admin",
+                    is_active=True
+                )
+                db.add(team_member)
+                await db.commit()
+                await db.refresh(team_member)
         
         # Create agent request
         agent_request = TeamAgentRequest(
@@ -138,7 +162,7 @@ async def get_team_agent_requests(
     db: AsyncSession = Depends(get_db)
 ):
     """Get all agent requests for user's team"""
-    check_team_access(current_user)
+    # Removed strict check_team_access to support solo users in their personal workspace
     
     try:
         # Get user's team
@@ -198,7 +222,7 @@ async def get_agent_request(
     db: AsyncSession = Depends(get_db)
 ):
     """Get specific agent request with output"""
-    check_team_access(current_user)
+    # Removed strict check_team_access
     
     try:
         # Get request

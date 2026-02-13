@@ -403,20 +403,41 @@ export default function TeamChatTab() {
             }
 
             if (agentKey) {
-                // Agent Request
-                await apiClient.post("/api/v1/team/agent-requests/create", {
-                    agent_key: agentKey,
-                    request_type: "chat",
-                    request_data: { message: msg.replace(/^\/\w+\s/, ""), context: {} },
-                })
-                // Also add to chat log for visibility
+                // Individual Agent Engagement - Call Direct Endpoint
+                // We also save the user's message to the team chat log for history
                 await apiClient.post("/api/v1/team/chat/message", {
                     content: msg,
-                    message_type: "text"
-                    // We don't verify agent_key here to avoid user impersonating agent visual
+                    message_type: "text",
+                    agent_key: agentKey
                 })
+
+                try {
+                    // Call the direct agent endpoint for immediate response
+                    const response = await apiClient.post(`/api/agents/${agentKey}/${agentKey}-chat/message`, {
+                        message: msg.replace(/^\/\w+\s/, ""),
+                        session_id: "default-session" // Standardize session handling if needed
+                    })
+
+                    // Handle response Data
+                    const responseData = response.data?.data || response.data
+                    const responseText = responseData?.response || responseData?.content || responseData?.text_content || "I have processed your request."
+
+                    // Save the agent's response to the team chat log for consistency
+                    await apiClient.post("/api/v1/team/chat/agent-output", {
+                        agent_key: agentKey,
+                        content: responseText
+                    })
+                } catch (agentErr: any) {
+                    console.error("Direct agent communication failed:", agentErr)
+                    // Fallback to legacy team request if direct fails (resilience)
+                    await apiClient.post("/api/v1/team/agent-requests/create", {
+                        agent_key: agentKey,
+                        request_type: "chat",
+                        request_data: { message: msg.replace(/^\/\w+\s/, ""), context: {} },
+                    })
+                }
             } else {
-                // Normal message
+                // Normal generalized team message
                 await apiClient.post("/api/v1/team/chat/message", {
                     content: msg,
                     message_type: "text"

@@ -329,13 +329,12 @@ class IntercommunicationService:
                 {"role": "user", "content": message_content}
             ]
             
-            ai_manager = await get_ai_service_manager()
-            from core.config import settings
-            
-            ai_response = await ai_manager.generate_text(
+            # 2. Call AI Service Manager with response_format for robust parsing (if supported by provider)
+            ai_response = await self.ai_service_manager.generate_text(
                 messages=coordinator_prompt,
                 max_tokens=200,
-                temperature=0.2 # Be precise
+                temperature=0.1, # Ultra-precise for routing
+                response_format={"type": "json_object"}
             )
             
             import json

@@ -82,14 +82,16 @@ class GeminiLLMClient:
 
     async def generate_text(
         self,
-        messages: List[Dict[str, str]],
+        messages: List[Dict[str, Any]],
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
-        stream: bool = False
+        stream: bool = False,
+        **kwargs
     ) -> Dict[str, Any]:
         """
         Generate text using Gemini.
         Adapts OpenAI-style messages to Gemini's 'contents' format.
+        Supports multi-modal content parts if content is passed as a list.
         """
         if not self.session:
             return {"success": False, "error": "Gemini Client not initialized"}
@@ -97,8 +99,6 @@ class GeminiLLMClient:
         # 1. Adapt Messages
         # OpenAI: [{"role": "system", "content": "..."}, {"role": "user", "content": "..."}]
         # Gemini: contents=[{"parts": [{"text": "..."}], "role": "user"}]
-        # Note: Gemini doesn't strictly support "system" role in 'contents' for some models, 
-        # but supports 'system_instruction' field in the request body.
         
         gemini_contents = []
         system_instruction = None
@@ -108,12 +108,21 @@ class GeminiLLMClient:
             content = msg.get("content", "")
             
             if role == "system":
-                # Ensure system instruction is a dictionary with parts
-                system_instruction = {"parts": [{"text": content}]}
+                # System instructions can be plain text or parts
+                if isinstance(content, list):
+                    system_instruction = {"parts": content}
+                else:
+                    system_instruction = {"parts": [{"text": content}]}
             elif role == "user":
-                gemini_contents.append({"role": "user", "parts": [{"text": content}]})
+                if isinstance(content, list):
+                    gemini_contents.append({"role": "user", "parts": content})
+                else:
+                    gemini_contents.append({"role": "user", "parts": [{"text": content}]})
             elif role == "assistant":
-                gemini_contents.append({"role": "model", "parts": [{"text": content}]})
+                if isinstance(content, list):
+                    gemini_contents.append({"role": "model", "parts": content})
+                else:
+                    gemini_contents.append({"role": "model", "parts": [{"text": content}]})
         
         # 2. Build Request
         url = f"{self.base_url}/models/{self.model}:generateContent?key={self.api_key}"
@@ -127,6 +136,10 @@ class GeminiLLMClient:
                 "topK": self.settings.top_k
             }
         }
+        
+        # Inject extra parameters into generationConfig (e.g. stopSequences, responseMimeType)
+        if kwargs:
+            payload["generationConfig"].update(kwargs)
         
         if system_instruction:
             payload["system_instruction"] = system_instruction

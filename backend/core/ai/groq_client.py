@@ -133,7 +133,7 @@ class GroqLLMClient:
         self,
         prompt: str = None,
         system_prompt: str = None,
-        messages: List[Dict[str, str]] = None,
+        messages: List[Dict[str, Any]] = None,
         max_tokens: int = None,
         temperature: float = None,
         top_p: float = None,
@@ -211,7 +211,7 @@ class GroqLLMClient:
                     "error": "No prompt or messages provided"
                 }
             
-            # Prepare request payload
+            # Prepare base request payload
             payload = {
                 "model": self.default_model,
                 "messages": formatted_messages,
@@ -220,6 +220,10 @@ class GroqLLMClient:
                 "top_p": top_p if top_p is not None else self.top_p,
                 "stream": False
             }
+            
+            # Inject specialized parameters (e.g. response_format, stop sequences)
+            if kwargs:
+                payload.update(kwargs)
             
             endpoint = f"{self.api_base_url}/chat/completions"
             

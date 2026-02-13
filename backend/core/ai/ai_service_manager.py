@@ -27,7 +27,7 @@ class UnifiedAIRequest:
     """Unified request for AI services"""
     text_prompt: Optional[str] = None
     image_prompt: Optional[str] = None
-    messages: Optional[List[Dict[str, str]]] = None
+    messages: Optional[List[Dict[str, Any]]] = None
     max_tokens: Optional[int] = None
     temperature: Optional[float] = None
     top_p: Optional[float] = None
@@ -80,23 +80,10 @@ class AIServiceManager:
             # Initialize image generation service
             self.image_generation_service = await get_image_generation_service()
             
-            # Initialize Groq TTS client
-            try:
-                self.groq_tts_client = GroqTTSClient()
-                await self.groq_tts_client.initialize()
-                logger.info("Groq TTS client initialized successfully")
-            except Exception as e:
-                logger.warning(f"Failed to initialize Groq TTS client: {e}. TTS will be unavailable.")
-                self.groq_tts_client = None
+            # Voice services (TTS/STT) will be lazily initialized on first use 
+            # to reduce startup latency.
             
-            # Initialize Groq STT client
-            try:
-                self.groq_stt_client = GroqSTTClient()
-                await self.groq_stt_client.initialize()
-                logger.info("Groq STT client initialized successfully")
-            except Exception as e:
-                logger.warning(f"Failed to initialize Groq STT client: {e}. STT will be unavailable.")
-                self.groq_stt_client = None
+            # Initialize tier enforcement
             
             # Initialize tier enforcement
             try:
@@ -138,7 +125,7 @@ class AIServiceManager:
     
     async def generate_text(
         self,
-        messages: List[Dict[str, str]],
+        messages: List[Dict[str, Any]],
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
@@ -146,7 +133,8 @@ class AIServiceManager:
         presence_penalty: Optional[float] = None,
         stream: bool = False,
         user_id: Optional[int] = None,
-        user_tier: Optional[UserTier] = None
+        user_tier: Optional[UserTier] = None,
+        **kwargs
     ) -> UnifiedAIResponse:
         """Generate text using the best available LLM service"""
         if not self._initialized:
@@ -179,7 +167,7 @@ class AIServiceManager:
             except Exception as e:
                 logger.warning(f"Tier limit check failed: {e}. Proceeding without tier enforcement.")
         
-        # Create LLM request
+        # Create LLM request with universal pass-through params
         llm_request = LLMRequest(
             messages=messages,
             max_tokens=max_tokens,
@@ -188,7 +176,8 @@ class AIServiceManager:
             frequency_penalty=frequency_penalty,
             presence_penalty=presence_penalty,
             stream=stream,
-            require_image_generation=False
+            require_image_generation=False,
+            extra_params=kwargs
         )
         
         # Generate text
@@ -363,10 +352,16 @@ class AIServiceManager:
             }
         
         if not self.groq_tts_client:
-            return {
-                "success": False,
-                "error": "Groq TTS client not initialized"
-            }
+            try:
+                logger.info("Lazily initializing Groq TTS client...")
+                self.groq_tts_client = GroqTTSClient()
+                await self.groq_tts_client.initialize()
+            except Exception as e:
+                logger.error(f"Failed to lazily initialize Groq TTS client: {e}")
+                return {
+                    "success": False,
+                    "error": "Groq TTS client initialization failed"
+                }
         
         # Check tier limits if user_id is provided
         if user_id is not None and self._tier_enforcement:
@@ -454,10 +449,16 @@ class AIServiceManager:
             }
         
         if not self.groq_stt_client:
-            return {
-                "success": False,
-                "error": "Groq STT client not initialized"
-            }
+            try:
+                logger.info("Lazily initializing Groq STT client...")
+                self.groq_stt_client = GroqSTTClient()
+                await self.groq_stt_client.initialize()
+            except Exception as e:
+                logger.error(f"Failed to lazily initialize Groq STT client: {e}")
+                return {
+                    "success": False,
+                    "error": "Groq STT client initialization failed"
+                }
         
         # Check tier limits if user_id is provided
         if user_id is not None and self._tier_enforcement:
