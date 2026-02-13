@@ -511,7 +511,7 @@ export default function TeamChatTab() {
     }
 
     return (
-        <div className="flex w-full h-[calc(100vh-64px)] overflow-hidden bg-white select-none relative">
+        <div className="flex w-full h-full overflow-hidden bg-white select-none relative">
             <style jsx global>{`
                 /* Hide scrollbar for Chrome, Safari and Opera */
                 .no-scrollbar::-webkit-scrollbar {
@@ -522,6 +522,14 @@ export default function TeamChatTab() {
                 .no-scrollbar {
                     -ms-overflow-style: none;  /* IE and Edge */
                     scrollbar-width: none;  /* Firefox */
+                }
+
+                * {
+                    scrollbar-width: none !important;
+                    -ms-overflow-style: none !important;
+                }
+                *::-webkit-scrollbar {
+                    display: none !important;
                 }
             `}</style>
 
@@ -638,7 +646,7 @@ export default function TeamChatTab() {
             </AnimatePresence>
 
             {/* MIDDLE PANE: EXECUTION FLOOR */}
-            <div className="flex-1 flex flex-col h-full bg-emerald-50/5 relative min-w-0">
+            <div className="flex-1 flex flex-col h-full bg-emerald-50/5 relative min-w-0 overflow-hidden">
                 <TacticalHeader
                     connectionStatus={isConnected}
                     onNewChat={handleNewChat}
