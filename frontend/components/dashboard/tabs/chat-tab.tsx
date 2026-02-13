@@ -101,31 +101,31 @@ const AVAILABLE_AGENTS: Agent[] = [
 // --- Components ---
 
 const TacticalHeader = ({ connectionStatus, onNewChat, onHistory }: { connectionStatus: boolean, onNewChat: () => void, onHistory: () => void }) => (
-    <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-slate-900 text-white sticky top-0 z-[60] shadow-md">
+    <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-white/95 backdrop-blur-sm sticky top-0 z-[60] shadow-sm">
         <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-slate-800 rounded-lg border border-slate-700 flex items-center justify-center">
-                <Radio className={`h-4 w-4 ${connectionStatus ? "text-emerald-400 animate-pulse" : "text-slate-500"}`} />
+            <div className="h-8 w-8 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center">
+                <Radio className={`h-4 w-4 ${connectionStatus ? "text-emerald-600 animate-pulse" : "text-slate-400"}`} />
             </div>
             <div>
-                <h1 className="text-sm font-black uppercase tracking-widest leading-none text-emerald-400">Strategy Room</h1>
+                <h1 className="text-sm font-black uppercase tracking-widest leading-none text-slate-900">Strategy Room</h1>
                 <div className="flex items-center gap-3 mt-1">
-                    <p className="text-[10px] font-mono text-emerald-500/80 font-medium flex items-center gap-2">
+                    <p className="text-[10px] font-mono text-emerald-600 font-medium flex items-center gap-2">
                         <span className={`inline-block w-2 h-2 rounded-full ${connectionStatus ? "bg-emerald-500 animate-ping" : "bg-red-500"}`} />
                         {connectionStatus ? "SECURE_CHANNEL // ACTIVE" : "CONNECTION_OFFLINE"}
                     </p>
-                    <span className="text-[9px] font-mono text-slate-500">LAT: 12ms // ENC: AES-256</span>
+                    <span className="text-[9px] font-mono text-slate-400">LAT: 12ms // ENC: AES-256</span>
                 </div>
             </div>
         </div>
         <div className="flex items-center space-x-2">
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-400 hover:bg-slate-800" onClick={onNewChat}>
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={onNewChat}>
                 <Edit3 className="h-4 w-4" />
             </Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-400 hover:bg-slate-800" onClick={onHistory}>
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={onHistory}>
                 <History className="h-4 w-4" />
             </Button>
-            <Separator orientation="vertical" className="h-4 mx-1 bg-slate-700" />
-            <Badge variant="outline" className="font-mono text-[10px] text-emerald-400 border-emerald-900/50 bg-emerald-950/30">
+            <Separator orientation="vertical" className="h-4 mx-1 bg-slate-200" />
+            <Badge variant="outline" className="font-mono text-[10px] text-emerald-600 border-emerald-200 bg-emerald-50/50">
                 LOCKED_SESSION
             </Badge>
         </div>
@@ -484,12 +484,12 @@ export default function TeamChatTab() {
                         exit={{ width: 0, opacity: 0 }}
                         className="border-r border-slate-200 bg-white flex flex-col hidden lg:flex overflow-hidden relative"
                     >
-                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-900">
-                            <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
-                                <Users className="h-4 w-4" />
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
+                                <Users className="h-4 w-4 text-emerald-600" />
                                 Workforce Roster
                             </h3>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-white hover:bg-slate-800" onClick={() => setIsLeftSidebarOpen(false)}>
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsLeftSidebarOpen(false)}>
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
                         </div>
@@ -564,8 +564,8 @@ export default function TeamChatTab() {
                         )}
                     </motion.div>
                 ) : (
-                    <div className="w-14 border-r border-slate-200 bg-slate-900 flex flex-col items-center py-4 space-y-4 hidden lg:flex">
-                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-white hover:bg-slate-800" onClick={() => setIsLeftSidebarOpen(true)}>
+                    <div className="w-14 border-r border-slate-200 bg-white flex flex-col items-center py-4 space-y-4 hidden lg:flex">
+                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsLeftSidebarOpen(true)}>
                             <ChevronRight className="h-4 w-4" />
                         </Button>
                         <div className="flex flex-col gap-3">
@@ -574,8 +574,8 @@ export default function TeamChatTab() {
                                     setIsLeftSidebarOpen(true)
                                     setSelectedAgent(agent)
                                 }} className={cn(
-                                    "w-9 h-9 rounded-lg border flex items-center justify-center shadow-sm transition-all bg-slate-800",
-                                    agent.color.replace("text-", "border-").replace("-500", "-900/50").replace("-400", "-900/50")
+                                    "w-9 h-9 rounded-lg border flex items-center justify-center shadow-sm transition-all bg-white hover:border-emerald-200",
+                                    agent.color.replace("text-", "border-").replace("-500", "-100").replace("-400", "-100")
                                 )}>
                                     <agent.icon className={cn("h-5 w-5", agent.color)} />
                                 </button>
@@ -631,40 +631,40 @@ export default function TeamChatTab() {
                                                 <Paperclip className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="start" className="w-64 p-2 bg-slate-900 border-slate-800 rounded-xl shadow-2xl">
-                                            <div className="px-2 py-1.5 border-b border-slate-800 mb-1">
-                                                <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest font-mono">Neural Interface / Assets</p>
+                                        <DropdownMenuContent align="start" className="w-64 p-2 bg-white border-slate-200 rounded-xl shadow-2xl">
+                                            <div className="px-2 py-1.5 border-b border-slate-100 mb-1">
+                                                <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest font-mono">Neural Interface / Assets</p>
                                             </div>
                                             <div className="grid grid-cols-2 gap-1">
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
-                                                    <FileText className="mr-2 h-3.5 w-3.5 text-blue-400" />
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
+                                                    <FileText className="mr-2 h-3.5 w-3.5 text-blue-500" />
                                                     PDF / Docs
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
-                                                    <Image className="mr-2 h-3.5 w-3.5 text-emerald-400" />
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
+                                                    <Image className="mr-2 h-3.5 w-3.5 text-emerald-500" />
                                                     Assets / Img
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
-                                                    <Terminal className="mr-2 h-3.5 w-3.5 text-amber-400" />
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
+                                                    <Terminal className="mr-2 h-3.5 w-3.5 text-amber-500" />
                                                     Scripts
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
-                                                    <Zap className="mr-2 h-3.5 w-3.5 text-purple-400" />
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
+                                                    <Zap className="mr-2 h-3.5 w-3.5 text-purple-500" />
                                                     Prompts
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
-                                                    <Activity className="mr-2 h-3.5 w-3.5 text-red-400" />
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
+                                                    <Activity className="mr-2 h-3.5 w-3.5 text-red-500" />
                                                     Briefs
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
-                                                    <Globe className="mr-2 h-3.5 w-3.5 text-sky-400" />
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
+                                                    <Globe className="mr-2 h-3.5 w-3.5 text-sky-500" />
                                                     Ads / Social
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
-                                                    <MoreVertical className="mr-2 h-3.5 w-3.5 text-slate-500" />
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
+                                                    <MoreVertical className="mr-2 h-3.5 w-3.5 text-slate-400" />
                                                     Drive / Links
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
                                                     <Shield className="mr-2 h-3.5 w-3.5 text-emerald-500" />
                                                     Cloud Storage
                                                 </DropdownMenuItem>
@@ -710,12 +710,12 @@ export default function TeamChatTab() {
                         exit={{ width: 0, opacity: 0 }}
                         className="border-l border-slate-200 bg-white flex flex-col hidden xl:flex overflow-hidden relative"
                     >
-                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-900">
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-white hover:bg-slate-800" onClick={() => setIsRightSidebarOpen(false)}>
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsRightSidebarOpen(false)}>
                                 <ChevronRight className="h-4 w-4" />
                             </Button>
-                            <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
-                                <Activity className="h-4 w-4" />
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
+                                <Activity className="h-4 w-4 text-emerald-600" />
                                 Command Panel
                             </h3>
                         </div>
@@ -739,14 +739,27 @@ export default function TeamChatTab() {
                                             <div className="p-3 space-y-3 border-t border-slate-100">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-[10px] font-bold text-slate-700 uppercase font-mono">Link Workforce</span>
-                                                    <Switch checked={intercomEnabled} onCheckedChange={toggleIntercom} className="data-[state=checked]:bg-emerald-500" />
+                                                    <Switch
+                                                        checked={intercomEnabled}
+                                                        onCheckedChange={toggleIntercom}
+                                                        className="data-[state=checked]:bg-emerald-500"
+                                                        disabled={userPlan !== 'starter' && userPlan !== 'pro'}
+                                                    />
                                                 </div>
-                                                <div className="p-2 bg-slate-900 rounded-lg border border-slate-800">
-                                                    <p className="text-[9px] text-emerald-400 font-mono leading-relaxed">
-                                                        LINK_STATE: {intercomEnabled ? "ESTABLISHED" : "INDEPENDENT"}
-                                                        <br />
-                                                        THREAT: MINIMAL
-                                                    </p>
+                                                <div className="p-2 bg-slate-50 rounded-lg border border-slate-100">
+                                                    {userPlan === 'starter' || userPlan === 'pro' ? (
+                                                        <p className="text-[9px] text-emerald-600 font-mono leading-relaxed">
+                                                            LINK_STATE: {intercomEnabled ? "ESTABLISHED" : "INDEPENDENT"}
+                                                            <br />
+                                                            THREAT: MINIMAL
+                                                        </p>
+                                                    ) : (
+                                                        <p className="text-[9px] text-amber-600 font-mono leading-relaxed">
+                                                            RESTRICTED: STARTER/PRO_ONLY
+                                                            <br />
+                                                            Contact HQ for neural upgrade.
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -786,16 +799,16 @@ export default function TeamChatTab() {
                         </div>
                     </motion.div>
                 ) : (
-                    <div className="w-14 border-l border-slate-200 bg-slate-900 flex flex-col items-center py-4 space-y-6 hidden xl:flex">
-                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-white hover:bg-slate-800" onClick={() => setIsRightSidebarOpen(true)}>
+                    <div className="w-14 border-l border-slate-200 bg-white flex flex-col items-center py-4 space-y-6 hidden xl:flex">
+                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsRightSidebarOpen(true)}>
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
                         <div className="flex flex-col gap-4">
-                            <Activity className="h-5 w-5 text-emerald-400" />
-                            <Bot className="h-5 w-5 text-slate-400 hover:text-emerald-400 cursor-pointer transition-colors" />
-                            <Zap className="h-5 w-5 text-slate-400 hover:text-emerald-400 cursor-pointer transition-colors" />
-                            <Shield className="h-5 w-5 text-slate-400 hover:text-red-400 cursor-pointer transition-colors" />
-                            <TrendingUp className="h-5 w-5 text-slate-400 hover:text-emerald-400 cursor-pointer transition-colors" />
+                            <Activity className="h-5 w-5 text-emerald-600" />
+                            <Bot className="h-5 w-5 text-slate-400 hover:text-emerald-600 cursor-pointer transition-colors" />
+                            <Zap className="h-5 w-5 text-slate-400 hover:text-emerald-600 cursor-pointer transition-colors" />
+                            <Shield className="h-5 w-5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors" />
+                            <TrendingUp className="h-5 w-5 text-slate-400 hover:text-emerald-600 cursor-pointer transition-colors" />
                         </div>
                     </div>
                 )}
