@@ -98,6 +98,18 @@ const AVAILABLE_AGENTS: Agent[] = [
     { key: "purity", name: "Purity", title: "Business Creation", description: "Business Development & Creation", icon: Lightbulb, color: "text-gray-500", status: "idle", specialty: "Strategy" },
 ]
 
+// --- Color Helpers ---
+const getAgentColor = (color: string) => {
+    const base = color.replace('text-', '')
+    return {
+        text: color,
+        bg: `bg-${base.replace('-500', '-50').replace('-400', '-50')}`,
+        border: `border-${base.replace('-500', '-200').replace('-400', '-200')}`,
+        accent: `bg-${base}`,
+        darkText: `text-${base.replace('-500', '-900').replace('-400', '-900')}`,
+    }
+}
+
 // --- Components ---
 
 const TacticalHeader = ({ connectionStatus, onNewChat, onHistory }: { connectionStatus: boolean, onNewChat: () => void, onHistory: () => void }) => (
@@ -173,7 +185,7 @@ const MessageBlock = ({ message, agentInfo }: { message: ChatMessage; agentInfo?
                 {isAgent ? (
                     <div className={cn(
                         "h-8 w-8 rounded-lg flex items-center justify-center border shadow-sm bg-white",
-                        agentInfo?.color.replace("text-", "border-").replace("-500", "-200").replace("-400", "-200")
+                        agentInfo ? getAgentColor(agentInfo.color).border : "border-slate-200"
                     )}>
                         {agentInfo?.icon && <agentInfo.icon className={cn("h-4 w-4", agentInfo.color)} />}
                     </div>
@@ -515,13 +527,15 @@ export default function TeamChatTab() {
                                             className={cn(
                                                 "w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all group relative overflow-hidden",
                                                 selectedAgent?.key === agent.key
-                                                    ? "bg-emerald-50 border border-emerald-100 shadow-sm scale-[1.02]"
-                                                    : "hover:bg-emerald-50/50 border-transparent"
+                                                    ? `${getAgentColor(agent.color).bg} ${getAgentColor(agent.color).border} border shadow-sm scale-[1.02]`
+                                                    : `hover:${getAgentColor(agent.color).bg}/50 border-transparent`
                                             )}
                                         >
                                             <div className={cn(
                                                 "w-10 h-10 rounded-xl flex items-center justify-center transition-all border",
-                                                selectedAgent?.key === agent.key ? "bg-emerald-500 text-white border-emerald-400" : "bg-white text-emerald-600 border-emerald-100 group-hover:border-emerald-200 shadow-sm"
+                                                selectedAgent?.key === agent.key
+                                                    ? `${getAgentColor(agent.color).accent} text-white border-transparent`
+                                                    : `bg-white ${agent.color} ${getAgentColor(agent.color).border.replace('border-', 'border-opacity-50 border-')} group-hover:border-opacity-100 shadow-sm`
                                             )}>
                                                 <agent.icon className="h-5 w-5" />
                                             </div>
@@ -529,11 +543,11 @@ export default function TeamChatTab() {
                                                 <div className="flex items-center gap-2">
                                                     <span className={cn(
                                                         "font-bold text-[11px] uppercase tracking-tighter truncate",
-                                                        selectedAgent?.key === agent.key ? "text-emerald-900" : "text-slate-600"
+                                                        selectedAgent?.key === agent.key ? getAgentColor(agent.color).darkText : "text-slate-600"
                                                     )}>{agent.name}</span>
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                    <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", getAgentColor(agent.color).accent)} />
                                                 </div>
-                                                <span className="text-[9px] text-emerald-600/60 font-mono font-medium truncate uppercase tracking-tighter">{agent.title}</span>
+                                                <span className={cn("text-[9px] font-mono font-medium truncate uppercase tracking-tighter", getAgentColor(agent.color).text, "opacity-60")}>{agent.title}</span>
                                             </div>
                                         </button>
                                     ))
@@ -574,7 +588,7 @@ export default function TeamChatTab() {
                                     setIsLeftSidebarOpen(true)
                                     setSelectedAgent(agent)
                                 }} className={cn(
-                                    "w-9 h-9 rounded-lg border flex items-center justify-center shadow-sm transition-all bg-white hover:border-emerald-200",
+                                    "w-9 h-9 rounded-lg border flex items-center justify-center shadow-sm transition-all bg-white hover:border-slate-300",
                                     agent.color.replace("text-", "border-").replace("-500", "-100").replace("-400", "-100")
                                 )}>
                                     <agent.icon className={cn("h-5 w-5", agent.color)} />
