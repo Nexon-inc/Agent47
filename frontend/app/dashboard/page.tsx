@@ -142,56 +142,6 @@ function DashboardContent() {
       case "upgrade":
         return <UpgradeTab />
 
-      // Individual agent tabs (lazy loaded)
-      case "aria":
-        return (
-          <Suspense fallback={<SkeletonAgentGrid count={3} />}>
-            <AriaTab />
-          </Suspense>
-        )
-      case "clara":
-        return (
-          <Suspense fallback={<SkeletonAgentGrid count={3} />}>
-            <ClaraTab />
-          </Suspense>
-        )
-      case "eric":
-        return (
-          <Suspense fallback={<SkeletonAgentGrid count={3} />}>
-            <EricTab />
-          </Suspense>
-        )
-      case "jackie":
-        return (
-          <Suspense fallback={<SkeletonAgentGrid count={3} />}>
-            <JackieTab />
-          </Suspense>
-        )
-      case "shakes":
-        return (
-          <Suspense fallback={<SkeletonAgentGrid count={3} />}>
-            <ShakesTab />
-          </Suspense>
-        )
-      case "joe":
-        return (
-          <Suspense fallback={<SkeletonAgentGrid count={3} />}>
-            <JoeTab />
-          </Suspense>
-        )
-      case "purity":
-        return (
-          <Suspense fallback={<SkeletonAgentGrid count={3} />}>
-            <PurityTab />
-          </Suspense>
-        )
-      case "janice":
-        return (
-          <Suspense fallback={<SkeletonAgentGrid count={3} />}>
-            <JackieTab />
-          </Suspense>
-        )
-
       // Other tabs
       case "analytics":
         return <AnalyticsTab />

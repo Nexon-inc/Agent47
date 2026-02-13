@@ -64,7 +64,7 @@ const employeeTemplates = [
   {
     id: "aria",
     name: "Aria",
-    title: "AI Social Media Manager",
+    title: "Social Media",
     description: "Expertly manages your brand presence and engagement across all social platforms.",
     icon: Globe,
     color: "bg-orange-500",
@@ -78,7 +78,7 @@ const employeeTemplates = [
   {
     id: "clara",
     name: "Clara",
-    title: "AI Support Specialist",
+    title: "Customer Support",
     description: "Provides empathetic, high-EQ customer support and technical troubleshooting 24/7.",
     icon: Headphones,
     color: "bg-purple-500",
@@ -92,7 +92,7 @@ const employeeTemplates = [
   {
     id: "eric",
     name: "Eric",
-    title: "AI Sales Representative",
+    title: "Sales",
     description: "Optimizes lead generation and closes deals with data-driven sales strategies.",
     icon: DollarSign,
     color: "bg-amber-500",
@@ -106,7 +106,7 @@ const employeeTemplates = [
   {
     id: "jackie",
     name: "Jackie",
-    title: "AI Marketing Director",
+    title: "Marketing",
     description: "Architects high-performance marketing campaigns and accelerates brand growth.",
     icon: Megaphone,
     color: "bg-pink-500",
@@ -120,7 +120,7 @@ const employeeTemplates = [
   {
     id: "shakes",
     name: "Shakes",
-    title: "AI Creative Director",
+    title: "Content Creation",
     description: "Crafts compelling narratives and high-conversion content across all formats.",
     icon: FileText,
     color: "bg-green-500",
@@ -134,7 +134,7 @@ const employeeTemplates = [
   {
     id: "joe",
     name: "Joe",
-    title: "AI Research Analyst",
+    title: "Research",
     description: "Conducts deep market research and provides actionable competitor insights.",
     icon: Search,
     color: "bg-sky-400",
@@ -148,8 +148,8 @@ const employeeTemplates = [
   {
     id: "purity",
     name: "Purity",
-    title: "AI Business Architect",
-    description: "Strategizes venture architecture and complex financial forecasting for scaling.",
+    title: "Business Creation",
+    description: "Strategizes business development, venture architecture, and complex financial modeling.",
     icon: Lightbulb,
     color: "bg-gray-800",
     defaultSettings: {

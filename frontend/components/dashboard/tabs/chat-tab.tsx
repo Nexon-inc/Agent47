@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 import {
     BarChart3,
     Send,
@@ -23,9 +24,17 @@ import {
     FileText,
     Clock,
     ChevronRight,
+    ChevronLeft,
     MoreVertical,
     Search,
-    Lock
+    Lock,
+    Users,
+    TrendingUp,
+    Globe,
+    Headphones,
+    DollarSign,
+    Megaphone,
+    Lightbulb
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { apiClient } from "@/lib/api-client"
@@ -33,6 +42,7 @@ import { useAuthStore } from "@/lib/stores/auth-store"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { websocketService } from "@/lib/websocket-service"
+import { useRouter } from "next/navigation"
 
 // --- Interfaces ---
 
@@ -56,36 +66,38 @@ interface ChatMessage {
 interface Agent {
     key: string
     name: string
+    title: string
     description: string
-    icon: string
+    icon: any
     color: string
     status: "idle" | "working" | "offline"
     specialty: string
 }
 
+// Updated Agent Data to match Overview Tab
 const AVAILABLE_AGENTS: Agent[] = [
-    { key: "aria", name: "Aria", description: "PR & Communications", icon: "📱", color: "text-blue-600", status: "idle", specialty: "Communications" },
-    { key: "clara", name: "Clara", description: "Customer Success", icon: "🤝", color: "text-green-600", status: "idle", specialty: "Retention" },
-    { key: "eric", name: "Eric", description: "Sales Representative", icon: "💼", color: "text-red-600", status: "idle", specialty: "Closing" },
-    { key: "jackie", name: "Jackie", description: "Growth Marketing", icon: "🚀", color: "text-orange-600", status: "idle", specialty: "Growth" },
-    { key: "purity", name: "Purity", description: "Operations Strategist", icon: "🧠", color: "text-indigo-600", status: "idle", specialty: "Strategy" },
-    { key: "shakes", name: "Shakes", description: "Creative Designer", icon: "✍️", color: "text-purple-600", status: "idle", specialty: "Design" },
-    { key: "joe", name: "Joe", description: "Software Engineer", icon: "💻", color: "text-cyan-600", status: "idle", specialty: "Engineering" },
+    { key: "aria", name: "Aria", title: "Social Media", description: "Social Media Management", icon: Globe, color: "text-orange-500", status: "idle", specialty: "Social Media" },
+    { key: "clara", name: "Clara", title: "Customer Support", description: "Customer Support & Success", icon: Headphones, color: "text-purple-500", status: "idle", specialty: "Support" },
+    { key: "eric", name: "Eric", title: "Sales", description: "Sales & Lead Generation", icon: DollarSign, color: "text-amber-500", status: "idle", specialty: "Sales" },
+    { key: "jackie", name: "Jackie", title: "Marketing", description: "Marketing & Growth", icon: Megaphone, color: "text-pink-500", status: "idle", specialty: "Marketing" },
+    { key: "shakes", name: "Shakes", title: "Content Creation", description: "Content Creation & Design", icon: FileText, color: "text-green-500", status: "idle", specialty: "Creative" },
+    { key: "joe", name: "Joe", title: "Research", description: "Research & Analysis", icon: Search, color: "text-sky-400", status: "idle", specialty: "Research" },
+    { key: "purity", name: "Purity", title: "Business Creation", description: "Business Development & Creation", icon: Lightbulb, color: "text-gray-500", status: "idle", specialty: "Strategy" },
 ]
 
 // --- Components ---
 
-const TacticalHeader = () => (
-    <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-white/50 backdrop-blur-sm sticky top-0 z-50">
+const TacticalHeader = ({ connectionStatus }: { connectionStatus: boolean }) => (
+    <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="flex items-center space-x-3">
             <div className="h-8 w-8 bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center">
-                <Radio className="h-4 w-4 text-emerald-600 animate-pulse" />
+                <Radio className={`h-4 w-4 ${connectionStatus ? "text-emerald-600 animate-pulse" : "text-slate-400"}`} />
             </div>
             <div>
                 <h1 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none">Strategy Room</h1>
                 <p className="text-[10px] items-center mt-1 font-mono text-emerald-600 font-medium flex gap-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                    SECURE CHANNEL ACTIVE
+                    <span className={`inline-block w-2 h-2 rounded-full ${connectionStatus ? "bg-emerald-500 animate-ping" : "bg-red-500"}`} />
+                    {connectionStatus ? "SECURE CHANNEL ACTIVE" : "CONNECTION LOST"}
                 </p>
             </div>
         </div>
@@ -107,10 +119,10 @@ const RosterItem = ({ agent, onClick }: { agent: Agent; onClick: () => void }) =
     >
         <div className="relative">
             <div className={cn(
-                "h-10 w-10 number-lg flex items-center justify-center rounded-lg border bg-white shadow-sm group-hover:scale-105 transition-transform",
-                agent.color.replace("text-", "border-").replace("-600", "-100")
+                "h-10 w-10 flex items-center justify-center rounded-lg border bg-white shadow-sm group-hover:scale-105 transition-transform",
+                agent.color.replace("text-", "border-").replace("-500", "-100").replace("-400", "-100")
             )}>
-                <span className="text-lg">{agent.icon}</span>
+                <agent.icon className={cn("h-5 w-5", agent.color)} />
             </div>
             <div className={cn(
                 "absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white",
@@ -122,7 +134,7 @@ const RosterItem = ({ agent, onClick }: { agent: Agent; onClick: () => void }) =
                 <span className="text-xs font-bold text-slate-900 uppercase tracking-tight truncate">{agent.name}</span>
                 <span className="text-[9px] font-mono text-slate-400">{agent.status === "working" ? "BUSY" : "RDY"}</span>
             </div>
-            <p className="text-[10px] text-slate-500 truncate">{agent.specialty}</p>
+            <p className="text-[10px] text-slate-500 truncate">{agent.title}</p>
         </div>
     </button>
 )
@@ -141,9 +153,9 @@ const MessageBlock = ({ message, agentInfo }: { message: ChatMessage; agentInfo?
                 {isAgent ? (
                     <div className={cn(
                         "h-8 w-8 rounded-lg flex items-center justify-center border shadow-sm bg-white",
-                        agentInfo?.color.replace("text-", "border-").replace("-600", "-200")
+                        agentInfo?.color.replace("text-", "border-").replace("-500", "-200").replace("-400", "-200")
                     )}>
-                        <span className="text-sm">{agentInfo?.icon}</span>
+                        {agentInfo?.icon && <agentInfo.icon className={cn("h-4 w-4", agentInfo.color)} />}
                     </div>
                 ) : (
                     <Avatar className="h-8 w-8 rounded-lg border border-slate-200">
@@ -196,14 +208,17 @@ const MessageBlock = ({ message, agentInfo }: { message: ChatMessage; agentInfo?
 export default function TeamChatTab() {
     const { user } = useAuthStore()
     const { toast } = useToast()
+    const router = useRouter()
 
     // State
     const [messages, setMessages] = useState<ChatMessage[]>([])
     const [inputMessage, setInputMessage] = useState("")
     const [isLoading, setIsLoading] = useState(true)
     const [isSending, setIsSending] = useState(false)
-    const [isRecording, setIsRecording] = useState(false)
+    const [isConnected, setIsConnected] = useState(false)
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
+    const [intercomEnabled, setIntercomEnabled] = useState(false)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
@@ -220,14 +235,27 @@ export default function TeamChatTab() {
     // Initial Load
     useEffect(() => {
         loadMessages()
+        checkIntercomStatus()
 
-        // WebSocket
-        websocketService.subscribe('team_chat_message', () => {
+        // WebSocket Setup
+        const status = websocketService.getConnectionStatus()
+        setIsConnected(status)
+
+        const unsubscribeMsg = websocketService.subscribe('team_chat_message', () => {
             setTimeout(loadMessages, 300)
         })
 
-        if (!websocketService.getConnectionStatus()) {
+        const unsubscribeStatus = websocketService.onConnectionChange((connected: boolean) => {
+            setIsConnected(connected)
+        })
+
+        if (!status) {
             websocketService.connect()
+        }
+
+        return () => {
+            unsubscribeMsg()
+            unsubscribeStatus()
         }
     }, [])
 
@@ -245,6 +273,36 @@ export default function TeamChatTab() {
         }
     }
 
+    const checkIntercomStatus = async () => {
+        try {
+            // If user has access, fetch setting
+            // Currently assuming if they can access this page they can check setting, 
+            // but 'enabled' might be restricted by plan
+            const res = await apiClient.getIntercommunicationSetting().catch(() => ({ data: { enabled: false } }))
+            setIntercomEnabled(res.data?.enabled || false)
+        } catch (e) {
+            console.warn("Failed to check intercom status", e)
+        }
+    }
+
+    const toggleIntercom = async (enabled: boolean) => {
+        setIntercomEnabled(enabled)
+        try {
+            await apiClient.updateIntercommunicationSetting(enabled)
+            toast({
+                title: enabled ? "Intercom Activated" : "Intercom Deactivated",
+                description: enabled ? "Agents can now communicate with each other." : "Agents operating in silos.",
+            })
+        } catch (e) {
+            setIntercomEnabled(!enabled) // Revert
+            toast({
+                title: "Update Failed",
+                description: "Could not update intercommunication setting.",
+                variant: "destructive"
+            })
+        }
+    }
+
     const handleSendMessage = async () => {
         if (!inputMessage.trim() && !isSending) return
         setIsSending(true)
@@ -258,11 +316,9 @@ export default function TeamChatTab() {
                 msg = `/${selectedAgent.key} ${msg}`
                 agentKey = selectedAgent.key
                 setSelectedAgent(null) // Reset selection
-            } else if (msg.startsWith("/")) {
-                // Basic parsing handled by backend helper usually, but here we just send
             }
 
-            // If it starts with /, we try to parse it for the visual update immediately
+            // Parse slash command manually for UI boost
             if (msg.startsWith("/")) {
                 const parts = msg.split(" ")
                 const key = parts[0].slice(1)
@@ -277,11 +333,11 @@ export default function TeamChatTab() {
                     request_type: "chat",
                     request_data: { message: msg.replace(/^\/\w+\s/, ""), context: {} },
                 })
-                // Optimistic UI update or just wait for socket? Let's just send the user message to chat too
+                // Also add to chat log for visibility
                 await apiClient.post("/api/v1/team/chat/message", {
                     content: msg,
-                    message_type: "text",
-                    agent_key: agentKey
+                    message_type: "text"
+                    // We don't verify agent_key here to avoid user impersonating agent visual
                 })
             } else {
                 // Normal message
@@ -345,7 +401,7 @@ export default function TeamChatTab() {
 
             {/* CENTER PANE: EXECUTION FLOOR */}
             <div className="flex-1 flex flex-col min-w-0 bg-white relative">
-                <TacticalHeader />
+                <TacticalHeader connectionStatus={isConnected} />
 
                 <div className="flex-1 overflow-y-auto px-4 py-4" id="messages-container">
                     <div className="max-w-3xl mx-auto space-y-6">
@@ -391,48 +447,78 @@ export default function TeamChatTab() {
             </div>
 
             {/* RIGHT PANE: COMMAND SIDEBAR */}
-            <div className="w-72 border-l border-slate-200 bg-slate-50 flex flex-col hidden xl:flex">
-                <div className="p-4 border-b border-slate-200">
-                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                        <Activity className="h-4 w-4 text-emerald-600" />
-                        Active Operations
-                    </h3>
-                </div>
-                <div className="flex-1 p-4 space-y-4">
-                    {/* Example Active Mission Card */}
-                    <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm">
-                        <div className="flex items-start justify-between mb-2">
-                            <span className="text-[10px] font-mono text-blue-600 bg-blue-50 px-1.5 rounded-sm">TASK-402</span>
-                            <Badge variant="outline" className="text-[9px] h-4 border-amber-200 text-amber-700 bg-amber-50">IN PROGRESS</Badge>
+            <AnimatePresence initial={false}>
+                {isSidebarOpen ? (
+                    <motion.div
+                        initial={{ width: 0, opacity: 0 }}
+                        animate={{ width: 288, opacity: 1 }}
+                        exit={{ width: 0, opacity: 0 }}
+                        className="border-l border-slate-200 bg-slate-50 flex flex-col hidden xl:flex overflow-hidden"
+                    >
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                <Activity className="h-4 w-4 text-emerald-600" />
+                                Operations
+                            </h3>
+                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setIsSidebarOpen(false)}>
+                                <ChevronRight className="h-4 w-4 text-slate-400" />
+                            </Button>
                         </div>
-                        <h4 className="text-xs font-bold text-slate-900 leading-tight mb-1">Market Analysis: Q3 Trends</h4>
-                        <div className="flex items-center gap-2 mt-3">
-                            <Avatar className="h-5 w-5 border border-slate-100">
-                                <div className="bg-indigo-100 flex items-center justify-center w-full h-full text-[10px]">🧠</div>
-                            </Avatar>
-                            <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-blue-500 w-[65%]" />
+                        <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+                            {/* Intercom Toggle */}
+                            <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Users className="h-4 w-4 text-indigo-500" />
+                                        <span className="text-xs font-bold text-slate-700">Collaboration Mode</span>
+                                    </div>
+                                    <Switch checked={intercomEnabled} onCheckedChange={toggleIntercom} />
+                                </div>
+                                <p className="text-[10px] text-slate-500 leading-tight">
+                                    When active, agents can communicate with each other to solve complex tasks.
+                                </p>
                             </div>
-                            <span className="text-[9px] font-mono text-slate-500">65%</span>
-                        </div>
-                    </div>
 
-                    {/* Quick Actions */}
-                    <div>
-                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 mt-6">Tactical Actions</h3>
-                        <div className="grid grid-cols-2 gap-2">
-                            <Button variant="outline" size="sm" className="h-20 flex flex-col gap-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 bg-white">
-                                <Zap className="h-5 w-5 text-amber-500" />
-                                <span className="text-[10px] font-bold">Fast Track</span>
-                            </Button>
-                            <Button variant="outline" size="sm" className="h-20 flex flex-col gap-2 border-slate-200 hover:border-red-500 hover:bg-red-50 bg-white">
-                                <Shield className="h-5 w-5 text-red-500" />
-                                <span className="text-[10px] font-bold">Lockdown</span>
-                            </Button>
+                            {/* Upgrade CTA */}
+                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-4 text-white shadow-md">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <TrendingUp className="h-4 w-4 text-emerald-400" />
+                                    <span className="text-xs font-bold">Scale Your Force</span>
+                                </div>
+                                <p className="text-[10px] text-slate-300 mb-3">Unlock advanced neural capabilities and unlimited agents.</p>
+                                <Button
+                                    size="sm"
+                                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold"
+                                    onClick={() => router.push('/dashboard?tab=upgrade')}
+                                >
+                                    Upgrade Plan
+                                </Button>
+                            </div>
+
+                            {/* Tactical Actions */}
+                            <div>
+                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 mt-4">Tactical Actions</h3>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Button variant="outline" size="sm" className="h-20 flex flex-col gap-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 bg-white">
+                                        <Zap className="h-5 w-5 text-amber-500" />
+                                        <span className="text-[10px] font-bold">Fast Track</span>
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="h-20 flex flex-col gap-2 border-slate-200 hover:border-red-500 hover:bg-red-50 bg-white">
+                                        <Shield className="h-5 w-5 text-red-500" />
+                                        <span className="text-[10px] font-bold">Lockdown</span>
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
+                    </motion.div>
+                ) : (
+                    <div className="w-12 border-l border-slate-200 bg-slate-50 flex flex-col items-center py-4 hidden xl:flex">
+                        <Button size="icon" variant="ghost" onClick={() => setIsSidebarOpen(true)}>
+                            <ChevronLeft className="h-4 w-4 text-slate-400" />
+                        </Button>
                     </div>
-                </div>
-            </div>
+                )}
+            </AnimatePresence>
 
         </div>
     )
