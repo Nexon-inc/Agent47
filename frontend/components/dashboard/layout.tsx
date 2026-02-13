@@ -6,7 +6,9 @@ import { Suspense } from "react"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import DashboardSidebar from "@/components/dashboard/sidebar"
 import DashboardNavbar from "@/components/dashboard/navbar"
+import DashboardBreadcrumbs from "@/components/dashboard/breadcrumbs"
 import { useSearchParams } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 export default function DashboardLayout({
   children,
