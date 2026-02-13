@@ -443,6 +443,18 @@ class JackieChatService:
         intent = intent_analysis.get("intent", "general")
         return self._get_fallback_response(intent)
 
+    def _detect_intent(self, message: str) -> str:
+        """Keyword-based intent detection for marketing"""
+        msg = message.lower()
+        if any(w in msg for w in ["hello", "hi", "hey", "greetings"]): return "greeting"
+        if any(w in msg for w in ["campaign", "launch", "ads", "promote"]): return "campaign_creation"
+        if any(w in msg for w in ["content", "post", "blog", "social"]): return "content_strategy"
+        if any(w in msg for w in ["optimize", "improve", "performance", "ab test"]): return "ad_optimization"
+        if any(w in msg for w in ["audience", "target", "segment", "persona"]): return "audience_targeting"
+        if any(w in msg for w in ["analytics", "report", "metrics", "roi"]): return "performance_analytics"
+        if any(w in msg for w in ["budget", "spend", "cost", "allocate"]): return "budget_management"
+        return "general"
+
     def _generate_thinking_steps(self, intent: str, message: str, user_id: int, db: AsyncSession = None) -> List[str]:
         """Generate thinking steps based on marketing intent"""
         steps = []
@@ -724,11 +736,7 @@ Start response now.
                     logger.error(f"🔍 {agent_name}: Full response: {ai_response}")
                     
                     # Return error message to user instead of generic fallback
-                    response_text = (
-                        f"I'm having trouble connecting to my AI processing right now. "
-                        f"Technical details: {error_msg}. Please try again in a moment, "
-                        f"or contact support if this issue persists."
-                    )
+                    response_text = "I'm having a bit of an issue right now, try again later."
                     confidence = 0.0
 
             except Exception as e:

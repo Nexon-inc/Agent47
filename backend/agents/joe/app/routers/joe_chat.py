@@ -4,7 +4,7 @@ from datetime import datetime
 
 from ..services.joe_chat_service import JoeChatService
 from core.authentication.auth_manager import get_current_user
-from core.database.connection import get_supabase
+from core.database.connection import get_database as get_core_db
 from core.database.models import UserSelectedAgent
 from sqlalchemy import select
 from ..models import JoeMarketTrend

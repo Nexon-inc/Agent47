@@ -57,6 +57,7 @@ import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { websocketService } from "@/lib/websocket-service"
 import { useRouter } from "next/navigation"
+import { Download, Plus, Trash2, Wrench, UsersRound } from "lucide-react"
 
 // --- Interfaces ---
 
@@ -208,11 +209,6 @@ const MessageBlock = ({ message, agentInfo }: { message: ChatMessage; agentInfo?
                     )}>
                         {isAgent ? agentInfo?.name : message.user_name}
                     </span>
-                    {isAgent && (
-                        <Badge variant="secondary" className="h-4 px-1 text-[9px] font-mono text-indigo-600 bg-indigo-50 border-indigo-100 rounded-sm">
-                            AI UNIT
-                        </Badge>
-                    )}
                     <span className="text-[9px] font-mono text-slate-400 ml-auto">
                         {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
@@ -276,6 +272,11 @@ export default function TeamChatTab() {
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
 
+    // Slash command state
+    const [showCommandMenu, setShowCommandMenu] = useState(false)
+    const [commandSuggestions, setCommandSuggestions] = useState<any[]>([])
+    const [selectedCommandIndex, setSelectedCommandIndex] = useState(0)
+
     // Scroll to bottom
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -314,13 +315,6 @@ export default function TeamChatTab() {
     }, [])
 
     const loadMessages = async () => {
-        // Skip team chat history if an individual agent is selected and no team context exists
-        if (agentKey) {
-            console.log(`[Chat] Individual engagement with ${agentKey}. Skipping team history sync.`);
-            setIsLoading(false);
-            return;
-        }
-
         try {
             setIsLoading(true)
             const response = await apiClient.get("/api/v1/team/chat/messages?limit=50").catch(() => ({ data: { messages: [] } }))
@@ -393,6 +387,7 @@ export default function TeamChatTab() {
         try {
             let msg = inputMessage
             let agentKey = null
+            let cleanMessage = inputMessage // Message without slash command for display
 
             // Quick slash command check
             if (selectedAgent) {
@@ -406,7 +401,11 @@ export default function TeamChatTab() {
                 const parts = msg.split(" ")
                 const key = parts[0].slice(1)
                 const agent = AVAILABLE_AGENTS.find(a => a.key === key)
-                if (agent) agentKey = agent.key
+                if (agent) {
+                    agentKey = agent.key
+                    // Strip slash command for display
+                    cleanMessage = msg.replace(/^\/\w+\s/, "")
+                }
             }
 
             if (agentKey) {
@@ -421,7 +420,7 @@ export default function TeamChatTab() {
                     user_name: user?.username || "You",
                     agent_key: null,
                     message_type: "text",
-                    content: msg,
+                    content: cleanMessage, // Use clean message without slash command
                     created_at: new Date().toISOString()
                 }
                 setMessages(prev => [...prev, userMessage])
@@ -565,6 +564,149 @@ export default function TeamChatTab() {
     const handleViewHistory = () => {
         toast({ title: "Accessing Archives", description: "Retrieving previous mission logs..." })
         // Implementation for history view would go here
+    }
+
+    // --- Slash Command System ---
+
+    // Define all available slash commands
+    const SLASH_COMMANDS = [
+        { cmd: '/history', desc: 'View chat history', icon: History, action: () => handleViewHistory() },
+        { cmd: '/new', desc: 'Start new chat', icon: Plus, action: () => handleNewChat() },
+        { cmd: '/image', desc: 'Generate AI image', icon: ImageIcon, action: (args: string) => handleGenerateImageCommand(args) },
+        { cmd: '/export', desc: 'Export chat transcript', icon: Download, action: () => handleExportChat() },
+        { cmd: '/platforms', desc: 'Go to Platforms', icon: Globe, action: () => router.push('/dashboard?tab=platforms-overview') },
+        { cmd: '/tools', desc: 'Go to Tools', icon: Wrench, action: () => router.push('/dashboard?tab=tools-automation-overview') },
+        { cmd: '/automate', desc: 'Go to Automations', icon: Zap, action: () => router.push('/dashboard?tab=tools-automation-overview') },
+        { cmd: '/teams', desc: 'Go to Teams', icon: UsersRound, action: () => router.push('/dashboard?tab=team-management') },
+        ...filteredAgents.map(a => ({
+            cmd: `/${a.key}`,
+            desc: `Message ${a.name}`,
+            icon: a.icon,
+            action: (args: string) => {
+                setSelectedAgent(a)
+                setInputMessage(args || '')
+            }
+        }))
+    ]
+
+    // Parse command from input
+    const parseCommand = (input: string) => {
+        if (!input.startsWith('/')) return null
+        const parts = input.split(' ')
+        const command = parts[0].toLowerCase()
+        const args = parts.slice(1).join(' ')
+        return { command, args }
+    }
+
+    // Handle slash command execution
+    const handleSlashCommand = async (command: string, args: string) => {
+        const cmd = SLASH_COMMANDS.find(c => c.cmd === command)
+        if (cmd) {
+            setShowCommandMenu(false)
+            setInputMessage('')
+            if (cmd.action) {
+                cmd.action(args)
+            }
+            return true
+        }
+        return false
+    }
+
+    // Handle input change with command autocomplete
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value
+        setInputMessage(value)
+
+        // Show command menu if input starts with /
+        if (value.startsWith('/')) {
+            const parsed = parseCommand(value)
+            if (parsed) {
+                const filtered = SLASH_COMMANDS.filter(cmd =>
+                    cmd.cmd.startsWith(parsed.command) ||
+                    cmd.desc.toLowerCase().includes(parsed.command.slice(1))
+                )
+                setCommandSuggestions(filtered)
+                setShowCommandMenu(filtered.length > 0)
+                setSelectedCommandIndex(0)
+            }
+        } else {
+            setShowCommandMenu(false)
+        }
+    }
+
+    // Handle keyboard navigation in command menu
+    const handleCommandKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!showCommandMenu) return
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault()
+            setSelectedCommandIndex(prev =>
+                prev < commandSuggestions.length - 1 ? prev + 1 : prev
+            )
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault()
+            setSelectedCommandIndex(prev => prev > 0 ? prev - 1 : 0)
+        } else if (e.key === 'Enter' && commandSuggestions.length > 0) {
+            e.preventDefault()
+            const selected = commandSuggestions[selectedCommandIndex]
+            const parsed = parseCommand(inputMessage)
+            if (selected && parsed) {
+                handleSlashCommand(selected.cmd, parsed.args)
+            }
+        } else if (e.key === 'Escape') {
+            setShowCommandMenu(false)
+        }
+    }
+
+    // Command action handlers
+    const handleGenerateImageCommand = async (prompt: string) => {
+        if (!prompt.trim()) {
+            toast({
+                title: "Prompt Required",
+                description: "Please provide a description for the image. Example: /image a sunset over mountains",
+                variant: "destructive"
+            })
+            return
+        }
+
+        toast({
+            title: "Generating Image",
+            description: "Creating your image with AI..."
+        })
+
+        // TODO: Implement actual image generation
+        // This would call an API endpoint that uses DALL-E or similar
+    }
+
+    const handleExportChat = () => {
+        try {
+            const chatData = messages.map(m => ({
+                timestamp: new Date(m.created_at).toLocaleString(),
+                sender: m.agent_key ? `Agent ${m.agent_key}` : m.user_name,
+                message: m.content
+            }))
+
+            const blob = new Blob([JSON.stringify(chatData, null, 2)], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `chat-transcript-${new Date().toISOString().split('T')[0]}.json`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+
+            toast({
+                title: "Export Complete",
+                description: "Chat transcript downloaded successfully."
+            })
+        } catch (error) {
+            toast({
+                title: "Export Failed",
+                description: "Failed to export chat transcript.",
+                variant: "destructive"
+            })
+        }
     }
 
     return (
@@ -730,14 +872,63 @@ export default function TeamChatTab() {
                         animate={{ y: 0, opacity: 1 }}
                         className="bg-white/80 backdrop-blur-xl border border-emerald-100/50 rounded-2xl p-2 shadow-2xl flex items-end gap-3 ring-1 ring-emerald-900/5"
                     >
-                        <div className="flex-1 flex flex-col">
+                        <div className="flex-1 flex flex-col relative">
+                            {/* Command Autocomplete Menu */}
+                            <AnimatePresence>
+                                {showCommandMenu && commandSuggestions.length > 0 && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 10 }}
+                                        className="absolute bottom-full left-0 mb-2 w-full bg-white border border-emerald-200 rounded-xl shadow-2xl p-2 max-h-64 overflow-y-auto z-50"
+                                    >
+                                        <div className="text-[9px] font-mono text-slate-400 uppercase tracking-widest px-3 py-2 border-b border-slate-100 mb-1">
+                                            Available Commands
+                                        </div>
+                                        <div className="space-y-1">
+                                            {commandSuggestions.map((cmd, idx) => (
+                                                <button
+                                                    key={cmd.cmd}
+                                                    onClick={() => {
+                                                        const parsed = parseCommand(inputMessage)
+                                                        if (parsed) {
+                                                            handleSlashCommand(cmd.cmd, parsed.args)
+                                                        }
+                                                    }}
+                                                    className={cn(
+                                                        "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left",
+                                                        idx === selectedCommandIndex
+                                                            ? "bg-emerald-50 border border-emerald-200"
+                                                            : "hover:bg-slate-50"
+                                                    )}
+                                                >
+                                                    <cmd.icon className="h-4 w-4 text-emerald-600 shrink-0" />
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="text-xs font-bold text-slate-900">{cmd.cmd}</div>
+                                                        <div className="text-[10px] text-slate-500 truncate">{cmd.desc}</div>
+                                                    </div>
+                                                    {idx === selectedCommandIndex && (
+                                                        <div className="text-[9px] font-mono text-emerald-600">↵</div>
+                                                    )}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
                             <Input
                                 ref={inputRef}
                                 className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-800 placeholder:text-emerald-200 h-10 font-medium px-4"
                                 placeholder={isRecording ? "Recording audio channel..." : "Transmit command sequence..."}
                                 value={inputMessage}
-                                onChange={e => setInputMessage(e.target.value)}
-                                onKeyDown={handleKeyPress}
+                                onChange={handleInputChange}
+                                onKeyDown={(e) => {
+                                    handleCommandKeyDown(e)
+                                    if (e.key === 'Enter' && !showCommandMenu) {
+                                        handleKeyPress(e)
+                                    }
+                                }}
                                 disabled={isRecording}
                             />
                             <div className="flex items-center justify-between px-2 py-1 border-t border-emerald-50/50 mt-1">

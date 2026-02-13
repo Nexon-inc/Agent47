@@ -117,7 +117,21 @@ class ClaraChatService:
             # ... (Existing intents kept for fallback)
         }
     
-    # ... (Keep existing methods: _get_ai_service_manager, _detect_intent, _break_down_request_into_tasks, _get_fallback_response) ...
+    async def _get_ai_service_manager(self) -> AIServiceManager:
+        """Get AI service manager instance"""
+        if not self.ai_service_manager:
+            self.ai_service_manager = await get_ai_service_manager()
+        return self.ai_service_manager
+
+    def _detect_intent(self, message: str) -> str:
+        """Keyword-based intent detection for customer support"""
+        msg = message.lower()
+        if any(w in msg for w in ["hello", "hi", "hey", "greetings"]): return "greeting"
+        if any(w in msg for w in ["ticket", "issue", "problem", "broken"]): return "ticket_management"
+        if any(w in msg for w in ["help", "how to", "questions", "faq"]): return "customer_inquiry"
+        if any(w in msg for w in ["manager", "escalate", "human"]): return "escalation"
+        if any(w in msg for w in ["analytics", "report", "metrics", "stats"]): return "support_analytics"
+        return "general_support"
 
     def _generate_thinking_steps(self, intent: str, message: str, user_id: int, db: AsyncSession = None) -> List[str]:
         """Generate thinking steps based on intent and message context, specific to Clara's Support Persona"""
@@ -397,11 +411,7 @@ Start response now.
                     logger.error(f"🔍 {agent_name}: Full response: {ai_response}")
                     
                     # Return error message to user instead of generic fallback
-                    response_text = (
-                        f"I'm having trouble connecting to my AI processing right now. "
-                        f"Technical details: {error_msg}. Please try again in a moment, "
-                        f"or contact support if this issue persists."
-                    )
+                    response_text = "I'm having a bit of an issue right now, try again later."
                     confidence = 0.0
 
             except Exception as e:

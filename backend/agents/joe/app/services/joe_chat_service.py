@@ -430,11 +430,7 @@ Start response now.
                     logger.error(f"🔍 {agent_name}: Full response: {ai_response}")
                     
                     # Return error message to user instead of generic fallback
-                    response_text = (
-                        f"I'm having trouble connecting to my AI processing right now. "
-                        f"Technical details: {error_msg}. Please try again in a moment, "
-                        f"or contact support if this issue persists."
-                    )
+                    response_text = "I'm having a bit of an issue right now, try again later."
                     confidence = 0.0
 
             except Exception as e:
