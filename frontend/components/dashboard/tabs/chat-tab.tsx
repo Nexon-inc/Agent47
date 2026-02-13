@@ -102,11 +102,8 @@ const TacticalHeader = ({ connectionStatus }: { connectionStatus: boolean }) => 
             </div>
         </div>
         <div className="flex items-center space-x-3">
-            <Badge variant="outline" className="font-mono text-[10px] text-slate-500 border-slate-200 bg-slate-50">
-                ENC: AES-256
-            </Badge>
-            <Badge variant="outline" className="font-mono text-[10px] text-slate-500 border-slate-200 bg-slate-50">
-                LAT: 12ms
+            <Badge variant="outline" className="font-mono text-[10px] text-emerald-600 border-emerald-200/50 bg-emerald-50/50">
+                SECURE CHANNEL
             </Badge>
         </div>
     </div>
@@ -219,6 +216,8 @@ export default function TeamChatTab() {
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
     const [intercomEnabled, setIntercomEnabled] = useState(false)
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const [opsOpen, setOpsOpen] = useState(true)
+    const [actionsOpen, setActionsOpen] = useState(true)
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
@@ -368,35 +367,159 @@ export default function TeamChatTab() {
     return (
         <div className="flex h-[calc(100vh-6rem)] bg-slate-50/50 overflow-hidden font-sans">
 
-            {/* LEFT PANE: ROSTER */}
-            <div className="w-64 border-r border-slate-200 bg-white flex flex-col hidden md:flex">
-                <div className="p-4 border-b border-slate-100">
-                    <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Personnel Roster</h2>
-                    <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
-                        <Input className="h-8 pl-8 text-xs bg-slate-50 border-slate-200" placeholder="Filter agents..." />
-                    </div>
+            {/* LEFT PANE: CONSOLIDATED MISSION CONTROL SIDEBAR */}
+            <div className={cn(
+                "border-r border-emerald-100 bg-white flex flex-col transition-all duration-300 overflow-hidden shadow-sm z-40 hidden md:flex",
+                isSidebarOpen ? "w-72" : "w-16"
+            )}>
+                <div className="p-4 border-b border-emerald-50 flex justify-between items-center bg-emerald-50/30">
+                    {isSidebarOpen ? (
+                        <h3 className="text-[10px] font-black text-emerald-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
+                            <Activity className="h-4 w-4 text-emerald-600" />
+                            Command & Control
+                        </h3>
+                    ) : (
+                        <Activity className="h-5 w-5 text-emerald-600 mx-auto" />
+                    )}
+                    <Button size="icon" variant="ghost" className="h-6 w-6 hover:bg-emerald-100" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+                        {isSidebarOpen ? <ChevronLeft className="h-4 w-4 text-emerald-600" /> : <ChevronRight className="h-4 w-4 text-emerald-600" />}
+                    </Button>
                 </div>
-                <ScrollArea className="flex-1 p-3">
-                    <div className="space-y-1">
-                        {AVAILABLE_AGENTS.map(agent => (
-                            <RosterItem
-                                key={agent.key}
-                                agent={agent}
-                                onClick={() => {
-                                    setInputMessage(`/${agent.key} `)
-                                    inputRef.current?.focus()
-                                }}
-                            />
-                        ))}
+
+                <ScrollArea className="flex-1">
+                    <div className={cn("p-3 space-y-4", !isSidebarOpen && "items-center")}>
+                        {/* 1. AGENT ROSTER SECTION */}
+                        <div className="space-y-2">
+                            <button
+                                onClick={() => isSidebarOpen && setOpsOpen(!opsOpen)}
+                                className={cn(
+                                    "w-full flex items-center justify-between p-2 rounded-lg hover:bg-emerald-50 transition-colors",
+                                    !isSidebarOpen && "justify-center"
+                                )}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Users className="h-4 w-4 text-emerald-600" />
+                                    {isSidebarOpen && <span className="text-[10px] font-black text-emerald-900 uppercase tracking-widest font-mono">Workforce Roster</span>}
+                                </div>
+                                {isSidebarOpen && <ChevronRight className={cn("h-4 w-4 text-emerald-600 transition-transform", opsOpen && "rotate-90")} />}
+                            </button>
+                            {isSidebarOpen && opsOpen && (
+                                <div className="space-y-1 pl-6">
+                                    {AVAILABLE_AGENTS.map((agent) => (
+                                        <button
+                                            key={agent.key}
+                                            onClick={() => setInputMessage(`/${agent.key} `)}
+                                            className={cn(
+                                                "w-full flex items-center gap-3 p-2 rounded-lg text-left transition-all group hover:bg-emerald-50/50"
+                                            )}
+                                        >
+                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                            <div className="flex flex-col">
+                                                <span className="text-[11px] font-bold text-slate-700">
+                                                    {agent.name}
+                                                </span>
+                                                <span className="text-[9px] text-slate-400 font-mono italic">
+                                                    {agent.title}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            {!isSidebarOpen && (
+                                <div className="flex flex-col gap-3 items-center">
+                                    {AVAILABLE_AGENTS.map((agent) => (
+                                        <button
+                                            key={agent.key}
+                                            onClick={() => {
+                                                setIsSidebarOpen(true)
+                                                setInputMessage(`/${agent.key} `)
+                                            }
+                                            }
+                                            className="w-8 h-8 rounded-full flex items-center justify-center transition-all bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                                            title={agent.name}
+                                        >
+                                            <agent.icon className="h-4 w-4" />
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 2. ACTIVE OPERATION (COLLABORATION) */}
+                        <div className="space-y-2">
+                            <button
+                                onClick={() => isSidebarOpen && setOpsOpen(!opsOpen)}
+                                className={cn(
+                                    "w-full flex items-center justify-between p-2 rounded-lg hover:bg-emerald-50 transition-colors",
+                                    !isSidebarOpen && "justify-center"
+                                )}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Radio className="h-4 w-4 text-emerald-600" />
+                                    {isSidebarOpen && <span className="text-[10px] font-black text-emerald-900 uppercase tracking-widest font-mono">Operations</span>}
+                                </div>
+                                {isSidebarOpen && <ChevronRight className={cn("h-4 w-4 text-emerald-600 transition-transform", opsOpen && "rotate-90")} />}
+                            </button>
+                            {isSidebarOpen && opsOpen && (
+                                <div className="p-3 border border-emerald-100 rounded-xl bg-emerald-50/20 space-y-2 ml-2">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Bot className="h-4 w-4 text-emerald-600" />
+                                            <span className="text-[10px] font-black text-emerald-900 uppercase tracking-widest font-mono">Neural Link</span>
+                                        </div>
+                                        <Switch checked={intercomEnabled} onCheckedChange={toggleIntercom} />
+                                    </div>
+                                    <p className="text-[9px] text-slate-500 font-mono leading-relaxed">
+                                        MISSION_COLLABORATION: {intercomEnabled ? "ACTIVE" : "STANDBY"}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 3. TACTICAL ACTIONS */}
+                        <div className="space-y-2">
+                            <button
+                                onClick={() => isSidebarOpen && setActionsOpen(!actionsOpen)}
+                                className={cn(
+                                    "w-full flex items-center justify-between p-2 rounded-lg hover:bg-emerald-50 transition-colors",
+                                    !isSidebarOpen && "justify-center"
+                                )}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Zap className="h-4 w-4 text-emerald-600" />
+                                    {isSidebarOpen && <span className="text-[10px] font-black text-emerald-900 uppercase tracking-widest font-mono">Tactical Actions</span>}
+                                </div>
+                                {isSidebarOpen && <ChevronRight className={cn("h-4 w-4 text-emerald-600 transition-transform", actionsOpen && "rotate-90")} />}
+                            </button>
+                            {isSidebarOpen && actionsOpen && (
+                                <div className="grid grid-cols-2 gap-2 pt-2 px-1 ml-2">
+                                    <Button variant="outline" size="sm" className="h-16 flex flex-col gap-1 border-emerald-100 hover:border-emerald-500 hover:bg-emerald-50 bg-white">
+                                        <Activity className="h-4 w-4 text-emerald-500" />
+                                        <span className="text-[8px] font-black uppercase tracking-tighter font-mono">Analyze</span>
+                                    </Button>
+                                    <Button variant="outline" size="sm" className="h-16 flex flex-col gap-1 border-emerald-100 hover:border-red-500 hover:bg-red-50 bg-white">
+                                        <Shield className="h-4 w-4 text-red-500" />
+                                        <span className="text-[8px] font-black uppercase tracking-tighter font-mono">Shield</span>
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </ScrollArea>
-                <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                        <span>ONLINE: 7/7</span>
-                        <span>CPU: 12%</span>
+
+                {/* UPGRADE BUTTON IN SIDEBAR BASE */}
+                {isSidebarOpen && (
+                    <div className="p-4 bg-emerald-900 m-2 rounded-xl text-white shadow-xl shadow-emerald-900/20">
+                        <p className="text-[8px] font-mono mb-2 text-emerald-300 tracking-tighter">LICENSED FOR CORE OPERATIONS</p>
+                        <Button
+                            className="w-full bg-emerald-500 hover:bg-emerald-600 h-8 text-[10px] font-black uppercase tracking-widest text-white"
+                            onClick={() => router.push('/dashboard?tab=upgrade')}
+                        >
+                            Scale Workforce
+                        </Button>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* CENTER PANE: EXECUTION FLOOR */}
@@ -446,79 +569,7 @@ export default function TeamChatTab() {
                 </div>
             </div>
 
-            {/* RIGHT PANE: COMMAND SIDEBAR */}
-            <AnimatePresence initial={false}>
-                {isSidebarOpen ? (
-                    <motion.div
-                        initial={{ width: 0, opacity: 0 }}
-                        animate={{ width: 288, opacity: 1 }}
-                        exit={{ width: 0, opacity: 0 }}
-                        className="border-l border-slate-200 bg-slate-50 flex flex-col hidden xl:flex overflow-hidden"
-                    >
-                        <div className="p-4 border-b border-slate-200 flex justify-between items-center">
-                            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                                <Activity className="h-4 w-4 text-emerald-600" />
-                                Operations
-                            </h3>
-                            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setIsSidebarOpen(false)}>
-                                <ChevronRight className="h-4 w-4 text-slate-400" />
-                            </Button>
-                        </div>
-                        <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-                            {/* Intercom Toggle */}
-                            <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-sm space-y-3">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Users className="h-4 w-4 text-indigo-500" />
-                                        <span className="text-xs font-bold text-slate-700">Collaboration Mode</span>
-                                    </div>
-                                    <Switch checked={intercomEnabled} onCheckedChange={toggleIntercom} />
-                                </div>
-                                <p className="text-[10px] text-slate-500 leading-tight">
-                                    When active, agents can communicate with each other to solve complex tasks.
-                                </p>
-                            </div>
-
-                            {/* Upgrade CTA */}
-                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-4 text-white shadow-md">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <TrendingUp className="h-4 w-4 text-emerald-400" />
-                                    <span className="text-xs font-bold">Scale Your Force</span>
-                                </div>
-                                <p className="text-[10px] text-slate-300 mb-3">Unlock advanced neural capabilities and unlimited agents.</p>
-                                <Button
-                                    size="sm"
-                                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold"
-                                    onClick={() => router.push('/dashboard?tab=upgrade')}
-                                >
-                                    Upgrade Plan
-                                </Button>
-                            </div>
-
-                            {/* Tactical Actions */}
-                            <div>
-                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 mt-4">Tactical Actions</h3>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Button variant="outline" size="sm" className="h-20 flex flex-col gap-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 bg-white">
-                                        <Zap className="h-5 w-5 text-amber-500" />
-                                        <span className="text-[10px] font-bold">Fast Track</span>
-                                    </Button>
-                                    <Button variant="outline" size="sm" className="h-20 flex flex-col gap-2 border-slate-200 hover:border-red-500 hover:bg-red-50 bg-white">
-                                        <Shield className="h-5 w-5 text-red-500" />
-                                        <span className="text-[10px] font-bold">Lockdown</span>
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                ) : (
-                    <div className="w-12 border-l border-slate-200 bg-slate-50 flex flex-col items-center py-4 hidden xl:flex">
-                        <Button size="icon" variant="ghost" onClick={() => setIsSidebarOpen(true)}>
-                            <ChevronLeft className="h-4 w-4 text-slate-400" />
-                        </Button>
-                    </div>
-                )}
-            </AnimatePresence>
+            {/* REMOVED RIGHT SIDEBAR TO CONSOLIDATE ALL OPS TO LEFT */}
 
         </div>
     )
