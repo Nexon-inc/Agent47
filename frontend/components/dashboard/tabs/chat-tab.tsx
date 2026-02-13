@@ -101,31 +101,31 @@ const AVAILABLE_AGENTS: Agent[] = [
 // --- Components ---
 
 const TacticalHeader = ({ connectionStatus, onNewChat, onHistory }: { connectionStatus: boolean, onNewChat: () => void, onHistory: () => void }) => (
-    <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+    <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-slate-900 text-white sticky top-0 z-[60] shadow-md">
         <div className="flex items-center space-x-3">
-            <div className="h-8 w-8 bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center">
-                <Radio className={`h-4 w-4 ${connectionStatus ? "text-emerald-600 animate-pulse" : "text-slate-400"}`} />
+            <div className="h-8 w-8 bg-slate-800 rounded-lg border border-slate-700 flex items-center justify-center">
+                <Radio className={`h-4 w-4 ${connectionStatus ? "text-emerald-400 animate-pulse" : "text-slate-500"}`} />
             </div>
             <div>
-                <h1 className="text-sm font-black text-slate-900 uppercase tracking-widest leading-none">Strategy Room</h1>
+                <h1 className="text-sm font-black uppercase tracking-widest leading-none text-emerald-400">Strategy Room</h1>
                 <div className="flex items-center gap-3 mt-1">
-                    <p className="text-[10px] font-mono text-emerald-600 font-medium flex items-center gap-2">
+                    <p className="text-[10px] font-mono text-emerald-500/80 font-medium flex items-center gap-2">
                         <span className={`inline-block w-2 h-2 rounded-full ${connectionStatus ? "bg-emerald-500 animate-ping" : "bg-red-500"}`} />
                         {connectionStatus ? "SECURE_CHANNEL // ACTIVE" : "CONNECTION_OFFLINE"}
                     </p>
-                    <span className="text-[9px] font-mono text-slate-300">LAT: 12ms // ENC: AES-256</span>
+                    <span className="text-[9px] font-mono text-slate-500">LAT: 12ms // ENC: AES-256</span>
                 </div>
             </div>
         </div>
         <div className="flex items-center space-x-2">
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={onNewChat}>
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-400 hover:bg-slate-800" onClick={onNewChat}>
                 <Edit3 className="h-4 w-4" />
             </Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={onHistory}>
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-400 hover:bg-slate-800" onClick={onHistory}>
                 <History className="h-4 w-4" />
             </Button>
-            <Separator orientation="vertical" className="h-4 mx-1" />
-            <Badge variant="outline" className="font-mono text-[10px] text-emerald-600 border-emerald-200/50 bg-emerald-50/50">
+            <Separator orientation="vertical" className="h-4 mx-1 bg-slate-700" />
+            <Badge variant="outline" className="font-mono text-[10px] text-emerald-400 border-emerald-900/50 bg-emerald-950/30">
                 LOCKED_SESSION
             </Badge>
         </div>
@@ -473,7 +473,7 @@ export default function TeamChatTab() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-6rem)] bg-white overflow-hidden font-sans border border-emerald-100/50 rounded-2xl m-1 shadow-2xl">
+        <div className="flex h-screen bg-slate-50 overflow-hidden font-sans border-0 shadow-none">
 
             {/* LEFT PANE: WORKFORCE ROSTER (COLLAPSIBLE) */}
             <AnimatePresence initial={false}>
@@ -482,22 +482,22 @@ export default function TeamChatTab() {
                         initial={{ width: 0, opacity: 0 }}
                         animate={{ width: 280, opacity: 1 }}
                         exit={{ width: 0, opacity: 0 }}
-                        className="border-r border-emerald-100 bg-white flex flex-col hidden lg:flex overflow-hidden relative"
+                        className="border-r border-slate-200 bg-white flex flex-col hidden lg:flex overflow-hidden relative"
                     >
-                        <div className="p-4 border-b border-emerald-50 flex justify-between items-center bg-emerald-50/20">
-                            <h3 className="text-[10px] font-black text-emerald-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
-                                <Users className="h-4 w-4 text-emerald-600" />
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-900">
+                            <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
+                                <Users className="h-4 w-4" />
                                 Workforce Roster
                             </h3>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 hover:bg-emerald-100" onClick={() => setIsLeftSidebarOpen(false)}>
-                                <ChevronLeft className="h-4 w-4 text-emerald-600" />
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-white hover:bg-slate-800" onClick={() => setIsLeftSidebarOpen(false)}>
+                                <ChevronLeft className="h-4 w-4" />
                             </Button>
                         </div>
 
-                        <div className="p-3 border-b border-emerald-50">
+                        <div className="p-3 border-b border-slate-100 bg-slate-50/50">
                             <div className="relative">
-                                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-emerald-300" />
-                                <Input className="h-8 pl-8 text-[11px] bg-emerald-50/30 border-emerald-100 font-mono text-emerald-900 placeholder:text-emerald-300 rounded-lg" placeholder="Search Agents..." />
+                                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+                                <Input className="h-8 pl-8 text-[11px] bg-white border-slate-200 font-mono text-slate-900 placeholder:text-slate-400 rounded-lg shadow-sm" placeholder="Search Agents..." />
                             </div>
                         </div>
 
@@ -564,17 +564,20 @@ export default function TeamChatTab() {
                         )}
                     </motion.div>
                 ) : (
-                    <div className="w-14 border-r border-emerald-100 bg-emerald-50/10 flex flex-col items-center py-4 hidden lg:flex">
-                        <Button size="icon" variant="ghost" className="hover:bg-emerald-100 mb-4" onClick={() => setIsLeftSidebarOpen(true)}>
-                            <ChevronRight className="h-4 w-4 text-emerald-600" />
+                    <div className="w-14 border-r border-slate-200 bg-slate-900 flex flex-col items-center py-4 space-y-4 hidden lg:flex">
+                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-white hover:bg-slate-800" onClick={() => setIsLeftSidebarOpen(true)}>
+                            <ChevronRight className="h-4 w-4" />
                         </Button>
                         <div className="flex flex-col gap-3">
-                            {AVAILABLE_AGENTS.slice(0, 4).map((agent) => (
+                            {AVAILABLE_AGENTS.map((agent) => (
                                 <button key={agent.key} onClick={() => {
                                     setIsLeftSidebarOpen(true)
                                     setSelectedAgent(agent)
-                                }} className="w-8 h-8 rounded-lg bg-white border border-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm">
-                                    <agent.icon className="h-4 w-4" />
+                                }} className={cn(
+                                    "w-9 h-9 rounded-lg border flex items-center justify-center shadow-sm transition-all bg-slate-800",
+                                    agent.color.replace("text-", "border-").replace("-500", "-900/50").replace("-400", "-900/50")
+                                )}>
+                                    <agent.icon className={cn("h-5 w-5", agent.color)} />
                                 </button>
                             ))}
                         </div>
@@ -590,15 +593,15 @@ export default function TeamChatTab() {
                     onHistory={handleViewHistory}
                 />
 
-                <div className="flex-1 overflow-y-auto px-4 py-4" id="messages-container">
+                <div className="flex-1 overflow-y-auto px-4 py-8 scroll-smooth isolate" id="messages-container">
                     <div className="max-w-3xl mx-auto space-y-6">
                         <div className="flex items-center justify-center my-8">
-                            <span className="text-[10px] font-mono text-emerald-600/30 uppercase tracking-[0.5em]">--- MISSION_OPERATIONS_INITIATED ---</span>
+                            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-[0.5em]">--- MISSION_OPERATIONS_INITIATED ---</span>
                         </div>
                         {messages.map(msg => (
                             <MessageBlock key={msg.id} message={msg} agentInfo={AVAILABLE_AGENTS.find(a => a.key === msg.agent_key)} />
                         ))}
-                        <div className="h-32" /> {/* Spacer for floating input */}
+                        <div className="h-40" /> {/* Spacer for floating input */}
                         <div ref={messagesEndRef} />
                     </div>
                 </div>
@@ -628,31 +631,44 @@ export default function TeamChatTab() {
                                                 <Paperclip className="h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="start" className="w-56 p-1 bg-white/95 backdrop-blur-md border-emerald-100 rounded-xl shadow-xl">
-                                            <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                <Globe className="mr-2 h-3.5 w-3.5 text-orange-500" />
-                                                Social Media Asset
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                <MessageSquare className="mr-2 h-3.5 w-3.5 text-purple-500" />
-                                                Support Documentation
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                <Target className="mr-2 h-3.5 w-3.5 text-amber-500" />
-                                                Sales Lead Data
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                <Layout className="mr-2 h-3.5 w-3.5 text-pink-500" />
-                                                Marketing Campaign
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                <Scissors className="mr-2 h-3.5 w-3.5 text-green-500" />
-                                                Creative Brief
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-700 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                <Database className="mr-2 h-3.5 w-3.5 text-sky-400" />
-                                                Research Data
-                                            </DropdownMenuItem>
+                                        <DropdownMenuContent align="start" className="w-64 p-2 bg-slate-900 border-slate-800 rounded-xl shadow-2xl">
+                                            <div className="px-2 py-1.5 border-b border-slate-800 mb-1">
+                                                <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest font-mono">Neural Interface / Assets</p>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-1">
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                    <FileText className="mr-2 h-3.5 w-3.5 text-blue-400" />
+                                                    PDF / Docs
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                    <Image className="mr-2 h-3.5 w-3.5 text-emerald-400" />
+                                                    Assets / Img
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                    <Terminal className="mr-2 h-3.5 w-3.5 text-amber-400" />
+                                                    Scripts
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                    <Zap className="mr-2 h-3.5 w-3.5 text-purple-400" />
+                                                    Prompts
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                    <Activity className="mr-2 h-3.5 w-3.5 text-red-400" />
+                                                    Briefs
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                    <Globe className="mr-2 h-3.5 w-3.5 text-sky-400" />
+                                                    Ads / Social
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                    <MoreVertical className="mr-2 h-3.5 w-3.5 text-slate-500" />
+                                                    Drive / Links
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-300 focus:bg-slate-800 focus:text-white rounded-lg cursor-pointer py-2">
+                                                    <Shield className="mr-2 h-3.5 w-3.5 text-emerald-500" />
+                                                    Cloud Storage
+                                                </DropdownMenuItem>
+                                            </div>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
 
@@ -692,41 +708,41 @@ export default function TeamChatTab() {
                         initial={{ width: 0, opacity: 0 }}
                         animate={{ width: 300, opacity: 1 }}
                         exit={{ width: 0, opacity: 0 }}
-                        className="border-l border-emerald-100 bg-white flex flex-col hidden xl:flex overflow-hidden relative shadow-sm"
+                        className="border-l border-slate-200 bg-white flex flex-col hidden xl:flex overflow-hidden relative"
                     >
-                        <div className="p-4 border-b border-emerald-50 flex justify-between items-center bg-emerald-50/20">
-                            <Button size="icon" variant="ghost" className="h-6 w-6 hover:bg-emerald-100" onClick={() => setIsRightSidebarOpen(false)}>
-                                <ChevronRight className="h-4 w-4 text-emerald-600" />
+                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-900">
+                            <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-white hover:bg-slate-800" onClick={() => setIsRightSidebarOpen(false)}>
+                                <ChevronRight className="h-4 w-4" />
                             </Button>
-                            <h3 className="text-[10px] font-black text-emerald-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
-                                <Activity className="h-4 w-4 text-emerald-600" />
+                            <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
+                                <Activity className="h-4 w-4" />
                                 Command Panel
                             </h3>
                         </div>
 
-                        <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+                        <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-slate-50/30">
                             {/* ACTIVE OPERATION SECTION */}
-                            <div className="border border-emerald-100 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:border-emerald-200">
+                            <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:border-emerald-500/30">
                                 <button
                                     onClick={() => setOpsOpen(!opsOpen)}
-                                    className="w-full flex items-center justify-between p-3 bg-emerald-50/20 hover:bg-emerald-50 transition-colors"
+                                    className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition-colors"
                                 >
                                     <div className="flex items-center gap-2">
                                         <Bot className="h-4 w-4 text-emerald-600" />
-                                        <span className="text-[10px] font-black text-emerald-900 uppercase tracking-widest font-mono">Operations</span>
+                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest font-mono">Operations</span>
                                     </div>
-                                    <ChevronRight className={cn("h-4 w-4 text-emerald-600 transition-transform", opsOpen && "rotate-90")} />
+                                    <ChevronRight className={cn("h-4 w-4 text-slate-400 transition-transform", opsOpen && "rotate-90")} />
                                 </button>
                                 <AnimatePresence>
                                     {opsOpen && (
                                         <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                                            <div className="p-3 space-y-3 border-t border-emerald-50">
+                                            <div className="p-3 space-y-3 border-t border-slate-100">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-[10px] font-bold text-slate-700 uppercase font-mono">Link Workforce</span>
-                                                    <Switch checked={intercomEnabled} onCheckedChange={toggleIntercom} />
+                                                    <Switch checked={intercomEnabled} onCheckedChange={toggleIntercom} className="data-[state=checked]:bg-emerald-500" />
                                                 </div>
-                                                <div className="p-2 bg-emerald-50/30 rounded-lg border border-emerald-100">
-                                                    <p className="text-[9px] text-emerald-800 font-mono leading-relaxed">
+                                                <div className="p-2 bg-slate-900 rounded-lg border border-slate-800">
+                                                    <p className="text-[9px] text-emerald-400 font-mono leading-relaxed">
                                                         LINK_STATE: {intercomEnabled ? "ESTABLISHED" : "INDEPENDENT"}
                                                         <br />
                                                         THREAT: MINIMAL
@@ -739,70 +755,51 @@ export default function TeamChatTab() {
                             </div>
 
                             {/* TACTICAL ACTIONS SECTION */}
-                            <div className="border border-emerald-100 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:border-emerald-200">
+                            <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:border-emerald-500/30">
                                 <button
                                     onClick={() => setActionsOpen(!actionsOpen)}
-                                    className="w-full flex items-center justify-between p-3 bg-emerald-50/20 hover:bg-emerald-50 transition-colors"
+                                    className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition-colors"
                                 >
                                     <div className="flex items-center gap-2">
                                         <Zap className="h-4 w-4 text-emerald-600" />
-                                        <span className="text-[10px] font-black text-emerald-900 uppercase tracking-widest font-mono">Tactical Actions</span>
+                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest font-mono">Tactical Actions</span>
                                     </div>
-                                    <ChevronRight className={cn("h-4 w-4 text-emerald-600 transition-transform", actionsOpen && "rotate-90")} />
+                                    <ChevronRight className={cn("h-4 w-4 text-slate-400 transition-transform", actionsOpen && "rotate-90")} />
                                 </button>
                                 <AnimatePresence>
                                     {actionsOpen && (
                                         <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                                            <div className="p-3 grid grid-cols-2 gap-2 border-t border-emerald-50">
-                                                <Button variant="outline" size="sm" className="h-16 flex flex-col gap-1 border-emerald-100 hover:border-emerald-500 hover:bg-emerald-50 bg-white group">
+                                            <div className="p-3 grid grid-cols-2 gap-2 border-t border-slate-100">
+                                                <Button variant="outline" size="sm" className="h-16 flex flex-col gap-1 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 bg-white group shadow-sm transition-all">
                                                     <TrendingUp className="h-4 w-4 text-emerald-500 transition-transform group-hover:scale-110" />
-                                                    <span className="text-[8px] font-black uppercase tracking-tighter font-mono tracking-[0.1em]">Analyze</span>
+                                                    <span className="text-[8px] font-black uppercase tracking-tighter font-mono tracking-[0.1em] text-slate-600">Analyze</span>
                                                 </Button>
-                                                <Button variant="outline" size="sm" className="h-16 flex flex-col gap-1 border-emerald-100 hover:border-red-500 hover:bg-red-50 bg-white group">
+                                                <Button variant="outline" size="sm" className="h-16 flex flex-col gap-1 border-slate-200 hover:border-red-500 hover:bg-red-50 bg-white group shadow-sm transition-all">
                                                     <Shield className="h-4 w-4 text-red-500 transition-transform group-hover:scale-110" />
-                                                    <span className="text-[8px] font-black uppercase tracking-tighter font-mono tracking-[0.1em]">Lockdown</span>
+                                                    <span className="text-[8px] font-black uppercase tracking-tighter font-mono tracking-[0.1em] text-slate-600">Lockdown</span>
                                                 </Button>
                                             </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
                             </div>
-
-                            {/* STATUS READOUT */}
-                            <div className="p-3 bg-slate-900 rounded-xl border border-emerald-500/20 text-emerald-500 font-mono text-[9px] space-y-1 shadow-lg">
-                                <p className="text-white font-black text-[10px] uppercase mb-2 flex items-center gap-2">
-                                    <Terminal className="h-3 w-3" />
-                                    Diagnostics
-                                </p>
-                                <div className="flex justify-between">
-                                    <span>Sync</span>
-                                    <span className="text-emerald-300">STABLE</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Load</span>
-                                    <span className="text-emerald-300 text-[8px]">12% [OK]</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>State</span>
-                                    <span className="text-emerald-300 font-bold">VERIFIED</span>
-                                </div>
-                            </div>
                         </div>
                     </motion.div>
                 ) : (
-                    <div className="w-14 border-l border-emerald-100 bg-emerald-50/10 flex flex-col items-center py-4 hidden xl:flex">
-                        <Button size="icon" variant="ghost" className="hover:bg-emerald-100 mb-4" onClick={() => setIsRightSidebarOpen(true)}>
-                            <ChevronLeft className="h-4 w-4 text-emerald-600" />
+                    <div className="w-14 border-l border-slate-200 bg-slate-900 flex flex-col items-center py-4 space-y-6 hidden xl:flex">
+                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-white hover:bg-slate-800" onClick={() => setIsRightSidebarOpen(true)}>
+                            <ChevronLeft className="h-4 w-4" />
                         </Button>
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-4">
                             <Activity className="h-5 w-5 text-emerald-400" />
-                            <Bot className="h-5 w-5 text-emerald-400 opacity-50" />
-                            <Zap className="h-5 w-5 text-emerald-400 opacity-50" />
+                            <Bot className="h-5 w-5 text-slate-400 hover:text-emerald-400 cursor-pointer transition-colors" />
+                            <Zap className="h-5 w-5 text-slate-400 hover:text-emerald-400 cursor-pointer transition-colors" />
+                            <Shield className="h-5 w-5 text-slate-400 hover:text-red-400 cursor-pointer transition-colors" />
+                            <TrendingUp className="h-5 w-5 text-slate-400 hover:text-emerald-400 cursor-pointer transition-colors" />
                         </div>
                     </div>
                 )}
             </AnimatePresence>
-
         </div>
     )
 }
