@@ -15,6 +15,7 @@ from core.cache import init_redis, close_redis
 from core.storage import init_chroma, close_chroma
 from core.event_bus import init_kafka, close_kafka
 from core.middleware import init_rate_limiter
+from core.ai import init_ai_service_manager
 from core.middleware.tier_protection import TierProtectionMiddleware
 from core.middleware.auth_middleware import AuthMiddleware
 from core.authentication import auth_router
@@ -112,6 +113,9 @@ async def lifespan(app: FastAPI):
 
         from core.platforms.system_platform_manager import get_system_platform_manager
         await _init_with_timeout(get_system_platform_manager(), timeout=15.0, service_name="System platform manager", critical=True)
+
+        # Initialize AI Service Manager
+        await _init_with_timeout(init_ai_service_manager(), timeout=10.0, service_name="AI Service Manager", critical=True)
 
         logger.info("Critical services initialized, server ready")
 
