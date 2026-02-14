@@ -47,6 +47,19 @@ interface ActivityLog {
 
 // --- Components ---
 
+// --- Agent Config ---
+const AGENTS_CONFIG: Record<string, any> = {
+  aria: { icon: Globe, color: "text-orange-500", bg: "bg-orange-50", border: "border-orange-200" },
+  clara: { icon: Users, icon2: Headphones, color: "text-purple-500", bg: "bg-purple-50", border: "border-purple-200" },
+  eric: { icon: Zap, icon2: Activity, color: "text-amber-500", bg: "bg-amber-50", border: "border-amber-200" },
+  jackie: { icon: MessageSquare, icon2: CheckCircle2, color: "text-pink-500", bg: "bg-pink-50", border: "border-pink-200" },
+  shakes: { icon: Terminal, color: "text-green-500", bg: "bg-green-50", border: "border-green-200" },
+  joe: { icon: Search, color: "text-sky-500", bg: "bg-sky-50", border: "border-sky-200" },
+  purity: { icon: Shield, color: "text-gray-500", bg: "bg-gray-50", border: "border-gray-200" },
+  // Default fallback
+  default: { icon: UsersRound, color: "text-slate-500", bg: "bg-slate-50", border: "border-slate-200" }
+}
+
 const CommandHUD = ({ activeAgentsCount, platformCount, toolCount }: { activeAgentsCount: number, platformCount: number, toolCount: number }) => (
   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div className="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-sm">
@@ -88,14 +101,14 @@ const CommandHUD = ({ activeAgentsCount, platformCount, toolCount }: { activeAge
       <Wifi className="h-3 w-3 text-sky-400" />
     </div>
 
-    <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between shadow-sm text-white">
+    <div className="bg-white border border-slate-200 p-3 rounded-xl flex items-center justify-between shadow-sm">
       <div className="flex items-center gap-3">
-        <div className="h-8 w-8 bg-slate-800 rounded-lg flex items-center justify-center border border-slate-700">
-          <Wrench className="h-4 w-4 text-emerald-400" />
+        <div className="h-8 w-8 bg-purple-50 rounded-lg flex items-center justify-center border border-purple-100">
+          <Wrench className="h-4 w-4 text-purple-600" />
         </div>
         <div>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Tools</p>
-          <p className="text-xs font-bold text-emerald-400">{toolCount} ONLINE</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Tools</p>
+          <p className="text-xs font-bold text-slate-900">{toolCount} ONLINE</p>
         </div>
       </div>
     </div>
@@ -212,43 +225,55 @@ export default function HomeTab() {
     }
   }
 
-  // Visualization of Neural Grid (Canvas placeholder)
+  // Visualization of Neural Grid (White Theme)
   const NeuralGrid = () => (
-    <div className="col-span-1 lg:col-span-2 bg-slate-900 rounded-[32px] p-8 text-white relative overflow-hidden border border-slate-800 shadow-2xl transition-all hover:border-emerald-500/20">
-      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10" />
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-emerald-500/10" />
+    <div className="col-span-1 lg:col-span-2 bg-white rounded-[32px] p-8 text-slate-900 relative overflow-hidden border border-slate-200 shadow-sm transition-all hover:border-emerald-500/20">
+      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-[0.03]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-transparent to-emerald-50/50" />
 
       <div className="relative z-10 flex flex-col h-full justify-between">
         <div className="flex justify-between items-start">
           <div>
-            <Badge variant="outline" className="border-emerald-500/50 text-emerald-400 bg-emerald-500/10 mb-3 animate-pulse">
+            <Badge variant="outline" className="border-emerald-200 text-emerald-700 bg-emerald-50 mb-3 animate-pulse">
               LIVE NEURAL LINK
             </Badge>
-            <h2 className="text-3xl font-black tracking-tight mb-2">Command Center</h2>
-            <p className="text-slate-400 max-w-md text-sm leading-relaxed">
+            <h2 className="text-3xl font-black tracking-tight mb-2 text-slate-900">Command Center</h2>
+            <p className="text-slate-500 max-w-md text-sm leading-relaxed">
               Central intelligence node active. Monitoring {userAgents.length} neural agents across {activeTasks.length > 0 ? activeTasks.length : 'multiple'} operational threads.
             </p>
           </div>
           <div className="hidden md:block text-right">
-            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-1">Hash Rate</p>
-            <p className="text-xl font-mono text-emerald-400">47.8 TH/s</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Hash Rate</p>
+            <p className="text-xl font-mono text-emerald-600">47.8 TH/s</p>
           </div>
         </div>
 
-        {/* Simulated Nodes */}
-        <div className="flex gap-4 mt-8 overflow-x-auto pb-2 no-scrollbar">
-          {userAgents.slice(0, 5).map((ua, i) => (
-            <div key={i} className="flex flex-col items-center gap-2 group cursor-pointer">
-              <div className="h-12 w-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center group-hover:border-emerald-500 group-hover:bg-slate-800 transition-all relative">
-                <span className="text-lg">🤖</span>
-                <div className="absolute -top-1 -right-1 h-3 w-3 bg-emerald-500 rounded-full border-2 border-slate-900" />
+        {/* Simulated Nodes - Agents (No limit) */}
+        <div className="flex gap-4 mt-8 overflow-x-auto pb-4 custom-scrollbar">
+          {userAgents.map((ua, i) => {
+            // Determine agent config based on key or name match
+            const key = (ua.key || ua.agent_id || ua.name || 'default').toLowerCase()
+            const config = AGENTS_CONFIG[key] || AGENTS_CONFIG.default
+            const Icon = config.icon || UsersRound
+
+            return (
+              <div key={i} className="flex flex-col items-center gap-2 group cursor-pointer min-w-[60px]">
+                <div className={cn(
+                  "h-12 w-12 rounded-2xl flex items-center justify-center border transition-all relative",
+                  config.bg, config.border,
+                  "group-hover:scale-105 group-hover:shadow-md"
+                )}>
+                  <Icon className={cn("h-6 w-6", config.color)} />
+                  <div className="absolute -top-1 -right-1 h-3 w-3 bg-emerald-500 rounded-full border-2 border-white" />
+                </div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase truncate max-w-[80px]">{ua.name || ua.agent_id}</span>
               </div>
-              <span className="text-[10px] font-bold text-slate-500 uppercase truncate max-w-[60px]">{ua.name || ua.agent_id}</span>
-            </div>
-          ))}
+            )
+          })}
+
           <button
             onClick={() => window.location.href = "/dashboard?tab=agents-overview"}
-            className="h-12 w-12 rounded-2xl border border-dashed border-slate-700 flex items-center justify-center text-slate-500 hover:text-white hover:border-slate-500 transition-colors"
+            className="h-12 w-12 min-w-[48px] rounded-2xl border border-dashed border-slate-300 flex items-center justify-center text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition-colors"
           >
             <UsersRound className="h-5 w-5" />
           </button>
