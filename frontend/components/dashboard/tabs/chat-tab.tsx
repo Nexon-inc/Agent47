@@ -7,29 +7,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
 import {
-    BarChart3,
     Send,
     Mic,
     Paperclip,
-    Bot,
     User,
     Zap,
-    Activity,
-    Shield,
-    Cpu,
-    Radio,
-    Terminal,
-    FileText,
-    Clock,
-    ChevronRight,
-    ChevronLeft,
-    MoreVertical,
-    Search,
-    Lock,
     Users,
-    TrendingUp,
     Globe,
     Headphones,
     DollarSign,
@@ -37,27 +21,26 @@ import {
     Lightbulb,
     Edit3,
     History,
-    MessageSquare,
-    Target,
-    Layout,
-    Scissors,
-    Database,
-    Image as ImageIcon
+    Search,
+    FileText,
+    ChevronLeft,
+    Cpu,
+    X,
+    Lock,
+    Image as ImageIcon,
+    Download,
+    Plus,
+    Wrench,
+    UsersRound,
+    Radio
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { websocketService } from "@/lib/websocket-service"
 import { useRouter } from "next/navigation"
-import { Download, Plus, Trash2, Wrench, UsersRound } from "lucide-react"
 
 // --- Interfaces ---
 
@@ -115,7 +98,7 @@ const getAgentColor = (color: string) => {
 // --- Components ---
 
 const TacticalHeader = ({ connectionStatus, onNewChat, onHistory }: { connectionStatus: boolean, onNewChat: () => void, onHistory: () => void }) => (
-    <div className="flex items-center justify-between px-6 py-3 border-b border-slate-200 bg-white/95 backdrop-blur-sm sticky top-0 z-[60] shadow-sm">
+    <div className="flex shrink-0 items-center justify-between px-6 py-3 border-b border-slate-200 bg-white/95 backdrop-blur-sm sticky top-0 z-[10] shadow-sm h-16">
         <div className="flex items-center space-x-3">
             <div className="h-8 w-8 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center">
                 <Radio className={`h-4 w-4 ${connectionStatus ? "text-emerald-600 animate-pulse" : "text-slate-400"}`} />
@@ -146,14 +129,18 @@ const TacticalHeader = ({ connectionStatus, onNewChat, onHistory }: { connection
     </div>
 )
 
-const RosterItem = ({ agent, onClick }: { agent: Agent; onClick: () => void }) => (
+const RosterItem = ({ agent, onClick, isSelected }: { agent: Agent; onClick: () => void; isSelected: boolean }) => (
     <button
         onClick={onClick}
-        className="w-full flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 transition-colors group text-left"
+        className={cn(
+            "w-full flex items-center space-x-3 p-2 rounded-lg transition-colors group text-left border border-transparent",
+            isSelected ? "bg-slate-100 border-slate-200" : "hover:bg-slate-50"
+        )}
     >
         <div className="relative">
             <div className={cn(
-                "h-10 w-10 flex items-center justify-center rounded-lg border bg-white shadow-sm group-hover:scale-105 transition-transform",
+                "h-10 w-10 flex items-center justify-center rounded-lg border bg-white shadow-sm transition-transform",
+                isSelected ? "scale-105 ring-2 ring-offset-1 ring-slate-200" : "group-hover:scale-105",
                 agent.color.replace("text-", "border-").replace("-500", "-100").replace("-400", "-100")
             )}>
                 <agent.icon className={cn("h-5 w-5", agent.color)} />
@@ -165,7 +152,10 @@ const RosterItem = ({ agent, onClick }: { agent: Agent; onClick: () => void }) =
         </div>
         <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 uppercase tracking-tight truncate">{agent.name}</span>
+                <span className={cn(
+                    "text-xs font-bold uppercase tracking-tight truncate",
+                    isSelected ? "text-slate-900" : "text-slate-600"
+                )}>{agent.name}</span>
                 <span className="text-[9px] font-mono text-slate-400">{agent.status === "working" ? "BUSY" : "RDY"}</span>
             </div>
             <p className="text-[10px] text-slate-500 truncate">{agent.title}</p>
@@ -180,7 +170,7 @@ const MessageBlock = ({ message, agentInfo }: { message: ChatMessage; agentInfo?
 
     return (
         <div className={cn(
-            "flex gap-4 p-4 mb-2 rounded-xl transition-colors border border-transparent",
+            "flex gap-4 p-4 mb-2 rounded-xl transition-colors border border-transparent shrink-0",
             isMe ? "bg-slate-50/50" : "hover:bg-slate-50/50 hover:border-slate-100"
         )}>
             <div className="shrink-0 pt-1">
@@ -214,7 +204,7 @@ const MessageBlock = ({ message, agentInfo }: { message: ChatMessage; agentInfo?
                     </span>
                 </div>
 
-                <div className="text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">
+                <div className="text-sm text-slate-800 leading-relaxed font-medium whitespace-pre-wrap break-words">
                     {message.content}
                 </div>
 
@@ -256,18 +246,11 @@ export default function TeamChatTab() {
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
     const [intercomEnabled, setIntercomEnabled] = useState(false)
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true)
-    const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true)
-    const [opsOpen, setOpsOpen] = useState(true)
-    const [actionsOpen, setActionsOpen] = useState(true)
     const [isRecording, setIsRecording] = useState(false)
     const [hiredAgentKeys, setHiredAgentKeys] = useState<string[]>([])
     const [isHiredLoading, setIsHiredLoading] = useState(true)
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const audioChunksRef = useRef<Blob[]>([])
-
-    // User Tier Logic
-    const userPlan = (user as any)?.tier || 'free'
-    const showUpgrade = userPlan !== 'pro'
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
@@ -322,7 +305,7 @@ export default function TeamChatTab() {
                 setMessages(response.data.messages.reverse())
             }
         } catch (error: any) {
-            console.error("Failed to load command history:", error)
+            console.error("Failed to load messages:", error)
         } finally {
             setIsLoading(false)
         }
@@ -332,7 +315,6 @@ export default function TeamChatTab() {
         try {
             setIsHiredLoading(true)
             const hired = await apiClient.getSelectedAgents()
-            // Backend might return agent objects with key, agent_key, or agent_id
             const keys = hired.map((a: any) => a.key || a.agent_key || a.agent_id || a.id)
             setHiredAgentKeys(keys)
         } catch (error) {
@@ -346,15 +328,8 @@ export default function TeamChatTab() {
         !isHiredLoading && hiredAgentKeys.includes(agent.key)
     )
 
-    // If loading or we have none, we might want to default to nothing 
-    // but keep a fallback for development if needed. 
-    // The user wants strictly "chosen employees only".
-
     const checkIntercomStatus = async () => {
         try {
-            // If user has access, fetch setting
-            // Currently assuming if they can access this page they can check setting, 
-            // but 'enabled' might be restricted by plan
             const res = await apiClient.getIntercommunicationSetting().catch(() => ({ data: { enabled: false } }))
             setIntercomEnabled(res.data?.enabled || false)
         } catch (e) {
@@ -362,39 +337,26 @@ export default function TeamChatTab() {
         }
     }
 
-    const toggleIntercom = async (enabled: boolean) => {
-        setIntercomEnabled(enabled)
-        try {
-            await (apiClient as any).updateIntercommunicationSetting(enabled)
-            toast({
-                title: enabled ? "Neural Link Established" : "Neural Link Severed",
-                description: enabled ? "Agents are now operating in coordination." : "Agents are operating in isolated mode.",
-            })
-        } catch (e) {
-            setIntercomEnabled(!enabled) // Revert
-            toast({
-                title: " Uplink Error",
-                description: "Critical failure in neuro-sync protocol.",
-                variant: "destructive"
-            })
-        }
-    }
-
     const handleSendMessage = async () => {
         if (!inputMessage.trim() && !isSending) return
+
+        // STRICT AGENT SELECTION CHECK
+        // If no agent is selected and this is not a slash command, prompt user to select agent.
+        if (!selectedAgent && !inputMessage.startsWith('/')) {
+            toast({
+                title: "Select an Agent",
+                description: "Please select an agent from the roster to start a conversation.",
+                variant: "destructive"
+            })
+            return
+        }
+
         setIsSending(true)
 
         try {
             let msg = inputMessage
-            let agentKey = null
-            let cleanMessage = inputMessage // Message without slash command for display
-
-            // Quick slash command check
-            if (selectedAgent) {
-                msg = `/${selectedAgent.key} ${msg}`
-                agentKey = selectedAgent.key
-                setSelectedAgent(null) // Reset selection
-            }
+            let agentKey: string | null = selectedAgent ? selectedAgent.key : null
+            let cleanMessage = inputMessage
 
             // Parse slash command manually for UI boost
             if (msg.startsWith("/")) {
@@ -403,6 +365,8 @@ export default function TeamChatTab() {
                 const agent = AVAILABLE_AGENTS.find(a => a.key === key)
                 if (agent) {
                     agentKey = agent.key
+                    // If slash command used, select that agent
+                    setSelectedAgent(agent)
                     // Strip slash command for display
                     cleanMessage = msg.replace(/^\/\w+\s/, "")
                 }
@@ -410,7 +374,6 @@ export default function TeamChatTab() {
 
             if (agentKey) {
                 // Individual Agent Engagement - Call Direct Endpoint ONLY
-                // We no longer hit the team chat endpoints to avoid 404s when no team exists.
 
                 // 1. Manually add user message to local UI state for immediate feedback
                 const userMessage: ChatMessage = {
@@ -420,11 +383,14 @@ export default function TeamChatTab() {
                     user_name: user?.username || "You",
                     agent_key: null,
                     message_type: "text",
-                    content: cleanMessage, // Use clean message without slash command
+                    content: cleanMessage,
                     created_at: new Date().toISOString()
                 }
                 setMessages(prev => [...prev, userMessage])
                 setInputMessage("")
+
+                // Keep focus on input
+                inputRef.current?.focus()
 
                 try {
                     // 2. Call the direct agent endpoint for immediate response
@@ -450,7 +416,6 @@ export default function TeamChatTab() {
                     }
                     setMessages(prev => [...prev, agentMessage])
 
-                    // We skip saving to team-output to bypass the 404 team check
                 } catch (agentErr: any) {
                     console.error("Direct agent communication failed:", agentErr)
                     toast({
@@ -460,31 +425,13 @@ export default function TeamChatTab() {
                     })
                 }
             } else {
-                // Normal generalized team message (requires a team)
-                try {
-                    await apiClient.post("/api/v1/team/chat/message", {
-                        content: msg,
-                        message_type: "text"
-                    })
-                    setInputMessage("")
-                    setTimeout(loadMessages, 300)
-                } catch (err: any) {
-                    if (err.response?.status === 404) {
-                        toast({
-                            title: "Team Required",
-                            description: "Strategic coordination requires a Strategic Command (Team). Select an individual agent for 1-on-1 tactics.",
-                            variant: "destructive"
-                        })
-                    } else {
-                        throw err
-                    }
-                }
+                // Should not reach here due to strict check above, unless slash command was not agent-related
+                // e.g., /image, /help etc. are handled by slash command handler separately before this.
+                // But strictly speaking, we are disabling Team Router fallback as requested.
             }
         } catch (error: any) {
             console.error("Message transmission error:", error)
-            if (error.response?.status !== 404) {
-                toast({ title: "Signal Lost", description: "Failed to transmit command sequence.", variant: "destructive" })
-            }
+            toast({ title: "Transmission Error", description: "Failed to send message.", variant: "destructive" })
         } finally {
             setIsSending(false)
         }
@@ -514,7 +461,6 @@ export default function TeamChatTab() {
             mediaRecorder.onstop = async () => {
                 const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
                 await processVoiceInput(audioBlob)
-                // Stop all tracks to release microphone
                 stream.getTracks().forEach(track => track.stop())
             }
 
@@ -539,7 +485,7 @@ export default function TeamChatTab() {
             const formData = new FormData()
             formData.append('audio_file', blob, 'recording.webm')
 
-            toast({ title: "Decoding Pulse...", description: "Transcribing audio channel via Groq..." })
+            toast({ title: "Decoding Pulse...", description: "Transcribing audio..." })
 
             const response = await apiClient.post("/api/v1/voice/transcribe", formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -563,12 +509,10 @@ export default function TeamChatTab() {
 
     const handleViewHistory = () => {
         toast({ title: "Accessing Archives", description: "Retrieving previous mission logs..." })
-        // Implementation for history view would go here
     }
 
     // --- Slash Command System ---
 
-    // Define all available slash commands
     const SLASH_COMMANDS = [
         { cmd: '/history', desc: 'View chat history', icon: History, action: () => handleViewHistory() },
         { cmd: '/new', desc: 'Start new chat', icon: Plus, action: () => handleNewChat() },
@@ -589,7 +533,6 @@ export default function TeamChatTab() {
         }))
     ]
 
-    // Parse command from input
     const parseCommand = (input: string) => {
         if (!input.startsWith('/')) return null
         const parts = input.split(' ')
@@ -598,7 +541,6 @@ export default function TeamChatTab() {
         return { command, args }
     }
 
-    // Handle slash command execution
     const handleSlashCommand = async (command: string, args: string) => {
         const cmd = SLASH_COMMANDS.find(c => c.cmd === command)
         if (cmd) {
@@ -612,12 +554,10 @@ export default function TeamChatTab() {
         return false
     }
 
-    // Handle input change with command autocomplete
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value
         setInputMessage(value)
 
-        // Show command menu if input starts with /
         if (value.startsWith('/')) {
             const parsed = parseCommand(value)
             if (parsed) {
@@ -634,7 +574,6 @@ export default function TeamChatTab() {
         }
     }
 
-    // Handle keyboard navigation in command menu
     const handleCommandKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!showCommandMenu) return
 
@@ -658,7 +597,6 @@ export default function TeamChatTab() {
         }
     }
 
-    // Command action handlers
     const handleGenerateImageCommand = async (prompt: string) => {
         if (!prompt.trim()) {
             toast({
@@ -668,14 +606,10 @@ export default function TeamChatTab() {
             })
             return
         }
-
         toast({
             title: "Generating Image",
             description: "Creating your image with AI..."
         })
-
-        // TODO: Implement actual image generation
-        // This would call an API endpoint that uses DALL-E or similar
     }
 
     const handleExportChat = () => {
@@ -696,431 +630,213 @@ export default function TeamChatTab() {
             document.body.removeChild(a)
             URL.revokeObjectURL(url)
 
-            toast({
-                title: "Export Complete",
-                description: "Chat transcript downloaded successfully."
-            })
+            toast({ title: "Export Complete", description: "Chat transcript downloaded successfully." })
         } catch (error) {
-            toast({
-                title: "Export Failed",
-                description: "Failed to export chat transcript.",
-                variant: "destructive"
-            })
+            toast({ title: "Export Failed", description: "Failed to export chat transcript.", variant: "destructive" })
         }
     }
 
     return (
-        <div className="flex w-full h-full overflow-hidden bg-white select-none relative">
+        <div className="flex flex-col w-full h-[calc(100vh-4rem)] bg-white select-none overflow-hidden">
             <style jsx global>{`
-                /* Hide scrollbar for Chrome, Safari and Opera */
-                .no-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-
-                /* Hide scrollbar for IE, Edge and Firefox */
-                .no-scrollbar {
-                    -ms-overflow-style: none;  /* IE and Edge */
-                    scrollbar-width: none;  /* Firefox */
-                }
-
-                * {
-                    scrollbar-width: none !important;
-                    -ms-overflow-style: none !important;
-                }
-                *::-webkit-scrollbar {
-                    display: none !important;
-                }
+                .no-scrollbar::-webkit-scrollbar { display: none; }
+                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            {/* LEFT PANE: WORKFORCE ROSTER (COLLAPSIBLE) */}
-            <AnimatePresence initial={false}>
-                {isLeftSidebarOpen ? (
-                    <motion.div
-                        initial={{ width: 0, opacity: 0 }}
-                        animate={{ width: 280, opacity: 1 }}
-                        exit={{ width: 0, opacity: 0 }}
-                        className="border-r border-slate-200 bg-white flex flex-col hidden lg:flex overflow-hidden relative"
-                    >
-                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
-                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
-                                <Users className="h-4 w-4 text-emerald-600" />
-                                Workforce Roster
-                            </h3>
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsLeftSidebarOpen(false)}>
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                        </div>
+            {/* HEADER - FIXED */}
+            <TacticalHeader connectionStatus={isConnected} onNewChat={handleNewChat} onHistory={handleViewHistory} />
 
-                        <div className="p-3 border-b border-slate-100 bg-slate-50/50">
-                            <div className="relative">
-                                <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
-                                <Input className="h-8 pl-8 text-[11px] bg-white border-slate-200 font-mono text-slate-900 placeholder:text-slate-400 rounded-lg shadow-sm" placeholder="Search Agents..." />
-                            </div>
-                        </div>
-
-                        <ScrollArea className="flex-1 no-scrollbar">
-                            <div className="p-2 space-y-1">
-                                {!intercomEnabled ? (
-                                    filteredAgents.map((agent) => (
-                                        <button
-                                            key={agent.key}
-                                            onClick={() => {
-                                                setSelectedAgent(agent)
-                                                setInputMessage(`/${agent.key} `)
-                                                inputRef.current?.focus()
-                                            }}
-                                            className={cn(
-                                                "w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all group relative overflow-hidden",
-                                                selectedAgent?.key === agent.key
-                                                    ? `${getAgentColor(agent.color).bg} ${getAgentColor(agent.color).border} border shadow-sm scale-[1.02]`
-                                                    : `hover:${getAgentColor(agent.color).bg}/50 border-transparent`
-                                            )}
-                                        >
-                                            <div className={cn(
-                                                "w-10 h-10 rounded-xl flex items-center justify-center transition-all border",
-                                                selectedAgent?.key === agent.key
-                                                    ? `${getAgentColor(agent.color).accent} text-white border-transparent`
-                                                    : `bg-white ${agent.color} ${getAgentColor(agent.color).border.replace('border-', 'border-opacity-50 border-')} group-hover:border-opacity-100 shadow-sm`
-                                            )}>
-                                                <agent.icon className="h-5 w-5" />
-                                            </div>
-                                            <div className="flex flex-col min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={cn(
-                                                        "font-bold text-[11px] uppercase tracking-tighter truncate",
-                                                        selectedAgent?.key === agent.key ? getAgentColor(agent.color).darkText : "text-slate-600"
-                                                    )}>{agent.name}</span>
-                                                    <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", getAgentColor(agent.color).accent)} />
-                                                </div>
-                                                <span className={cn("text-[9px] font-mono font-medium truncate uppercase tracking-tighter", getAgentColor(agent.color).text, "opacity-60")}>{agent.title}</span>
-                                            </div>
-                                        </button>
-                                    ))
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center py-12 px-4 text-center space-y-4">
-                                        <div className="h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center">
-                                            <Radio className="h-6 w-6 text-emerald-600 animate-pulse" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-emerald-900 uppercase tracking-widest font-mono">Neural_Link Active</p>
-                                            <p className="text-[9px] text-slate-500 font-mono mt-1">Autonomous dispatch engaged. Direct personnel override offline.</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </ScrollArea>
-
-                        {showUpgrade && (
-                            <div className="p-4 bg-slate-900 m-3 rounded-xl text-white shadow-xl shadow-emerald-900/20">
-                                <p className="text-[8px] font-mono mb-2 text-emerald-300 tracking-tighter">LICENSED FOR CORE OPERATIONS</p>
-                                <Button
-                                    className="w-full bg-emerald-500 hover:bg-emerald-600 h-8 text-[10px] font-black uppercase tracking-widest text-white border-0"
-                                    onClick={() => router.push('/dashboard?tab=upgrade')}
-                                >
-                                    Scale Workforce
+            <div className="flex flex-1 overflow-hidden min-h-0">
+                {/* LEFT PANE: WORKFORCE ROSTER */}
+                <AnimatePresence initial={false}>
+                    {isLeftSidebarOpen ? (
+                        <motion.div
+                            initial={{ width: 0, opacity: 0 }}
+                            animate={{ width: 280, opacity: 1 }}
+                            exit={{ width: 0, opacity: 0 }}
+                            className="border-r border-slate-200 bg-white flex flex-col hidden lg:flex shrink-0 min-w-0"
+                        >
+                            <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+                                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
+                                    <Users className="h-4 w-4 text-emerald-600" />
+                                    Workforce Roster
+                                </h3>
+                                <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsLeftSidebarOpen(false)}>
+                                    <ChevronLeft className="h-4 w-4" />
                                 </Button>
                             </div>
-                        )}
-                    </motion.div>
-                ) : (
-                    <div className="w-14 border-r border-slate-200 bg-white flex flex-col items-center py-4 space-y-4 hidden lg:flex">
-                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsLeftSidebarOpen(true)}>
-                            <ChevronRight className="h-4 w-4" />
-                        </Button>
-                        <div className="flex flex-col gap-3">
-                            {filteredAgents.map((agent) => (
-                                <button key={agent.key} onClick={() => {
-                                    setIsLeftSidebarOpen(true)
-                                    setSelectedAgent(agent)
-                                }} className={cn(
-                                    "w-9 h-9 rounded-lg border flex items-center justify-center shadow-sm transition-all bg-white hover:border-slate-300",
-                                    agent.color.replace("text-", "border-").replace("-500", "-100").replace("-400", "-100")
-                                )}>
-                                    <agent.icon className={cn("h-5 w-5", agent.color)} />
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </AnimatePresence>
 
-            {/* MIDDLE PANE: EXECUTION FLOOR */}
-            <div className="flex-1 flex flex-col h-full bg-emerald-50/5 relative min-w-0 overflow-hidden">
-                <TacticalHeader
-                    connectionStatus={isConnected}
-                    onNewChat={handleNewChat}
-                    onHistory={handleViewHistory}
-                />
-
-                <div className="flex-1 overflow-y-auto px-4 py-8 scroll-smooth isolate no-scrollbar" id="messages-container">
-                    <div className="max-w-3xl mx-auto space-y-6">
-                        <div className="flex items-center justify-center my-8">
-                            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-[0.5em]">--- MISSION_OPERATIONS_INITIATED ---</span>
-                        </div>
-                        {messages.map(msg => (
-                            <MessageBlock key={msg.id} message={msg} agentInfo={AVAILABLE_AGENTS.find(a => a.key === msg.agent_key)} />
-                        ))}
-                        <div className="h-40" /> {/* Spacer for floating input */}
-                        <div ref={messagesEndRef} />
-                    </div>
-                </div>
-
-                {/* INPUT AREA */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 z-50">
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        className="bg-white/80 backdrop-blur-xl border border-emerald-100/50 rounded-2xl p-2 shadow-2xl flex items-end gap-3 ring-1 ring-emerald-900/5"
-                    >
-                        <div className="flex-1 flex flex-col relative">
-                            {/* Command Autocomplete Menu */}
-                            <AnimatePresence>
-                                {showCommandMenu && commandSuggestions.length > 0 && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: 10 }}
-                                        className="absolute bottom-full left-0 mb-2 w-full bg-white border border-emerald-200 rounded-xl shadow-2xl p-2 max-h-64 overflow-y-auto z-50"
-                                    >
-                                        <div className="text-[9px] font-mono text-slate-400 uppercase tracking-widest px-3 py-2 border-b border-slate-100 mb-1">
-                                            Available Commands
+                            <ScrollArea className="flex-1 p-3">
+                                <div className="space-y-1">
+                                    {filteredAgents.length > 0 ? filteredAgents.map(agent => (
+                                        <RosterItem
+                                            key={agent.key}
+                                            agent={agent}
+                                            onClick={() => setSelectedAgent(agent === selectedAgent ? null : agent)}
+                                            isSelected={selectedAgent?.key === agent.key}
+                                        />
+                                    )) : (
+                                        <div className="p-4 text-center text-slate-400 text-xs">
+                                            No active agents found.
                                         </div>
-                                        <div className="space-y-1">
-                                            {commandSuggestions.map((cmd, idx) => (
-                                                <button
-                                                    key={cmd.cmd}
-                                                    onClick={() => {
-                                                        const parsed = parseCommand(inputMessage)
-                                                        if (parsed) {
-                                                            handleSlashCommand(cmd.cmd, parsed.args)
-                                                        }
-                                                    }}
-                                                    className={cn(
-                                                        "w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left",
-                                                        idx === selectedCommandIndex
-                                                            ? "bg-emerald-50 border border-emerald-200"
-                                                            : "hover:bg-slate-50"
-                                                    )}
-                                                >
-                                                    <cmd.icon className="h-4 w-4 text-emerald-600 shrink-0" />
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="text-xs font-bold text-slate-900">{cmd.cmd}</div>
-                                                        <div className="text-[10px] text-slate-500 truncate">{cmd.desc}</div>
-                                                    </div>
-                                                    {idx === selectedCommandIndex && (
-                                                        <div className="text-[9px] font-mono text-emerald-600">↵</div>
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            <Input
-                                ref={inputRef}
-                                className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-800 placeholder:text-emerald-200 h-10 font-medium px-4"
-                                placeholder={isRecording ? "Recording audio channel..." : "Transmit command sequence..."}
-                                value={inputMessage}
-                                onChange={handleInputChange}
-                                onKeyDown={(e) => {
-                                    handleCommandKeyDown(e)
-                                    if (e.key === 'Enter' && !showCommandMenu) {
-                                        handleKeyPress(e)
-                                    }
-                                }}
-                                disabled={isRecording}
-                            />
-                            <div className="flex items-center justify-between px-2 py-1 border-t border-emerald-50/50 mt-1">
-                                <div className="flex gap-1">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button size="icon" variant="ghost" className="h-7 w-7 text-emerald-300 hover:text-emerald-600">
-                                                <Paperclip className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="start" className="w-64 p-2 bg-white border-slate-200 rounded-xl shadow-2xl">
-                                            <div className="px-2 py-1.5 border-b border-slate-100 mb-1">
-                                                <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest font-mono">Neural Interface / Assets</p>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-1">
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <FileText className="mr-2 h-3.5 w-3.5 text-blue-500" />
-                                                    PDF / Docs
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <ImageIcon className="mr-2 h-3.5 w-3.5 text-emerald-500" />
-                                                    Assets / Img
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <Terminal className="mr-2 h-3.5 w-3.5 text-amber-500" />
-                                                    Scripts
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <Zap className="mr-2 h-3.5 w-3.5 text-purple-500" />
-                                                    Prompts
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <Activity className="mr-2 h-3.5 w-3.5 text-red-500" />
-                                                    Briefs
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <Globe className="mr-2 h-3.5 w-3.5 text-sky-500" />
-                                                    Ads / Social
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <MoreVertical className="mr-2 h-3.5 w-3.5 text-slate-400" />
-                                                    Drive / Links
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem className="text-[10px] font-bold uppercase tracking-widest text-slate-600 focus:bg-emerald-50 focus:text-emerald-700 rounded-lg cursor-pointer py-2">
-                                                    <Shield className="mr-2 h-3.5 w-3.5 text-emerald-500" />
-                                                    Cloud Storage
-                                                </DropdownMenuItem>
-                                            </div>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className={cn(
-                                            "h-7 w-7 transition-colors",
-                                            isRecording ? "text-red-500 animate-pulse bg-red-50" : "text-emerald-300 hover:text-emerald-600"
-                                        )}
-                                        onClick={isRecording ? stopRecording : startRecording}
-                                    >
-                                        <Mic className="h-4 w-4" />
-                                    </Button>
-                                    <Badge variant="outline" className="h-5 text-[8px] font-mono bg-emerald-50/50 text-emerald-600 border-emerald-100 rounded-md">
-                                        {isRecording ? "CAPTURE_ACTIVE" : "NEURAL_READY"}
-                                    </Badge>
+                                    )}
                                 </div>
-                                <span className="text-[9px] font-mono text-emerald-600/30 uppercase tracking-widest hidden sm:inline">SECURE_VOICE_LINK // GROQ_READY</span>
+                            </ScrollArea>
+                        </motion.div>
+                    ) : (
+                        <div className="w-12 border-r border-slate-200 flex flex-col items-center py-4 bg-slate-50/30 hidden lg:flex shrink-0">
+                            <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-emerald-600 mb-4" onClick={() => setIsLeftSidebarOpen(true)}>
+                                <Users className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                </AnimatePresence>
+
+                {/* MAIN CHAT AREA */}
+                <div className="flex-1 flex flex-col bg-slate-50/30 min-w-0 overflow-hidden">
+                    {/* MESSAGES LIST - SCROLLABLE */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth">
+                        {isLoading ? (
+                            <div className="h-full flex flex-col items-center justify-center space-y-4">
+                                <div className="h-8 w-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                                <p className="text-xs font-mono text-slate-400 animate-pulse">ESTABLISHING SECURE CONNECTION...</p>
+                            </div>
+                        ) : messages.length === 0 ? (
+                            <div className="h-full flex flex-col items-center justify-center text-center p-8 opacity-50">
+                                <div className="h-20 w-20 bg-slate-100 rounded-2xl flex items-center justify-center mb-6">
+                                    <Zap className="h-10 w-10 text-slate-300" />
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-900 mb-2">Command Center Ready</h3>
+                                <p className="text-sm text-slate-500 max-w-md">
+                                    Select an agent from the roster to verify status and begin strategic planning. All communications are encrypted.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col justify-end min-h-0">
+                                {messages.map((msg, i) => (
+                                    <MessageBlock
+                                        key={msg.id || i}
+                                        message={msg}
+                                        agentInfo={msg.agent_key ? AVAILABLE_AGENTS.find(a => a.key === msg.agent_key) : null}
+                                    />
+                                ))}
+                                <div ref={messagesEndRef} />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* INPUT AREA - FIXED BOTTOM */}
+                    <div className="p-4 bg-white border-t border-slate-200 shrink-0 relative z-20">
+                        <AnimatePresence>
+                            {showCommandMenu && commandSuggestions.length > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 10 }}
+                                    className="absolute bottom-full left-4 mb-2 w-80 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden z-50"
+                                >
+                                    <div className="p-1 bg-slate-50 border-b border-slate-100 text-[10px] font-mono text-slate-400 uppercase tracking-wider px-3 py-2">
+                                        Available Commands
+                                    </div>
+                                    <div className="max-h-60 overflow-y-auto p-1">
+                                        {commandSuggestions.map((cmd, i) => (
+                                            <div
+                                                key={i}
+                                                className={cn(
+                                                    "flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors text-sm",
+                                                    i === selectedCommandIndex ? "bg-emerald-50 text-emerald-900" : "hover:bg-slate-50 text-slate-700"
+                                                )}
+                                                onClick={() => {
+                                                    setInputMessage(cmd.cmd + ' ')
+                                                    setShowCommandMenu(false)
+                                                    inputRef.current?.focus()
+                                                }}
+                                            >
+                                                <div className={cn(
+                                                    "h-8 w-8 rounded-lg flex items-center justify-center border shadow-sm",
+                                                    i === selectedCommandIndex ? "bg-white border-emerald-200" : "bg-slate-50 border-slate-200"
+                                                )}>
+                                                    <cmd.icon className={cn("h-4 w-4", i === selectedCommandIndex ? "text-emerald-600" : "text-slate-400")} />
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold">{cmd.cmd}</div>
+                                                    <div className="text-xs text-slate-400 font-medium">{cmd.desc}</div>
+                                                </div>
+                                                {i === selectedCommandIndex && (
+                                                    <div className="ml-auto text-[10px] font-mono text-emerald-600 bg-emerald-100/50 px-1.5 py-0.5 rounded">
+                                                        ENTER
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Selected Agent Indicator */}
+                        {selectedAgent && (
+                            <div className="absolute -top-10 left-4 flex items-center gap-2 bg-slate-900 text-white px-3 py-1.5 rounded-t-lg shadow-sm text-xs font-bold uppercase tracking-wide">
+                                <span className={cn("w-2 h-2 rounded-full", selectedAgent.color.replace('text-', 'bg-'))} />
+                                Chatting with {selectedAgent.name}
+                                <button
+                                    onClick={() => setSelectedAgent(null)}
+                                    className="ml-2 hover:bg-slate-700 rounded-full p-0.5 transition-colors"
+                                >
+                                    <X className="h-3 w-3" />
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="flex items-end gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 focus-within:border-emerald-500/50 focus-within:ring-4 focus-within:ring-emerald-500/10 transition-all">
+                            <Button size="icon" variant="ghost" className="h-9 w-9 text-slate-400 hover:text-emerald-600 hover:bg-white shrink-0">
+                                <Paperclip className="h-4 w-4" />
+                            </Button>
+
+                            <div className="flex-1 relative">
+                                <Input
+                                    ref={inputRef}
+                                    value={inputMessage}
+                                    onChange={handleInputChange}
+                                    onKeyDown={handleCommandKeyDown}
+                                    onKeyPress={handleKeyPress}
+                                    placeholder={selectedAgent ? `Message ${selectedAgent.name}...` : "Select an agent to start..."}
+                                    className="border-0 bg-transparent focus-visible:ring-0 p-2 h-auto max-h-32 min-h-[40px] resize-none shadow-none text-slate-900 placeholder:text-slate-400 font-medium"
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                                <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className={cn("h-9 w-9 text-slate-400 hover:text-red-500 hover:bg-red-50", isRecording && "text-red-500 bg-red-50 animate-pulse")}
+                                    onMouseDown={startRecording}
+                                    onMouseUp={stopRecording}
+                                    onMouseLeave={stopRecording}
+                                >
+                                    <Mic className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    size="icon"
+                                    className={cn(
+                                        "h-9 w-9 transition-all shadow-sm",
+                                        inputMessage.trim() ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-slate-200 text-slate-400 hover:bg-slate-300"
+                                    )}
+                                    onClick={handleSendMessage}
+                                    disabled={!inputMessage.trim() || isSending}
+                                >
+                                    <Send className="h-4 w-4" />
+                                </Button>
                             </div>
                         </div>
-                        <Button
-                            className="h-12 w-12 rounded-xl bg-emerald-900 hover:bg-emerald-600 text-white shadow-xl transition-all active:scale-95 border-0"
-                            onClick={handleSendMessage}
-                            disabled={isSending || !inputMessage.trim()}
-                        >
-                            <Send className="h-5 w-5" />
-                        </Button>
-                    </motion.div>
+                        <div className="mt-2 text-center">
+                            <p className="text-[10px] text-slate-400 font-mono">
+                                Press <kbd className="font-sans bg-slate-100 px-1 rounded border border-slate-200 text-slate-600">/</kbd> for commands or select an agent to begin.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            {/* RIGHT PANE: MISSION OPERATIONS (COLLAPSIBLE) */}
-            <AnimatePresence initial={false}>
-                {isRightSidebarOpen ? (
-                    <motion.div
-                        initial={{ width: 0, opacity: 0 }}
-                        animate={{ width: 300, opacity: 1 }}
-                        exit={{ width: 0, opacity: 0 }}
-                        className="border-l border-slate-200 bg-white flex flex-col hidden xl:flex overflow-hidden relative"
-                    >
-                        <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
-                            <Button size="icon" variant="ghost" className="h-6 w-6 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsRightSidebarOpen(false)}>
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
-                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
-                                <Activity className="h-4 w-4 text-emerald-600" />
-                                Command Panel
-                            </h3>
-                        </div>
-
-                        <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-slate-50/30 no-scrollbar">
-                            {/* ACTIVE OPERATION SECTION */}
-                            <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:border-emerald-500/30">
-                                <button
-                                    onClick={() => setOpsOpen(!opsOpen)}
-                                    className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition-colors"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Bot className="h-4 w-4 text-emerald-600" />
-                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest font-mono">Operations</span>
-                                    </div>
-                                    <ChevronRight className={cn("h-4 w-4 text-slate-400 transition-transform", opsOpen && "rotate-90")} />
-                                </button>
-                                <AnimatePresence>
-                                    {opsOpen && (
-                                        <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                                            <div className="p-3 space-y-3 border-t border-slate-100">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-[10px] font-bold text-slate-700 uppercase font-mono">Neural Link</span>
-                                                    <Switch
-                                                        checked={intercomEnabled}
-                                                        onCheckedChange={toggleIntercom}
-                                                        className="data-[state=checked]:bg-emerald-500"
-                                                        disabled={userPlan !== 'starter' && userPlan !== 'pro'}
-                                                    />
-                                                </div>
-                                                <div className="p-2 bg-slate-50 rounded-lg border border-slate-100">
-                                                    {userPlan === 'starter' || userPlan === 'pro' ? (
-                                                        <p className="text-[9px] text-emerald-600 font-mono leading-relaxed">
-                                                            LINK_STATE: {intercomEnabled ? "ESTABLISHED" : "INDEPENDENT"}
-                                                            <br />
-                                                            THREAT: MINIMAL
-                                                        </p>
-                                                    ) : (
-                                                        <p className="text-[9px] text-amber-600 font-mono leading-relaxed">
-                                                            RESTRICTED: STARTER/PRO_ONLY
-                                                            <br />
-                                                            Contact HQ for neural upgrade.
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-
-                            {/* TACTICAL ACTIONS SECTION */}
-                            <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm transition-all hover:border-emerald-500/30">
-                                <button
-                                    onClick={() => setActionsOpen(!actionsOpen)}
-                                    className="w-full flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100 transition-colors"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Zap className="h-4 w-4 text-emerald-600" />
-                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest font-mono">Tactical Actions</span>
-                                    </div>
-                                    <ChevronRight className={cn("h-4 w-4 text-slate-400 transition-transform", actionsOpen && "rotate-90")} />
-                                </button>
-                                <AnimatePresence>
-                                    {actionsOpen && (
-                                        <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden">
-                                            <div className="p-3 grid grid-cols-2 gap-2 border-t border-slate-100">
-                                                <Button variant="outline" size="sm" className="h-16 flex flex-col gap-1 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 bg-white group shadow-sm transition-all">
-                                                    <TrendingUp className="h-4 w-4 text-emerald-500 transition-transform group-hover:scale-110" />
-                                                    <span className="text-[8px] font-black uppercase tracking-tighter font-mono tracking-[0.1em] text-slate-600">Analyze</span>
-                                                </Button>
-                                                <Button variant="outline" size="sm" className="h-16 flex flex-col gap-1 border-slate-200 hover:border-red-500 hover:bg-red-50 bg-white group shadow-sm transition-all">
-                                                    <Shield className="h-4 w-4 text-red-500 transition-transform group-hover:scale-110" />
-                                                    <span className="text-[8px] font-black uppercase tracking-tighter font-mono tracking-[0.1em] text-slate-600">Lockdown</span>
-                                                </Button>
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </div>
-                    </motion.div>
-                ) : (
-                    <div className="w-14 border-l border-slate-200 bg-white flex flex-col items-center py-4 space-y-6 hidden xl:flex">
-                        <Button size="icon" variant="ghost" className="text-slate-400 hover:text-emerald-600 hover:bg-emerald-50" onClick={() => setIsRightSidebarOpen(true)}>
-                            <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <div className="flex flex-col gap-4">
-                            <Activity className="h-5 w-5 text-emerald-600" />
-                            <Bot className="h-5 w-5 text-slate-400 hover:text-emerald-600 cursor-pointer transition-colors" />
-                            <Zap className="h-5 w-5 text-slate-400 hover:text-emerald-600 cursor-pointer transition-colors" />
-                            <Shield className="h-5 w-5 text-slate-400 hover:text-red-500 cursor-pointer transition-colors" />
-                            <TrendingUp className="h-5 w-5 text-slate-400 hover:text-emerald-600 cursor-pointer transition-colors" />
-                        </div>
-                    </div>
-                )}
-            </AnimatePresence>
         </div>
     )
 }
