@@ -29,6 +29,11 @@ async def lifespan(app: FastAPI):
         await kafka_manager.initialize()
         logger.info("✅ Kafka initialized")
         
+        # Initialize AI Service Manager
+        from core.ai import init_ai_service_manager
+        await init_ai_service_manager()
+        logger.info("✅ AI Service Manager initialized")
+        
         # Initialize ChromaDB
         chroma_manager = ChromaManager()
         await chroma_manager.initialize()

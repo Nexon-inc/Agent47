@@ -65,7 +65,12 @@ async def process_chat_message(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to process message: {str(e)}")
+        logger.error(f"Error processing chat message for Eric: {str(e)}", exc_info=True)
+        # Return a friendly error message to the user as requested
+        raise HTTPException(
+            status_code=500, 
+            detail="I'm having a bit of an issue please try again later"
+        )
 
 
 @router.get("/session/{session_id}")

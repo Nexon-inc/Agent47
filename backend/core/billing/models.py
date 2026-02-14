@@ -7,14 +7,14 @@ import enum
 
 
 
-class PaymentStatus(enum.Enum):
+class PaymentStatus(str, enum.Enum):
     PENDING = "pending"
     SUCCESSFUL = "successful"
     FAILED = "failed"
     CANCELLED = "cancelled"
     REFUNDED = "refunded"
 
-class SubscriptionStatus(enum.Enum):
+class SubscriptionStatus(str, enum.Enum):
     ACTIVE = "active"
     EXPIRED = "expired"
     CANCELLED = "cancelled"

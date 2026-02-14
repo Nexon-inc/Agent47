@@ -59,10 +59,22 @@ async def process_chat_message(
                 "timestamp": datetime.now().isoformat()
             }
         else:
-            raise HTTPException(status_code=400, detail=result["error"])
+            # Result was not successful but no exception raised
+            logger.error(f"Aria Chat Service returned failure: {result.get('error')}")
+            raise HTTPException(
+                status_code=500, 
+                detail="I'm having a bit of an issue please try again later"
+            )
             
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to process chat message: {str(e)}")
+        logger.error(f"Error processing chat message for Aria: {str(e)}", exc_info=True)
+        # Return a friendly error message to the user as requested
+        raise HTTPException(
+            status_code=500, 
+            detail="I'm having a bit of an issue please try again later"
+        )
 
 
 @router.get("/suggestions/{user_id}")

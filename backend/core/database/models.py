@@ -109,7 +109,7 @@ class MessageType(enum.Enum):
     TEAM_INVITE = "team_invite"
     BILLING_NOTIFICATION = "billing_notification"
 
-class SubscriptionStatus(enum.Enum):
+class SubscriptionStatus(str, enum.Enum):
     PENDING = "pending"
     ACTIVE = "active"
     INACTIVE = "inactive"
@@ -118,7 +118,7 @@ class SubscriptionStatus(enum.Enum):
     TRIALING = "trialing"
     EXPIRED = "expired"
 
-class PaymentStatus(enum.Enum):
+class PaymentStatus(str, enum.Enum):
     PENDING = "pending"
     SUCCESSFUL = "successful"
     COMPLETED = "completed"
