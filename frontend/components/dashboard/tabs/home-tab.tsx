@@ -26,7 +26,8 @@ import {
   Wrench,
   UsersRound,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Headphones
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth-store"
