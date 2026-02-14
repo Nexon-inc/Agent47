@@ -69,7 +69,7 @@ async def process_chat_message(
         # Return a friendly error message to the user as requested
         raise HTTPException(
             status_code=500, 
-            detail="I'm having a bit of an issue please try again later"
+            detail=f"I'm having a bit of an issue: {str(e)}"
         )
 
 

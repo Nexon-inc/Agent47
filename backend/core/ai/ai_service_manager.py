@@ -751,20 +751,24 @@ class AIServiceManager:
                 "error": str(e)
             }
 
-# Global instance
+# Global instance and lock for thread-safe initialization
 _ai_service_manager: Optional[AIServiceManager] = None
+_ai_manager_lock = asyncio.Lock()
 
 async def get_ai_service_manager() -> AIServiceManager:
-    """Get the global AI service manager instance"""
+    """Get the global AI service manager instance with thread-safe initialization"""
     global _ai_service_manager
     if not _ai_service_manager:
-        _ai_service_manager = AIServiceManager()
-        await _ai_service_manager.initialize()
+        async with _ai_manager_lock:
+            if not _ai_service_manager:
+                _ai_service_manager = AIServiceManager()
+                await _ai_service_manager.initialize()
     return _ai_service_manager
 
 async def init_ai_service_manager() -> AIServiceManager:
-    """Initialize the global AI service manager instance"""
+    """Initialize the global AI service manager instance with thread-safe initialization"""
     global _ai_service_manager
-    _ai_service_manager = AIServiceManager()
-    await _ai_service_manager.initialize()
+    async with _ai_manager_lock:
+        _ai_service_manager = AIServiceManager()
+        await _ai_service_manager.initialize()
     return _ai_service_manager

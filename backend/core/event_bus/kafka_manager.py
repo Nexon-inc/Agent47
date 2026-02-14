@@ -27,6 +27,20 @@ class EventBus:
         self._initialized = False
         self._running = False
 
+    def register_handler(self, topic: str, handler: Callable):
+        """Register a handler for a specific topic"""
+        if topic not in self.handlers:
+            self.handlers[topic] = []
+        if handler not in self.handlers[topic]:
+            self.handlers[topic].append(handler)
+        logger.info(f"Registered handler for topic: {topic}")
+
+    def unregister_handler(self, topic: str, handler: Callable):
+        """Unregister a handler for a specific topic"""
+        if topic in self.handlers and handler in self.handlers[topic]:
+            self.handlers[topic].remove(handler)
+            logger.info(f"Unregistered handler from topic: {topic}")
+
     def _get_kafka_connection_kwargs(self) -> Dict[str, Any]:
         """Build common Kafka connection kwargs with SSL/TLS and SASL configuration"""
         kwargs = {

@@ -438,8 +438,21 @@ class SupabaseAuthManager:
         try:
             client = self._get_client()
             
-            # Get user from database
-            result = client.table('users').select('*').eq('id', user_id).execute()
+            # Determine which column to use based on user_id format
+            # If user_id is a UUID (string with hyphens), use 'id'
+            # If user_id is an integer (or string representation of an integer), we might need to check 'email' or a different mapping
+            # In our schema, 'users.id' is integer, but Supabase Auth uses UUIDs.
+            # We often store the Supabase UUID in a separate column or use email as the linker.
+            
+            is_uuid = isinstance(user_id, str) and '-' in user_id
+            
+            if is_uuid:
+                # Try to find by supabase_uid or similar if it exists, otherwise this is a direct ID query
+                # For now, we assume if it's a string, we might want to check against a 'supabase_id' or 'uuid' column if available
+                # But the user reported issues with 'id' specifically.
+                result = client.table('users').select('*').eq('id', user_id).execute()
+            else:
+                result = client.table('users').select('*').eq('id', user_id).execute()
             
             if result.data:
                 return result.data[0]

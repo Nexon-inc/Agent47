@@ -60,10 +60,11 @@ async def process_chat_message(
             }
         else:
             # Result was not successful but no exception raised
-            logger.error(f"Aria Chat Service returned failure: {result.get('error')}")
+            error_msg = result.get('error', "I'm having a bit of an issue please try again later")
+            logger.error(f"Aria Chat Service returned failure: {error_msg}")
             raise HTTPException(
                 status_code=500, 
-                detail="I'm having a bit of an issue please try again later"
+                detail=error_msg
             )
             
     except HTTPException:
@@ -73,7 +74,7 @@ async def process_chat_message(
         # Return a friendly error message to the user as requested
         raise HTTPException(
             status_code=500, 
-            detail="I'm having a bit of an issue please try again later"
+            detail=f"I'm having a bit of an issue: {str(e)}"
         )
 
 

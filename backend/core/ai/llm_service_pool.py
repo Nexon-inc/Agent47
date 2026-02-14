@@ -532,20 +532,24 @@ class LLMServicePool:
         """Get detailed metrics for all services"""
         return self.get_service_status()
 
-# Global instance
+# Global instance and lock for thread-safe initialization
 _llm_service_pool: Optional[LLMServicePool] = None
+_llm_pool_lock = asyncio.Lock()
 
 async def get_llm_service_pool() -> LLMServicePool:
-    """Get the global LLM service pool instance"""
+    """Get the global LLM service pool instance with thread-safe initialization"""
     global _llm_service_pool
     if not _llm_service_pool:
-        _llm_service_pool = LLMServicePool()
-        await _llm_service_pool.initialize()
+        async with _llm_pool_lock:
+            if not _llm_service_pool:
+                _llm_service_pool = LLMServicePool()
+                await _llm_service_pool.initialize()
     return _llm_service_pool
 
 async def init_llm_service_pool() -> LLMServicePool:
-    """Initialize the global LLM service pool instance"""
+    """Initialize the global LLM service pool instance with thread-safe initialization"""
     global _llm_service_pool
-    _llm_service_pool = LLMServicePool()
-    await _llm_service_pool.initialize()
+    async with _llm_pool_lock:
+        _llm_service_pool = LLMServicePool()
+        await _llm_service_pool.initialize()
     return _llm_service_pool
