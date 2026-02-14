@@ -27,7 +27,11 @@ import {
   UsersRound,
   CheckCircle2,
   AlertCircle,
-  Headphones
+  Headphones,
+  DollarSign,
+  Megaphone,
+  FileText,
+  Lightbulb
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/lib/stores/auth-store"
@@ -48,15 +52,15 @@ interface ActivityLog {
 
 // --- Components ---
 
-// --- Agent Config ---
+// --- Agent Config (Synced with agents-overview-tab.tsx) ---
 const AGENTS_CONFIG: Record<string, any> = {
   aria: { icon: Globe, color: "text-orange-500", bg: "bg-orange-50", border: "border-orange-200" },
-  clara: { icon: Users, icon2: Headphones, color: "text-purple-500", bg: "bg-purple-50", border: "border-purple-200" },
-  eric: { icon: Zap, icon2: Activity, color: "text-amber-500", bg: "bg-amber-50", border: "border-amber-200" },
-  jackie: { icon: MessageSquare, icon2: CheckCircle2, color: "text-pink-500", bg: "bg-pink-50", border: "border-pink-200" },
-  shakes: { icon: Terminal, color: "text-green-500", bg: "bg-green-50", border: "border-green-200" },
+  clara: { icon: Headphones, color: "text-purple-500", bg: "bg-purple-50", border: "border-purple-200" },
+  eric: { icon: DollarSign, color: "text-amber-500", bg: "bg-amber-50", border: "border-amber-200" },
+  jackie: { icon: Megaphone, color: "text-pink-500", bg: "bg-pink-50", border: "border-pink-200" },
+  shakes: { icon: FileText, color: "text-green-500", bg: "bg-green-50", border: "border-green-200" },
   joe: { icon: Search, color: "text-sky-500", bg: "bg-sky-50", border: "border-sky-200" },
-  purity: { icon: Shield, color: "text-gray-500", bg: "bg-gray-50", border: "border-gray-200" },
+  purity: { icon: Lightbulb, color: "text-gray-500", bg: "bg-gray-50", border: "border-gray-200" },
   // Default fallback
   default: { icon: UsersRound, color: "text-slate-500", bg: "bg-slate-50", border: "border-slate-200" }
 }
@@ -208,12 +212,12 @@ export default function HomeTab() {
       setActiveTasks(tasksRes || [])
 
       // Process Platforms (Count only connected/active)
-      const platformsData = platformsRes.data || platformsRes || []
+      const platformsData = (platformsRes && typeof platformsRes === 'object' && 'data' in platformsRes) ? (platformsRes as any).data : (platformsRes || [])
       const connectedPlatformsList = Array.isArray(platformsData) ? platformsData : (platformsData.platforms || [])
       const activePlatformsCount = connectedPlatformsList.filter((p: any) => p.status === 'connected' || p.status === 'active').length
 
       // Process Tools (Use stats directly)
-      const stats = integrationsStatsRes.data || integrationsStatsRes || {}
+      const stats = (integrationsStatsRes && typeof integrationsStatsRes === 'object' && 'data' in integrationsStatsRes) ? (integrationsStatsRes as any).data : (integrationsStatsRes || {})
       const activeToolsCount = stats.connected_count || 0
 
       setPlatformCount(activePlatformsCount)
