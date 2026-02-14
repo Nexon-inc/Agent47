@@ -7,6 +7,10 @@ import logging
 
 from ..database.connection import get_db
 from ..database.models import User, UserTier
+from ..config import settings
+from ..ai import get_ai_service_manager
+from ..ai.llm_service_pool import LLMRequest
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -142,3 +146,62 @@ async def delete_user(
     except Exception as e:
         logger.error(f"System Delete User Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/debug/llm-test")
+async def debug_llm_test(key_verified: bool = Depends(verify_system_key)):
+    """Diagnose LLM Connectivity and Config"""
+    
+    # 1. Check Env Vars (Masked)
+    groq_env = os.getenv("GROQ_API_KEY", "")
+    gemini_env = os.getenv("GOOGLE_GEMINI_API_KEY", "")
+    
+    # 2. Check Settings
+    groq_setting = settings.groq.groq_api_key
+    gemini_setting = settings.google_gemini_llm.google_gemini_api_key
+    
+    # 3. Check AI Manager
+    ai_manager = get_ai_service_manager()
+    pool = ai_manager.llm_service_pool
+    
+    status_report = {
+        "env_vars": {
+            "GROQ_API_KEY_PRESENT": bool(groq_env),
+            "GROQ_API_KEY_MASKED": f"{groq_env[:4]}...{groq_env[-4:]}" if groq_env else None,
+            "GOOGLE_GEMINI_API_KEY_PRESENT": bool(gemini_env),
+            "GOOGLE_GEMINI_API_KEY_MASKED": f"{gemini_env[:4]}...{gemini_env[-4:]}" if gemini_env else None,
+        },
+        "settings": {
+            "groq_api_key_match_env": groq_env == groq_setting,
+            "gemini_api_key_match_env": gemini_env == gemini_setting,
+            "primary_provider": settings.primary_llm_provider
+        },
+        "initialization": {
+            "ai_manager_initialized": ai_manager._initialized,
+            "llm_pool_initialized": pool._initialized if pool else False,
+            "groq_client_ready": bool(pool.groq_client) if pool and pool.groq_client else False, 
+            "gemini_client_ready": bool(pool.gemini_client) if pool and pool.gemini_client else False,
+        }
+    }
+    
+    # 4. Attempt Generation
+    generation_result = "Skipped"
+    if pool and pool._initialized:
+        try:
+            req = LLMRequest(
+                messages=[{"role": "user", "content": "Test connection. Reply 'OK'."}],
+                max_tokens=10
+            )
+            response = await pool.generate_text(req)
+            generation_result = {
+                "success": response.success,
+                "content": response.content,
+                "service_used": response.service_used,
+                "error": response.error
+            }
+        except Exception as e:
+            generation_result = {"error": str(e)}
+            
+    return {
+        "status": status_report,
+        "generation_test": generation_result
+    }

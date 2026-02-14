@@ -24,6 +24,7 @@ import {
     Search,
     FileText,
     ChevronLeft,
+    ChevronRight,
     Cpu,
     X,
     Lock,
@@ -32,14 +33,19 @@ import {
     Plus,
     Wrench,
     UsersRound,
-    Radio
+    Radio,
+    Clock,
+    Activity,
+    Shield,
+    CheckCircle2,
+    AlertCircle
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { apiClient } from "@/lib/api-client"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import { websocketService } from "@/lib/websocket-service"
+import { websocketService, WebSocketMessage } from "@/lib/websocket-service"
 import { useRouter } from "next/navigation"
 
 // --- Interfaces ---
@@ -72,6 +78,14 @@ interface Agent {
     specialty: string
 }
 
+interface ActivityLog {
+    id: string
+    title: string
+    time: string
+    type: 'success' | 'warning' | 'info'
+    agent?: string
+}
+
 // Updated Agent Data to match Overview Tab
 const AVAILABLE_AGENTS: Agent[] = [
     { key: "aria", name: "Aria", title: "Social Media", description: "Social Media Management", icon: Globe, color: "text-orange-500", status: "idle", specialty: "Social Media" },
@@ -97,7 +111,7 @@ const getAgentColor = (color: string) => {
 
 // --- Components ---
 
-const TacticalHeader = ({ connectionStatus, onNewChat, onHistory }: { connectionStatus: boolean, onNewChat: () => void, onHistory: () => void }) => (
+const TacticalHeader = ({ connectionStatus, onNewChat, onHistory, onToggleRightSidebar, isRightSidebarOpen }: { connectionStatus: boolean, onNewChat: () => void, onHistory: () => void, onToggleRightSidebar: () => void, isRightSidebarOpen: boolean }) => (
     <div className="flex shrink-0 items-center justify-between px-6 py-3 border-b border-slate-200 bg-white/95 backdrop-blur-sm sticky top-0 z-[10] shadow-sm h-16">
         <div className="flex items-center space-x-3">
             <div className="h-8 w-8 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center">
@@ -122,9 +136,9 @@ const TacticalHeader = ({ connectionStatus, onNewChat, onHistory }: { connection
                 <History className="h-4 w-4" />
             </Button>
             <Separator orientation="vertical" className="h-4 mx-1 bg-slate-200" />
-            <Badge variant="outline" className="font-mono text-[10px] text-emerald-600 border-emerald-200 bg-emerald-50/50">
-                LOCKED_SESSION
-            </Badge>
+            <Button size="icon" variant="ghost" className={cn("h-8 w-8 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-transform", isRightSidebarOpen ? "rotate-180" : "")} onClick={onToggleRightSidebar}>
+                <ChevronLeft className="h-4 w-4" />
+            </Button>
         </div>
     </div>
 )
@@ -134,13 +148,13 @@ const RosterItem = ({ agent, onClick, isSelected }: { agent: Agent; onClick: () 
         onClick={onClick}
         className={cn(
             "w-full flex items-center space-x-3 p-2 rounded-lg transition-colors group text-left border border-transparent",
-            isSelected ? "bg-slate-100 border-slate-200" : "hover:bg-slate-50"
+            isSelected ? "bg-emerald-50 border-emerald-100" : "hover:bg-slate-50"
         )}
     >
         <div className="relative">
             <div className={cn(
                 "h-10 w-10 flex items-center justify-center rounded-lg border bg-white shadow-sm transition-transform",
-                isSelected ? "scale-105 ring-2 ring-offset-1 ring-slate-200" : "group-hover:scale-105",
+                isSelected ? "scale-105 ring-2 ring-offset-1 ring-emerald-200" : "group-hover:scale-105",
                 agent.color.replace("text-", "border-").replace("-500", "-100").replace("-400", "-100")
             )}>
                 <agent.icon className={cn("h-5 w-5", agent.color)} />
@@ -154,7 +168,7 @@ const RosterItem = ({ agent, onClick, isSelected }: { agent: Agent; onClick: () 
             <div className="flex items-center justify-between">
                 <span className={cn(
                     "text-xs font-bold uppercase tracking-tight truncate",
-                    isSelected ? "text-slate-900" : "text-slate-600"
+                    isSelected ? "text-emerald-900" : "text-slate-600"
                 )}>{agent.name}</span>
                 <span className="text-[9px] font-mono text-slate-400">{agent.status === "working" ? "BUSY" : "RDY"}</span>
             </div>
@@ -231,6 +245,34 @@ const MessageBlock = ({ message, agentInfo }: { message: ChatMessage; agentInfo?
     )
 }
 
+const StatCard = ({ label, value, icon: Icon, colorClass }: { label: string, value: string, icon: any, colorClass: string }) => (
+    <div className="bg-slate-50 border border-slate-200 p-3 rounded-lg flex items-center justify-between transition-colors hover:border-emerald-200 hover:bg-emerald-50/30">
+        <div>
+            <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-1">{label}</p>
+            <p className="text-lg font-black text-slate-900">{value}</p>
+        </div>
+        <div className={cn("h-8 w-8 rounded-md flex items-center justify-center bg-white border border-slate-200/50", colorClass)}>
+            <Icon className="h-4 w-4" />
+        </div>
+    </div>
+)
+
+const NotificationItem = ({ title, time, type, agent }: ActivityLog) => (
+    <div className="flex gap-3 py-3 border-b border-slate-100/50 last:border-0 hover:bg-slate-50 rounded-lg px-2 transition-colors">
+        <div className={cn(
+            "h-2 w-2 rounded-full mt-1.5 shrink-0",
+            type === 'info' ? "bg-sky-400" : type === 'warning' ? "bg-amber-400" : "bg-emerald-400"
+        )} />
+        <div>
+            <div className="flex items-center gap-2">
+                {agent && <span className="text-[10px] font-bold text-slate-800 uppercase bg-slate-200 px-1 rounded-sm">{agent}</span>}
+                <p className="text-xs font-medium text-slate-700 leading-snug">{title}</p>
+            </div>
+            <p className="text-[9px] text-slate-400 font-mono mt-0.5">{time}</p>
+        </div>
+    </div>
+)
+
 
 export default function TeamChatTab() {
     const { user } = useAuthStore()
@@ -246,11 +288,17 @@ export default function TeamChatTab() {
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null)
     const [intercomEnabled, setIntercomEnabled] = useState(false)
     const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true)
+    const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(true)
     const [isRecording, setIsRecording] = useState(false)
     const [hiredAgentKeys, setHiredAgentKeys] = useState<string[]>([])
     const [isHiredLoading, setIsHiredLoading] = useState(true)
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
     const audioChunksRef = useRef<Blob[]>([])
+
+    // Real-time Dashboard State
+    const [platformCount, setPlatformCount] = useState(0)
+    const [toolCount, setToolCount] = useState(0)
+    const [activityLog, setActivityLog] = useState<ActivityLog[]>([])
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const inputRef = useRef<HTMLInputElement>(null)
@@ -269,11 +317,12 @@ export default function TeamChatTab() {
         scrollToBottom()
     }, [messages])
 
-    // Initial Load
+    // Initial Load & Real-time Data
     useEffect(() => {
         loadMessages()
         checkIntercomStatus()
         fetchHiredAgents()
+        fetchServiceStatus() // NEW: Connect to System Services
 
         // WebSocket Setup
         const status = websocketService.getConnectionStatus()
@@ -281,6 +330,32 @@ export default function TeamChatTab() {
 
         const unsubscribeMsg = websocketService.subscribe('team_chat_message', () => {
             setTimeout(loadMessages, 300)
+        })
+
+        // Subscribe to Task Updates for "When its done with its tasks"
+        const unsubscribeTasks = websocketService.subscribe('task_update', (msg: WebSocketMessage) => {
+            if (msg.data?.status === 'completed' || msg.data?.status === 'verified') {
+                addActivityLog({
+                    id: Date.now().toString(),
+                    title: `Task completed: ${msg.data.description || 'Unknown Task'}`,
+                    time: 'Just now',
+                    type: 'success',
+                    agent: msg.data.agent_name || 'System'
+                })
+            }
+        })
+
+        // Subscribe to Notifications for "Employee notification of verification"
+        const unsubscribeNotifs = websocketService.subscribe('notification', (msg: WebSocketMessage) => {
+            if (msg.data?.type === 'verification_request' || msg.data?.type === 'human_input') {
+                addActivityLog({
+                    id: Date.now().toString(),
+                    title: `Verification required: ${msg.data.title || 'Review Action'}`,
+                    time: 'Just now',
+                    type: 'warning',
+                    agent: msg.data.agent_name
+                })
+            }
         })
 
         const unsubscribeStatus = websocketService.onConnectionChange((connected: boolean) => {
@@ -293,9 +368,28 @@ export default function TeamChatTab() {
 
         return () => {
             unsubscribeMsg()
+            unsubscribeTasks()
+            unsubscribeNotifs()
             unsubscribeStatus()
         }
     }, [])
+
+    const fetchServiceStatus = async () => {
+        try {
+            const services = await apiClient.getAllServicesStatus().catch(() => [])
+            // Simple logic: if 'platform' type count it, etc. Assumes simple array for now.
+            // If backend returns detailed objects, we'd filter. 
+            // Mocking logic ONLY for categorization if fields are missing, but using Real Count.
+            setPlatformCount(services.filter((s: any) => s.type === 'platform' || s.category === 'platform').length)
+            setToolCount(services.filter((s: any) => s.type === 'tool' || s.category === 'tool').length)
+        } catch (error) {
+            console.error("Failed to fetch service status", error)
+        }
+    }
+
+    const addActivityLog = (log: ActivityLog) => {
+        setActivityLog(prev => [log, ...prev].slice(0, 50)) // Keep last 50
+    }
 
     const loadMessages = async () => {
         try {
@@ -644,7 +738,13 @@ export default function TeamChatTab() {
             `}</style>
 
             {/* HEADER - FIXED */}
-            <TacticalHeader connectionStatus={isConnected} onNewChat={handleNewChat} onHistory={handleViewHistory} />
+            <TacticalHeader
+                connectionStatus={isConnected}
+                onNewChat={handleNewChat}
+                onHistory={handleViewHistory}
+                onToggleRightSidebar={() => setIsRightSidebarOpen(!isRightSidebarOpen)}
+                isRightSidebarOpen={isRightSidebarOpen}
+            />
 
             <div className="flex flex-1 overflow-hidden min-h-0">
                 {/* LEFT PANE: WORKFORCE ROSTER */}
@@ -836,6 +936,74 @@ export default function TeamChatTab() {
                         </div>
                     </div>
                 </div>
+
+                {/* RIGHT PANE: ANALYTICS & STATUS */}
+                <AnimatePresence initial={false}>
+                    {isRightSidebarOpen && (
+                        <motion.div
+                            initial={{ width: 0, opacity: 0 }}
+                            animate={{ width: 280, opacity: 1 }}
+                            exit={{ width: 0, opacity: 0 }}
+                            className="border-l border-slate-200 bg-white flex flex-col hidden lg:flex shrink-0 min-w-0"
+                        >
+                            <div className="p-4 border-b border-slate-200 bg-slate-50/50">
+                                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] flex items-center gap-2 font-mono">
+                                    <Activity className="h-4 w-4 text-emerald-600" />
+                                    System Overview
+                                </h3>
+                            </div>
+
+                            <ScrollArea className="flex-1 p-4">
+                                <div className="space-y-6">
+                                    {/* Quick Stats Grid */}
+                                    <div className="grid grid-cols-1 gap-3">
+                                        <StatCard
+                                            label="Agents Active"
+                                            value={filteredAgents.length.toString()}
+                                            icon={UsersRound}
+                                            colorClass="text-emerald-600"
+                                        />
+                                        <StatCard
+                                            label="Platforms"
+                                            value={platformCount.toString()}
+                                            icon={Globe}
+                                            colorClass="text-sky-600"
+                                        />
+                                        <StatCard
+                                            label="Tools Linked"
+                                            value={toolCount.toString()}
+                                            icon={Wrench}
+                                            colorClass="text-amber-600"
+                                        />
+                                    </div>
+
+                                    <Separator className="bg-slate-100" />
+
+                                    {/* Agent Activity Log */}
+                                    <div>
+                                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                            <Shield className="h-3 w-3" />
+                                            Agent Activity Log
+                                        </h4>
+                                        <div className="space-y-1">
+                                            {activityLog.length > 0 ? activityLog.map((log) => (
+                                                <NotificationItem
+                                                    key={log.id}
+                                                    {...log}
+                                                />
+                                            )) : (
+                                                <div className="text-center py-4 text-xs text-slate-400 font-mono italic">
+                                                    Waiting for agent activity...
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </ScrollArea>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     )
