@@ -376,12 +376,23 @@ export default function TeamChatTab() {
 
     const fetchServiceStatus = async () => {
         try {
-            const services = await apiClient.getAllServicesStatus().catch(() => [])
-            // Simple logic: if 'platform' type count it, etc. Assumes simple array for now.
-            // If backend returns detailed objects, we'd filter. 
-            // Mocking logic ONLY for categorization if fields are missing, but using Real Count.
-            setPlatformCount(services.filter((s: any) => s.type === 'platform' || s.category === 'platform').length)
-            setToolCount(services.filter((s: any) => s.type === 'tool' || s.category === 'tool').length)
+            // Updated logic to match Dashboard & Platform/Tool tabs exactly
+            const [platformsRes, integrationsStatsRes] = await Promise.all([
+                apiClient.get("/api/v1/platforms/connected").catch(() => []),
+                apiClient.get("/api/v1/integrations/stats").catch(() => null)
+            ])
+
+            // Process Platforms (Count only connected/active)
+            const platformsData = platformsRes.data || platformsRes || []
+            const connectedPlatformsList = Array.isArray(platformsData) ? platformsData : (platformsData.platforms || [])
+            const activePlatformsCount = connectedPlatformsList.filter((p: any) => p.status === 'connected' || p.status === 'active').length
+
+            // Process Tools (Use stats directly)
+            const stats = integrationsStatsRes.data || integrationsStatsRes
+            const activeToolsCount = stats?.connected_count || 0
+
+            setPlatformCount(activePlatformsCount)
+            setToolCount(activeToolsCount)
         } catch (error) {
             console.error("Failed to fetch service status", error)
         }

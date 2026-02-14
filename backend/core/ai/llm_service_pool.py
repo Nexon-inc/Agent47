@@ -183,16 +183,61 @@ class LLMServicePool:
                     if response.success:
                         response.fallback_used = True
                         return response
-        
-        # Default/Fallback logic if primary is not Groq or unhealthy
-        # Try Gemini fallback
-        if self._is_service_healthy("gemini"):
+
+        elif self._current_primary == "gemini" and self._is_service_healthy("gemini"):
             response = await self._try_gemini_generation(request)
             if response.success:
                 return response
             else:
                 logger.warning(f"Gemini LLM failed: {response.error}")
+                # Try Groq fallback
+                if self._is_service_healthy("groq"):
+                    response = await self._try_groq_generation(request)
+                    if response.success:
+                        response.fallback_used = True
+                        return response
+                # Try OpenAI fallback
+                if self._is_service_healthy("openai"):
+                    response = await self._try_openai_generation(request)
+                    if response.success:
+                        response.fallback_used = True
+                        return response
         
+        # Default/Fallback logic if primary failed or was skipped
+        
+        # If we haven't tried Gemini yet (primary was not gemini, or primary was gemini but unhealthy/skipped)
+        if self._current_primary != "gemini" and self._is_service_healthy("gemini"):
+             # Note: if primary was groq and it failed, we already tried gemini above.
+             # This block is for when primary is something else (e.g. unknown) OR if we fell through.
+             # Ideally we should track what we've tried.
+             pass 
+
+        # Simplified Logic for Default Fallbacks (if primary block didn't return)
+        
+        # 1. Try Gemini (if not already tried/failed)
+        if self._current_primary != "gemini" and self._is_service_healthy("gemini"):
+             # This check is imperfect without tracking "tried_services", but assuming simple failover:
+             # If primary=groq and used block above, we returned or tried gemini.
+             # It's safer to have a "tried_providers" set or just explicit chain.
+             pass
+
+        # Let's simplify the fallback chain below line 186 instead of complex ifs.
+        
+        # If we are here, Primary failed.
+        # Try Gemini (if not primary)
+        if self._current_primary != "gemini" and self._is_service_healthy("gemini"):
+             response = await self._try_gemini_generation(request)
+             if response.success:
+                 response.fallback_used = True
+                 return response
+        
+        # Try Groq (if not primary)
+        if self._current_primary != "groq" and self._is_service_healthy("groq"):
+             response = await self._try_groq_generation(request)
+             if response.success:
+                 response.fallback_used = True
+                 return response
+                 
         # Try OpenAI fallback
         if self._is_service_healthy("openai"):
             response = await self._try_openai_generation(request)

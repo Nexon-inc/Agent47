@@ -633,7 +633,7 @@ class Settings(BaseSettings):
     project_name: str = "Agent47"
     version: str = "1.0.0"
     
-    primary_llm_provider: str = os.getenv("PRIMARY_LLM_PROVIDER", "groq")
+    primary_llm_provider: str = os.getenv("PRIMARY_LLM_PROVIDER", "gemini")
     
     host: str = "0.0.0.0"
     port: int = 8000
