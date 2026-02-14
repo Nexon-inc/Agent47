@@ -66,10 +66,10 @@ async def process_chat_message(
         raise
     except Exception as e:
         logger.error(f"Error processing chat message for Joe: {str(e)}", exc_info=True)
-        # Return a friendly error message to the user as requested
+        # Return the actual error message for transparency during debugging
         raise HTTPException(
             status_code=500, 
-            detail=f"I'm having a bit of an issue: {str(e)}"
+            detail=str(e)
         )
 
 

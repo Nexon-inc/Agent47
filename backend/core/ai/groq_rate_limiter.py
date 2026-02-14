@@ -405,14 +405,17 @@ class GroqRateLimiter:
             logger.error(f"Error resetting daily limits: {e}")
 
 
-# Global instance
+# Global instance and lock for thread-safe initialization
 _groq_rate_limiter: Optional[GroqRateLimiter] = None
+_groq_limiter_lock = asyncio.Lock()
 
 async def get_groq_rate_limiter() -> GroqRateLimiter:
-    """Get the global Groq rate limiter instance"""
+    """Get the global Groq rate limiter instance with thread-safe initialization"""
     global _groq_rate_limiter
     if not _groq_rate_limiter:
-        _groq_rate_limiter = GroqRateLimiter()
-        await _groq_rate_limiter.initialize()
+        async with _groq_limiter_lock:
+            if not _groq_rate_limiter:
+                _groq_rate_limiter = GroqRateLimiter()
+                await _groq_rate_limiter.initialize()
     return _groq_rate_limiter
 

@@ -478,7 +478,7 @@ class IntegrationManager:
                         if hasattr(existing_credentials, key):
                             setattr(existing_credentials, key, value)
                     existing_credentials.updated_at = datetime.utcnow()
-                    existing_credentials.status = CredentialStatus.VALID
+                    existing_credentials.status = CredentialStatus.valid
                     credentials = existing_credentials
                 else:
                     # Create new credentials
@@ -546,7 +546,7 @@ class IntegrationManager:
                         and_(
                             Integration.name == integration_name,
                             IntegrationCredentials.user_id == user_id,
-                            IntegrationCredentials.status == CredentialStatus.VALID
+                            IntegrationCredentials.status == CredentialStatus.valid
                         )
                     )
                 )
@@ -675,7 +675,7 @@ class IntegrationManager:
                         and_(
                             Integration.name == integration_name,
                             IntegrationCredentials.user_id == user_id,
-                            IntegrationCredentials.status == CredentialStatus.VALID
+                            IntegrationCredentials.status == CredentialStatus.valid
                         )
                     )
                 )
@@ -810,7 +810,7 @@ class IntegrationManager:
                     .where(
                         and_(
                             IntegrationCredentials.user_id == user_id,
-                            IntegrationCredentials.status == CredentialStatus.VALID
+                            IntegrationCredentials.status == CredentialStatus.valid
                         )
                     )
                 )

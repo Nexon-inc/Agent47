@@ -461,20 +461,25 @@ class ImageGenerationService:
             "gemini_client": self.gemini_client.get_metrics() if self.gemini_client else None
         }
 
-# Global instance
+# Global instance and lock for thread-safe initialization
 _image_generation_service: Optional[ImageGenerationService] = None
+_image_gen_lock = asyncio.Lock()
 
 async def get_image_generation_service() -> ImageGenerationService:
-    """Get the global image generation service instance"""
+    """Get the global image generation service instance with thread-safe initialization"""
     global _image_generation_service
     if not _image_generation_service:
-        _image_generation_service = ImageGenerationService()
-        await _image_generation_service.initialize()
+        async with _image_gen_lock:
+            if not _image_generation_service:
+                _image_generation_service = ImageGenerationService()
+                await _image_generation_service.initialize()
     return _image_generation_service
 
 async def init_image_generation_service() -> ImageGenerationService:
-    """Initialize the global image generation service instance"""
+    """Initialize the global image generation service instance with thread-safe initialization"""
     global _image_generation_service
-    _image_generation_service = ImageGenerationService()
-    await _image_generation_service.initialize()
+    async with _image_gen_lock:
+        if not _image_generation_service:
+            _image_generation_service = ImageGenerationService()
+            await _image_generation_service.initialize()
     return _image_generation_service
